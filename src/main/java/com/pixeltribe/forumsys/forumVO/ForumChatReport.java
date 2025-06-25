@@ -1,5 +1,6 @@
 package com.pixeltribe.forumsys.forumVO;
 
+import com.pixeltribe.membersys.vo.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

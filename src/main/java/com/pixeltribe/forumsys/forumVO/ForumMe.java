@@ -1,5 +1,6 @@
 package com.pixeltribe.forumsys.forumVO;
 
+import com.pixeltribe.membersys.vo.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -9,6 +10,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -53,5 +56,11 @@ public class ForumMe {
     @ColumnDefault("0")
     @Column(name = "MES_LIKE_DLC")
     private Integer mesLikeDlc;
+
+    @OneToMany(mappedBy = "mesNo")
+    private Set<ArticleComReport> articleComReports = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "mesNo")
+    private Set<ForumMesLike> forumMesLikes = new LinkedHashSet<>();
 
 }

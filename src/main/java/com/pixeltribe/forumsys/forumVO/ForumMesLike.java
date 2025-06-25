@@ -1,5 +1,6 @@
 package com.pixeltribe.forumsys.forumVO;
 
+import com.pixeltribe.membersys.vo.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,5 +35,9 @@ public class ForumMesLike {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "NMLIKE_CRDATE")
     private Instant nmlikeCrdate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MES_NO")
+    private ForumMe mesNo;
 
 }
