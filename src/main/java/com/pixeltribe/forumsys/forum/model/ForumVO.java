@@ -61,37 +61,6 @@ package com.pixeltribe.forumsys.forum.model;
 	@OneToMany(mappedBy = "forNo")
 	private Set<ForumPost> forumPosts = new LinkedHashSet<>();
 
-	public Set<ForumPost> getForumPosts() {
-		return forumPosts;
-	}
-
-	public void setForumPosts(Set<ForumPost> forumPosts) {
-		this.forumPosts = forumPosts;
-	}
-
-	public Set<ForumLike> getForumLikes() {
-		return forumLikes;
-	}
-
-	public void setForumLikes(Set<ForumLike> forumLikes) {
-		this.forumLikes = forumLikes;
-	}
-
-	public Set<ForumCollect> getForumCollects() {
-		return forumCollects;
-	}
-
-	public void setForumCollects(Set<ForumCollect> forumCollects) {
-		this.forumCollects = forumCollects;
-	}
-
-	public Set<ForumChatMessage> getForumChatMessages() {
-		return forumChatMessages;
-	}
-
-	public void setForumChatMessages(Set<ForumChatMessage> forumChatMessages) {
-		this.forumChatMessages = forumChatMessages;
-	}
 
 
 	public ForumVO() {
@@ -174,5 +143,41 @@ package com.pixeltribe.forumsys.forum.model;
 			this.forumCategoryVO = forumCategoryVO;
 		}
 
+
+
+	public Set<ForumPost> getForumPosts() {
+		return forumPosts;
+	}
+
+	public void setForumPosts(Set<ForumPost> forumPosts) {
+		this.forumPosts = forumPosts;
+	}
+
+
+	public Set<ForumLike> getForumLikes() {
+		return forumLikes;
+	}
+
+	public void setForumLikes(Set<ForumLike> forumLikes) {
+		this.forumLikes = forumLikes;
+	}
+
+
+	public Set<ForumCollect> getForumCollects() {
+		return forumCollects;
+	}
+
+	public void setForumCollects(Set<ForumCollect> forumCollects) {
+		this.forumCollects = forumCollects;
+	}
+
+
+	public Set<ForumChatMessage> getForumChatMessages() {
+		return forumChatMessages;
+	}
+
+	public void setForumChatMessages(Set<ForumChatMessage> forumChatMessages) {
+		this.forumChatMessages = forumChatMessages;
+	}
 
 	}

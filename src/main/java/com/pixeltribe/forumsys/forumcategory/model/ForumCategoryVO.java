@@ -1,9 +1,11 @@
 package com.pixeltribe.forumsys.forumcategory.model;
 
 import java.sql.Date;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.forum.model.ForumVO;
+import com.pixeltribe.forumsys.forum.model.ForumVO;
 import jakarta.persistence.*;
 
 @Entity
@@ -28,7 +30,16 @@ public class ForumCategoryVO {
 	@OrderBy("forNo")
 	private Set<ForumVO> forums;
 
+	@OneToMany(mappedBy = "forumCategoryVO")
+	private Set<com.pixeltribe.forumsys.forum.model.ForumVO> forums = new LinkedHashSet<>();
 
+	public Set<com.pixeltribe.forumsys.forum.model.ForumVO> getForums() {
+		return forums;
+	}
+
+	public void setForums(Set<com.pixeltribe.forumsys.forum.model.ForumVO> forums) {
+		this.forums = forums;
+	}
 
 
 	public ForumCategoryVO() {
