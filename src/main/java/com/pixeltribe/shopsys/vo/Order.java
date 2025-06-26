@@ -1,12 +1,13 @@
 package com.pixeltribe.shopsys.vo;
 
-import com.pixeltribe.membersys.vo.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+
+import com.pixeltribe.membersys.member.model.Member;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;

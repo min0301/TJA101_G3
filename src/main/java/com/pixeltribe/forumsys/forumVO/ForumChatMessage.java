@@ -1,7 +1,8 @@
 package com.pixeltribe.forumsys.forumVO;
 
 import com.pixeltribe.forumsys.forum.model.Forum;
-import com.pixeltribe.membersys.vo.Member;
+import com.pixeltribe.membersys.member.model.Member;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;

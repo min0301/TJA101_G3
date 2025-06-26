@@ -1,4 +1,4 @@
-package com.pixeltribe.membersys.vo;
+package com.pixeltribe.membersys.administrator.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
