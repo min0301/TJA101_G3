@@ -1,7 +1,7 @@
 package com.pixeltribe.newssys.news.model;
 
-import com.pixeltribe.membersys.vo.Member;
 import com.pixeltribe.newssys.newscontentclassification.model.NewContentClassification;
+import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.newssys.newscomment.model.NewsComment;
 import com.pixeltribe.newssys.newsimage.model.NewsImage;
 import jakarta.persistence.*;

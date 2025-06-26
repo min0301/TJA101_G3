@@ -1,6 +1,6 @@
 package com.pixeltribe.newssys.newscomment.model;
 
-import com.pixeltribe.membersys.vo.Member;
+import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.newssys.news.model.News;
 import com.pixeltribe.newssys.newscomreport.model.NewsComReport;
 import com.pixeltribe.newssys.newslike.model.NewsLike;

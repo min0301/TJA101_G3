@@ -1,12 +1,13 @@
 package com.pixeltribe.forumsys.forumVO;
 
-import com.pixeltribe.membersys.vo.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
+import com.pixeltribe.membersys.member.model.Member;
 
 import java.time.Instant;
 

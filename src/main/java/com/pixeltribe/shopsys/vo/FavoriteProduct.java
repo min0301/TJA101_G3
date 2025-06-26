@@ -1,6 +1,7 @@
 package com.pixeltribe.shopsys.vo;
 
-import com.pixeltribe.membersys.vo.Member;
+import com.pixeltribe.membersys.member.model.Member;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

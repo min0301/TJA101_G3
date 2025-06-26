@@ -1,4 +1,4 @@
-package com.pixeltribe.membersys.vo;
+package com.pixeltribe.membersys.privatechatroom.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -8,6 +8,9 @@ import lombok.Setter;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import com.pixeltribe.membersys.member.model.Member;
+import com.pixeltribe.membersys.privatemessage.model.PrivateMessage;
 
 @Getter
 @Setter

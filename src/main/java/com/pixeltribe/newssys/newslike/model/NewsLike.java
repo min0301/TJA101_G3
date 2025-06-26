@@ -1,6 +1,6 @@
 package com.pixeltribe.newssys.newslike.model;
 
-import com.pixeltribe.membersys.vo.Member;
+import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.newssys.newscomment.model.NewsComment;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

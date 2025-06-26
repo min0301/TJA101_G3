@@ -1,4 +1,4 @@
-package com.pixeltribe.membersys.vo;
+package com.pixeltribe.membersys.memberloginlog.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+
+import com.pixeltribe.membersys.logfailreason.model.LogFailReason;
+import com.pixeltribe.membersys.member.model.Member;
 
 @Getter
 @Setter
