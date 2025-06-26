@@ -12,7 +12,6 @@ import com.pixeltribe.newssys.newslike.model.NewsLike;
 import com.pixeltribe.shopsys.couponWallet.model.CouponWallet;
 import com.pixeltribe.shopsys.favoriteProduct.model.FavoriteProduct;
 import com.pixeltribe.shopsys.order.model.Order;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
