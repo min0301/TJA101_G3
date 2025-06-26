@@ -9,6 +9,15 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
+
+import com.pixeltribe.membersys.member.model.Member;
+import com.pixeltribe.shopsys.order.model.Order;
+
+
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
