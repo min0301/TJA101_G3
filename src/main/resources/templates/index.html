@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>PixelTribe - 首頁</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.2.1/css/bootstrap.min.css}"/>
+
+    <link rel="stylesheet" th:href="@{/css/custom-style.css}"/>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" th:href="@{/}">PixelTribe</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+</nav>
+
+<main role="main" class="container text-center mt-5">
+    <div class="jumbotron">
+        <h1 class="display-4">歡迎來到 PixelTribe！</h1>
+        <p class="lead">這是一個提供給開發者與創作者交流的社群。點擊下方按鈕開始探索。</p>
+        <hr class="my-4">
+        <p>立即前往我們的核心功能區。</p>
+        <a class="btn btn-primary btn-lg" th:href="@{/forum/forum_select_page}" role="button">進入討論區</a>
+        <a class="btn btn-primary btn-lg" th:href="@{/XXX}" role="button">進入ＸＸＸ</a>
+    </div>
+</main>
+
+<script th:src="@{/webjars/jquery/3.3.1-1/jquery.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/4.2.1/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

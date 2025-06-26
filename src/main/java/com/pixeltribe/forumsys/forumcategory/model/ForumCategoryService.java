@@ -3,6 +3,7 @@ package com.pixeltribe.forumsys.forumcategory.model;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,6 +25,10 @@ public class ForumCategoryService {
     public ForumCategory getOneForumCategory(Integer catNo) {
         Optional<ForumCategory> optional = forumCategoryRepository.findById(catNo);
         return optional.orElse(null);
+    }
+
+    public List<ForumCategory> getAllForumCategories() {
+        return forumCategoryRepository.findAll();
     }
 
 }

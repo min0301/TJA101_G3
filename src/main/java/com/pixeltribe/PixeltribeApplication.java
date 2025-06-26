@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PixeltribeApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(PixeltribeApplication.class, args);
 	}
 
