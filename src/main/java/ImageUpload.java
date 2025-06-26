@@ -131,9 +131,9 @@ public class ImageUpload {
 
         // ❗ 依實際欄位名稱微調，下方假設有 PRO_IMG_ORDER
         final String check  = "SELECT COUNT(*) FROM PRODUCT_IMAGE WHERE PRO_NO = ? ";
-        final String insert = "INSERT INTO PRODUCT_IMAGE (PRO_NO, PRO_IMG_DATA, IMG_TYPE) VALUES (?,?,?)";
+        final String insert = "INSERT INTO PRODUCT_IMAGE (PRO_NO, PRO_IMG_DATA, PRO_IMG_TYPE) VALUES (?,?,?)";
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.png")) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.JPG")) {
             for (Path path : stream) {
                 Matcher m = p.matcher(path.getFileName().toString());
                 if (!m.matches()) {
@@ -144,17 +144,17 @@ public class ImageUpload {
 //                int order = Integer.parseInt(m.group(2));
 
                 // 已存在？
-                try (PreparedStatement psChk = conn.prepareStatement(check)) {
-                    psChk.setInt(1, proNo);
-//                    psChk.setInt(2, order);
-                    try (ResultSet rs = psChk.executeQuery()) {
-                        rs.next();
-                        if (rs.getInt(1) > 0) {
-                            System.out.printf("[product_screen] pro=%d order=%d already exists, skip%n", proNo);
-                            continue;
-                        }
-                    }
-                }
+//                try (PreparedStatement psChk = conn.prepareStatement(check)) {
+//                    psChk.setInt(1, proNo);
+////                    psChk.setInt(2, order);
+//                    try (ResultSet rs = psChk.executeQuery()) {
+//                        rs.next();
+//                        if (rs.getInt(1) > 5) {
+//                            System.out.printf("[product_screen] pro=%d  already exists, skip%n", proNo);
+//                            continue;
+//                        }
+//                    }
+//                }
 
                 // 寫入 DB
                 try (PreparedStatement psIns = conn.prepareStatement(insert);
@@ -163,9 +163,9 @@ public class ImageUpload {
 //                    psIns.setInt(2, order);
                     psIns.setBinaryStream(2, fis, (int) Files.size(path));
                     String mime = Files.probeContentType(path);
-                    psIns.setString(3, mime != null ? mime : "image/png");
+                    psIns.setString(3, mime != null ? mime : "image/jpg");
                     psIns.executeUpdate();
-                    System.out.printf("[product_screen] pro=%d order=%d -> inserted (%s)%n", proNo,  path.getFileName());
+                    System.out.printf("[product_screen] pro=%d  -> inserted (%s)%n", proNo,  path.getFileName());
                 }
             }
         }
