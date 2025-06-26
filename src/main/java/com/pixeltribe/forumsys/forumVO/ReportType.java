@@ -1,6 +1,6 @@
 package com.pixeltribe.forumsys.forumVO;
 
-import com.pixeltribe.newssys.vo.NewsComReport;
+import com.pixeltribe.newssys.newscomreport.model.NewsComReport;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
