@@ -1,4 +1,7 @@
-package com.pixeltribe.shopsys.vo;
+package com.pixeltribe.shopsys.proSerialNumber.model;
+
+import com.pixeltribe.shopsys.orderItem.model.OrderItem;
+import com.pixeltribe.shopsys.product.model.Product;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;

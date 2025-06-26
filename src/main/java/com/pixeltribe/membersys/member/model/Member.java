@@ -9,9 +9,10 @@ import com.pixeltribe.newssys.news.model.News;
 import com.pixeltribe.newssys.newscomreport.model.NewsComReport;
 import com.pixeltribe.newssys.newscomment.model.NewsComment;
 import com.pixeltribe.newssys.newslike.model.NewsLike;
-import com.pixeltribe.shopsys.vo.CouponWallet;
-import com.pixeltribe.shopsys.vo.FavoriteProduct;
-import com.pixeltribe.shopsys.vo.Order;
+import com.pixeltribe.shopsys.couponWallet.model.CouponWallet;
+import com.pixeltribe.shopsys.favoriteProduct.model.FavoriteProduct;
+import com.pixeltribe.shopsys.order.model.Order;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

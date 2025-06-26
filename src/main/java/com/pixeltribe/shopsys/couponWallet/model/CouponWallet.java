@@ -1,11 +1,13 @@
-package com.pixeltribe.shopsys.vo;
+package com.pixeltribe.shopsys.couponWallet.model;
+
+
+import com.pixeltribe.membersys.member.model.Member;
+import com.pixeltribe.shopsys.order.model.Order;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-
-import com.pixeltribe.membersys.member.model.Member;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;

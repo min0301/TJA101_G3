@@ -1,6 +1,8 @@
-package com.pixeltribe.shopsys.vo;
+package com.pixeltribe.shopsys.favoriteProduct.model;
+
 
 import com.pixeltribe.membersys.member.model.Member;
+import com.pixeltribe.shopsys.product.model.Product;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

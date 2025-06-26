@@ -1,4 +1,6 @@
-package com.pixeltribe.shopsys.vo;
+package com.pixeltribe.shopsys.productImage.model;
+
+import com.pixeltribe.shopsys.product.model.Product;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

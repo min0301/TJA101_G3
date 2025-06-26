@@ -1,4 +1,9 @@
-package com.pixeltribe.shopsys.vo;
+package com.pixeltribe.shopsys.order.model;
+
+
+import com.pixeltribe.membersys.member.model.Member;
+import com.pixeltribe.shopsys.couponWallet.model.CouponWallet;
+import com.pixeltribe.shopsys.orderItem.model.OrderItem;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -6,8 +11,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-
-import com.pixeltribe.membersys.member.model.Member;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;

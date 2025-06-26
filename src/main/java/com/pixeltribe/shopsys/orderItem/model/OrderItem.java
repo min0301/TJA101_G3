@@ -1,10 +1,14 @@
-package com.pixeltribe.shopsys.vo;
+package com.pixeltribe.shopsys.orderItem.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+
+import com.pixeltribe.shopsys.order.model.Order;
+import com.pixeltribe.shopsys.proSerialNumber.model.ProSerialNumber;
+import com.pixeltribe.shopsys.product.model.Product;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
