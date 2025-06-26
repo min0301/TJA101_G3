@@ -1,6 +1,6 @@
 package com.pixeltribe.forumsys.forumVO;
 
-import com.pixeltribe.forumsys.forum.model.ForumVO;
+import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.membersys.vo.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -23,7 +23,7 @@ public class ForumCollect {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FOR_NO")
-    private ForumVO forNo;
+    private Forum forNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)

@@ -23,7 +23,7 @@ public class ArticleComReport {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MES_NO")
-    private ForumMe mesNo;
+    private ForumMes mesNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)

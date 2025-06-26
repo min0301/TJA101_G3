@@ -17,7 +17,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "forum_mes")
-public class ForumMe {
+public class ForumMes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MES_NO", nullable = false)
