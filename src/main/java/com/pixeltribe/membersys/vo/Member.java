@@ -1,10 +1,10 @@
 package com.pixeltribe.membersys.vo;
 
 import com.pixeltribe.forumsys.forumVO.*;
-import com.pixeltribe.newssys.vo.News;
-import com.pixeltribe.newssys.vo.NewsComReport;
-import com.pixeltribe.newssys.vo.NewsComment;
-import com.pixeltribe.newssys.vo.NewsLike;
+import com.pixeltribe.newssys.news.model.News;
+import com.pixeltribe.newssys.newscomreport.model.NewsComReport;
+import com.pixeltribe.newssys.newscomment.model.NewsComment;
+import com.pixeltribe.newssys.newslike.model.NewsLike;
 import com.pixeltribe.shopsys.vo.CouponWallet;
 import com.pixeltribe.shopsys.vo.FavoriteProduct;
 import com.pixeltribe.shopsys.vo.Order;
