@@ -1,6 +1,5 @@
-package com.pixeltribe.membersys.vo;
+package com.pixeltribe.shopsys.vo;
 
-import com.pixeltribe.shopsys.vo.Product;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

@@ -1,8 +1,10 @@
 package com.pixeltribe.forumsys.forum.model;
 
+import com.pixeltribe.forumsys.forumcategory.model.ForumCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,6 +30,9 @@ public class ForumService {
         return optional.orElse(null);
     }
 
+    public List<Forum> getAllForums() {
+        return forumRepository.findAll();
+    }
 
 
 }
