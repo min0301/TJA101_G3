@@ -1,6 +1,6 @@
 package com.pixeltribe.forumsys.forumVO;
 
-import com.pixeltribe.forumsys.forum.model.ForumVO;
+import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.membersys.vo.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -11,8 +11,6 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -25,13 +23,14 @@ public class ForumChatMessage {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "FOR_NO")
-    private ForumVO forNo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "MEM_NO")
     private Member memNo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "FOR_NO")
+    private Forum forNo;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "CMES_AT")
@@ -48,8 +47,5 @@ public class ForumChatMessage {
     @ColumnDefault("'0'")
     @Column(name = "CMES_STATUS")
     private Character cmesStatus;
-
-    @OneToMany(mappedBy = "cmesNo")
-    private Set<ForumChatReport> forumChatReports = new LinkedHashSet<>();
 
 }

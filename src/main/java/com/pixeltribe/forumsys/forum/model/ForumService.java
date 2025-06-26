@@ -11,20 +11,20 @@ public class ForumService {
     @Autowired
     ForumRepository forumRepository;
 
-    public void add(ForumVO forumVO) {
-        forumRepository.save(forumVO);
+    public void add(Forum forum) {
+        forumRepository.save(forum);
     }
 
-    public void update(ForumVO forumVO) {
-        forumRepository.save(forumVO);
+    public void update(Forum forum) {
+        forumRepository.save(forum);
     }
 
-    public void delete(ForumVO forumVO) {
-            forumRepository.deleteById(forumVO);
+    public void delete(Forum forum) {
+            forumRepository.deleteById(forum.getId());
     }
 
-    public ForumVO getOneForum(Integer forNO) {
-        Optional<ForumVO> optional = forumRepository.findById(forNO);
+    public Forum getOneForum(Integer forNO) {
+        Optional<Forum> optional = forumRepository.findById(forNO);
         return optional.orElse(null);
     }
 

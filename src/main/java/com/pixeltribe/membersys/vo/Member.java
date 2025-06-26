@@ -158,7 +158,7 @@ public class Member {
     private Set<ForumLike> forumLikes = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "memNo")
-    private Set<ForumMe> forumMes = new LinkedHashSet<>();
+    private Set<ForumMes> forumMes = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "memNo")
     private Set<ForumMesLike> forumMesLikes = new LinkedHashSet<>();

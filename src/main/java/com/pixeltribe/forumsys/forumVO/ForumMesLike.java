@@ -38,6 +38,6 @@ public class ForumMesLike {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MES_NO")
-    private ForumMe mesNo;
+    private ForumMes mesNo;
 
 }

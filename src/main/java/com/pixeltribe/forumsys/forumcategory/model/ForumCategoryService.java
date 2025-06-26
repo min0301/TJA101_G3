@@ -1,43 +1,29 @@
 package com.pixeltribe.forumsys.forumcategory.model;
 
-import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Optional;
 
+@Service
 public class ForumCategoryService {
-	
-	private ForumCategoryDAO_interface dao;
-	
-	public ForumCategoryService() {
-		dao =new ForumCategoryHibernateDAO();
-	}
-	
-	public ForumCategoryVO addForumCategoryVO(String catName, String catDes) {
-		ForumCategoryVO forumCategoryVO = new ForumCategoryVO();
-		forumCategoryVO.setCatName(catName);
-		forumCategoryVO.setCatDes(catDes);
-		dao.insert(forumCategoryVO);
-		return forumCategoryVO;
-	}
-	
-	
-	public ForumCategoryVO update(Integer catNo,String catName, String catDes) {
-		ForumCategoryVO forumCategoryVO = new ForumCategoryVO();
-		forumCategoryVO.setCatNo(catNo);
-		forumCategoryVO.setCatName(catName);
-		forumCategoryVO.setCatDes(catDes);
-		dao.update(forumCategoryVO);
-		return forumCategoryVO;
-	}
-	
-	public void delete(Integer catNo) {
-		dao.delete(catNo);
-	}
-	
-	public ForumCategoryVO findByPrimaryKey(Integer catNo) {
-		return dao.findByPrimaryKey(catNo);
-	}
-	
-	public List<ForumCategoryVO> getAll() {
-		return dao.getAll();
-	}
+    @Autowired
+    ForumCategoryRepository forumCategoryRepository;
+
+    public void add(ForumCategory forumCategory) {
+        forumCategoryRepository.save(forumCategory);
+    }
+    public void update(ForumCategory forumCategory) {
+        forumCategoryRepository.save(forumCategory);
+    }
+
+    public void delete(ForumCategory forumCategory) {
+        forumCategoryRepository.delete(forumCategory);
+    }
+
+    public ForumCategory getOneForumCategory(Integer catNo) {
+        Optional<ForumCategory> optional = forumCategoryRepository.findById(catNo);
+        return optional.orElse(null);
+    }
+
 }

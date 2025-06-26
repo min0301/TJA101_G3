@@ -1,6 +1,6 @@
 package com.pixeltribe.forumsys.forumVO;
 
-import com.pixeltribe.forumsys.forum.model.ForumVO;
+import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.membersys.vo.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -27,7 +27,7 @@ public class ForumPost {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FOR_NO")
-    private ForumVO forNo;
+    private Forum forNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
@@ -85,7 +85,7 @@ public class ForumPost {
     private Set<ForumImage> forumImages = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "postNo")
-    private Set<ForumMe> forumMes = new LinkedHashSet<>();
+    private Set<ForumMes> forumMes = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "postNo")
     private Set<PostCollect> postCollects = new LinkedHashSet<>();
