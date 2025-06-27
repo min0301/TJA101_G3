@@ -1,11 +1,15 @@
 package com.pixeltribe.forumsys.forum.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pixeltribe.forumsys.forumVO.ForumChatMessage;
 import com.pixeltribe.forumsys.forumVO.ForumCollect;
 import com.pixeltribe.forumsys.forumVO.ForumLike;
 import com.pixeltribe.forumsys.forumVO.ForumPost;
 import com.pixeltribe.forumsys.forumcategory.model.ForumCategory;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -28,16 +32,23 @@ public class Forum {
     private Integer id;
 
     @Size(max = 30)
-    @NotNull
+    @NotEmpty(message="討論區名稱: 請勿空白")
     @Column(name = "FOR_NAME", nullable = false, length = 30)
     private String forName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "CAT_NO")
+    @JsonBackReference
     private ForumCategory catNo;
 
+    @JsonProperty("categoryName")
+    public String getCategoryName() {
+        return this.catNo.getCatName();
+    }
+
     @Size(max = 255)
+    @NotEmpty(message="討論區描述: 請勿空白")
     @Column(name = "FOR_DES")
     private String forDes;
 
@@ -51,19 +62,29 @@ public class Forum {
 
     @NotNull
     @ColumnDefault("'0'")
-    @Column(name = "FCHAT_STATUS", nullable = false)
-    private Character fchatStatus;
+    @Column(name = "FOR_STATUS", nullable = false)
+    private Character forStatus;
+
+    @Column(name = "FOR_IMG")
+    @JsonIgnore
+    private byte[] forImg;
 
     @OneToMany(mappedBy = "forNo")
+    @JsonIgnore
     private Set<ForumChatMessage> forumChatMessages = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "forNo")
+    @JsonIgnore
     private Set<ForumCollect> forumCollects = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "forNo")
+    @JsonIgnore
     private Set<ForumLike> forumLikes = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "forNo")
+    @JsonIgnore
     private Set<ForumPost> forumPosts = new LinkedHashSet<>();
+
+
 
 }
