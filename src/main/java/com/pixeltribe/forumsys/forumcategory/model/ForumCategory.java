@@ -1,8 +1,9 @@
 package com.pixeltribe.forumsys.forumcategory.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pixeltribe.forumsys.forum.model.Forum;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,11 +23,12 @@ public class ForumCategory {
     private Integer id;
 
     @Size(max = 30)
-    @NotNull
+    @NotEmpty(message="討論區類別名稱: 請勿空白")
     @Column(name = "CAT_NAME", nullable = false, length = 30)
     private String catName;
 
     @Size(max = 255)
+    @NotEmpty(message="討論區類別描述: 請勿空白")
     @Column(name = "CAT_DES")
     private String catDes;
 
@@ -35,6 +37,7 @@ public class ForumCategory {
     private Instant catDate;
 
     @OneToMany(mappedBy = "catNo")
+    @JsonManagedReference
     private Set<Forum> forums = new LinkedHashSet<>();
 
 }

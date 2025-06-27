@@ -6,10 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Service("forumCategoryService")
 public class ForumCategoryService {
+
     @Autowired
     ForumCategoryRepository forumCategoryRepository;
+
 
     public void add(ForumCategory forumCategory) {
         forumCategoryRepository.save(forumCategory);

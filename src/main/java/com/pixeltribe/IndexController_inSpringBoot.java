@@ -45,10 +45,12 @@ public class IndexController_inSpringBoot {
     }
     
 
-    @GetMapping("/forum/forum_select_page")
-	public String select_page(Model model) {
-		return "back-end/forum/forum_select_page";
-	}
+
+
+    @GetMapping("/forum/allForum")
+    public String allForum(Model model) {
+        return "back-end/forum/allForum";
+    }
 
 
 
