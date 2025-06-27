@@ -1,4 +1,4 @@
-package com.pixeltribe.shopsys.vo;
+package com.pixeltribe.shopsys.mallTag.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -8,6 +8,8 @@ import lombok.Setter;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import com.pixeltribe.shopsys.product.model.Product;
 
 @Getter
 @Setter
