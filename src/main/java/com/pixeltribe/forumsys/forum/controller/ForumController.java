@@ -3,17 +3,10 @@ package com.pixeltribe.forumsys.forum.controller;
 import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.forumsys.forum.model.ForumService;
 import com.pixeltribe.forumsys.forumcategory.model.ForumCategoryService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api")
 public class ForumController {
