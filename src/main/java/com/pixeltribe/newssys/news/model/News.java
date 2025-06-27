@@ -1,5 +1,7 @@
 package com.pixeltribe.newssys.news.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pixeltribe.newssys.newscontentclassification.model.NewContentClassification;
 import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.newssys.newscomment.model.NewsComment;
@@ -46,15 +48,19 @@ public class News {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @ColumnDefault("1")
     @JoinColumn(name = "MEM_NO", nullable = false)
+    @JsonIgnore
     private Member memNo;
 
     @OneToMany(mappedBy = "newsNo")
+    @JsonIgnore
     private Set<NewContentClassification> newContentClassifications = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "newsNo")
+    @JsonIgnore
     private Set<NewsComment> newsComments = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "newsNo")
+    @JsonIgnore
     private Set<NewsImage> newsImages = new LinkedHashSet<>();
 
 }
