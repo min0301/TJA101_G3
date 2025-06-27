@@ -1,5 +1,7 @@
 package com.pixeltribe.membersys.administrator.model;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.hibernate.SessionFactory;
@@ -12,9 +14,6 @@ public class AdmService {
 	@Autowired
 	AdmRepository repository;
 
-	@Autowired
-	private SessionFactory sessionFactory;
-
 	public void addAdm(Administrator administrator) {
 		repository.save(administrator);
 	}
@@ -23,8 +22,12 @@ public class AdmService {
 		repository.save(administrator);
 	}
 	
-	public void getOneAdm(Integer admNo) {
+	public Administrator getOneAdm(Integer admNo) {
 		Optional<Administrator> optional = repository.findById(admNo);
 		return optional.orElse(null);
+	}
+	
+	public List<Administrator> getAll(){
+		return repository.findAll();
 	}
 }
