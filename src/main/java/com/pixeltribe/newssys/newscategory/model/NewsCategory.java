@@ -1,5 +1,8 @@
 package com.pixeltribe.newssys.newscategory.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pixeltribe.newssys.newscontentclassification.model.NewContentClassification;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
