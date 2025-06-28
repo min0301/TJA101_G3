@@ -2,10 +2,15 @@ package com.pixeltribe.forumsys.forum.controller;
 
 import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.forumsys.forum.model.ForumService;
-import com.pixeltribe.forumsys.forumcategory.model.ForumCategoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 @RestController
 @RequestMapping("/api")
@@ -14,30 +19,31 @@ public class ForumController {
     @Autowired
     ForumService forumSvc;
 
-    @Autowired
-    ForumCategoryService forumCategorySvc;
 
-
-//    @GetMapping("/listAllForum")
-//    public String listAllForums(Model model) { // 1. 傳入 Model 物件
-//
-//        // 2. 直接在此方法內查詢資料
-//        // 注意：請確認你的 Service 方法名是 getAllForum() 還是 getAllForums()，要完全一致
-//        List<Forum> list = forumSvc.getAllForum();
-//
-//        // 3. 將查到的資料放入 Model
-//        model.addAttribute("forums", list);
-//
-//        // 4. 返回視圖名稱
-//        return "back-end/forum/listAllForum";
-//    }
-
-    @GetMapping("AllForum")
+    @GetMapping("forums")
     public List<Forum> findAll() {
 
         return forumSvc.getAllForum();
+    }
+
+    @PostMapping("/admin/forum")
+    public ResponseEntity<?> addForum(
+            @RequestPart("forum") @Valid Forum forum, BindingResult result,
+            @RequestPart(value = "upFiles", required = false) MultipartFile[] parts)
+            throws IOException {
+        /*************************** 2. 開始新增資料 *****************************************/
+        // 讓 Service 層回傳新增成功後、包含新 ID 的物件，這在 API 中是個好習慣
+        Forum createdForum = forumSvc.add(forum);
+
+        /*************************** 3. 新增完成,準備轉交(Send the Success view) **************/
+        // 回傳 201 Created 狀態碼，並在 body 中附上新增成功的員工資料
+        // 這能讓前端立刻知道新增資源的 ID 是多少
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdForum);
 
     }
 
 
 }
+
+
+

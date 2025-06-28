@@ -1,5 +1,6 @@
 package com.pixeltribe.forumsys.forum.model;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +14,9 @@ public class ForumService {
     @Autowired
     ForumRepository forumRepository;
 
-
-    public void add(Forum forum) {
-        forumRepository.save(forum);
+    @Transactional
+    public Forum add(Forum forum) {
+       return forumRepository.save(forum);
     }
 
     public void update(Forum forum) {

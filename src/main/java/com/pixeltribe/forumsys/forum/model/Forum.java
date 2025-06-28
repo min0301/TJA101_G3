@@ -42,6 +42,10 @@ public class Forum {
     @JsonBackReference
     private ForumCategory catNo;
 
+    @Size(max = 255)
+    @Column(name = "FOR_IMG_URL")
+    private String forImgUrl;
+
     @JsonProperty("categoryName")
     public String getCategoryName() {
         return this.catNo.getCatName();
@@ -65,9 +69,7 @@ public class Forum {
     @Column(name = "FOR_STATUS", nullable = false)
     private Character forStatus;
 
-    @Column(name = "FOR_IMG")
-    @JsonIgnore
-    private byte[] forImg;
+
 
     @OneToMany(mappedBy = "forNo")
     @JsonIgnore
