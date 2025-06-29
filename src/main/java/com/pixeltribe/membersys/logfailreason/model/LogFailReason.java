@@ -1,15 +1,20 @@
 package com.pixeltribe.membersys.logfailreason.model;
 
-import jakarta.persistence.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.pixeltribe.membersys.memberloginlog.model.MemberLoginLog;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import com.pixeltribe.membersys.memberloginlog.model.MemberLoginLog;
 
 @Getter
 @Setter
@@ -24,8 +29,10 @@ public class LogFailReason {
     @NotNull
     @Column(name = "LOG_FAIL_TYPE", nullable = false, length = 50)
     private String logFailType;
-
+    
+    @JsonManagedReference
     @OneToMany(mappedBy = "logFailReasonNo")
     private Set<MemberLoginLog> memberLoginLogs = new LinkedHashSet<>();
-
+    
+    
 }

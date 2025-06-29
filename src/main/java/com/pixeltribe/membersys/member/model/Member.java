@@ -1,28 +1,46 @@
 package com.pixeltribe.membersys.member.model;
 
-import com.pixeltribe.forumsys.forumVO.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.hibernate.annotations.ColumnDefault;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.pixeltribe.forumsys.forumVO.ArticleComReport;
+import com.pixeltribe.forumsys.forumVO.ArticleReport;
+import com.pixeltribe.forumsys.forumVO.ForumChatMessage;
+import com.pixeltribe.forumsys.forumVO.ForumChatReport;
+import com.pixeltribe.forumsys.forumVO.ForumCollect;
+import com.pixeltribe.forumsys.forumVO.ForumLike;
+import com.pixeltribe.forumsys.forumVO.ForumMes;
+import com.pixeltribe.forumsys.forumVO.ForumMesLike;
+import com.pixeltribe.forumsys.forumVO.ForumPost;
+import com.pixeltribe.forumsys.forumVO.PostCollect;
 import com.pixeltribe.membersys.friendlist.model.FriendList;
 import com.pixeltribe.membersys.memberloginlog.model.MemberLoginLog;
 import com.pixeltribe.membersys.privatechatroom.model.PrivateChatroom;
 import com.pixeltribe.membersys.privatemessage.model.PrivateMessage;
 import com.pixeltribe.newssys.news.model.News;
-import com.pixeltribe.newssys.newscomreport.model.NewsComReport;
 import com.pixeltribe.newssys.newscomment.model.NewsComment;
+import com.pixeltribe.newssys.newscomreport.model.NewsComReport;
 import com.pixeltribe.newssys.newslike.model.NewsLike;
 import com.pixeltribe.shopsys.couponWallet.model.CouponWallet;
 import com.pixeltribe.shopsys.favoriteProduct.model.FavoriteProduct;
 import com.pixeltribe.shopsys.order.model.Order;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -169,9 +187,14 @@ public class Member {
 
     @OneToMany(mappedBy = "memNo")
     private Set<ForumPost> forumPosts = new LinkedHashSet<>();
-
+    
+    @JsonManagedReference(value = "member1-friendlist")
     @OneToMany(mappedBy = "member1")
-    private Set<FriendList> friendLists = new LinkedHashSet<>();
+    private Set<FriendList> friendLists1 = new LinkedHashSet<>();
+    
+    @JsonManagedReference(value = "member2-friendlist")
+    @OneToMany(mappedBy = "member2")
+    private Set<FriendList> friendLists2 = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "memNo")
     private Set<MemberLoginLog> memberLoginLogs = new LinkedHashSet<>();
@@ -193,10 +216,16 @@ public class Member {
 
     @OneToMany(mappedBy = "memNo")
     private Set<PostCollect> postCollects = new LinkedHashSet<>();
-
+    
+    @JsonManagedReference(value = "member1-privatechatroom")
     @OneToMany(mappedBy = "member1")
-    private Set<PrivateChatroom> privateChatrooms = new LinkedHashSet<>();
-
+    private Set<PrivateChatroom> privateChatrooms1 = new LinkedHashSet<>();
+    
+    @JsonManagedReference(value = "member2-privatechatroom")
+    @OneToMany(mappedBy = "member2")
+    private Set<PrivateChatroom> privateChatrooms2 = new LinkedHashSet<>();
+    
+    @JsonManagedReference
     @OneToMany(mappedBy = "senderNo")
     private Set<PrivateMessage> privateMessages = new LinkedHashSet<>();
 
