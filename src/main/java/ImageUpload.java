@@ -59,7 +59,7 @@ public class ImageUpload {
             seedProductScreen(conn);
             seedMemberHead(conn);
             seedNewsImg(conn);
-            seedForumCover(conn); // ← 更新討論區封面匯入 (FORUM.FOR_IMG)
+//            seedForumCover(conn); // ← 更新討論區封面匯入 (FORUM.FOR_IMG)
             System.out.println("[ImageUpload] All seed tasks finished.");
         } catch (Exception e) {
             e.printStackTrace();
@@ -212,12 +212,12 @@ public class ImageUpload {
     /* ---------------------------------------------------------------------
      * 6) 討論區封面  forum_img/0N.jpg → FORUM.FOR_IMG
      * -------------------------------------------------------------------*/
-    private static void seedForumCover(Connection conn) throws IOException, SQLException {
-        Path dir = Paths.get(ROOT, "forum_img");
-        Pattern p = Pattern.compile("0?(\\d+)\\.jpg"); // 01.jpg → FOR_NO = 1
-        String sql = "UPDATE FORUM SET FOR_IMG = ? WHERE FOR_NO = ?";
-        uploadByPattern(conn, dir, p, sql, 1);
-    }
+//    private static void seedForumCover(Connection conn) throws IOException, SQLException {
+//        Path dir = Paths.get(ROOT, "forum_img");
+//        Pattern p = Pattern.compile("0?(\\d+)\\.jpg"); // 01.jpg → FOR_NO = 1
+//        String sql = "UPDATE FORUM SET FOR_IMG = ? WHERE FOR_NO = ?";
+//        uploadByPattern(conn, dir, p, sql, 1);
+//    }
 
     /* ---------------------------------------------------------------------
      * 通用：依 Pattern 擷取一組整數主鍵，更新單欄位 BLOB
