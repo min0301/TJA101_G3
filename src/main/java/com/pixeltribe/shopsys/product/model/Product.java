@@ -12,7 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.pixeltribe.shopsys.favoriteProduct.model.FavoriteProduct;
-import com.pixeltribe.shopsys.malltag.model.MallTag;
+import com.pixeltribe.shopsys.mallTag.model.MallTag;
 import com.pixeltribe.shopsys.orderItem.model.OrderItem;
 import com.pixeltribe.shopsys.proSerialNumber.model.ProSerialNumber;
 import com.pixeltribe.shopsys.productImage.model.ProductImage;
