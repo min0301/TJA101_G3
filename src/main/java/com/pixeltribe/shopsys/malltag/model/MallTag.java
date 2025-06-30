@@ -1,4 +1,4 @@
-package com.pixeltribe.shopsys.mallTag.model;
+package com.pixeltribe.shopsys.malltag.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
