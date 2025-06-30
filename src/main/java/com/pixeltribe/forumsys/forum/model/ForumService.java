@@ -42,7 +42,7 @@ public class ForumService {
                 String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
                 // 3. 儲存檔案到伺服器指定路徑
-                Path uploadPath = Paths.get(uploadDir);
+                Path uploadPath = Paths.get(uploadDir + "/forumsys/forum");
                 if (!Files.exists(uploadPath)) {
                     Files.createDirectories(uploadPath); // 如果目錄不存在，則建立
                 }
@@ -51,7 +51,7 @@ public class ForumService {
                     Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
                 }
                 // 4. 產生公開存取 URL
-                String imageUrl = baseUrl + "/uploads/" + uniqueFilename; // 靜態資源路徑是 /uploads/
+                String imageUrl = baseUrl + "/uploads/forumsys/forum/" + uniqueFilename; // 靜態資源路徑是 /uploads/
                 // 5. 將 URL 設定到 forum 物件中
                 forum.setForImgUrl(imageUrl);
 
