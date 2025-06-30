@@ -28,12 +28,16 @@ public class ForumController {
 
     @PostMapping("/admin/forum")
     public ResponseEntity<?> addForum(
-            @RequestPart("forum") @Valid Forum forum, BindingResult result,
-            @RequestPart(value = "upFiles", required = false) MultipartFile[] parts)
-            throws IOException {
+            @RequestPart("forum") @Valid Forum forum,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+            BindingResult result) {
+        if (result.hasErrors()) {
+            // 如果 JSON 資料驗證失敗，回傳 400 錯誤
+            return ResponseEntity.badRequest().body("輸入資料有誤！");
+        }
         /*************************** 2. 開始新增資料 *****************************************/
         // 讓 Service 層回傳新增成功後、包含新 ID 的物件，這在 API 中是個好習慣
-        Forum createdForum = forumSvc.add(forum);
+        Forum createdForum = forumSvc.add(forum, imageFile);
 
         /*************************** 3. 新增完成,準備轉交(Send the Success view) **************/
         // 回傳 201 Created 狀態碼，並在 body 中附上新增成功的員工資料

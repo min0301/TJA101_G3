@@ -36,4 +36,5 @@ build/
 ### VS Code ###
 .vscode/
 
+### 上傳圖片路徑 ###
 /uploads/

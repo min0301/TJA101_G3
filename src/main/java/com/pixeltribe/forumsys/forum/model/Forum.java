@@ -47,9 +47,15 @@ public class Forum {
     private String forImgUrl;
 
     @JsonProperty("categoryName")
-    public String getCategoryName() {
-        return this.catNo.getCatName();
+    public String CategoryName() {
+        if (this.catNo != null) {
+            return this.catNo.getCatName();
+        }
+        return null;
     }
+
+    @Transient
+    private Integer categoryId;
 
     @Size(max = 255)
     @NotEmpty(message="討論區描述: 請勿空白")
