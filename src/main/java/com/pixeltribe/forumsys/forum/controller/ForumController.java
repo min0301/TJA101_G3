@@ -1,6 +1,8 @@
 package com.pixeltribe.forumsys.forum.controller;
 
 import com.pixeltribe.forumsys.forum.model.Forum;
+import com.pixeltribe.forumsys.forum.model.ForumCreationDTO;
+import com.pixeltribe.forumsys.forum.model.ForumDetailDTO;
 import com.pixeltribe.forumsys.forum.model.ForumService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +23,14 @@ public class ForumController {
 
 
     @GetMapping("forums")
-    public List<Forum> findAll() {
+    public List<ForumDetailDTO> findAll() {
 
         return forumSvc.getAllForum();
     }
 
     @PostMapping("/admin/forum")
     public ResponseEntity<?> addForum(
-            @RequestPart("forum") @Valid Forum forum,
+            @RequestPart("forum") @Valid ForumCreationDTO forumDTO,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
             BindingResult result) {
         if (result.hasErrors()) {
@@ -37,7 +39,7 @@ public class ForumController {
         }
         /*************************** 2. 開始新增資料 *****************************************/
         // 讓 Service 層回傳新增成功後、包含新 ID 的物件，這在 API 中是個好習慣
-        Forum createdForum = forumSvc.add(forum, imageFile);
+        Forum createdForum = forumSvc.add(forumDTO, imageFile);
 
         /*************************** 3. 新增完成,準備轉交(Send the Success view) **************/
         // 回傳 201 Created 狀態碼，並在 body 中附上新增成功的員工資料

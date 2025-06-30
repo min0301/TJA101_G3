@@ -18,6 +18,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service("forumService")
 public class ForumService {
@@ -33,7 +34,14 @@ public class ForumService {
     private String baseUrl;
 
     @Transactional
-    public Forum add(Forum forum, MultipartFile imageFile) {
+    public Forum add(ForumCreationDTO forumDTO, MultipartFile imageFile) {
+
+        // DTO -> Entity 的轉換 (手動映射)
+        Forum forum = new Forum();
+        forum.setForName(forumDTO.getForName());
+        forum.setForDes(forumDTO.getForDes());
+        forum.setForStatus(forumDTO.getForStatus());
+
         // 1. 處理檔案儲存
         if (imageFile != null && !imageFile.isEmpty()) {
             try {
@@ -63,7 +71,7 @@ public class ForumService {
 
         //===============================
         // 從傳入的 forum 物件中取得 categoryId
-        Integer categoryId = forum.getCategoryId();
+        Integer categoryId = forumDTO.getCategoryId();
 
         ForumCategory category = forumCategoryRepository.findById(categoryId).get();
 
@@ -75,13 +83,12 @@ public class ForumService {
     }
 
 
-
     public void update(Forum forum) {
         forumRepository.save(forum);
     }
 
     public void delete(Forum forum) {
-            forumRepository.deleteById(forum.getId());
+        forumRepository.deleteById(forum.getId());
     }
 
     public Forum getOneForum(Integer forNO) {
@@ -89,12 +96,42 @@ public class ForumService {
         return optional.orElse(null);
     }
 
-    public List<Forum> getAllForum() {
-        return forumRepository.findAll();
+    public List<ForumDetailDTO> getAllForum() {
+
+        // 1. 從資料庫取得原始的 Entity 列表
+        List<Forum> forums = forumRepository.findAll();
+
+        // 2. 使用 Stream API 將 List<Forum> 轉換為 List<ForumDetailDTO>
+        return forums.stream()
+                .map(this::convertToForumDetailDTO) // 對每個 forum 執行轉換
+                .collect(Collectors.toList());
     }
 
+    // 這是一個輔助方法，負責將單一 Forum Entity 轉換為 DTO
+    private ForumDetailDTO convertToForumDetailDTO(Forum forum) {
+        ForumDetailDTO dto = new ForumDetailDTO();
 
+        // 複製基本屬性
+        dto.setId(forum.getId());
+        dto.setForName(forum.getForName());
+        dto.setForDes(forum.getForDes());
+        dto.setForImgUrl(forum.getForImgUrl());
+        dto.setForDate(forum.getForDate());
+        dto.setForUpdate(forum.getForUpdate());
+        dto.setForStatus(forum.getForStatus());
 
+        // 關鍵：處理關聯物件的屬性
+        // 必須做 null 檢查，防止 Forum 沒有被分配到 Category 的情況
+        if (forum.getCatNo() != null) {
+            dto.setCategoryName(forum.getCatNo().getCatName());
+        } else {
+            // 如果沒有分類，可以設定為 null 或是一個預設值，例如 "未分類"
+            // 這取決於你的前端想要如何顯示
+            dto.setCategoryName(null);
+        }
+
+        return dto;
+    }
 
 
 }
