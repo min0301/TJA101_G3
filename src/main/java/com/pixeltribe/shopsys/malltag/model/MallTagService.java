@@ -1,4 +1,4 @@
-package com.pixeltribe.shopsys.mallTag.model;
+package com.pixeltribe.shopsys.malltag.model;
 
 import java.util.List;
 import java.util.Optional;
