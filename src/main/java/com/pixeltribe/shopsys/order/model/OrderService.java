@@ -34,11 +34,11 @@ public class OrderService {
 	}
 	
 	//  ========== 查-查全部 ========== //
-	public List<Order> getAllOrder(Integer orderNo){
+	public List<Order> getAllOrder(){
 		return orderRepository.findAll();
 	}
 	
-	//  ========== 刪 ========== //
+	//  ========== 刪 (訂單可以取消，但訂單紀錄要保存在資料庫裡)========== //
 	
 	
 }
