@@ -47,11 +47,6 @@ public class IndexController_inSpringBoot {
 
 
 
-    @GetMapping("/forum/allForum")
-    public String allForum(Model model) {
-        return "back-end/forum/allForum";
-    }
-
 
 
 

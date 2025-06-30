@@ -17,10 +17,12 @@ public class ForumCategoryService {
         forumCategoryRepository.save(forumCategory);
     }
     public void update(ForumCategory forumCategory) {
+
         forumCategoryRepository.save(forumCategory);
     }
 
     public void delete(ForumCategory forumCategory) {
+
         forumCategoryRepository.delete(forumCategory);
     }
 
@@ -30,6 +32,7 @@ public class ForumCategoryService {
     }
 
     public List<ForumCategory> getAllForumCategories() {
+
         return forumCategoryRepository.findAll();
     }
 
