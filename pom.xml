@@ -212,6 +212,26 @@
 			<version>4.2.1</version>
 		</dependency>
 		
+		<!-- ========================================================================================== -->
+		<!-- ●以下為 Redis 使用● -->
+		<!-- Redis 資料存取 -->
+		<dependency>
+    		<groupId>org.springframework.boot</groupId>
+    		<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
+		<!-- 如果需要快取功能 -->
+		<dependency>
+    		<groupId>org.springframework.boot</groupId>
+    		<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+
+		<!-- Redis 連線池 -->
+		<dependency>  
+    		<groupId>org.apache.commons</groupId>
+    		<artifactId>commons-pool2</artifactId>
+		</dependency>
+		
 		
 		<!-- ========================================================================================== -->
 		<!-- ●以下為 lombok 預備使用● -->
