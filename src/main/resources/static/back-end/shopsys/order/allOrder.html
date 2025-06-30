@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>訂單管理後台</title>
+  <style>
+    /* CSS 樣式區 */
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0 auto;
+      max-width: 1400px;
+      padding: 20px;
+      background-color: #f4f7f6;
+      color: #333;
+    }
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px; /* 標題和首頁按鈕的間距 */
+    }
+    h1 {
+      color: #2c3e50;
+      margin: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px 15px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    thead {
+      background-color: #3498db;
+      color: #ffffff;
+    }
+    tbody tr:nth-child(even) { background-color: #f2f2f2; }
+    tbody tr:hover { background-color: #e8f4fd; }
+    .pagination-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+    .pagination-controls button {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      color: #3498db;
+      padding: 8px 12px;
+      margin: 0 2px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .pagination-controls button:hover:not(:disabled) { background-color: #e8f4fd; }
+    .pagination-controls button.active {
+      background-color: #3498db;
+      color: white;
+      border-color: #3498db;
+    }
+    .pagination-controls button:disabled { color: #ccc; cursor: not-allowed; }
+    .items-per-page-selector, .pagination-info { font-size: 14px; color: #555; }
+    #error-message {
+      color: #e74c3c;
+      background-color: #fbecec;
+      border: 1px solid #e74c3c;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 5px;
+      display: none;
+    }
+    .btn {
+      display: inline-block;
+      text-decoration: none;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: opacity 0.3s;
+      text-align: center;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-home { background-color: #95a5a6; }
+    .btn-add { background-color: #2ecc71; }
+    .btn-edit { background-color: #f39c12; }
+    .btn-view { background-color: #3498db; }
+
+    /* 訂單狀態樣式 */
+    .status-pending { 
+      background-color: #f39c12; 
+      color: white; 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 12px;
+    }
+    .status-completed { 
+      background-color: #27ae60; 
+      color: white; 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 12px;
+    }
+    .status-cancelled { 
+      background-color: #e74c3c; 
+      color: white; 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 12px;
+    }
+    .status-processing { 
+      background-color: #3498db; 
+      color: white; 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 12px;
+    }
+
+    /* 表格欄位寬度設定 */
+    thead th:nth-child(1) { width: 80px; }  /* 訂單編號 */
+    thead th:nth-child(2) { width: 80px; }  /* 會員編號 */
+    thead th:nth-child(3) { width: 100px; } /* 優惠券代碼 */
+    thead th:nth-child(4) { width: 150px; } /* 訂購時間 */
+    thead th:nth-child(5) { width: 100px; } /* 訂單狀態 */
+    thead th:nth-child(6) { width: 100px; } /* 訂單總額 */
+    thead th:nth-child(7) { width: 80px; }  /* 使用積分 */
+    thead th:nth-child(8) { width: 120px; } /* 操作 */
+
+  </style>
+</head>
+<body>
+<div class="header-container">
+  <div class="header-left">
+    <h1>訂單管理</h1>
+    <a href="/" class="btn btn-home">回到首頁</a>
+  </div>
+  <div class="header-right">
+    <a href="add-order.html" class="btn btn-add">＋ 新增訂單</a>
+  </div>
+</div>
+
+<div id="error-message"></div>
+
+<table>
+  <thead>
+  <tr>
+    <th>訂單編號</th>
+    <th>會員編號</th>
+    <th>優惠券代碼</th>
+    <th>訂購時間</th>
+    <th>訂單狀態</th>
+    <th>訂單總額</th>
+    <th>使用積分</th>
+    <th>操作</th>
+  </tr>
+  </thead>
+  <tbody id="order-data-body"></tbody>
+</table>
+
+<div class="pagination-container">
+  <div class="items-per-page-selector">
+    <label for="items-per-page">每頁顯示：</label>
+    <select id="items-per-page">
+      <option value="3">3 筆</option>
+      <option value="5">5 筆</option>
+      <option value="10" selected>10 筆</option>
+      <option value="20">20 筆</option>
+    </select>
+  </div>
+  <div id="pagination-info" class="pagination-info"></div>
+  <div id="pagination-controls" class="pagination-controls"></div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const apiUrl = 'http://localhost:8080/api/orders';
+
+    const tableBody = document.getElementById('order-data-body');
+    const errorMessageDiv = document.getElementById('error-message');
+    const itemsPerPageSelect = document.getElementById('items-per-page');
+    const paginationControls = document.getElementById('pagination-controls');
+    const paginationInfo = document.getElementById('pagination-info');
+
+    let allOrdersData = [];
+    let currentPage = 1;
+    let itemsPerPage = parseInt(itemsPerPageSelect.value);
+
+    async function initialize() {
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
+        allOrdersData = await response.json();
+        currentPage = 1;
+        renderPage();
+      } catch (error) {
+        showError(error);
+      }
+    }
+
+    function renderPage() {
+      renderTable();
+      renderPagination();
+    }
+
+    function renderTable() {
+      tableBody.innerHTML = '';
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const itemsToShow = allOrdersData.slice(startIndex, endIndex);
+
+      itemsToShow.forEach(order => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${order.orderNo}</td>
+            <td>${order.memNo || '訪客'}</td>
+            <td>${order.couponWalletNo || '無使用'}</td>
+            <td>${new Date(order.orderDatetime).toLocaleString()}</td>
+            <td>${getStatusBadge(order.orderStatus)}</td>
+            <td>$${order.orderTotal ? order.orderTotal.toLocaleString() : '0'}</td>
+            <td>${order.pointUsed || '0'}</td>
+            <td>
+                <a href="view-order.html?orderNo=${order.orderNo}" class="btn btn-view">查看</a>
+                <a href="edit-order.html?orderNo=${order.orderNo}" class="btn btn-edit">修改</a>
+            </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function getStatusBadge(status) {
+      const statusMap = {
+        'pending': { text: '待處理', class: 'status-pending' },
+        'processing': { text: '處理中', class: 'status-processing' },
+        'completed': { text: '已完成', class: 'status-completed' },
+        'cancelled': { text: '已取消', class: 'status-cancelled' }
+      };
+      
+      const statusInfo = statusMap[status] || { text: status, class: 'status-pending' };
+      return `<span class="${statusInfo.class}">${statusInfo.text}</span>`;
+    }
+
+    function renderPagination() {
+      paginationControls.innerHTML = '';
+      const totalItems = allOrdersData.length;
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      if (totalPages <= 1) {
+        paginationInfo.textContent = `共 ${totalItems} 筆資料`;
+        return;
+      }
+      const startItem = (currentPage - 1) * itemsPerPage + 1;
+      const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+      paginationInfo.textContent = `顯示 ${startItem} - ${endItem} 筆，共 ${totalItems} 筆`;
+      paginationControls.appendChild(
+              createPaginationButton('« 上一頁', () => changePage(currentPage - 1), currentPage === 1)
+      );
+      for (let i = 1; i <= totalPages; i++) {
+        const pageButton = createPaginationButton(i, () => changePage(i));
+        if (i === currentPage) pageButton.classList.add('active');
+        paginationControls.appendChild(pageButton);
+      }
+      paginationControls.appendChild(
+              createPaginationButton('下一頁 »', () => changePage(currentPage + 1), currentPage === totalPages)
+      );
+    }
+
+    function createPaginationButton(text, clickHandler, disabled = false) {
+      const button = document.createElement('button');
+      button.textContent = text;
+      button.disabled = disabled;
+      button.addEventListener('click', clickHandler);
+      return button;
+    }
+
+    function changePage(newPage) {
+      const totalPages = Math.ceil(allOrdersData.length / itemsPerPage);
+      if (newPage >= 1 && newPage <= totalPages) {
+        currentPage = newPage;
+        renderPage();
+      }
+    }
+
+    function showError(error) {
+      console.error('無法獲取訂單資料:', error);
+      errorMessageDiv.style.display = 'block';
+      errorMessageDiv.innerHTML = `<strong>資料載入失敗！</strong> 請檢查後端服務是否啟動及 CORS 設定。<br>詳細錯誤: ${error.message}`;
+    }
+
+    itemsPerPageSelect.addEventListener('change', (event) => {
+      itemsPerPage = parseInt(event.target.value);
+      currentPage = 1;
+      renderPage();
+    });
+
+    initialize();
+  });
+</script>
+</body>
+</html>
