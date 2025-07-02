@@ -255,7 +255,12 @@
         row.innerHTML = `
             <td>${forum.id}</td>
             <td>${forum.forName}</td>
-            <td>${forum.categoryName}</td>
+<!--            <td>${forum.categoryName}</td>-->
+            <td>
+                <a href="findByCatNoForum.html?catId=${forum.categoryId}">
+                    ${forum.categoryName}
+                </a>
+            </td>
             <td>
               ${forum.forImgUrl ?
                 `<a href="${forum.forImgUrl}">

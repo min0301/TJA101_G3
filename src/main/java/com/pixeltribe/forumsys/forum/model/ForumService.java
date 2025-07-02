@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -83,18 +82,19 @@ public class ForumService {
     }
 
 
-    public void update(Forum forum) {
-        forumRepository.save(forum);
+    public Forum update(ForumEditDTO forumEditDTO) {
+
+        Forum forum = new Forum();
+        forum.setForName(forumEditDTO.getForName());
+        forum.setForDes(forumEditDTO.getForDes());
+        forum.setForStatus(forumEditDTO.getForStatus());
+
+        ForumCategory category = forumCategoryRepository.findById(forumEditDTO.getCategoryId()).get();
+        forum.setCatNo(category);
+
+        return forumRepository.save(forum);
     }
 
-    public void delete(Forum forum) {
-        forumRepository.deleteById(forum.getId());
-    }
-
-    public Forum getOneForum(Integer forNO) {
-        Optional<Forum> optional = forumRepository.findById(forNO);
-        return optional.orElse(null);
-    }
 
     public List<ForumDetailDTO> getAllForum() {
 
@@ -120,18 +120,33 @@ public class ForumService {
         dto.setForUpdate(forum.getForUpdate());
         dto.setForStatus(forum.getForStatus());
 
+
         // 關鍵：處理關聯物件的屬性
         // 必須做 null 檢查，防止 Forum 沒有被分配到 Category 的情況
         if (forum.getCatNo() != null) {
             dto.setCategoryName(forum.getCatNo().getCatName());
+            dto.setCategoryId(forum.getCatNo().getId());
         } else {
             // 如果沒有分類，可以設定為 null 或是一個預設值，例如 "未分類"
             // 這取決於你的前端想要如何顯示
             dto.setCategoryName(null);
+            dto.setCategoryId(null);
         }
 
         return dto;
     }
+
+
+    public List<ForumDetailDTO> getForumsByCategory(Integer catNO) {
+        List<Forum> forums = forumRepository.findByCatNo_Id(catNO);
+
+        return forums.stream()
+                .map(this::convertToForumDetailDTO) // 對每個 forum 執行轉換
+                .collect(Collectors.toList());
+    }
+
+
+
 
 
 }
