@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>商城標籤</title>
+	<style>
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<h1>商品標籤列表</h1>
+
+    <table id="mallTagsTable">
+        <thead>
+            <tr>
+                <th>商城標籤編號</th>
+                <th>商城標籤名稱</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+    
+     <script>
+     	function init(){
+            fetch('/malltag/malltag', { 
+                method: 'GET', 
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => res.jason()).then(data =>{
+            	const tableBody = document.querySelector('#mallTagsTable tbody');
+                tableBody.innerHTML = ''; // 清空現有內容
+
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+                        const row = tableBody.insertRow();
+                        const mallTagNO = row.insertCell();
+                        const mallTagName = row.insertCell();
+
+                        mallTagNO.textContent = item.malltagNO;
+                        mallTagName.textContent = item.malltagName;
+                    });
+                }
+            });
+     	}
+        $(function(){
+                init();
+        });
+    </script>
+</body>
+</html>
