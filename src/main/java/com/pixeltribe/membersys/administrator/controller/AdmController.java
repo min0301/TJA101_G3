@@ -50,7 +50,7 @@ public class AdmController {
 		}
 
 		admSvc.addAdm(administrator);
-		model.addAttribute("admListData", admSvc.getAll());
+		model.addAttribute("admListData", admSvc.findAll());
 		model.addAttribute("success", "- (新增成功)");
 		return "redirect:/adm/listAllAdm";
 	}
@@ -89,7 +89,7 @@ public class AdmController {
 
 	@GetMapping("listAllAdm")
 	public String listAllAdm(ModelMap model) {
-		List<Administrator> list = admSvc.getAll();
+		List<Administrator> list = admSvc.findAll();
 		model.addAttribute("admListData", list);
 		return "back-end/adm/listAllAdm";
 	}

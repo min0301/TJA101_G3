@@ -27,7 +27,7 @@ public class AdmService {
 		return optional.orElse(null);
 	}
 	
-	public List<Administrator> getAll(){
+	public List<Administrator> findAll(){
 		return repository.findAll();
 	}
 }
