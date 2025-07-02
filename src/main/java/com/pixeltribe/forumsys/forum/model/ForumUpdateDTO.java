@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ForumEditDTO {
+public class ForumUpdateDTO {
 
 
     private String forName;

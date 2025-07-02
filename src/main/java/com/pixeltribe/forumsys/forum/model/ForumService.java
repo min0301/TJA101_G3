@@ -82,7 +82,7 @@ public class ForumService {
     }
 
 
-    public Forum update(ForumEditDTO forumEditDTO) {
+    public Forum update(ForumUpdateDTO forumEditDTO) {
 
         Forum forum = new Forum();
         forum.setForName(forumEditDTO.getForName());

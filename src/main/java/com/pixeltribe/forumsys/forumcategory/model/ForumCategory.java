@@ -1,6 +1,5 @@
 package com.pixeltribe.forumsys.forumcategory.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pixeltribe.forumsys.forum.model.Forum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
