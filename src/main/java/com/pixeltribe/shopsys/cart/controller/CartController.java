@@ -13,6 +13,8 @@ public class CartController {
 	@Autowired
 	private CartService cartService;
 	
+	// ==========  要驗證會員是否登入 ============ //
+	
 	
 	
 }
