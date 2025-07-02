@@ -37,7 +37,7 @@ public class ForumCategory {
     private Instant catDate;
 
     @OneToMany(mappedBy = "catNo")
-    @JsonManagedReference
+//    @JsonManagedReference
     private Set<Forum> forums = new LinkedHashSet<>();
 
 }

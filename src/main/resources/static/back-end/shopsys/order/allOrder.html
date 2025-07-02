@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>論壇管理後台</title>
+  <title>訂單管理後台</title>
   <style>
     /* CSS 樣式區 */
 
@@ -96,82 +96,58 @@
     .btn-home { background-color: #95a5a6; }
     .btn-add { background-color: #2ecc71; }
     .btn-edit { background-color: #f39c12; }
+    .btn-view { background-color: #3498db; }
 
-    .forum-thumbnail {
-      width: 100px;
-      height: 75px;
-      object-fit: cover;
-      border-radius: 4px;
-      vertical-align: middle;
-      transition: transform 0.2s ease-in-out;
-      cursor: pointer;
+    /* 訂單狀態樣式 */
+    .status-pending { 
+      background-color: #f39c12; 
+      color: white; 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 12px;
     }
-    td a:has(.forum-thumbnail) {
-      text-decoration: none;
-      display: inline-block;
+    .status-completed { 
+      background-color: #27ae60; 
+      color: white; 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 12px;
     }
-    td a:has(.forum-thumbnail):hover .forum-thumbnail {
-      transform: scale(1.1);
-      opacity: 0.9;
+    .status-cancelled { 
+      background-color: #e74c3c; 
+      color: white; 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 12px;
+    }
+    .status-processing { 
+      background-color: #3498db; 
+      color: white; 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 12px;
     }
 
-    /* --- 燈箱樣式 --- */
-    .lightbox {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.85);
-      justify-content: center;
-      align-items: center;
-      animation: fadeIn 0.3s;
-    }
-    .lightbox-content {
-      max-width: 85%;
-      max-height: 85%;
-      border-radius: 5px;
-    }
-    .lightbox-close {
-      position: absolute;
-      top: 20px;
-      right: 35px;
-      color: #fff;
-      font-size: 40px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: color 0.3s;
-    }
-    .lightbox-close:hover {
-      color: #bbb;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    /* --- 在你的 <style> 區塊中加入以下程式碼 --- */
-
-    /* targeting the table header */
-    thead th:nth-child(1) { width: 20px; }  /* 第 1 欄 (ID) */
-    thead th:nth-child(2) { width: 150px; } /* 第 2 欄 (論壇名稱) */
-    thead th:nth-child(3) { width: 80px; } /* 第 3 欄 (分類) */
-    thead th:nth-child(4) { width: 120px; } /* 第 4 欄 (圖片) */
-    thead th:nth-child(5) { width: 250px; } /* 第 5 欄 (描述) */
-    /*thead th:nth-child(8) { width: 60px; }  !* 第 8 欄 (狀態) *!*/
-    /*thead th:nth-child(9) { width: 100px; } !* 第 9 欄 (操作) *!*/
+    /* 表格欄位寬度設定 */
+    thead th:nth-child(1) { width: 80px; }  /* 訂單編號 */
+    thead th:nth-child(2) { width: 80px; }  /* 會員編號 */
+    thead th:nth-child(3) { width: 100px; } /* 優惠券代碼 */
+    thead th:nth-child(4) { width: 150px; } /* 訂購時間 */
+    thead th:nth-child(5) { width: 100px; } /* 訂單狀態 */
+    thead th:nth-child(6) { width: 100px; } /* 訂單總額 */
+    thead th:nth-child(7) { width: 80px; }  /* 使用積分 */
+    thead th:nth-child(8) { width: 120px; } /* 操作 */
 
   </style>
 </head>
 <body>
 <div class="header-container">
   <div class="header-left">
-    <h1>論壇管理</h1>
+    <h1>訂單管理</h1>
     <a href="/" class="btn btn-home">回到首頁</a>
   </div>
   <div class="header-right">
-    <a href="add-forum.html" class="btn btn-add">＋ 新增討論區</a>
+    <a href="add-order.html" class="btn btn-add">＋ 新增訂單</a>
   </div>
 </div>
 
@@ -180,18 +156,17 @@
 <table>
   <thead>
   <tr>
-    <th>ID</th>
-    <th>論壇名稱</th>
-    <th>分類</th>
-    <th>圖片</th>
-    <th>描述</th>
-    <th>創建時間</th>
-    <th>更新時間</th>
-    <th>狀態</th>
+    <th>訂單編號</th>
+    <th>會員編號</th>
+    <th>優惠券代碼</th>
+    <th>訂購時間</th>
+    <th>訂單狀態</th>
+    <th>訂單總額</th>
+    <th>使用積分</th>
     <th>操作</th>
   </tr>
   </thead>
-  <tbody id="forum-data-body"></tbody>
+  <tbody id="order-data-body"></tbody>
 </table>
 
 <div class="pagination-container">
@@ -208,22 +183,17 @@
   <div id="pagination-controls" class="pagination-controls"></div>
 </div>
 
-<div id="lightbox" class="lightbox">
-  <span id="lightbox-close" class="lightbox-close">&times;</span>
-  <img id="lightbox-img" class="lightbox-content">
-</div>
-
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const apiUrl = 'http://localhost:8080/api/forums';
+    const apiUrl = 'http://localhost:8080/api/orders';
 
-    const tableBody = document.getElementById('forum-data-body');
+    const tableBody = document.getElementById('order-data-body');
     const errorMessageDiv = document.getElementById('error-message');
     const itemsPerPageSelect = document.getElementById('items-per-page');
     const paginationControls = document.getElementById('pagination-controls');
     const paginationInfo = document.getElementById('pagination-info');
 
-    let allForumsData = [];
+    let allOrdersData = [];
     let currentPage = 1;
     let itemsPerPage = parseInt(itemsPerPageSelect.value);
 
@@ -231,7 +201,7 @@
       try {
         const response = await fetch(apiUrl);
         if (!response.ok) throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
-        allForumsData = await response.json();
+        allOrdersData = await response.json();
         currentPage = 1;
         renderPage();
       } catch (error) {
@@ -248,37 +218,42 @@
       tableBody.innerHTML = '';
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
-      const itemsToShow = allForumsData.slice(startIndex, endIndex);
+      const itemsToShow = allOrdersData.slice(startIndex, endIndex);
 
-      itemsToShow.forEach(forum => {
+      itemsToShow.forEach(order => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${forum.id}</td>
-            <td>${forum.forName}</td>
-            <td>${forum.categoryName}</td>
+            <td>${order.orderNo}</td>
+            <td>${order.memNo || '訪客'}</td>
+            <td>${order.couponWalletNo || '無使用'}</td>
+            <td>${new Date(order.orderDatetime).toLocaleString()}</td>
+            <td>${getStatusBadge(order.orderStatus)}</td>
+            <td>$${order.orderTotal ? order.orderTotal.toLocaleString() : '0'}</td>
+            <td>${order.pointUsed || '0'}</td>
             <td>
-              ${forum.forImgUrl ?
-                `<a href="${forum.forImgUrl}">
-                   <img src="${forum.forImgUrl}" alt="${forum.forName} 的縮圖" class="forum-thumbnail">
-                 </a>` :
-                '無圖片'
-        }
-            </td>
-            <td>${forum.forDes}</td>
-            <td>${new Date(forum.forDate).toLocaleString()}</td>
-            <td>${new Date(forum.forUpdate).toLocaleString()}</td>
-            <td>${forum.forStatus === '0' ? '正常' : '停用'}</td>
-            <td>
-                <a href="edit-forum.html?id=${forum.id}" class="btn btn-edit">修改</a>
+                <a href="view-order.html?orderNo=${order.orderNo}" class="btn btn-view">查看</a>
+                <a href="edit-order.html?orderNo=${order.orderNo}" class="btn btn-edit">修改</a>
             </td>
         `;
         tableBody.appendChild(row);
       });
     }
 
+    function getStatusBadge(status) {
+      const statusMap = {
+        'pending': { text: '待處理', class: 'status-pending' },
+        'processing': { text: '處理中', class: 'status-processing' },
+        'completed': { text: '已完成', class: 'status-completed' },
+        'cancelled': { text: '已取消', class: 'status-cancelled' }
+      };
+      
+      const statusInfo = statusMap[status] || { text: status, class: 'status-pending' };
+      return `<span class="${statusInfo.class}">${statusInfo.text}</span>`;
+    }
+
     function renderPagination() {
       paginationControls.innerHTML = '';
-      const totalItems = allForumsData.length;
+      const totalItems = allOrdersData.length;
       const totalPages = Math.ceil(totalItems / itemsPerPage);
       if (totalPages <= 1) {
         paginationInfo.textContent = `共 ${totalItems} 筆資料`;
@@ -309,7 +284,7 @@
     }
 
     function changePage(newPage) {
-      const totalPages = Math.ceil(allForumsData.length / itemsPerPage);
+      const totalPages = Math.ceil(allOrdersData.length / itemsPerPage);
       if (newPage >= 1 && newPage <= totalPages) {
         currentPage = newPage;
         renderPage();
@@ -317,7 +292,7 @@
     }
 
     function showError(error) {
-      console.error('無法獲取論壇資料:', error);
+      console.error('無法獲取訂單資料:', error);
       errorMessageDiv.style.display = 'block';
       errorMessageDiv.innerHTML = `<strong>資料載入失敗！</strong> 請檢查後端服務是否啟動及 CORS 設定。<br>詳細錯誤: ${error.message}`;
     }
@@ -326,45 +301,6 @@
       itemsPerPage = parseInt(event.target.value);
       currentPage = 1;
       renderPage();
-    });
-
-    // --- 燈箱邏輯控制 ---
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    const lightboxClose = document.getElementById('lightbox-close');
-
-    tableBody.addEventListener('click', function(event) {
-      const link = event.target.closest('a:has(.forum-thumbnail)');
-      if (link) {
-        event.preventDefault();
-        const imageUrl = link.getAttribute('href');
-        openLightbox(imageUrl);
-      }
-    });
-
-    function openLightbox(imageUrl) {
-      lightboxImg.setAttribute('src', imageUrl);
-      lightbox.style.display = 'flex';
-      document.addEventListener('keydown', handleEscKey);
-    }
-
-    function closeLightbox() {
-      lightbox.style.display = 'none';
-      lightboxImg.setAttribute('src', '');
-      document.removeEventListener('keydown', handleEscKey);
-    }
-
-    function handleEscKey(event) {
-      if (event.key === 'Escape') {
-        closeLightbox();
-      }
-    }
-
-    lightboxClose.addEventListener('click', closeLightbox);
-    lightbox.addEventListener('click', function(event) {
-      if (event.target === lightbox) {
-        closeLightbox();
-      }
     });
 
     initialize();

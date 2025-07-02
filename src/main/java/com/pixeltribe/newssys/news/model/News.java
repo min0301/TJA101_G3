@@ -35,9 +35,9 @@ public class News {
     @NotNull
     @Column(name = "NEWS_CON", nullable = false, length = 9000)
     private String newsCon;
-
     @Column(name = "NEWS_UPDATE")
     private Instant newsUpdate;
+// test
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")

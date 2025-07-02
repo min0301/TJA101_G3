@@ -39,17 +39,23 @@ public class Forum {
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "CAT_NO")
-    @JsonBackReference
+//    @JsonBackReference
     private ForumCategory catNo;
 
     @Size(max = 255)
     @Column(name = "FOR_IMG_URL")
     private String forImgUrl;
 
-    @JsonProperty("categoryName")
-    public String getCategoryName() {
-        return this.catNo.getCatName();
+//    @JsonProperty("categoryName")
+    public String CategoryName() {
+        if (this.catNo != null) {
+            return this.catNo.getCatName();
+        }
+        return null;
     }
+
+    @Transient
+    private Integer categoryId;
 
     @Size(max = 255)
     @NotEmpty(message="討論區描述: 請勿空白")
