@@ -1,8 +1,6 @@
 package com.pixeltribe.forumsys.forum.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pixeltribe.forumsys.forumVO.ForumChatMessage;
 import com.pixeltribe.forumsys.forumVO.ForumCollect;
 import com.pixeltribe.forumsys.forumVO.ForumLike;
