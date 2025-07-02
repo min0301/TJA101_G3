@@ -1,48 +1,31 @@
 package com.pixeltribe.newssys.news.model;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.Value;
+import lombok.Data;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.List;
 
-/**
- * DTO for {@link News}
- */
-@Value
-public class NewsDto implements Serializable {
-    Integer id;
-    @NotNull
-    @Size(max = 255)
-    String newsTit;
-    @NotNull
-    @Size(max = 9000)
-    String newsCon;
-    Instant newsUpdate;
-    @NotNull
-    Instant newsCrdate;
-    Set<NewContentClassificationDto> newContentClassifications;
+@Data
+public class NewsDto {
+    private Integer id;
+    private String newsTit;
+    private String newsCon;
+    private Instant newsCrdate;
+    private Instant newsUpdate;
+    private Long numberOfNewsPhoto;
+    private List<String> categoryTags;
 
-    /**
-     * DTO for {@link com.pixeltribe.newssys.newscontentclassification.model.NewContentClassification}
-     */
-    @Value
-    public static class NewContentClassificationDto implements Serializable {
-        Integer id;
-        @NotNull
-        NewsDto.NewContentClassificationDto.NewsCategoryDto ncatNo;
-
-        /**
-         * DTO for {@link com.pixeltribe.newssys.newscategory.model.NewsCategory}
-         */
-        @Value
-        public static class NewsCategoryDto implements Serializable {
-            Integer id;
-            @NotNull
-            @Size(max = 50)
-            String ncatName;
-        }
+    public NewsDto(Integer id, String title, String content,
+                   Instant cr, Instant up,
+                   Long imgCnt, String tagsCsv) {
+        this.id = id;
+        this.newsTit = title;
+        this.newsCon = content;
+        this.newsCrdate = cr;
+        this.newsUpdate = up;
+        this.numberOfNewsPhoto = imgCnt == null ? 0 : imgCnt.longValue();
+        this.categoryTags = tagsCsv == null ? List.of()
+                : Arrays.stream(tagsCsv.split(",")).distinct().toList();
     }
 }
