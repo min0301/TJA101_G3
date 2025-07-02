@@ -20,5 +20,6 @@ public class ForumDetailDTO {
 
     // 用一個 String 來接收分類名稱，而不是整個 ForumCategory 物件
     private String categoryName;
+    private Integer categoryId;
 
 }

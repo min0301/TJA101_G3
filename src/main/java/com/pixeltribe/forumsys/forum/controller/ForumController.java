@@ -28,6 +28,11 @@ public class ForumController {
         return forumSvc.getAllForum();
     }
 
+    @GetMapping("/category/{catNo}/forums")
+    public List<ForumDetailDTO> findByCatNo_Id(@PathVariable Integer catNo) {
+        return forumSvc.getForumsByCategory(catNo);
+    }
+
     @PostMapping("/admin/forum")
     public ResponseEntity<?> addForum(
             @RequestPart("forum") @Valid ForumCreationDTO forumDTO,
@@ -45,7 +50,6 @@ public class ForumController {
         // 回傳 201 Created 狀態碼，並在 body 中附上新增成功的員工資料
         // 這能讓前端立刻知道新增資源的 ID 是多少
         return ResponseEntity.status(HttpStatus.CREATED).body(createdForum);
-
     }
 
 
