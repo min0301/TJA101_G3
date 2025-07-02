@@ -51,7 +51,11 @@ public class IndexController_inSpringBoot {
     public String allForum(Model model) {
         return "back-end/forum/allForum";
     }
-
+    
+    @GetMapping("/adm/admLoginTest")
+    public String admLoginTest(Model model) {
+        return "back-end/adm/admLoginTest";
+    }
 
 
 

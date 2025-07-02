@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>管理員登入</title>
+</head>
+<body>
+    <h2>管理員登入</h2>
+    <form id="loginForm">
+        <label>帳號：<input type="text" id="username" required></label><br>
+        <label>密碼：<input type="password" id="password" required></label><br>
+        <button type="submit">登入</button>
+    </form>
+    <div id="errorMsg" style="color:red;"></div>
+    <div id="successMsg" style="color:green;"></div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // 不要讓表單自己提交/刷新
+
+            // 取得輸入值
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // 清空訊息
+            document.getElementById('errorMsg').innerText = '';
+            document.getElementById('successMsg').innerText = '';
+
+            // 用 fetch 發送 POST 請求
+            fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('successMsg').innerText = '登入成功，歡迎！';
+                    // 可以導頁，或儲存 token...
+                    // window.location.href = "/forum";
+                } else {
+                    document.getElementById('errorMsg').innerText = data.message || '登入失敗';
+                }
+            })
+            .catch(err => {
+                document.getElementById('errorMsg').innerText = '伺服器異常，請稍後再試';
+            });
+        });
+    </script>
+</body>
+</html>

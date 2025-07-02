@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>PixelTribe 管理員首頁</title>
+    <style>
+        body {
+            font-family: "微軟正黑體", Arial, sans-serif;
+            background: #f6f6f6;
+            margin: 0;
+        }
+        .header {
+            background: #fff;
+            padding: 0;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #eee;
+        }
+        .logo-banner {
+            width: 100%;
+            height: 110px;
+            background: url('https://i.imgur.com/jRIk6sf.png') no-repeat left center/auto 100%;
+        }
+        .topbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 8px 30px;
+            font-size: 15px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 40px auto 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        .sys-block {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 10px #ddd;
+            padding: 30px 30px 20px 30px;
+            min-height: 240px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .sys-block h2 {
+            margin: 0 0 16px 0;
+            font-size: 25px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .sys-block ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sys-block li {
+            margin-bottom: 12px;
+            font-size: 17px;
+        }
+        .icon {
+            margin-right: 10px;
+            font-size: 22px;
+        }
+        .star {
+            color: #b90000;
+            margin-right: 10px;
+        }
+        .shield {
+            color: #777;
+            margin-right: 10px;
+        }
+        .bubble {
+            color: #888;
+            margin-right: 10px;
+        }
+        .gamepad {
+            color: #555;
+            margin-right: 10px;
+        }
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+    <!-- 可以用 unicode 做簡易 icon，也可以自己換成 <img> -->
+</head>
+<body>
+    <div class="header">
+        <div class="logo-banner"></div>
+        <div class="topbar">
+            管理員登出
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 商城系統 -->
+        <div class="sys-block">
+            <h2><span class="shield">🛡️</span>商城系統</h2>
+            <ul>
+                <li>商品上/下架</li>
+                <li>商品分類</li>
+                <li>編輯商品資訊</li>
+                <li>商品評論管理</li>
+                <li>優惠券發放</li>
+            </ul>
+        </div>
+        <!-- 新聞系統 -->
+        <div class="sys-block">
+            <h2><span class="bubble">💬</span>新聞系統</h2>
+            <ul>
+                <li>新聞編輯</li>
+                <li>審核檢舉</li>
+                <li>新聞評論管理</li>
+                <li>黑名單管理</li>
+            </ul>
+        </div>
+        <!-- 論壇系統 -->
+        <div class="sys-block">
+            <h2><span class="gamepad">🎮</span>論壇系統</h2>
+            <ul>
+                <li>討論區管理</li>
+                <li>文章管理</li>
+                <li>發布官方文章</li>
+                <li>審核檢舉</li>
+            </ul>
+        </div>
+        <!-- 會員系統 -->
+        <div class="sys-block">
+            <h2><span class="star">⭐</span>會員系統</h2>
+            <ul>
+                <li>會員資料查詢</li>
+                <li>會員停權</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
