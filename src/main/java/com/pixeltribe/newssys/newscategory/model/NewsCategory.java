@@ -28,6 +28,7 @@ public class NewsCategory {
     private String ncatName;
 
     @OneToMany(mappedBy = "ncatNo")
+    @JsonBackReference
     private Set<NewContentClassification> newContentClassifications = new LinkedHashSet<>();
 
 }

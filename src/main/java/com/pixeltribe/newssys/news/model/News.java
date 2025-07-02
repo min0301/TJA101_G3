@@ -37,7 +37,6 @@ public class News {
     private String newsCon;
     @Column(name = "NEWS_UPDATE")
     private Instant newsUpdate;
-// test
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
@@ -52,7 +51,7 @@ public class News {
     private Member memNo;
 
     @OneToMany(mappedBy = "newsNo")
-    @JsonIgnore
+    @JsonManagedReference
     private Set<NewContentClassification> newContentClassifications = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "newsNo")

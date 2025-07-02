@@ -22,11 +22,13 @@ public class NewContentClassification {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "NCAT_NO", nullable = false)
+    @JsonManagedReference
     private NewsCategory ncatNo;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "NEWS_NO", nullable = false)
+    @JsonBackReference
     private News newsNo;
 
 }

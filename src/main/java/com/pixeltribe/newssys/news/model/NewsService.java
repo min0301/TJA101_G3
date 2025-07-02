@@ -1,10 +1,10 @@
 package com.pixeltribe.newssys.news.model;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class NewsService {
@@ -19,17 +19,15 @@ public class NewsService {
         newsRepository.save(news);
     }
 
-    public News getOneNews(Integer id) {
-        Optional<News> news = newsRepository.findById(id);
-        return news.orElse(null);
+    public NewsDto getOneNews(Integer id) {
+        NewsDto newsDto = newsRepository.getNewsById(id);
+        return newsDto;
     }
 
-    public List<News> findAll() {
-        return newsRepository.findAll();
-    }
-
-    public void deleteNews(Integer id) {
-        newsRepository.deleteById(id);
+    public List<NewsDto> findAll() {
+//        return newsRepository.findAll()
+        return newsRepository.getLastFiveNews(PageRequest.of(0, 5));
+//        return newsRepository.findAllByOrderByNewsCrdateDesc();
     }
 
 
