@@ -19,12 +19,12 @@ public class NewsService {
         newsRepository.save(news);
     }
 
-    public NewsDto getOneNews(Integer id) {
-        NewsDto newsDto = newsRepository.getNewsById(id);
+    public NewsDTO getOneNews(Integer id) {
+        NewsDTO newsDto = newsRepository.getNewsById(id);
         return newsDto;
     }
 
-    public List<NewsDto> findAll() {
+    public List<NewsDTO> findAll() {
 //        return newsRepository.findAll()
         return newsRepository.getLastFiveNews(PageRequest.of(0, 5));
 //        return newsRepository.findAllByOrderByNewsCrdateDesc();

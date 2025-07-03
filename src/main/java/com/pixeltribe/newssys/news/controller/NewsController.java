@@ -1,7 +1,7 @@
 package com.pixeltribe.newssys.news.controller;
 
 
-import com.pixeltribe.newssys.news.model.NewsDto;
+import com.pixeltribe.newssys.news.model.NewsDTO;
 import com.pixeltribe.newssys.news.model.NewsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,12 +19,12 @@ public class NewsController {
     NewsService newsSrv;
 
     @GetMapping("News")
-    public List<NewsDto> findAll() {
+    public List<NewsDTO> findAll() {
         return newsSrv.findAll();
     }
 
     @GetMapping("News/{newsId}")
-    public NewsDto findById(@PathVariable Integer newsId) {
+    public NewsDTO findById(@PathVariable Integer newsId) {
         return newsSrv.getOneNews(newsId);
     }
 
