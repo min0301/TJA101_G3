@@ -16,7 +16,7 @@ import com.pixeltribe.forumsys.forumVO.ForumCollect;
 import com.pixeltribe.forumsys.forumVO.ForumLike;
 import com.pixeltribe.forumsys.forumVO.ForumMes;
 import com.pixeltribe.forumsys.forumVO.ForumMesLike;
-import com.pixeltribe.forumsys.forumVO.ForumPost;
+import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import com.pixeltribe.forumsys.forumVO.PostCollect;
 import com.pixeltribe.membersys.friendlist.model.FriendList;
 import com.pixeltribe.membersys.memberloginlog.model.MemberLoginLog;

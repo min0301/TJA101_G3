@@ -1,6 +1,7 @@
-package com.pixeltribe.forumsys.forumVO;
+package com.pixeltribe.forumsys.forumpost.model;
 
 import com.pixeltribe.forumsys.forum.model.Forum;
+import com.pixeltribe.forumsys.forumVO.*;
 import com.pixeltribe.membersys.member.model.Member;
 
 import jakarta.persistence.*;
