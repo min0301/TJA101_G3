@@ -1,11 +1,35 @@
 package com.pixeltribe.forumsys.forumpost.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference; // 確保導入
+import com.fasterxml.jackson.annotation.JsonProperty; // 確保導入
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.forumsys.forumVO.*;
 import com.pixeltribe.membersys.member.model.Member;
+import com.pixeltribe.forumsys.forumVO.ArticleReport;
+import com.pixeltribe.forumsys.forumVO.ForumImage;
+import com.pixeltribe.forumsys.forumVO.ForumMes;
+import com.pixeltribe.forumsys.forumVO.PostCollect;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,11 +51,49 @@ public class ForumPost {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FOR_NO")
+    @JsonBackReference  // 保持 JsonBackReference，它與 Forum.java 的 JsonManagedReference 配對
+    @NotEmpty(message="討論區編號: 請勿空白")
     private Forum forNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEM_NO")
+    @JsonBackReference
     private Member memNo;
+
+    // **確保這個方法存在** nick new
+    @JsonProperty("forumName")
+    public String getForumName() {
+        if (this.forNo != null) {
+            return this.forNo.getForName(); // 呼叫 Forum Entity 的 getForName()
+        }
+        return "未知討論區";
+    }
+
+    // **確保這個方法存在** nick new
+    @JsonProperty("memberName")
+    public String getMemberName() {
+        if (this.memNo != null) {
+            return this.memNo.getMemName(); // 呼叫 Member Entity 的 getMemName()
+        }
+        return "匿名會員";
+    }
+    // **確保這個方法存在 (供 DTO 獲取 ID)** nick new
+    @JsonProperty("forNoId")
+    public Integer getForNoId() {
+        if (this.forNo != null) {
+            return this.forNo.getId();
+        }
+        return null;
+    }
+
+    // **確保這個方法存在 (供 DTO 獲取 ID)** nick new
+    @JsonProperty("memNoId")
+    public Integer getMemNoId() {
+        if (this.memNo != null) {
+            return this.memNo.getId();
+        }
+        return null;
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FTAG_NO")
@@ -39,6 +101,7 @@ public class ForumPost {
 
     @Size(max = 50)
     @Column(name = "POST_TITLE", length = 50)
+    @Pattern(regexp = "^[一-龥-a-zA-Z0-9_]{2,10}$", message = "文章標題: 只能是中、英文字母、數字和_ , 且長度必需在2到10之間")
     private String postTitle;
 
     @Size(max = 5000)
@@ -76,15 +139,23 @@ public class ForumPost {
     @Column(name = "POST_LIKE_DLC")
     private Integer postLikeDlc;
 
+    @Lob
+    @Column(name = "POST_COVER_IMAGE")
+    private byte[] postCoverImage; // **確保這個欄位存在** nick new
+
+    @JsonIgnore
     @OneToMany(mappedBy = "postNo")
     private Set<ArticleReport> articleReports = new LinkedHashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "postNo")
     private Set<ForumImage> forumImages = new LinkedHashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "postNo")
     private Set<ForumMes> forumMes = new LinkedHashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "postNo")
     private Set<PostCollect> postCollects = new LinkedHashSet<>();
 
