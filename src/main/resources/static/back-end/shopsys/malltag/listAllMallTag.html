@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>商城標籤</title>
+	<style>
+        table {
+            width: 30%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<h1>商品標籤列表</h1>
+	<button type="button" class="btn_add">新增商城標籤</button>
+    <table id="mallTagsTable">
+        <thead>
+            <tr>
+                <th>商城標籤編號</th>
+                <th>商城標籤名稱</th>
+                <th colspan=2>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+     <script src ="/js/jquery-1.11.3.min.js"></script>
+     <script>
+     	function init(){
+            fetch('/malltag/MallTag', { 
+                method: 'GET', 
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => res.json()).then(data =>{
+            	const tableBody = document.querySelector('#mallTagsTable tbody');
+                tableBody.innerHTML = ''; // 清空現有內容
+            	let list_html="";
+                $.each(data, function(index,item){
+                     list_html += `
+                     	<tr>
+	                    	 <td>${item.id}</td>
+	                         <td>${item.mallTagName}</td>
+	                         <td><button type="button" class="btn_update">修改</button></td>
+	                         <td><button type="button" class="btn_delete">刪除</button></td>
+                        </tr>
+                    `;
+                    
+                });
+                tableBody.innerHTML = list_html;
+            });
+     	}
+     	
+        init();
+
+    </script>
+</body>
+</html>

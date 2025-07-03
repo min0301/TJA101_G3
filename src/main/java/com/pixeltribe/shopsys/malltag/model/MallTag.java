@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pixeltribe.shopsys.product.model.Product;
 
 @Getter
@@ -26,6 +27,7 @@ public class MallTag {
     private String mallTagName;
 
     @OneToMany(mappedBy = "mallTagNo")
+    @JsonIgnore
     private Set<Product> products = new LinkedHashSet<>();
 
 }

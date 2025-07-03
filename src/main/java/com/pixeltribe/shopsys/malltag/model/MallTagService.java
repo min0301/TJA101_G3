@@ -25,12 +25,13 @@ public class MallTagService {
     }
 
     public MallTag getOneMallTag(Integer mallTagNO) {
-        Optional<MallTag> optional = mallTagRepository.findById(mallTagNO);
-        return optional.orElse(null);
+        Optional<MallTag> malltag = mallTagRepository.findById(mallTagNO);
+        return malltag.orElse(null);
     }
 
     public List<MallTag> getAllMallTags() {
         return mallTagRepository.findAll();
+
     }
 
 }
