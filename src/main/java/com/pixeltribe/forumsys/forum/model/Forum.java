@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pixeltribe.forumsys.forumVO.ForumChatMessage;
 import com.pixeltribe.forumsys.forumVO.ForumCollect;
 import com.pixeltribe.forumsys.forumVO.ForumLike;
-import com.pixeltribe.forumsys.forumVO.ForumPost;
+import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import com.pixeltribe.forumsys.forumcategory.model.ForumCategory;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
