@@ -1,5 +1,5 @@
 package com.pixeltribe.shopsys.cart.model;
 
-public class Cart {
+public class CheckoutResult {
 	
 }
