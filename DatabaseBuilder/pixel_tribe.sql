@@ -201,12 +201,12 @@ CREATE TABLE ADMINISTRATOR
 
 -- 填入假資料
 INSERT INTO ADMINISTRATOR (ADM_ACCOUNT, ADM_NAME, ADM_PASSWORD)
-VALUES ('ggdoging', '黃健祐', '123456'),
-       ('Akuei', '許政逵', '123456'),
-       ('kywle', '高于雯', '123456'),
-       ('joanna', '林薰妤', '123456'),
-       ('nick111', '林玉祥', '123456'),
-       ('Jimmy', '魏君珉', '123456');
+VALUES ('chienyu749@gmail.com', '黃健祐', '123456'),
+       ('akueiyh@gmail.com', '許政逵', '123456'),
+       ('a84052294@gmail.com', '高于雯', '123456'),
+       ('joanna.yu0820@gmail.com', '林薰妤', '123456'),
+       ('xiang10220619@gmail.com', '林玉祥', '123456'),
+       ('jimmy00tw@gmail.com', '魏君珉', '123456');
 
 CREATE TABLE FRIEND_LIST
 (
