@@ -10,7 +10,7 @@ public class NewsCommentService {
     @Autowired
     NewsCommentRepository newsCommentRepository;
 
-    public List<NewsComment> findAll() {
-        return newsCommentRepository.findAll();
+    public List<NewsCommentDTO> findAll(Integer id) {
+        return newsCommentRepository.getNewsCommentsByNewsNo(id);
     }
 }
