@@ -82,17 +82,50 @@ public class ForumService {
     }
 
 
-    public Forum update(ForumUpdateDTO forumEditDTO) {
+    public Forum update(Integer forNo ,ForumUpdateDTO forumUpdateDTO, MultipartFile imageFile) {
 
-        Forum forum = new Forum();
-        forum.setForName(forumEditDTO.getForName());
-        forum.setForDes(forumEditDTO.getForDes());
-        forum.setForStatus(forumEditDTO.getForStatus());
+        Forum forumToUpdate = forumRepository.findById(forNo).get();
+        forumToUpdate.setForName(forumUpdateDTO.getForName());
+        forumToUpdate.setForDes(forumUpdateDTO.getForDes());
+        forumToUpdate.setForStatus(forumUpdateDTO.getForStatus());
 
-        ForumCategory category = forumCategoryRepository.findById(forumEditDTO.getCategoryId()).get();
-        forum.setCatNo(category);
+        // 1. 處理檔案儲存
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                // 2. 產生一個唯一的檔名，避免檔名衝突
+                String originalFilename = imageFile.getOriginalFilename();
+                String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
+                // 3. 儲存檔案到伺服器指定路徑
+                Path uploadPath = Paths.get(uploadDir + "/forumsys/forum");
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath); // 如果目錄不存在，則建立
+                }
+                Path filePath = uploadPath.resolve(uniqueFilename);
+                try (InputStream inputStream = imageFile.getInputStream()) {
+                    Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+                }
+                // 4. 產生公開存取 URL
+                String imageUrl = baseUrl + "/uploads/forumsys/forum/" + uniqueFilename; // 靜態資源路徑是 /uploads/
+                // 5. 將 URL 設定到 forum 物件中
+                forumToUpdate.setForImgUrl(imageUrl);
 
-        return forumRepository.save(forum);
+            } catch (IOException e) {
+                // 在真實專案中，應拋出一個自訂的執行時例外，讓 @ControllerAdvice 統一處理
+                throw new RuntimeException("檔案儲存失敗", e);
+            }
+        }
+
+        //===============================
+        // 從傳入的 forum 物件中取得 categoryId
+        ForumCategory category = forumCategoryRepository.findById(forumUpdateDTO.getCategoryId()).get();
+        // 將查找到的 Category 物件設定回 forum 的 catNo 屬性
+        forumToUpdate.setCatNo(category);
+
+        //===============================
+        // 6. 將包含 imageURL 的 forum 物件存入資料庫
+        return forumRepository.save(forumToUpdate);
+
     }
 
 
@@ -145,8 +178,10 @@ public class ForumService {
                 .collect(Collectors.toList());
     }
 
-
-
+    public ForumDetailDTO getOneForum(Integer forNo) {
+        Forum forum = forumRepository.findById(forNo).get();
+        return convertToForumDetailDTO(forum);
+    }
 
 
 }

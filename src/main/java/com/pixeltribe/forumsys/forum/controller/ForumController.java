@@ -1,10 +1,7 @@
 package com.pixeltribe.forumsys.forum.controller;
 
+import com.pixeltribe.forumsys.forum.model.*;
 import io.swagger.v3.oas.annotations.*;
-import com.pixeltribe.forumsys.forum.model.Forum;
-import com.pixeltribe.forumsys.forum.model.ForumCreationDTO;
-import com.pixeltribe.forumsys.forum.model.ForumDetailDTO;
-import com.pixeltribe.forumsys.forum.model.ForumService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class ForumController {
@@ -39,7 +37,9 @@ public class ForumController {
             summary = "查類別中有哪些文章",
             description = "222"
     )
-    public List<ForumDetailDTO> findByCatNo_Id(@PathVariable @Parameter(description = "討論區類別編號" , example = "1") Integer catNo) {
+    public List<ForumDetailDTO> findByCatNo_Id(
+            @Parameter(description = "討論區類別編號", example = "1")
+            @PathVariable Integer catNo) {
 
         return forumSvc.getForumsByCategory(catNo);
     }
@@ -67,16 +67,45 @@ public class ForumController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdForum);
     }
 
+    @PutMapping("/admin/forum/{forNo}")
+    @Operation(
+            summary = "修改討論區"
+    )
+    public ResponseEntity<?> updateForum(
+            @PathVariable Integer forNo,
+            @RequestPart("forumDTO") @Valid ForumUpdateDTO forumDTO,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+            BindingResult result) {
+        if (result.hasErrors()) {
+            // 如果 JSON 資料驗證失敗，回傳 400 錯誤
+            return ResponseEntity.badRequest().body("輸入資料有誤！");
+        }
+        //*************************** 2. 開始更新資料 *****************************************/
+        // 讓 Service 層回傳新增成功後、包含新 ID 的物件，這在 API 中是個好習慣
+        Forum updateForum = forumSvc.update(forNo, forumDTO, imageFile);
 
-//    public ResponseEntity<?> updateForum(
-//            @RequestPart("forum") @Valid ForumCreationDTO forumDTO,
-//            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
-//            BindingResult result){
-//
-//    }
+        //*************************** 3. 更新完成,準備轉交(Send the Success view) **************/
+        // 回傳 201 Created 狀態碼，並在 body 中附上新增成功的員工資料
+        // 這能讓前端立刻知道新增資源的 ID 是多少
+        return ResponseEntity.ok(updateForum);
+    }
+
+    @GetMapping("/forum/{forNo}")
+    @Operation(
+            summary = "查單一討論區"
+    )
+    public ForumDetailDTO findOneForum(
+            @Parameter(description = "討論區編號", example = "1")
+            @PathVariable Integer forNo) {
+
+        return forumSvc.getOneForum(forNo);
+    }
 
 
 }
+
+
+
 
 
 
