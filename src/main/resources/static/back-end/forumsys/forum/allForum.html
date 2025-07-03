@@ -274,7 +274,7 @@
             <td>${new Date(forum.forUpdate).toLocaleString()}</td>
             <td>${forum.forStatus === '0' ? '正常' : '停用'}</td>
             <td>
-                <a href="forum.html?id=${forum.id}" class="btn btn-edit">修改</a>
+                <a href="edit-forum.html?id=${forum.id}" class="btn btn-edit">修改</a>
             </td>
         `;
         tableBody.appendChild(row);
