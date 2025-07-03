@@ -44,6 +44,7 @@ public class ForumController {
         return forumSvc.getForumsByCategory(catNo);
     }
 
+
     @PostMapping("/admin/forum")
     @Operation(
             summary = "新增討論區"
@@ -65,6 +66,14 @@ public class ForumController {
         // 這能讓前端立刻知道新增資源的 ID 是多少
         return ResponseEntity.status(HttpStatus.CREATED).body(createdForum);
     }
+
+
+//    public ResponseEntity<?> updateForum(
+//            @RequestPart("forum") @Valid ForumCreationDTO forumDTO,
+//            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+//            BindingResult result){
+//
+//    }
 
 
 }

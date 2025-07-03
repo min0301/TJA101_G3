@@ -13,8 +13,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -35,7 +33,6 @@ public class Forum {
     private String forName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "CAT_NO")
 //    @JsonBackReference
     private ForumCategory catNo;

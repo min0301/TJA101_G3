@@ -5,8 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import com.pixeltribe.membersys.member.model.Member;
 
@@ -22,12 +20,10 @@ public class ForumChatReport {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "REPORTER")
     private Member reporter;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "REPORT_TYPE")
     private ReportType reportType;
 
@@ -37,7 +33,6 @@ public class ForumChatReport {
     private Character forChatRepStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "CMES_NO")
     private ForumChatMessage cmesNo;
 
