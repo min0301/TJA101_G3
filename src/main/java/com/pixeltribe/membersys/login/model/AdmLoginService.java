@@ -1,9 +1,12 @@
-package com.pixeltribe.membersys.administrator.model;
+package com.pixeltribe.membersys.login.model;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.pixeltribe.membersys.administrator.DTO.AdmLoginResult;
+
+import com.pixeltribe.membersys.administrator.model.AdmRepository;
+import com.pixeltribe.membersys.administrator.model.Administrator;
+import com.pixeltribe.membersys.login.DTO.AdmLoginResult;
 
 @Service
 public class AdmLoginService {
@@ -14,7 +17,7 @@ public class AdmLoginService {
 	public AdmLoginResult login(String admAccount, String admPassword) {
         Administrator admin = admRepository.findByAdmAccount(admAccount);
         if (admin == null) {
-            return new AdmLoginResult(false, "帳號不存在");
+            return new AdmLoginResult(false, "該管理員帳號不存在");
         }
         if (!admin.getAdmPassword().equals(admPassword)) {
             return new AdmLoginResult(false, "密碼錯誤");

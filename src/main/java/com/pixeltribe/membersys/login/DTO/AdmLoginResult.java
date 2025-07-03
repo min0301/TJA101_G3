@@ -1,4 +1,4 @@
-package com.pixeltribe.membersys.administrator.DTO;
+package com.pixeltribe.membersys.login.DTO;
 
 public class AdmLoginResult {
 	

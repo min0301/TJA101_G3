@@ -1,4 +1,4 @@
-package com.pixeltribe.membersys.administrator.controller;
+package com.pixeltribe.membersys.login.controller;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.pixeltribe.membersys.administrator.DTO.AdmLoginResult;
-import com.pixeltribe.membersys.administrator.model.AdmLoginService;
+import com.pixeltribe.membersys.login.DTO.AdmLoginResult;
+import com.pixeltribe.membersys.login.model.AdmLoginService;
+
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/adm")
 public class AdmLoginController {
 
 	@Autowired

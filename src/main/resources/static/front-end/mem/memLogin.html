@@ -2,9 +2,8 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>管理員登入</title>
+<title>會員登入</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
 <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
 <style>
     body {
@@ -104,13 +103,13 @@
     <!-- 登入表單區塊 -->
     <div class="login-container">
         <div class="pixel-title">PIXEL TRIBE</div>
-        <div class="login-label">管理員登入</div>
+        <div class="login-label">會員登入</div>
         <form id="loginForm" autocomplete="off">
             <div class="input-area">
-                <input type="text" id="admAccount" class="login-input" placeholder="帳號" autocomplete="username">
+                <input type="text" id="memAccount" class="login-input" placeholder="帳號" autocomplete="username">
             </div>
             <div class="input-area">
-                <input type="password" id="admPassword" class="login-input" placeholder="密碼" autocomplete="current-password">
+                <input type="password" id="memPassword" class="login-input" placeholder="密碼" autocomplete="current-password">
             </div>
             <button type="submit" id="loginBtn">登入</button>
             <span id="result"></span>
@@ -119,23 +118,23 @@
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const admAccount = document.getElementById('admAccount').value.trim();
-            const admPassword = document.getElementById('admPassword').value.trim();
+            const memAccount = document.getElementById('memAccount').value.trim();
+            const memPassword = document.getElementById('memPassword').value.trim();
             const result = document.getElementById('result');
-            if (!admAccount && !admPassword) {
+            if (!memAccount && !memPassword) {
                 result.textContent = '請輸入帳號及密碼';
                 return;
-            } else if (!admAccount) {
+            } else if (!memAccount) {
                 result.textContent = '請輸入帳號';
                 return;
-            } else if (!admPassword) {
+            } else if (!memPassword) {
                 result.textContent = '請輸入密碼';
                 return;
             }
-            fetch('/api/login', {
+            fetch('/api/mem/login', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({admAccount, admPassword})
+                body: JSON.stringify({memAccount, memPassword})
             })
             .then(res => res.json())
             .then(data => {
@@ -143,7 +142,7 @@
                     result.textContent = data.message;
                 } else {
                     alert('登入成功！');
-                    window.location.href = "/back-end/adm/admHomePage.html";
+                    window.location.href = "/front-end/mem/HomePage.html";
                 }
             });
         });
