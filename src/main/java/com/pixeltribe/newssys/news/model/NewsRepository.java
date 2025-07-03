@@ -10,7 +10,7 @@ import java.util.List;
 public interface NewsRepository extends JpaRepository<News, Integer> {
 
     @Query( """   
-            select new com.pixeltribe.newssys.news.model.NewsDto(
+            select new com.pixeltribe.newssys.news.model.NewsDTO(
                          n.id,
                          n.newsTit,
                          n.newsCon,
@@ -26,10 +26,10 @@ public interface NewsRepository extends JpaRepository<News, Integer> {
                 group by n.id, n.newsTit, n.newsCon, n.newsCrdate, n.newsUpdate
                 order by n.newsCrdate desc
             """)
-    public List<NewsDto> getLastFiveNews(Pageable p);
+    public List<NewsDTO> getLastFiveNews(Pageable p);
 
     @Query( """
-            select new com.pixeltribe.newssys.news.model.NewsDto(
+            select new com.pixeltribe.newssys.news.model.NewsDTO(
                          n.id ,
                          n.newsTit,
                          n.newsCon,
@@ -46,6 +46,6 @@ public interface NewsRepository extends JpaRepository<News, Integer> {
                 group by n.id, n.newsTit, n.newsCon, n.newsCrdate, n.newsUpdate
                 order by n.newsCrdate desc
             """)
-    public NewsDto getNewsById(@Param("id") Integer id);
+    public NewsDTO getNewsById(@Param("id") Integer id);
 
 }

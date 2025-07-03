@@ -11,7 +11,7 @@ import java.util.List;
  * DTO for {@link News}
  */
 @Value
-public class NewsCreationDto implements Serializable {
+public class NewsCreationDTO implements Serializable {
     @NotNull
     @Size(max = 255)
     String newsTit;

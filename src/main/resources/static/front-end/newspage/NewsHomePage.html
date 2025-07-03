@@ -41,13 +41,36 @@
         article {
             background: #fff;
             border-radius: 1rem;
-            padding: 1.25rem 1.5rem;
+            padding: 1rem 1.25rem;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s;
+            display: flex;
+            gap: 1.25rem;
         }
 
         article:hover {
             transform: translateY(-2px);
+        }
+
+        .thumb {
+            flex: 0 0 220px;
+            aspect-ratio: 16/9;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .thumb img {
+            display: none; /* 載入完成才顯示 */
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .content {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         h2 {
@@ -93,46 +116,87 @@
             border-radius: 0.5rem;
             white-space: nowrap;
         }
+
+        @media (max-width: 640px) {
+            article {
+                flex-direction: column;
+            }
+            .thumb {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
-<h1>遊戲新聞</h1>
+<h1>最新 5 則遊戲新聞</h1>
 <ul id="news-list"></ul>
 
 <script>
     const list = document.getElementById("news-list");
 
+    // 先撈新聞清單
     fetch("/api/News")
         .then((res) => res.json())
-        .then(render)
+        .then(renderNewsList)
         .catch((err) => {
             list.innerHTML = "<li>無法載入新聞資料…</li>";
             console.error(err);
         });
 
-    function render(items) {
+    /**
+     * 渲染主列表（不含圖片，之後再逐條補上）
+     */
+    function renderNewsList(items) {
         list.innerHTML = items.map(toHtml).join("");
+
+        // 逐則載入首張圖片
+        items.forEach((n) => loadFirstImage(n.id));
     }
 
+    /**
+     * 產生單一新聞卡片 HTML
+     */
     function toHtml(n) {
         const pub = new Date(n.newsCrdate).toLocaleString();
         const upd = n.newsUpdate ? new Date(n.newsUpdate).toLocaleString() : null;
         const tags = (n.categoryTags || [])
-            .map((t) => `<span>${t}</span>`)
+            .map((t) => `<span>${t}</span>`) // 單行 template
             .join(" ");
+
         return `
         <li>
           <article>
-            <h2><a href="/news/${n.id}" title="查看詳細">${n.newsTit}</a></h2>
-            <p>${n.newsCon.slice(0, 120)}…</p>
-            <div class="meta">
-              <span>發布：${pub}</span>
-              ${upd ? `<span>更新：${upd}</span>` : ""}
-              <span>圖片：${n.numberOfNewsPhoto}</span>
+            <div class="thumb"><img data-id="${n.id}" alt="${n.newsTit}" loading="lazy" /></div>
+            <div class="content">
+              <h2><a href="/news/${n.id}" title="查看詳細">${n.newsTit}</a></h2>
+              <p>${n.newsCon.slice(0, 120)}…</p>
+              <div class="meta">
+                <span>發布：${pub}</span>
+                ${upd ? `<span>更新：${upd}</span>` : ""}
+                <span>圖片：${n.numberOfNewsPhoto}</span>
+              </div>
+              <div class="meta tags">${tags}</div>
             </div>
-            <div class="meta tags">${tags}</div>
           </article>
         </li>`;
+    }
+
+    /**
+     * 透過 /api/news/image/{newsId}/NewsImage 撈出第一張圖做縮圖
+     */
+    function loadFirstImage(newsId) {
+        fetch(`/api/news/image/${newsId}/NewsImage`)
+            .then((res) => res.json())
+            .then((imgs) => {
+                if (!Array.isArray(imgs) || imgs.length === 0) return;
+                const first = imgs[0];
+                const imgEl = list.querySelector(`img[data-id="${newsId}"]`);
+                if (imgEl) {
+                    imgEl.src = first.imgUrl;
+                    imgEl.style.display = "block";
+                }
+            })
+            .catch((err) => console.error(`載入新聞 ${newsId} 圖片失敗`, err));
     }
 </script>
 </body>

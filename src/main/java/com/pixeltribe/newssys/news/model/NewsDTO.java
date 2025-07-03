@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Data
-public class NewsDto {
+public class NewsDTO {
     private Integer id;
     private String newsTit;
     private String newsCon;
@@ -16,7 +16,7 @@ public class NewsDto {
     private Long numberOfNewsPhoto;
     private List<String> categoryTags;
 
-    public NewsDto(Integer id, String title, String content,
+    public NewsDTO(Integer id, String title, String content,
                    Instant cr, Instant up,
                    Long imgCnt, String tagsCsv) {
         this.id = id;
