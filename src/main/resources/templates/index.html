@@ -13,7 +13,8 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" th:href="@{/}">PixelTribe</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -27,26 +28,32 @@
         <p>立即前往我們的核心功能區。</p>
         <hr class="my-4">
 
-    <div class="jumbotron p-2">
-        <p class="lead">系統功能</p>
-        <a class="btn btn-primary btn-lg" href="http://localhost:8080/swagger-ui/index.html" role="button">查看 Swagger</a>
-        </div>
-    <div class="jumbotron p-2">
-        <p class="lead">會員</p>
-        <a class="btn btn-primary btn-lg" th:href="@{/back-end/xxx}" role="button">進入xxx</a>
+
+        <div class="jumbotron p-2">
+            <p class="lead">系統功能</p>
+            <a class="btn btn-primary btn-lg" href="http://localhost:8080/swagger-ui/index.html" role="button">查看
+                Swagger</a>
         </div>
         <div class="jumbotron p-2">
-            <p class="lead">新聞</p>
+            <p class="lead">會員</p>
             <a class="btn btn-primary btn-lg" th:href="@{/back-end/xxx}" role="button">進入xxx</a>
         </div>
         <div class="jumbotron p-2">
+            <p class="lead">新聞</p>
+            <a class="btn btn-primary btn-lg" th:href="@{/front-end/newspage/NewsHomePage.html}"
+               role="button">進入Pixel新聞</a>
+
+        </div>
+        <div class="jumbotron p-2">
             <p class="lead">討論區</p>
-            <a class="btn btn-primary btn-lg" th:href="@{/back-end/forumsys/forum/allForum.html}" role="button">討論區列表</a>
+            <a class="btn btn-primary btn-lg" th:href="@{/back-end/forumsys/forum/allForum.html}"
+               role="button">討論區列表</a>
             <hr class="my-4">
         </div>
         <div class="jumbotron p-2">
             <p class="lead">商城</p>
-            <a class="btn btn-primary btn-lg" th:href="@{/back-end/shopsys/order/allOrder.html}" role="button">進入訂單</a>
+            <a class="btn btn-primary btn-lg" th:href="@{/back-end/shopsys/order/allOrder.html}"
+               role="button">進入訂單</a>
         </div>
     </div>
 
