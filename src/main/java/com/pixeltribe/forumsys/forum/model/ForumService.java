@@ -99,7 +99,7 @@ public class ForumService {
     public List<ForumDetailDTO> getAllForum() {
 
         // 1. 從資料庫取得原始的 Entity 列表
-        List<Forum> forums = forumRepository.findAll();
+        List<Forum> forums = forumRepository.findAllByOrderByForUpdateDesc();
 
         // 2. 使用 Stream API 將 List<Forum> 轉換為 List<ForumDetailDTO>
         return forums.stream()

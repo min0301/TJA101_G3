@@ -23,14 +23,33 @@
     <div class="jumbotron">
         <h1 class="display-4">歡迎來到 PixelTribe！</h1>
         <p class="lead">這是一個提供給開發者與創作者交流的社群。點擊下方按鈕開始探索。</p>
-        <hr class="my-4">
+
         <p>立即前往我們的核心功能區。</p>
+        <hr class="my-4">
 
-
-        <a class="btn btn-primary btn-lg" th:href="@{/back-end/forumsys/forum/allForum.html}" role="button">進入討論區</a>
-        <a class="btn btn-primary btn-lg" th:href="@{/back-end/shopsys/order/allOrder.html}" role="button">進入訂單</a>
-
+    <div class="jumbotron p-2">
+        <p class="lead">系統功能</p>
+        <a class="btn btn-primary btn-lg" href="http://localhost:8080/swagger-ui/index.html" role="button">查看 Swagger</a>
+        </div>
+    <div class="jumbotron p-2">
+        <p class="lead">會員</p>
+        <a class="btn btn-primary btn-lg" th:href="@{/back-end/xxx}" role="button">進入xxx</a>
+        </div>
+        <div class="jumbotron p-2">
+            <p class="lead">新聞</p>
+            <a class="btn btn-primary btn-lg" th:href="@{/back-end/xxx}" role="button">進入xxx</a>
+        </div>
+        <div class="jumbotron p-2">
+            <p class="lead">討論區</p>
+            <a class="btn btn-primary btn-lg" th:href="@{/back-end/forumsys/forum/allForum.html}" role="button">討論區列表</a>
+            <hr class="my-4">
+        </div>
+        <div class="jumbotron p-2">
+            <p class="lead">商城</p>
+            <a class="btn btn-primary btn-lg" th:href="@{/back-end/shopsys/order/allOrder.html}" role="button">進入訂單</a>
+        </div>
     </div>
+
 </main>
 
 <script th:src="@{/webjars/jquery/3.3.1-1/jquery.min.js}"></script>

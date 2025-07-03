@@ -78,7 +78,7 @@
         // --- 動態載入分類 ---
         async function loadCategories() {
             try {
-                const response = await fetch('http://localhost:8080/api/forum-category'); // URL
+                const response = await fetch('http://localhost:8080/api/categorys'); // URL
                 if (!response.ok) throw new Error('無法載入分類資料');
 
                 const categories = await response.json();
