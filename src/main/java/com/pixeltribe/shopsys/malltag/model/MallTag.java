@@ -19,6 +19,7 @@ import com.pixeltribe.shopsys.product.model.Product;
 public class MallTag {
     @Id
     @Column(name = "MALL_TAG_NO", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Size(max = 25)
@@ -29,5 +30,9 @@ public class MallTag {
     @OneToMany(mappedBy = "mallTagNo")
     @JsonIgnore
     private Set<Product> products = new LinkedHashSet<>();
+    
+    public MallTag() {
+    	
+    }
 
 }
