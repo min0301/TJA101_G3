@@ -24,7 +24,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "private_chatroom")
+@Table(name = "PRIVATE_CHATROOM")
 public class PrivateChatroom {
     @Id
     @Column(name = "PRIROOM_NO", nullable = false)

@@ -15,7 +15,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "administrator")
+@Table(name = "ADMINISTRATOR")
 public class Administrator {
     @Id
     @Column(name = "ADM_NO", nullable = false)

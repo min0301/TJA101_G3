@@ -21,7 +21,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "member_login_log")
+@Table(name = "MEMBER_LOGIN_LOG")
 public class MemberLoginLog {
     @Id
     @Column(name = "LOG_NO", nullable = false)

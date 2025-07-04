@@ -19,7 +19,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "log_fail_reason")
+@Table(name = "LOG_FAIL_REASON")
 public class LogFailReason {
     @Id
     @Column(name = "LOG_FAIL_REASON_NO", nullable = false)
