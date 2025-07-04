@@ -19,6 +19,7 @@ import java.util.Set;
 @Table(name = "news_category")
 public class NewsCategory {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "NCAT_NO", nullable = false)
     private Integer id;
 
