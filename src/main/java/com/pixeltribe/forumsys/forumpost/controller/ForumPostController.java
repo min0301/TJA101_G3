@@ -74,24 +74,24 @@ public class ForumPostController {
 
     // 3. 查詢特定討論區的文章數量
     // URL: /api/forum/{forNo}/posts/count
-    @GetMapping("/forum/{forNo}/posts/count")
-    public ResponseEntity<Long> countPostsByForum(@PathVariable("forNo") Integer forNo) {
-        long count = forumPostSvc.countPostsByForumId(forNo);
-        return ResponseEntity.ok(count);
-    }
+//    @GetMapping("/forum/{forNo}/posts/count")
+//    public ResponseEntity<Long> countPostsByForum(@PathVariable("forNo") Integer forNo) {
+//        long count = forumPostSvc.countPostsByForumId(forNo);
+//        return ResponseEntity.ok(count);
+//    }
 
     // 4. 查詢特定討論區下的特定文章 (根據文章 ID 和討論區 ID，返回 ForumPostDTO)
     // URL: /api/forum/{forNo}/posts/{postId}
-    @GetMapping("/forum/{forNo}/posts/{postId}")
-    public ResponseEntity<ForumPostDTO> getPostInForum(@PathVariable("forNo") Integer forNo,
-                                                       @PathVariable("postId") Integer postId) {
-        Optional<ForumPostDTO> postOptional = forumPostSvc.getPostByIdAndForumId(postId, forNo);
-        if (postOptional.isPresent()) {
-            return ResponseEntity.ok(postOptional.get());
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+//    @GetMapping("/forum/{forNo}/posts/{postId}")
+//    public ResponseEntity<ForumPostDTO> getPostInForum(@PathVariable("forNo") Integer forNo,
+//                                                       @PathVariable("postId") Integer postId) {
+//        Optional<ForumPostDTO> postOptional = forumPostSvc.getPostByIdAndForumId(postId, forNo);
+//        if (postOptional.isPresent()) {
+//            return ResponseEntity.ok(postOptional.get());
+//        } else {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//    }
 
     // 5. 新增文章 (保持現有邏輯)
     @PostMapping(value = "/forumpost/insert", consumes = {"multipart/form-data"})
