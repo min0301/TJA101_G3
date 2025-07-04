@@ -191,7 +191,11 @@
     <th>操作</th>
   </tr>
   </thead>
-  <tbody id="forum-data-body"></tbody>
+  <tbody id="forum-data-body">
+    <!--  nick new-->
+    <tr><td colspan="9" class="text-center text-muted">載入中...</td></tr>
+    <!--  nick new-->
+  </tbody>
 </table>
 
 <div class="pagination-container">
@@ -249,12 +253,18 @@
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
       const itemsToShow = allForumsData.slice(startIndex, endIndex);
-
+      //nick new 如果沒有論壇資料，顯示提示訊息
+      if (itemsToShow.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="9" class="text-center">目前沒有此論壇資訊。</td></tr>`;
+        return itemsToShow;
+      }
+      //nick new 如果沒有論壇資料，顯示提示訊息
       itemsToShow.forEach(forum => {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${forum.id}</td>
-            <td>${forum.forName}</td>
+            <td> <a href="/back-end/forumsys/forumpost/allForumPost.html?forNo=${forum.id}">
+                ${forum.forName || '無名稱'} </a></td>
 <!--            <td>${forum.categoryName}</td>-->
             <td>
                 <a href="findByCatNoForum.html?catId=${forum.categoryId}">
@@ -274,7 +284,7 @@
             <td>${new Date(forum.forUpdate).toLocaleString()}</td>
             <td>${forum.forStatus === '0' ? '正常' : '停用'}</td>
             <td>
-                <a href="edit-forum.html?id=${forum.id}" class="btn btn-edit">修改</a>
+                <a href="forum.html?id=${forum.id}" class="btn btn-edit">修改</a>
             </td>
         `;
         tableBody.appendChild(row);

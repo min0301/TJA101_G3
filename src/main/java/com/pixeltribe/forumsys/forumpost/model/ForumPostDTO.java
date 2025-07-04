@@ -22,8 +22,8 @@ public class ForumPostDTO {
     private String postTitle;
     @Schema(description = "文章內容") // 對應 postCon
     private String postCon;
-    @Schema(description = "文章圖片URL") // 從 ForumPost 的 postCoverImage 獲取 URL
-    private String postCoverImageUrl;
+//    @Schema(description = "文章圖片URL") // 從 ForumPost 的 postCoverImage 獲取 URL
+//    private String postCoverImageUrl;
 
     @Schema(description = "建立時間") // 對應 postCrdate
     private Instant postCrdate;

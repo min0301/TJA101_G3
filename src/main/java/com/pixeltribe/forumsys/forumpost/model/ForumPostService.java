@@ -66,10 +66,10 @@ public class ForumPostService {
     }
 
     // 計算特定討論區的文章數量
-    @Transactional(readOnly = true)
-    public long countPostsByForumId(Integer forNo) {
-        return forumPostRepository.countByForNo_Id(forNo); // 注意 Repository 方法名中的 forNo_Id
-    }
+//    @Transactional(readOnly = true)
+//    public long countPostsByForumId(Integer forNo) {
+//        return forumPostRepository.countByForNo_Id(forNo); // 注意 Repository 方法名中的 forNo_Id
+//    }
 
     // 獲取特定討論區的文章列表 (返回 DTO 列表)
     @Transactional(readOnly = true)
@@ -81,11 +81,11 @@ public class ForumPostService {
     }
 
     // 根據文章 ID 和討論區 ID 查詢單篇文章 (返回 Optional<ForumPostDTO>)
-    @Transactional(readOnly = true)
-    public Optional<ForumPostDTO> getPostByIdAndForumId(Integer postId, Integer forumId) {
-        return forumPostRepository.findByIdAndForNoId(postId, forumId) // 注意 Repository 方法名中的 forNo_Id
-                .map(ForumPostDTO::new);
-    }
+//    @Transactional(readOnly = true)
+//    public Optional<ForumPostDTO> getPostByIdAndForumId(Integer postId, Integer forumId) {
+//        return forumPostRepository.findByIdAndForNoId(postId, forumId) // 注意 Repository 方法名中的 forNo_Id
+//                .map(ForumPostDTO::new);
+//    }
     //nick new 假設你還有一個 Forum 服務來獲取 Forum 詳細信息，這裡簡化處理
     public ForumService getForumService() {
         return forumService;
