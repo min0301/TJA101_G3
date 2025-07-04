@@ -139,9 +139,9 @@ public class ForumPost {
     @Column(name = "POST_LIKE_DLC")
     private Integer postLikeDlc;
 
-    @Lob
-    @Column(name = "POST_COVER_IMAGE")
-    private byte[] postCoverImage; // **確保這個欄位存在** nick new
+//    @Lob
+//    @Column(name = "POST_COVER_IMAGE")
+//    private byte[] postCoverImage; // **確保這個欄位存在** nick new
 
     @JsonIgnore
     @OneToMany(mappedBy = "postNo")

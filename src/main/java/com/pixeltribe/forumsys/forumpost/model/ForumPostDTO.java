@@ -2,10 +2,7 @@ package com.pixeltribe.forumsys.forumpost.model;
 
 import com.pixeltribe.forumsys.forumpost.model.ForumPost; // 確保導入 ForumPost Entity
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor; // 確保導入
-import lombok.AllArgsConstructor; // 確保導入
+import lombok.*;
 
 import java.time.Instant; // 確保導入 Instant
 
@@ -16,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty; // 確保導入 JsonProper
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "文章區list DTO") // 保持 OpenAPI 註解
+@ToString
 public class ForumPostDTO {
 
     @Schema(description = "文章編號", example = "1")
@@ -60,12 +58,12 @@ public class ForumPostDTO {
         this.postTitle = post.getPostTitle();
         this.postCon = post.getPostCon();
 
-        // 圖片 URL 邏輯，確保與 Controller 中的一致
-        if (post.getPostCoverImage() != null && post.getId() != null) {
-            this.postCoverImageUrl = "/api/forumpost/image/" + post.getId();
-        } else {
-            this.postCoverImageUrl = "/static/images/common_default_cover.png"; // 前端靜態資源預設圖片
-        }
+//        // 圖片 URL 邏輯，確保與 Controller 中的一致
+//        if (post.getPostCoverImage() != null && post.getId() != null) {
+//            this.postCoverImageUrl = "/api/forumpost/image/" + post.getId();
+//        } else {
+//            this.postCoverImageUrl = "/static/images/common_default_cover.png"; // 前端靜態資源預設圖片
+//        }
 
         this.postCrdate = post.getPostCrdate();
         this.postUpdate = post.getPostUpdate();

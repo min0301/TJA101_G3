@@ -49,10 +49,10 @@ public class ForumPostController {
     @Autowired
     public ForumPostController(ForumPostService forumPostSvc, ForumService forumService)
     {this.forumPostSvc = forumPostSvc;this.forumService = forumService;}
-    //ForumTagService forumTagService,
-    //MemberService memberService
-    // this.forumTagService = forumTagService;
-    // this.memberService = memberService;
+//    ForumTagService forumTagService,
+//    MemberService memberService
+//     this.forumTagService = forumTagService;
+//     this.memberService = memberService;
 
     // --- API 端點 ---
 
@@ -74,24 +74,24 @@ public class ForumPostController {
 
     // 3. 查詢特定討論區的文章數量
     // URL: /api/forum/{forNo}/posts/count
-    @GetMapping("/forum/{forNo}/posts/count")
-    public ResponseEntity<Long> countPostsByForum(@PathVariable("forNo") Integer forNo) {
-        long count = forumPostSvc.countPostsByForumId(forNo);
-        return ResponseEntity.ok(count);
-    }
+//    @GetMapping("/forum/{forNo}/posts/count")
+//    public ResponseEntity<Long> countPostsByForum(@PathVariable("forNo") Integer forNo) {
+//        long count = forumPostSvc.countPostsByForumId(forNo);
+//        return ResponseEntity.ok(count);
+//    }
 
     // 4. 查詢特定討論區下的特定文章 (根據文章 ID 和討論區 ID，返回 ForumPostDTO)
     // URL: /api/forum/{forNo}/posts/{postId}
-    @GetMapping("/forum/{forNo}/posts/{postId}")
-    public ResponseEntity<ForumPostDTO> getPostInForum(@PathVariable("forNo") Integer forNo,
-                                                       @PathVariable("postId") Integer postId) {
-        Optional<ForumPostDTO> postOptional = forumPostSvc.getPostByIdAndForumId(postId, forNo);
-        if (postOptional.isPresent()) {
-            return ResponseEntity.ok(postOptional.get());
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+//    @GetMapping("/forum/{forNo}/posts/{postId}")
+//    public ResponseEntity<ForumPostDTO> getPostInForum(@PathVariable("forNo") Integer forNo,
+//                                                       @PathVariable("postId") Integer postId) {
+//        Optional<ForumPostDTO> postOptional = forumPostSvc.getPostByIdAndForumId(postId, forNo);
+//        if (postOptional.isPresent()) {
+//            return ResponseEntity.ok(postOptional.get());
+//        } else {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//    }
 
     // 5. 新增文章 (保持現有邏輯)
     @PostMapping(value = "/forumpost/insert", consumes = {"multipart/form-data"})
@@ -133,19 +133,16 @@ public class ForumPostController {
         forumPost.setMesNumbers(mesNumbers != null ? mesNumbers : 0);
         forumPost.setPostLikeCount(postLikeCount != null ? postLikeCount : 0);
         forumPost.setPostLikeDlc(postLikeDlc != null ? postLikeDlc : 0);
-//待修改
+//TODO
 //        Forum selectedForum = forumService.getForumById(forNoId)
 //                .orElseThrow(() -> new IllegalArgumentException("無效的討論區編號: " + forNoId));
 //        forumPost.setForNo(selectedForum);
-//
 //        ForumTag retrievedForumTag = forumTagService.getForumTagById(ftagNoId)
 //                .orElseThrow(() -> new IllegalArgumentException("無效的文章類別編號: " + ftagNoId));
 //        forumPost.setFtagNo(retrievedForumTag);
-//
 //        Member currentMember = memberService.getMemberById(memNoId)
 //                .orElseThrow(() -> new IllegalArgumentException("會員不存在或未登入"));
 //        forumPost.setMemNo(currentMember);
-//
 //        try {
 //            if (postCoverImageFile.isPresent() && !postCoverImageFile.get().isEmpty()) {
 //                forumPost.setPostCoverImage(postCoverImageFile.get().getBytes());
