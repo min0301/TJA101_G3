@@ -49,10 +49,10 @@ public class ForumPostController {
     @Autowired
     public ForumPostController(ForumPostService forumPostSvc, ForumService forumService)
     {this.forumPostSvc = forumPostSvc;this.forumService = forumService;}
-    //ForumTagService forumTagService,
-    //MemberService memberService
-    // this.forumTagService = forumTagService;
-    // this.memberService = memberService;
+//    ForumTagService forumTagService,
+//    MemberService memberService
+//     this.forumTagService = forumTagService;
+//     this.memberService = memberService;
 
     // --- API 端點 ---
 
@@ -133,19 +133,16 @@ public class ForumPostController {
         forumPost.setMesNumbers(mesNumbers != null ? mesNumbers : 0);
         forumPost.setPostLikeCount(postLikeCount != null ? postLikeCount : 0);
         forumPost.setPostLikeDlc(postLikeDlc != null ? postLikeDlc : 0);
-//待修改
+//TODO
 //        Forum selectedForum = forumService.getForumById(forNoId)
 //                .orElseThrow(() -> new IllegalArgumentException("無效的討論區編號: " + forNoId));
 //        forumPost.setForNo(selectedForum);
-//
 //        ForumTag retrievedForumTag = forumTagService.getForumTagById(ftagNoId)
 //                .orElseThrow(() -> new IllegalArgumentException("無效的文章類別編號: " + ftagNoId));
 //        forumPost.setFtagNo(retrievedForumTag);
-//
 //        Member currentMember = memberService.getMemberById(memNoId)
 //                .orElseThrow(() -> new IllegalArgumentException("會員不存在或未登入"));
 //        forumPost.setMemNo(currentMember);
-//
 //        try {
 //            if (postCoverImageFile.isPresent() && !postCoverImageFile.get().isEmpty()) {
 //                forumPost.setPostCoverImage(postCoverImageFile.get().getBytes());

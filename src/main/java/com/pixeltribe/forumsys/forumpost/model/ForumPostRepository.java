@@ -23,6 +23,7 @@ public interface ForumPostRepository extends JpaRepository<ForumPost, Integer> {
     Optional<ForumPost> findByIdAndForNoId(@Param("postId") Integer postId, @Param("forumId") Integer forumId);
 
     // **新增：獲取所有文章，並急切加載 Forum 和 Member (用於 getAllForumPost 顯示名稱)**
+    //後台較有用處 查詢一個討論區共有幾篇文章數量
     @Query("SELECT fp FROM ForumPost fp JOIN FETCH fp.forNo JOIN FETCH fp.memNo")
     List<ForumPost> findAllWithForumAndMember();
 }

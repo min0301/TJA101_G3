@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors; // 確保導入 Collectors
 
+import com.pixeltribe.forumsys.forum.model.ForumService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,12 +19,16 @@ import com.pixeltribe.forumsys.forumpost.model.ForumPostDTO; // **確保導入**
 public class ForumPostService {
 
     private final ForumPostRepository forumPostRepository; // 使用 final 和建構子注入
+    //nick new 假設你還有一個 Forum 服務來獲取 Forum 詳細信息，這裡簡化處理
+    @Autowired
+    private ForumService forumService;
 
     // **建構子注入 (推薦)**
     @Autowired
     public ForumPostService(ForumPostRepository forumPostRepository) {
         this.forumPostRepository = forumPostRepository;
     }
+
 
     // --- CRUD 操作 (返回 Entity) ---
     @Transactional
@@ -80,5 +85,13 @@ public class ForumPostService {
     public Optional<ForumPostDTO> getPostByIdAndForumId(Integer postId, Integer forumId) {
         return forumPostRepository.findByIdAndForNoId(postId, forumId) // 注意 Repository 方法名中的 forNo_Id
                 .map(ForumPostDTO::new);
+    }
+    //nick new 假設你還有一個 Forum 服務來獲取 Forum 詳細信息，這裡簡化處理
+    public ForumService getForumService() {
+        return forumService;
+    }
+
+    public void setForumService(ForumService forumService) {
+        this.forumService = forumService;
     }
 }
