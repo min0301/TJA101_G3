@@ -20,7 +20,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "friend_list")
+@Table(name = "FRIEND_LIST")
 public class FriendList {
     @Id
     @Column(name = "FRILIST_NO", nullable = false)
