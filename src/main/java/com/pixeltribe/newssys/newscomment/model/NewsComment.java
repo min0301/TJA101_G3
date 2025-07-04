@@ -21,6 +21,7 @@ import java.util.Set;
 @Table(name = "news_comments")
 public class NewsComment {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "NCOM_NO", nullable = false)
     private Integer id;
 
@@ -29,14 +30,14 @@ public class NewsComment {
     @Column(name = "NCOM_CON", nullable = false, length = 4000)
     private String ncomCon;
 
-    @NotNull
+
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "NCOM_CRE", nullable = false)
+    @Column(name = "NCOM_CRE", nullable = false,insertable = false)
     private Instant ncomCre;
 
-    @NotNull
+
     @ColumnDefault("'1'")
-    @Column(name = "NCOM_STATUS", nullable = false)
+    @Column(name = "NCOM_STATUS", nullable = false,insertable = false)
     private Character ncomStatus;
 
     @NotNull
@@ -49,14 +50,14 @@ public class NewsComment {
     @JoinColumn(name = "MEM_NO", nullable = false)
     private Member memNo;
 
-    @NotNull
+
     @ColumnDefault("0")
-    @Column(name = "NCOM_LIKE_LC", nullable = false)
+    @Column(name = "NCOM_LIKE_LC", nullable = false,insertable = false)
     private Integer ncomLikeLc;
 
-    @NotNull
+
     @ColumnDefault("0")
-    @Column(name = "NCOM_LIKE_DLC", nullable = false)
+    @Column(name = "NCOM_LIKE_DLC", nullable = false,insertable = false)
     private Integer ncomLikeDlc;
 
     @OneToMany(mappedBy = "ncomNo")

@@ -199,8 +199,8 @@ public class Member {
     @OneToMany(mappedBy = "memNo")
     private Set<MemberLoginLog> memberLoginLogs = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "memNo")
-    private Set<News> news = new LinkedHashSet<>();
+//    @OneToMany(mappedBy = "memNo")
+//    private Set<News> news = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "reporter")
     private Set<NewsComReport> newsComReports = new LinkedHashSet<>();

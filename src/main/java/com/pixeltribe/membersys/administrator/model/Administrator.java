@@ -1,9 +1,7 @@
 package com.pixeltribe.membersys.administrator.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.pixeltribe.newssys.news.model.News;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -11,6 +9,8 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -42,5 +42,13 @@ public class Administrator {
 
     @Column(name = "ADM_PROFILE")
     private byte[] admProfile;
+
+    @Size(max = 20)
+    @ColumnDefault("'ROLE_ADMIN'")
+    @Column(name = "ROLE", length = 20)
+    private String role;
+
+    @OneToMany(mappedBy = "adminNo")
+    private Set<News> news = new LinkedHashSet<>();
 
 }

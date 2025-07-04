@@ -1,213 +1,372 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <title>新聞內容</title>
-
     <style>
-        :root{
-            --bd:#dee2e6;
-            --blue:#0d6efd;
-            --gray:#adb5bd;
-        }
-        /* ===== 版面 ===== */
-        body{
-            margin:0;
-            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans","PingFang TC","Heiti TC",sans-serif;
-            background:#f5f7fa;
-            color:#212529;
-        }
-        a{color:#0a58ca;text-decoration:none}
-        #news-box{
-            max-width:900px;
-            margin:auto;
-            padding:1.5rem;
-            background:#fff;
-            border-radius:8px;
-            box-shadow:0 2px 8px #0001;
-        }
-        /* ===== 內文 ===== */
-        .news-title{font-size:1.9rem;font-weight:700;margin:.3rem 0 .6rem}
-        .news-meta{font-size:.85rem;color:#666;margin-bottom:.8rem}
-        .tags .tag{
-            display:inline-block;
-            font-size:.75rem;
-            padding:.2rem .6rem;
-            margin:.2rem .3rem .2rem 0;
-            border-radius:4px;
-            background:#e9ecef;
-        }
-        .news-images{
-            display:flex;overflow-x:auto;gap:.75rem;margin:1rem 0 1.4rem;
-        }
-        .news-images img{
-            max-height:260px;border-radius:6px;flex-shrink:0;
-        }
-        .news-content{font-size:1.05rem;line-height:1.7}
-
-        /* ===== 留言區 ===== */
-        .comment-area{margin-top:3rem}
-        .comment-area h2{font-size:1.3rem;margin-bottom:1rem}
-        .comment{display:flex;gap:.8rem;padding:1rem 0;border-bottom:1px solid var(--bd)}
-        .avatar{
-            width:48px;height:48px;border-radius:50%;background:var(--gray);
-            color:#fff;font-weight:700;font-size:1.1rem;display:flex;align-items:center;justify-content:center;
-            flex-shrink:0;
-        }
-        .com-body{flex:1}
-        .com-head{display:flex;gap:.5rem;align-items:center}
-        .author{font-weight:600}
-        .date{font-size:.8rem;color:#6c757d}
-        .com-text{margin:.4rem 0 .8rem}
-        .actions{font-size:.85rem;color:#555;display:flex;gap:.5rem;align-items:center}
-        .actions button{
-            display:flex;gap:4px;align-items:center;border:none;background:none;cursor:pointer;
-            border-radius:4px;padding:0 4px;
-        }
-        .actions button:hover{background:#e9ecef}
-        .actions svg{width:16px;height:16px}
-
-        /* ↘︎ 手機調整 */
-        @media(max-width:600px){
-            #news-box{padding:1rem}
-            .news-images img{max-height:180px}
+        :root {
+            --bd: #dee2e6;
+            --blue: #0d6efd;
+            --gray: #adb5bd
         }
 
-        /* ===== 新留言輸入列 ===== */
-        #new-comment{
-            display:flex;align-items:flex-start;gap:.8rem;
-            padding:1rem;border:1px solid var(--bd);border-radius:8px;background:#f8f9fa;margin-bottom:1.5rem;
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", "PingFang TC", "Heiti TC", sans-serif;
+            background: #f5f7fa;
+            color: #212529
         }
-        #c-input{
-            flex:1;min-height:38px;max-height:160px;resize:none;overflow-y:auto;
-            border:1px solid var(--blue);border-radius:8px;padding:.55rem;font:inherit;
+
+        a {
+            color: #0a58ca;
+            text-decoration: none
         }
-        #c-send{
-            border:none;background:var(--gray);color:#fff;font-size:1rem;line-height:1;
-            padding:.5rem .9rem;border-radius:6px;cursor:pointer;align-self:flex-end;
+
+        #news-box {
+            max-width: 900px;
+            margin: auto;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px #0001
         }
-        #c-send:disabled{background:#ced4da;cursor:not-allowed}
+
+        .news-title {
+            font-size: 1.9rem;
+            font-weight: 700;
+            margin: .3rem 0 .6rem
+        }
+
+        .news-meta {
+            font-size: .85rem;
+            color: #666;
+            margin-bottom: .8rem
+        }
+
+        .tags .tag {
+            display: inline-block;
+            font-size: .75rem;
+            padding: .2rem .6rem;
+            margin: .2rem .3rem .2rem 0;
+            border-radius: 4px;
+            background: #e9ecef
+        }
+
+        .news-images {
+            display: flex;
+            overflow-x: auto;
+            gap: .75rem;
+            margin: 1rem 0 1.4rem
+        }
+
+        .news-images img {
+            max-height: 260px;
+            border-radius: 6px;
+            flex-shrink: 0
+        }
+
+        .news-content {
+            font-size: 1.05rem;
+            line-height: 1.7
+        }
+
+        .comment-area {
+            margin-top: 3rem
+        }
+
+        .comment-area h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem
+        }
+
+        .comment {
+            display: flex;
+            gap: .8rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--bd)
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gray);
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0
+        }
+
+        .com-body {
+            flex: 1
+        }
+
+        .com-head {
+            display: flex;
+            gap: .5rem;
+            align-items: center
+        }
+
+        .author {
+            font-weight: 600
+        }
+
+        .date {
+            font-size: .8rem;
+            color: #6c757d
+        }
+
+        .com-text {
+            margin: .4rem 0 .8rem
+        }
+
+        .actions {
+            font-size: .85rem;
+            color: #555;
+            display: flex;
+            gap: .5rem;
+            align-items: center
+        }
+
+        .actions button {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 4px;
+            padding: 0 4px
+        }
+
+        .actions button:hover {
+            background: #e9ecef
+        }
+
+        .actions svg {
+            width: 16px;
+            height: 16px
+        }
+
+        @media (max-width: 600px) {
+            #news-box {
+                padding: 1rem
+            }
+
+            .news-images img {
+                max-height: 180px
+            }
+        }
+
+        #new-comment {
+            display: flex;
+            align-items: flex-start;
+            gap: .8rem;
+            padding: 1rem;
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            background: #f8f9fa;
+            margin-bottom: 1.5rem
+        }
+
+        #c-input {
+            flex: 1;
+            min-height: 38px;
+            max-height: 160px;
+            resize: none;
+            overflow-y: auto;
+            border: 1px solid var(--blue);
+            border-radius: 8px;
+            padding: .55rem;
+            font: inherit
+        }
+
+        #c-send {
+            border: none;
+            background: var(--gray);
+            color: #fff;
+            font-size: 1rem;
+            line-height: 1;
+            padding: .5rem .9rem;
+            border-radius: 6px;
+            cursor: pointer;
+            align-self: flex-end
+        }
+
+        #c-send:disabled {
+            background: #ced4da;
+            cursor: not-allowed
+        }
     </style>
 </head>
-
 <body>
 <main id="news-box"><!-- JS 會把文章和留言塞進來 --></main>
 
 <script>
-    // ---------- 小工具 ----------
-    const $=(s,p=document)=>p.querySelector(s);
-    const icon=p=>{const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.innerHTML=p;return s};
-    const tagSpan=t=>{const s=document.createElement('span');s.className='tag';s.textContent=t;return s};
+    /* ---------- 小工具 ---------- */
+    const $ = (s, p = document) => p.querySelector(s);
+    const icon = p => {
+        const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        s.setAttribute('viewBox', '0 0 24 24');
+        s.innerHTML = p;
+        return s
+    };
+    const tagSpan = t => {
+        const s = document.createElement('span');
+        s.className = 'tag';
+        s.textContent = t;
+        return s
+    };
 
-    // ---------- 載入整頁 ----------
-    async function loadPage(id){
-        /* ------- 文章 ------- */
-        const news=await fetch(`/api/News/${id}`).then(r=>r.json());
-        const box=$('#news-box');
-        box.innerHTML=`
+    /* ---------- 載入整頁 ---------- */
+    async function loadPage(id) {
+        /* 文章 ------------------------------------------------ */
+        const news = await fetch(`/api/News/${id}`).then(r => r.json());
+        const box = $('#news-box');
+        box.innerHTML = `
     <h1 class="news-title">${news.newsTit}</h1>
     <div class="news-meta">
       發佈：${new Date(news.newsCrdate).toLocaleString()}
-      ${news.newsUpdate?` · 更新：${new Date(news.newsUpdate).toLocaleString()}`:''}
+      ${news.newsUpdate ? ` · 更新：${new Date(news.newsUpdate).toLocaleString()}` : ''}
     </div>
-    <div class="tags"></div>
-  `;
-        news.categoryTags.forEach(t=>$('.tags',box).appendChild(tagSpan(t)));
+    <div class="tags"></div>`;
+        news.categoryTags.forEach(t => $('.tags', box).append(tagSpan(t)));
 
-        const imgs=await fetch(`/api/news/image/${id}/NewsImage`).then(r=>r.json());
-        if(imgs.length){
-            const wrap=document.createElement('div');wrap.className='news-images';
-            imgs.forEach(i=>{
-                const a=document.createElement('a');a.href=i.imgUrl;a.target='_blank';
-                a.innerHTML=`<img src="${i.imgUrl}">`;
+        /* 圖片 ------------------------------------------------ */
+        const imgs = await fetch(`/api/news/image/${id}/NewsImage`).then(r => r.json());
+        if (imgs.length) {
+            const wrap = document.createElement('div');
+            wrap.className = 'news-images';
+            imgs.forEach(i => {
+                const a = document.createElement('a');
+                a.href = i.imgUrl;
+                a.target = '_blank';
+                a.innerHTML = `<img src="${i.imgUrl}">`;
                 wrap.append(a);
             });
             box.append(wrap);
         }
-        const art=document.createElement('div');art.className='news-content';art.textContent=news.newsCon;box.append(art);
 
-        /* ------- 留言區 ------- */
-        const comments=await fetch(`/api/NewsComment/${id}`).then(r=>r.json());
-        const area=document.createElement('section');area.className='comment-area';area.innerHTML='<h2>留言</h2>';box.append(area);
+        /* 內文 */
+        const art = document.createElement('div');
+        art.className = 'news-content';
+        art.textContent = news.newsCon;
+        box.append(art);
 
-        // ⇢ 新留言輸入列
-        area.append(makeNewCommentBox(id,c=>prependComment(area,c)));
+        /* 留言 ------------------------------------------------ */
+        const comments = await fetch(`/api/NewsComment/${id}`).then(r => r.json());
+        const area = document.createElement('section');
+        area.className = 'comment-area';
+        area.innerHTML = '<h2>留言</h2>';
+        box.append(area);
 
-        comments.forEach(c=>area.append(makeCommentCard(c)));
+        area.append(makeNewCommentBox(id, c => prependComment(area, c)));   // 輸入盒
+        comments.forEach(c => area.append(makeCommentCard(c)));          // 現有留言
     }
 
-    // ---------- 產生單一留言卡 ----------
-    function makeCommentCard(c){
-        const card=document.createElement('div');card.className='comment';
-        card.innerHTML=`
-    <div class="avatar">${(c.memNoMemNickName||'匿')[0].toUpperCase()}</div>
+    /* ---------- 單一留言卡 ---------- */
+    function makeCommentCard(c) {
+        const card = document.createElement('div');
+        card.className = 'comment';
+        card.innerHTML = `
+    <div class="avatar">${(c.memNoMemNickName || '匿')[0].toUpperCase()}</div>
     <div class="com-body">
       <div class="com-head">
-        <span class="author">${c.memNoMemNickName||'匿名'}</span>
+        <span class="author">${c.memNoMemNickName || '匿名'}</span>
         <span class="date">${new Date(c.ncomCre).toLocaleString()}</span>
       </div>
       <div class="com-text">${c.ncomCon}</div>
       <div class="actions">
-        <button title="Like">${icon('<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>').outerHTML}<span>${c.ncomLikeLc}</span></button>
-        <button title="Dislike">${icon('<path d="M12 2.65l1.45 1.32C18.6 8.64 22 11.72 22 15.5 22 18.58 19.58 21 16.5 21c-1.74 0-3.41-.81-4.5-2.09C10.91 20.19 9.24 21 7.5 21 4.42 21 2 18.58 2 15.5c0-3.78 3.4 6.86 8.55 11.54L12 2.65z"/>').outerHTML}<span>${c.ncomLikeDlc}</span></button>
+        <button title="Like">
+          ${icon('<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>').outerHTML}
+          <span>${c.ncomLikeLc}</span>
+        </button>
+        <button title="Dislike">
+          ${icon('<path d="M12 2.65l1.45 1.32C18.6 8.64 22 11.72 22 15.5 22 18.58 19.58 21 16.5 21c-1.74 0-3.41-.81-4.5-2.09C10.91 20.19 9.24 21 7.5 21 4.42 21 2 18.58 2 15.5c0-3.78 3.4 6.86 8.55 11.54L12 2.65z"/>').outerHTML}
+          <span>${c.ncomLikeDlc}</span>
+        </button>
       </div>
     </div>`;
         return card;
     }
 
-    // ---------- 留言輸入盒 ----------
-    function makeNewCommentBox(newsId,onSuccess){
-        const wrap=document.createElement('div');
-        wrap.id='new-comment';
-        wrap.innerHTML=`
-     <div class="avatar">我</div>
-     <textarea id="c-input" placeholder="留言…" rows="1"></textarea>
-     <button id="c-send" disabled>送出</button>
-  `;
-        const ta=$('#c-input',wrap),btn=$('#c-send',wrap);
+    /* ---------- 新留言輸入盒 ---------- */
+    function makeNewCommentBox(newsId, onSuccess) {
+        const wrap = document.createElement('div');
+        wrap.id = 'new-comment';
+        wrap.innerHTML = `
+    <div class="avatar">我</div>
+    <textarea id="c-input" placeholder="留言…" rows="1"></textarea>
+    <button id="c-send" disabled>送出</button>`;
+        const ta = $('#c-input', wrap), btn = $('#c-send', wrap);
 
-        // 自動高度與按鈕啟用
-        ta.addEventListener('input',()=>{
-            ta.style.height='auto';
-            ta.style.height=Math.min(ta.scrollHeight,160)+'px';
-            btn.disabled=!ta.value.trim();
+        /* 自動高度 + 按鈕啟用 */
+        ta.addEventListener('input', () => {
+            ta.style.height = 'auto';
+            ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
+            btn.disabled = !ta.value.trim();
         });
-        // Enter 送出；Shift+Enter 換行
-        ta.addEventListener('keydown',e=>{
-            if(e.key==='Enter' && !e.shiftKey){
+
+        /* Enter 送出；Shift+Enter 換行 */
+        ta.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                if(!btn.disabled) btn.click();
+                if (!btn.disabled) btn.click();
             }
         });
-        // 送出
-        btn.addEventListener('click',async ()=>{
-            const txt=ta.value.trim();if(!txt)return;
-            btn.disabled=true;
 
-            // ===== 這裡換成自己的 POST API =====
-            await fetch('/api/NewsComment',{
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({newsId,content:txt})
-            }).catch(console.error);
+        /* 送出 */
+        btn.addEventListener('click', async () => {
+            const txt = ta.value.trim();
+            if (!txt) return;
+            btn.disabled = true;
+//TODO
+            try {
+                /* 後端需要的欄位 -------------------- */
+                const payload = {
+                    ncomCon: txt,
+                    newsNoId: newsId,
+                    memNoId: 1      // ← 登入會員 id，這裡先寫死 - 管理員
+                };
 
-            const newCom={id:Date.now(),ncomCon:txt,ncomCre:new Date().toISOString(),
-                ncomStatus:'N',memNoMemNickName:'我',ncomLikeLc:0,ncomLikeDlc:0};
-            ta.value='';ta.style.height='38px';btn.disabled=true;
-            onSuccess(newCom);
+                const res = await fetch('/api/NewsComment/add', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) throw await res.json();          // 400/500
+                const newCom = await res.json();             // 後端回傳 DTO
+
+                /* 清空輸入框 + 回傳給上層插入畫面 */
+                ta.value = '';
+                ta.style.height = '38px';
+                btn.disabled = true;
+                onSuccess(newCom);
+
+            } catch (err) {
+                console.error('留言失敗', err);
+                alert(err?.errors?.[0]?.message ?? '留言失敗，請稍後再試');
+                btn.disabled = false;
+            }
         });
+
         return wrap;
     }
-    // 把新留言插在輸入框下方
-    function prependComment(area,c){
-        const inputBox=$('#new-comment',area);
-        area.insertBefore(makeCommentCard(c),inputBox.nextSibling);
+
+    /* ---------- 把新留言插回列表 ---------- */
+    function prependComment(area, c) {
+        const inputBox = $('#new-comment', area);
+        area.insertBefore(makeCommentCard(c), inputBox.nextSibling);
     }
 
-    /* ====== 啟動 ====== */
-    document.addEventListener('DOMContentLoaded',()=>{
-        const id=new URLSearchParams(location.search).get('id')||1;
+    /* ---------- 啟動 ---------- */
+    document.addEventListener('DOMContentLoaded', () => {
+        const id = new URLSearchParams(location.search).get('id') || 1;
         loadPage(id);
     });
 </script>

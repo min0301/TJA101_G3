@@ -1,9 +1,11 @@
 package com.pixeltribe.newssys.news.model;
 
 import io.lettuce.core.dynamic.annotation.Param;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -47,5 +49,7 @@ public interface NewsRepository extends JpaRepository<News, Integer> {
                 order by n.newsCrdate desc
             """)
     public NewsDTO getNewsById(@Param("id") Integer id);
+
+//    public NewsCreationDTO save(@Valid @RequestBody News news);
 
 }

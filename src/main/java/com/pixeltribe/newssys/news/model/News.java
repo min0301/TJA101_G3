@@ -2,6 +2,7 @@ package com.pixeltribe.newssys.news.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.pixeltribe.membersys.administrator.model.Administrator;
 import com.pixeltribe.newssys.newscontentclassification.model.NewContentClassification;
 import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.newssys.newscomment.model.NewsComment;
@@ -25,6 +26,7 @@ import java.util.Set;
 @Table(name = "news")
 public class News {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "NEWS_NO", nullable = false)
     private Integer id;
 
@@ -37,20 +39,19 @@ public class News {
     @NotNull
     @Column(name = "NEWS_CON", nullable = false, length = 9000)
     private String newsCon;
-    @Column(name = "NEWS_UPDATE")
+    @Column(name = "NEWS_UPDATE",insertable = false, updatable = false)
     private Instant newsUpdate;
 
-    @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "NEWS_CRDATE", nullable = false)
+    @Column(name = "NEWS_CRDATE", nullable = false,insertable = false)
     private Instant newsCrdate;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @ColumnDefault("1")
-    @JoinColumn(name = "MEM_NO", nullable = false)
-    @JsonIgnore
-    private Member memNo;
+//TODO
+//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+//    @ColumnDefault("1")
+//    @JoinColumn(name = "MEM_NO", nullable = false)
+//    @JsonIgnore
+//    private Member memNo;
 
     @OneToMany(mappedBy = "newsNo")
     @JsonManagedReference
@@ -63,5 +64,12 @@ public class News {
     @OneToMany(mappedBy = "newsNo")
     @JsonIgnore
     private Set<NewsImage> newsImages = new LinkedHashSet<>();
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ColumnDefault("1")
+    @JoinColumn(name = "ADMIN_NO", nullable = false)
+    @JsonIgnore
+    private Administrator adminNo;
 
 }

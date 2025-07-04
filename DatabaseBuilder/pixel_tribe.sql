@@ -195,7 +195,8 @@ CREATE TABLE ADMINISTRATOR
     ADM_ACCOUNT  VARCHAR(50)                    NOT NULL COMMENT '管理員帳號',
     ADM_NAME     VARCHAR(50)                    NOT NULL COMMENT '管理員名稱',
     ADM_PASSWORD VARCHAR(60)                    NOT NULL COMMENT '管理員密碼/Bcrypt',
-    CREATE_TIME  DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '建立時間',
+    CREATE_TIME  DATETIME    DEFAULT CURRENT_TIMESTAMP COMMENT '建立時間',
+    ROLE         VARCHAR(20) DEFAULT 'ROLE_ADMIN',
     ADM_PROFILE  LONGBLOB COMMENT '管理員頭像'
 ) COMMENT '管理員';
 
@@ -492,8 +493,10 @@ CREATE TABLE NEWS
     NEWS_UPDATE DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最後更新時間，預設為 NULL',
     NEWS_CRDATE DATETIME           NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '自動填入資料插入時間',
     MEM_NO      INT                NOT NULL DEFAULT 1 COMMENT '預設管理員 1',
+    ADMIN_NO    INT                NOT NULL DEFAULT 1 comment '給Adiminstor 預設為1',
     CONSTRAINT NEWS_PK PRIMARY KEY (NEWS_NO),
-    CONSTRAINT NEWS_FK_MEMBER FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO)
+    CONSTRAINT NEWS_FK_MEMBER FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
+    CONSTRAINT NEWS_FK_ADMINISTOR FOREIGN KEY (ADMIN_NO) REFERENCES ADMINISTRATOR (ADM_NO)
 ) AUTO_INCREMENT = 1 comment ='新聞主表';
 -- 插入 50 筆假資料，其中部分 NEWS_UPDATE 設為 NULL
 -- 先插入5筆 
@@ -817,14 +820,14 @@ VALUES ('角色扮演', '玩家扮演虛擬角色,體驗故事情節與成長', 
 -- 建立 討論區 表格 --
 CREATE TABLE FORUM
 (
-    `FOR_NO`       INT AUTO_INCREMENT PRIMARY KEY COMMENT '討論區編號',
-    `FOR_NAME`     VARCHAR(30) NOT NULL COMMENT '討論區名稱',
-    `CAT_NO`       INT COMMENT '類別編號',
-    `FOR_DES`      VARCHAR(255) COMMENT '討論區描述',
-    `FOR_DATE`     DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '創建時間',
-    `FOR_UPDATE`   DATETIME             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新時間',
-    `FOR_STATUS` CHAR(1)     NOT NULL DEFAULT '0' COMMENT '討論區狀態',
-    `FOR_IMG_URL`        VARCHAR(255) COMMENT '討論區圖片URL',
+    `FOR_NO`      INT AUTO_INCREMENT PRIMARY KEY COMMENT '討論區編號',
+    `FOR_NAME`    VARCHAR(30) NOT NULL COMMENT '討論區名稱',
+    `CAT_NO`      INT COMMENT '類別編號',
+    `FOR_DES`     VARCHAR(255) COMMENT '討論區描述',
+    `FOR_DATE`    DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '創建時間',
+    `FOR_UPDATE`  DATETIME             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新時間',
+    `FOR_STATUS`  CHAR(1)     NOT NULL DEFAULT '0' COMMENT '討論區狀態',
+    `FOR_IMG_URL` VARCHAR(255) COMMENT '討論區圖片URL',
     FOREIGN KEY (`CAT_NO`)
         REFERENCES FORUM_CATEGORY (`CAT_NO`)
         ON DELETE SET NULL
@@ -834,91 +837,92 @@ CREATE TABLE FORUM
 -- 新增 討論區 資料 --
 INSERT INTO FORUM (`FOR_NAME`, `CAT_NO`, `FOR_DES`, `FOR_DATE`, `FOR_UPDATE`, `FOR_IMG_URL`)
 VALUES ('原神', '1', '全球知名的開放世界動作RPG，強調元素反應戰鬥與豐富探索。', '2024-06-05 9:00:00',
-        '2024-06-05 9:05:15','/images/forum_img/01.jpg'),
+        '2024-06-05 9:05:15', '/images/forum_img/01.jpg'),
        ('崩壞：星穹鐵道', '1', '米哈遊旗下回合制策略RPG，以星際冒險與精緻角色設計著稱。', '2024-06-07 10:15:30',
-        '2024-06-07 10:20:45','/images/forum_img/02.jpg'),
+        '2024-06-07 10:20:45', '/images/forum_img/02.jpg'),
        ('艾爾登法環', '1', '魂系開放世界RPG，以高難度、深奧世界觀及自由探索聞名，TGA年度遊戲。', '2024-06-10 11:30:00',
-        '2024-06-10 11:35:10','/images/forum_img/03.jpg'),
-       ('最終幻想VII 重生', '1', '經forum典日系RPG《FFVII》重製版第二部，以壯闊劇情與創新戰鬥系統吸引玩家。', '2024-06-12 13:45:20',
-        '2024-06-12 13:50:30','/images/forum_img/04.jpg'),
+        '2024-06-10 11:35:10', '/images/forum_img/03.jpg'),
+       ('最終幻想VII 重生', '1', '經forum典日系RPG《FFVII》重製版第二部，以壯闊劇情與創新戰鬥系統吸引玩家。',
+        '2024-06-12 13:45:20',
+        '2024-06-12 13:50:30', '/images/forum_img/04.jpg'),
        ('聖獸之王', '1', '結合戰術RPG與回合制戰鬥，畫風精美，策略深度高。', '2024-06-15 14:00:10',
-        '2024-06-15 14:05:25','/images/forum_img/05.jpg'),
+        '2024-06-15 14:05:25', '/images/forum_img/05.jpg'),
        ('戰神：諸神黃昏', '2', '史詩級動作冒險，延續北歐神話故事，強調父子情感與殘酷戰鬥。', '2024-06-17 15:10:05',
-        '2024-06-17 15:15:15','/images/forum_img/06.jpg'),
+        '2024-06-17 15:15:15', '/images/forum_img/06.jpg'),
        ('師父', '2', '獨特武術動作遊戲，每次死亡會讓你變老，考驗玩家技巧與成長。', '2024-06-20 16:20:00',
-        '2024-06-20 16:25:30','/images/forum_img/07.jpg'),
+        '2024-06-20 16:25:30', '/images/forum_img/07.jpg'),
        ('惡魔獵人3', '2', '系列前傳，奠定DMC戰鬥系統基礎，風格狂放，高難度挑戰性。', '2024-06-22 17:30:40',
-        '2024-06-22 17:35:55','/images/forum_img/08.jpg'),
+        '2024-06-22 17:35:55', '/images/forum_img/08.jpg'),
        ('黑暗靈魂系列', '2', '開創「魂系」高難度動作RPG先河，以沉浸式世界與獨特敘事吸引玩家。', '2024-06-25 18:40:15',
-        '2024-06-25 18:45:20','/images/forum_img/09.jpg'),
+        '2024-06-25 18:45:20', '/images/forum_img/09.jpg'),
        ('決勝時刻系列', '3', '全球最受歡迎的射擊遊戲系列，以電影般戰役和快節奏多人對戰聞名。', '2024-06-27 9:00:00',
-        '2024-06-27 9:05:10','/images/forum_img/10.jpg'),
+        '2024-06-27 9:05:10', '/images/forum_img/10.jpg'),
        ('特戰英豪', '3', 'Riot Games推出的戰術射擊遊戲，結合英雄技能與經典槍戰玩法。', '2024-06-30 10:05:00',
-        '2024-06-30 10:10:25','/images/forum_img/11.jpg'),
+        '2024-06-30 10:10:25', '/images/forum_img/11.jpg'),
        ('Apex 英雄', '3', '大逃殺射擊遊戲，強調英雄技能搭配與小隊合作，節奏快速。', '2024-07-02 11:15:10',
-        '2024-07-02 11:20:30','/images/forum_img/12.jpg'),
+        '2024-07-02 11:20:30', '/images/forum_img/12.jpg'),
        ('PUBG：絕地求生', '3', '大逃殺類型遊戲的始祖，玩家在大型地圖上互相競爭生存到最後。', '2024-07-05 12:25:00',
-        '2024-07-05 12:30:15','/images/forum_img/13.jpg'),
+        '2024-07-05 12:30:15', '/images/forum_img/13.jpg'),
        ('絕對武力：全球攻勢 (CS2)', '3', '經典競技FPS，以團隊合作、經濟系統與精準射擊為核心。', '2024-07-07 13:35:05',
-        '2024-07-07 13:40:20','/images/forum_img/14.jpg'),
+        '2024-07-07 13:40:20', '/images/forum_img/14.jpg'),
        ('戰地風雲系列', '3', '以大規模戰場、載具戰鬥和可破壞場景為特色的軍事FPS。', '2024-07-10 14:45:00',
-        '2024-07-10 14:50:05','/images/forum_img/15.jpg'),
+        '2024-07-10 14:50:05', '/images/forum_img/15.jpg'),
        ('極限競速 地平線5', '4', '開放世界競速遊戲，擁有廣闊地圖、海量車輛與精美畫面。', '2024-07-12 15:55:10',
-        '2024-07-12 16:00:20','/images/forum_img/16.jpg'),
+        '2024-07-12 16:00:20', '/images/forum_img/16.jpg'),
        ('跑跑卡丁車Rush+', '4', '經典休閒競速遊戲手遊版，卡通風格與趣味道具戰。', '2024-07-15 16:05:00',
-        '2024-07-15 16:10:15','/images/forum_img/17.jpg'),
+        '2024-07-15 16:10:15', '/images/forum_img/17.jpg'),
        ('狂野飆車系列', '4', '手機平台知名競速遊戲，畫面華麗，操作爽快。', '2024-07-17 17:15:15',
-        '2024-07-17 17:20:30','/images/forum_img/18.jpg'),
+        '2024-07-17 17:20:30', '/images/forum_img/18.jpg'),
        ('瑪利歐賽車系列', '4', '老少皆宜的休閒競速遊戲，以趣味道具與角色技能大亂鬥。', '2024-07-20 18:25:00',
-        '2024-07-20 18:30:05','/images/forum_img/19.jpg'),
+        '2024-07-20 18:30:05', '/images/forum_img/19.jpg'),
        ('GT賽車系列', '4', '主打擬真駕駛體驗的賽車模擬遊戲。', '2024-07-22 9:35:10',
-        '2024-07-22 9:40:25','/images/forum_img/20.jpg'),
+        '2024-07-22 9:40:25', '/images/forum_img/20.jpg'),
        ('薩爾達傳說', '5', '開放世界冒險遊戲顛峰，極高自由度、創造性與豐富解謎。', '2024-07-25 10:45:00',
-        '2024-07-25 10:50:15','/images/forum_img/21.jpg'),
+        '2024-07-25 10:50:15', '/images/forum_img/21.jpg'),
        ('柏德之門3', '5', '劇情豐富、選擇多樣的CRPG，兼具強大探索與冒險元素，TGA年度遊戲。', '2024-07-27 11:55:05',
-        '2024-07-27 12:00:20','/images/forum_img/22.jpg'),
+        '2024-07-27 12:00:20', '/images/forum_img/22.jpg'),
        ('霍格華茲傳承', '5', '哈利波特世界觀開放世界冒險，玩家可體驗魔法學校生活。', '2024-07-30 13:05:00',
-        '2024-07-30 13:10:05','/images/forum_img/23.jpg'),
+        '2024-07-30 13:10:05', '/images/forum_img/23.jpg'),
        ('俠盜獵車手V', '5', '極具影響力的開放世界動作冒險，可體驗三主角視角下的犯罪人生。', '2024-08-01 14:15:10',
-        '2024-08-01 14:20:25','/images/forum_img/24.jpg'),
+        '2024-08-01 14:20:25', '/images/forum_img/24.jpg'),
        ('Minecraft', '5', '高自由度沙盒遊戲，玩家可自由創造、探索、生存，發揮無限創意。', '2024-08-04 15:25:00',
-        '2024-08-04 15:30:15','/images/forum_img/25.jpg'),
+        '2024-08-04 15:30:15', '/images/forum_img/25.jpg'),
        ('動物森友會系列', '6', '休閒經營與收集的益智遊戲，與可愛動物一同打造夢幻營地。', '2024-08-06 16:35:05',
-        '2024-08-06 16:40:20','/images/forum_img/26.jpg'),
+        '2024-08-06 16:40:20', '/images/forum_img/26.jpg'),
        ('夢幻家園', '6', '三消與裝潢結合的益智遊戲，透過解謎修復並設計豪宅。', '2024-08-09 17:45:00',
-        '2024-08-09 17:50:05','/images/forum_img/27.jpg'),
+        '2024-08-09 17:50:05', '/images/forum_img/27.jpg'),
        ('俄羅斯方塊', '6', '永恆的經典益智遊戲，考驗空間邏輯與反應速度。', '2024-08-11 18:55:10',
-        '2024-08-11 19:00:25','/images/forum_img/28.jpg'),
+        '2024-08-11 19:00:25', '/images/forum_img/28.jpg'),
        ('EA Sports FC™ (原FIFA系列)', '7', '最受歡迎的足球遊戲，提供擬真比賽體驗與豐富球隊模式。', '2024-08-14 9:05:00',
-        '2024-08-14 9:10:15','/images/forum_img/29.jpg'),
+        '2024-08-14 9:10:15', '/images/forum_img/29.jpg'),
        ('NBA 2K系列', '7', '最受歡迎的籃球遊戲，擬真球員數據、動作與生涯模式。', '2024-08-16 10:15:05',
-        '2024-08-16 10:20:20','/images/forum_img/30.jpg'),
+        '2024-08-16 10:20:20', '/images/forum_img/30.jpg'),
        ('MLB The Show系列', '7', '官方美國職棒大聯盟遊戲，提供擬真棒球體驗。', '2024-08-19 11:25:00',
-        '2024-08-19 11:30:05','/images/forum_img/31.jpg'),
+        '2024-08-19 11:30:05', '/images/forum_img/31.jpg'),
        ('EA Sports UFC系列', '7', '終極格鬥冠軍賽官方遊戲，提供寫實格鬥體驗。', '2024-08-21 12:35:10',
-        '2024-08-21 12:40:25','/images/forum_img/32.jpg'),
+        '2024-08-21 12:40:25', '/images/forum_img/32.jpg'),
        ('勁舞團', '7', '音樂節奏類型的線上休閒運動遊戲，曾風靡一時。', '2024-08-24 13:45:00',
-        '2024-08-24 13:50:15','/images/forum_img/33.jpg'),
+        '2024-08-24 13:50:15', '/images/forum_img/33.jpg'),
        ('糖豆人', '8', '大亂鬥闖關派對遊戲，玩家扮演可愛豆人闖關競技。', '2024-08-26 14:55:05',
-        '2024-08-26 15:00:20','/images/forum_img/34.jpg'),
+        '2024-08-26 15:00:20', '/images/forum_img/34.jpg'),
        ('Among Us', '8', '推理社交遊戲，玩家需找出船員中的冒充者。', '2024-08-29 16:05:00',
-        '2024-08-29 16:10:05','/images/forum_img/35.jpg'),
+        '2024-08-29 16:10:05', '/images/forum_img/35.jpg'),
        ('傳說對決', '8', '熱門手機MOBA遊戲，提供快節奏的5v5對戰。', '2024-08-31 17:15:10',
-        '2024-08-31 17:20:25','/images/forum_img/36.jpg'),
+        '2024-08-31 17:20:25', '/images/forum_img/36.jpg'),
        ('英雄聯盟', '8', '經典MOBA遊戲，全球電競重要項目，玩家操控英雄進行戰術對戰。', '2024-09-03 18:25:00',
-        '2024-09-03 18:30:15','/images/forum_img/37.jpg'),
+        '2024-09-03 18:30:15', '/images/forum_img/37.jpg'),
        ('楓之谷', '8', '經典橫版卷軸MMORPG，以可愛畫風與豐富內容吸引玩家。', '2024-09-05 9:35:05',
-        '2024-09-05 9:40:20','/images/forum_img/38.jpg'),
+        '2024-09-05 9:40:20', '/images/forum_img/38.jpg'),
        ('魔物獵人系列', '9', '大型動作狩獵遊戲，玩家狩獵巨型魔物，製作裝備。', '2024-09-13 13:05:00',
-        '2024-09-13 13:10:15','/images/forum_img/39.jpg');
+        '2024-09-13 13:10:15', '/images/forum_img/39.jpg');
 
 
 -- 建立 文章類別標籤 表格 --
 CREATE TABLE FORUM_TAG
 (
-    `FTAG_NO`   INT         NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '文章類別標籤編號',
-    `FTAG_NAME` VARCHAR(30) NOT NULL COMMENT '類別標籤名稱',
-    `FTAG_SPEC` VARCHAR(255) COMMENT '類別標籤說明',
+    `FTAG_NO`       INT         NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '文章類別標籤編號',
+    `FTAG_NAME`     VARCHAR(30) NOT NULL COMMENT '類別標籤名稱',
+    `FTAG_SPEC`     VARCHAR(255) COMMENT '類別標籤說明',
     `DEFAULT_IMAGE` LONGBLOB comment '文章標籤預設圖片'
 ) COMMENT '文章類別標籤';
 
@@ -2114,23 +2118,23 @@ BEGIN
     -- 生成新的ORDER_NO (格式: YYYYMM0001)
     SET NEW.ORDER_NO = CONCAT(current_month, LPAD(next_seq, 4, '0'));
 END$$
-    DELIMITER ;
+DELIMITER ;
 
 
 -- -- 插入 9筆 訂單ORDER 資料
-    INSERT INTO `ORDER` (MEM_NO, COUPON_WALLET_NO, ORDER_STATUS, ORDER_TOTAL, POINT_USED)
-    VALUES ('15', '1', '已完成', 1399, 0),
-           ('23', NULL, '處理中', 1990, 0),
-           ('8', '3', '已完成', 1090, 0),
-           ('12', '5', '已完成', 1090, 0),
-           ('23', NULL, '處理中', 1690, 0),
-           ('6', '7', '已完成', 899, 0),
-           ('29', NULL, '已出貨', 1390, 0),
-           ('15', '9', '已完成', 218, 0),
-           ('37', '10', '處理中', 1690, 0);
+INSERT INTO `ORDER` (MEM_NO, COUPON_WALLET_NO, ORDER_STATUS, ORDER_TOTAL, POINT_USED)
+VALUES ('15', '1', '已完成', 1399, 0),
+       ('23', NULL, '處理中', 1990, 0),
+       ('8', '3', '已完成', 1090, 0),
+       ('12', '5', '已完成', 1090, 0),
+       ('23', NULL, '處理中', 1690, 0),
+       ('6', '7', '已完成', 899, 0),
+       ('29', NULL, '已出貨', 1390, 0),
+       ('15', '9', '已完成', 218, 0),
+       ('37', '10', '處理中', 1690, 0);
 
 
-    -- ===== END OF order.sql =====
+-- ===== END OF order.sql =====
 
 -- ===== START OF oreder_item.sql =====
 -- 建立資料庫並設定自動遞增屬性
@@ -2141,38 +2145,38 @@ END$$
 
 
 -- 建立 訂單明細ORDER_ITEM 資料表
-    CREATE TABLE ORDER_ITEM
-    (
-        ORDER_ITEM_NO          INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '訂單明細編號',
-        ORDER_NO               INT COMMENT '訂單編號',
-        PRO_NO                 INT COMMENT '產品編號',
-        ORDER_AMOUNT           INT COMMENT '訂購數量',
-        PRO_PRICE              INT COMMENT '產品價格',
-        PRO_NAME               VARCHAR(30) COMMENT '產品名稱',
-        PRODUCT_COMMENT        VARCHAR(255) COMMENT '產品評論內容',
-        PRODUCT_COMMENT_CRDATE DATETIME COMMENT '評論時間',
-        PRO_STAR               INT COMMENT '產品評價',
-        PRO_COM_STATUS         CHAR(1) DEFAULT '0' COMMENT '產品評論狀態',
+CREATE TABLE ORDER_ITEM
+(
+    ORDER_ITEM_NO          INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '訂單明細編號',
+    ORDER_NO               INT COMMENT '訂單編號',
+    PRO_NO                 INT COMMENT '產品編號',
+    ORDER_AMOUNT           INT COMMENT '訂購數量',
+    PRO_PRICE              INT COMMENT '產品價格',
+    PRO_NAME               VARCHAR(30) COMMENT '產品名稱',
+    PRODUCT_COMMENT        VARCHAR(255) COMMENT '產品評論內容',
+    PRODUCT_COMMENT_CRDATE DATETIME COMMENT '評論時間',
+    PRO_STAR               INT COMMENT '產品評價',
+    PRO_COM_STATUS         CHAR(1) DEFAULT '0' COMMENT '產品評論狀態',
 
-        FOREIGN KEY (ORDER_NO) REFERENCES `ORDER` (ORDER_NO),
-        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-    );
+    FOREIGN KEY (ORDER_NO) REFERENCES `ORDER` (ORDER_NO),
+    FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+);
 
 
 -- -- 插入 9筆 訂單明細ORDER_ITEM  資料
-    INSERT INTO ORDER_ITEM (ORDER_NO, PRO_NO, ORDER_AMOUNT, PRO_PRICE, PRO_NAME, PRODUCT_COMMENT, PRODUCT_COMMENT_CRDATE,
-                            PRO_STAR, PRO_COM_STATUS)
-    VALUES (2024060001, 1, 1, 1499, '光與影：33 號遠征隊', NULL, NULL, NULL, '1'),
-           (2024060002, 2, 1, 1990, '印第安納瓊斯：古老之圈', NULL, NULL, NULL, '1'),
-           (2024060003, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
-           (2024060004, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
-           (2024060005, 5, 1, 1690, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
-           (2024060006, 6, 1, 999, '雙點博物館', NULL, NULL, NULL, '1'),
-           (2024060007, 7, 1, 1390, '人中之龍 8 外傳 夏威夷海盜', NULL, NULL, NULL, '1'),
-           (2024060008, 8, 1, 318, '即刻離職', NULL, NULL, NULL, '1'),
-           (2024060009, 10, 1, 1790, '歧路旅人 + 歧路旅人 II 合輯', NULL, NULL, NULL, '1');
+INSERT INTO ORDER_ITEM (ORDER_NO, PRO_NO, ORDER_AMOUNT, PRO_PRICE, PRO_NAME, PRODUCT_COMMENT, PRODUCT_COMMENT_CRDATE,
+                        PRO_STAR, PRO_COM_STATUS)
+VALUES (2024060001, 1, 1, 1499, '光與影：33 號遠征隊', NULL, NULL, NULL, '1'),
+       (2024060002, 2, 1, 1990, '印第安納瓊斯：古老之圈', NULL, NULL, NULL, '1'),
+       (2024060003, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
+       (2024060004, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
+       (2024060005, 5, 1, 1690, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
+       (2024060006, 6, 1, 999, '雙點博物館', NULL, NULL, NULL, '1'),
+       (2024060007, 7, 1, 1390, '人中之龍 8 外傳 夏威夷海盜', NULL, NULL, NULL, '1'),
+       (2024060008, 8, 1, 318, '即刻離職', NULL, NULL, NULL, '1'),
+       (2024060009, 10, 1, 1790, '歧路旅人 + 歧路旅人 II 合輯', NULL, NULL, NULL, '1');
 
-    -- 重新啟用外鍵檢查
+-- 重新啟用外鍵檢查
 -- 
 -- ===== END OF oreder_item.sql =====
 
@@ -2189,17 +2193,17 @@ END$$
 -- SET auto_increment_increment = 1;
 
 -- 建立 產品圖片PRODUCT_IMAGE 資料表
-    CREATE TABLE PRODUCT_IMAGE
-    (
-        PRO_IMG_NO   INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品圖片編號',
-        PRO_NO       INT                            NOT NULL COMMENT '產品編號',
-        PRO_IMG_DATA LONGBLOB COMMENT '圖片資料',
-        PRO_IMG_TYPE VARCHAR(100) COMMENT '產品圖片類型',
+CREATE TABLE PRODUCT_IMAGE
+(
+    PRO_IMG_NO   INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品圖片編號',
+    PRO_NO       INT                            NOT NULL COMMENT '產品編號',
+    PRO_IMG_DATA LONGBLOB COMMENT '圖片資料',
+    PRO_IMG_TYPE VARCHAR(100) COMMENT '產品圖片類型',
 
-        CONSTRAINT FK_PRODUCT_IMAGE_PRODUCT_PRO_NO
-            FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-    );
-    -- ===== END OF product_image.sql =====
+    CONSTRAINT FK_PRODUCT_IMAGE_PRODUCT_PRO_NO
+        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+);
+-- ===== END OF product_image.sql =====
 
 -- ===== START OF favorite_product.sql =====
 -- 建立資料庫並設定自動遞增屬性
@@ -2213,19 +2217,19 @@ END$$
 -- SET auto_increment_offset = 1;
 -- SET auto_increment_increment = 1;
 
-    CREATE TABLE FAVORITE_PRODUCT
-    (
-        FAV_PRO_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '最愛產品編號',
-        MEM_NO     INT                            NOT NULL COMMENT '會員編號',
-        PRO_NO     INT                            NOT NULL COMMENT '產品編號',
+CREATE TABLE FAVORITE_PRODUCT
+(
+    FAV_PRO_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '最愛產品編號',
+    MEM_NO     INT                            NOT NULL COMMENT '會員編號',
+    PRO_NO     INT                            NOT NULL COMMENT '產品編號',
 
-        FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
-        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-    );
+    FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
+    FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+);
 
 -- -- 插入 產品序號 FAVORITE_PRODUCT 資料
-    INSERT INTO FAVORITE_PRODUCT (MEM_NO, PRO_NO)
-        VALUE (20, 1),
+INSERT INTO FAVORITE_PRODUCT (MEM_NO, PRO_NO)
+    VALUE (20, 1),
     (33, 3),
     (6, 5),
     (5, 7),
@@ -2240,7 +2244,7 @@ END$$
     (3, 8),
     (13, 13),
     (25, 16);
-    -- ===== END OF favorite_product.sql =====
+-- ===== END OF favorite_product.sql =====
 
 -- ===== START OF pro_serial_numbers.sql =====
 -- 建立資料庫並設定自動遞增屬性
@@ -2255,21 +2259,21 @@ END$$
 -- SET auto_increment_increment = 1;
 
 -- 建立 產品序號 PRO_SERIAL_NUMBERS 資料表
-    CREATE TABLE PRO_SERIAL_NUMBERS
-    (
-        PRODUCT_SN_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品序號流水號',
-        PRODUCT_SN    VARCHAR(100) COMMENT '產品序號',
-        ORDER_ITEM_NO INT COMMENT '訂單明細編號',
-        PRO_NO        INT COMMENT '產品編號',
+CREATE TABLE PRO_SERIAL_NUMBERS
+(
+    PRODUCT_SN_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品序號流水號',
+    PRODUCT_SN    VARCHAR(100) COMMENT '產品序號',
+    ORDER_ITEM_NO INT COMMENT '訂單明細編號',
+    PRO_NO        INT COMMENT '產品編號',
 
-        FOREIGN KEY (ORDER_ITEM_NO) REFERENCES ORDER_ITEM (ORDER_ITEM_NO),
-        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-    );
+    FOREIGN KEY (ORDER_ITEM_NO) REFERENCES ORDER_ITEM (ORDER_ITEM_NO),
+    FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+);
 
 
 -- -- 插入 產品序號 PRO_SERIAL_NUMBERS 資料
-    INSERT INTO PRO_SERIAL_NUMBERS (PRODUCT_SN, ORDER_ITEM_NO, PRO_NO)
-        VALUE ('N284X-42RP4-0J9KS', 1, 1),
+INSERT INTO PRO_SERIAL_NUMBERS (PRODUCT_SN, ORDER_ITEM_NO, PRO_NO)
+    VALUE ('N284X-42RP4-0J9KS', 1, 1),
     ('F81F0-G1VP0-L0B96', NULL, 1),
     ('SGH46-30U5H-S89PJ', NULL, 1),
     ('34GL1-72L86-B66YJ', NULL, 1),
@@ -2421,4 +2425,4 @@ END$$
     ('0GP8B-HMD0I-1N4JB', NULL, 17);
 
 -- ===== END OF pro_serial_numbers.sql =====
-    SET FOREIGN_KEY_CHECKS = 1;
+SET FOREIGN_KEY_CHECKS = 1;

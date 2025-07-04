@@ -16,6 +16,7 @@ import lombok.Setter;
 @Table(name = "new_content_classification")
 public class NewContentClassification {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "NCC_NO", nullable = false)
     private Integer id;
 
