@@ -212,7 +212,7 @@ body {
 			<div class="modal-desc">請輸入您的Email，我們會寄送認證信給您。</div>
 			<input type="email" id="forgotEmail" class="login-input"
 				placeholder="請輸入Email" required>
-			<button id="sendMailBtn" class="modal-btn">送出認證信</button>
+			<button id="sendMailBtn" class="modal-btn">寄送認證碼</button>
 			<div id="modalResult"></div>
 		</div>
 	</div>
@@ -243,7 +243,7 @@ body {
                     result.textContent = data.message;
                 } else {
                     alert('登入成功！');
-                    window.location.href = "/front-end/mem/HomePage.html";
+                    window.location.href = "/indexstatic.html";
                 }
             });
         });
@@ -285,10 +285,10 @@ body {
             .then(data => {
                 if(data.success) {
                     result.style.color = "#25a45a";
-                    result.textContent = '認證信已寄出，請至信箱查收！';
+                    result.textContent = data.message;
                 } else {
                     result.style.color = "#b94040";
-                    result.textContent = data.message || '寄送失敗，請確認Email';
+                    result.textContent = data.message;
                 }
             });
         };
