@@ -224,7 +224,7 @@
     // 當 DOMContentLoaded 事件觸發時執行（即 HTML 結構完全載入後）
     document.addEventListener('DOMContentLoaded', function() {
         // API 基礎 URL，指向後端獲取所有文章的 API 端點
-        const API_BASE_URL = 'http://localhost:8080/api/forumpost/allForumPost'; // 從你的 ForumPostController 獲取
+        // const API_BASE_URL = 'http://localhost:8080/api/forumpost/allForumPost'; // 這行變成了內部定義，根據 forumId 決定
 
         // 獲取頁面上的 DOM 元素
         const tableBody = document.getElementById('posts-data-body'); // 表格 tbody，用於動態插入文章行
@@ -237,10 +237,33 @@
         let currentPage = 1;      // 當前頁碼，預設為第一頁
         let itemsPerPage = parseInt(itemsPerPageSelect.value); // 每頁顯示的項目數量，從選擇器獲取
 
+        // 新增邏輯：獲取 URL 參數 forNo
+        // ===============================================
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        const forumId = getUrlParameter('forNo'); // 從 URL 中獲取 'forNo' 參數值
+        // ===============================================
+
         // 異步函數：初始化頁面，獲取所有文章資料並渲染
         async function initialize() {
             try {
-                const response = await fetch(API_BASE_URL); // 發送 GET 請求到 API
+                let apiUrl = '';
+                if (forumId) {
+                    // 如果 URL 中有 forNo 參數，則呼叫查詢特定論壇文章的 API
+                    apiUrl = `http://localhost:8080/api/forum/${forumId}/posts`; // 對應後端 /api/forum/{forNo}/posts
+                    console.log(`正在獲取論壇 ID ${forumId} 的文章...`);
+                } else {
+                    // 如果沒有 forNo 參數，則呼叫查詢所有文章的 API
+                    apiUrl = 'http://localhost:8080/api/forumpost/allForumPost'; // 對應後端 /api/forumpost/allForumPost
+                    console.log('正在獲取所有論壇文章...');
+                }
+
+                const response = await fetch(apiUrl); // 發送 GET 請求到 API
                 if (!response.ok) { // 如果響應狀態碼不是 2xx，則拋出錯誤
                     throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
                 }
@@ -274,8 +297,8 @@
             }
 
             // 遍歷當前頁的每個文章資料，創建表格行並添加到 tbody
-            itemsToShow.forEach(post => {
-                const row = document.createElement('tr'); // 創建一個新的表格行元素
+            itemsToShow.forEach(post => { // <--- **這裡才是 'post' 變數被定義的地方**
+                const row = document.createElement('tr'); // <--- 'row' 變數在這裡被定義，每次迴圈迭代都會創建一個新的行
 
                 // 將 Instant 時間格式化為本地時間字串
                 const postCrdateFormatted = post.postCrdate ? new Date(post.postCrdate).toLocaleString('zh-TW', {
@@ -284,23 +307,24 @@
                     hour12: false // 24小時制
                 }) : '無日期';
 
-                const postUpdateFormatted = post.postUpdate ? new Date(post.postUpdate).toLocaleString('zh-TW', {
-                    year: 'numeric', month: '2-digit', day: '2-digit',
-                    hour: '2-digit', minute: '2-digit', second: '2-digit',
-                    hour12: false // 24小時制
-                }) : '無日期';
-
+                // postUpdateFormatted 在此頁面表格中未使用，但如果需要可以保留
+                // const postUpdateFormatted = post.postUpdate ? new Date(post.postUpdate).toLocaleString('zh-TW', {
+                //     year: 'numeric', month: '2-digit', day: '2-digit',
+                //     hour: '2-digit', minute: '2-digit', second: '2-digit',
+                //     hour12: false // 24小時制
+                // }) : '無日期';
 
                 row.innerHTML = `
-            <td>${post.id}</td> <td>${post.postTitle || '無標題'}</td> <td>${post.memberName || '匿名'}</td> <td>${post.forumName || '未知討論區'}</td> <td>${postCrdateFormatted}</td> <td>${post.mesNumbers || 0}</td> <td>${post.postLikeCount || 0}</td> <td>${post.postLikeDlc || 0}</td> <td>
-                <a href="editForumPost.html?id=${post.id}" class="btn btn-edit">編輯</a>
-<!--                <button class="btn btn-delete" onclick="deleteForumPost(${post.id})">刪除</button>-->
-            </td>
-        `;
+                    <td>${post.id}</td> <td>${post.postTitle || '無標題'}</td> <td>${post.memberName || '匿名'}</td> <td>${post.forumName || '未知討論區'}</td> <td>${postCrdateFormatted}</td> <td>${post.mesNumbers || 0}</td> <td>${post.postLikeCount || 0}</td> <td>${post.postLikeDlc || 0}</td> <td>
+                        <a href="editForumPost.html?id=${post.id}" class="btn btn-edit">編輯</a>
+<!--                        <button class="btn btn-delete" onclick="deleteForumPost(${post.id})">刪除</button>-->
+                    </td>
+                `;
                 tableBody.appendChild(row); // 將行添加到表格主體
-            });
+            }); // <--- **forEach 迴圈結束**
         }
 
+        // ... (以下所有的 `itemsPerPageSelect.addEventListener` 以及 `renderPagination`, `createPaginationButton`, `changePage`, `showError`, `deleteForumPost`, 燈箱邏輯等函數都應該放在 `DOMContentLoaded` 內部，與 `initialize`, `renderPage`, `renderTable` 等函數在同一層級，不要被其他函數包裹) ...
         // 渲染分頁控制按鈕
         function renderPagination() {
             paginationControls.innerHTML = ''; // 清空分頁控制區現有內容
@@ -374,7 +398,7 @@
         // 刪除文章功能 (此處僅為前端演示，需要後端配合真正的刪除 API)
         // ===========================================
         // 將 deleteForumPost 函數綁定到 window 物件，以便從 HTML 中的 onclick 訪問
-        // window.deleteForumPost = async function(postId) {
+        // window.deleteForumPost = async function(postId) { // <--- 這個函數需要放在這裡
         //     if (!confirm(`確定要刪除文章 ID: ${postId} 嗎？此操作不可逆！`)) {
         //         return; // 如果用戶取消，則不執行任何操作
         //     }
@@ -453,7 +477,7 @@
         });
 
         // 頁面初始化
-        initialize();
+        initialize(); // <--- 確保 initialize 函數在這裡被呼叫
     });
 </script>
 </body>
