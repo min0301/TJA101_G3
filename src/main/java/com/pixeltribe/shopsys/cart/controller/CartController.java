@@ -27,7 +27,7 @@ public class CartController {
 	private CartService cartService;
 	
 	// ==========  將商品加到購物車 ============ //
-	@PostMapping("/add")
+	@PostMapping("/api/cart/add")
 	public ResponseEntity<CartDTO> addToCart(
 			@RequestParam Integer proNo,
 			@RequestParam String proName,
@@ -36,58 +36,58 @@ public class CartController {
 			HttpServletRequest request) {
 		
 		// 取得會員ID
-		Integer id = (Integer) request.getAttribute("currentId");
+		Integer memNo = (Integer) request.getAttribute("currentId");
 		
 		// 呼叫CartService
-		CartDTO cart = cartService.addToCart(id, proNo, proName, proPrice, proNum);
+		CartDTO cart = cartService.addToCart(memNo, proNo, proName, proPrice, proNum);
 		
 		return ResponseEntity.ok(cart);   // 配對成功
 	}
 	
 	
-	// ==========  獲取購物車 ============ //
-	@GetMapping("/")
+	// ==========  查詢購物車 ============ //
+	@GetMapping("/api/cart/{memNo}")
 	public ResponseEntity<CartDTO> getCart(HttpServletRequest request) {
 		
-		Integer id = (Integer) request.getAttribute("currentId");
-        CartDTO cart = cartService.getMemberCart(id);
+		Integer memNo = (Integer) request.getAttribute("currentId");
+        CartDTO cart = cartService.getMemberCart(memNo);
         
         return ResponseEntity.ok(cart);
 	}
 	
 	
 	// ========== 移除購物車商品 ============ //
-	@DeleteMapping("/remove/{proNo}")
+	@DeleteMapping("/api/cart/remove/{proNo}")
 	public ResponseEntity<CartDTO> removeFromCart(
             @PathVariable Integer proNo,
             HttpServletRequest request) {
 		
-		Integer id = (Integer) request.getAttribute("currentId");
-        CartDTO cart = cartService.removeFromCart(id, proNo);
+		Integer memNo = (Integer) request.getAttribute("currentId");
+        CartDTO cart = cartService.removeFromCart(memNo, proNo);
         
         return ResponseEntity.ok(cart);
 	}
 	
 	// ========== 更新商品數量 ============ //
-	@PutMapping("/update")
+	@PutMapping("/api/cart/update/{proNo}")
 	public ResponseEntity<CartDTO> updateQuantity(
             @RequestParam Integer proNo,
             @RequestParam Integer newQuantity,
             HttpServletRequest request) {
 		
-		Integer id = (Integer) request.getAttribute("currentId");
-        CartDTO cart = cartService.updateCartItemQuantity(id, proNo, newQuantity);
+		Integer memNo = (Integer) request.getAttribute("currentId");
+        CartDTO cart = cartService.updateCartItemQuantity(memNo, proNo, newQuantity);
         
         return ResponseEntity.ok(cart);
 	}
 	
 	
 	// ========== 清空購物車 ============ //
-	@DeleteMapping("/clear")
+	@PostMapping("/api/cart/clear")
 	public ResponseEntity<String> clearCart(HttpServletRequest request) {
 		
-		Integer id = (Integer) request.getAttribute("currentId");
-		cartService.clearCart(id);
+		Integer memNo = (Integer) request.getAttribute("currentId");
+		cartService.clearCart(memNo);
 		
 		return ResponseEntity.ok("購物車已清空");
 	}

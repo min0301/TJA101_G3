@@ -40,7 +40,7 @@ public class CartDTO {
 	
 	
 	// ========== 整個購物車的資訊 ========== //
-	private Integer id;// 會員編號  (誰的購物車)
+	private Integer memNo;// 會員編號  (誰的購物車)
 	private List<CartItem> item;// 全部的單個產品資訊 (用List包起來)
 	private Integer totalItem;// 全部產品項目 (指全部的不同商品)
 	private Integer totalPrice;// 總價

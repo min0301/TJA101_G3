@@ -24,15 +24,15 @@ public class CartRepository {
 	private static final Duration CART_EXPIRE_TIME = Duration.ofDays(365 / 2);
 	
 	// ========== 生成 Redis Key ========== //
-	private String generateKey(Integer id) {
-		return CART_KEY_PREFIX + id;
+	private String generateKey(Integer memNo) {
+		return CART_KEY_PREFIX + memNo;
 	}
 	
 	
 	// ========== 保存購物車到Redis裡 ========== //
-	public void saveCart(Integer id, CartDTO cart) {
+	public void saveCart(Integer memNo, CartDTO cart) {
 		try {
-			String key = generateKey(id);
+			String key = generateKey(memNo);
 			String jsonValue = objectMapper.writeValueAsString(cart);
 			
 			// 保存並設定過期時間
@@ -47,9 +47,9 @@ public class CartRepository {
 	
 	
 	// ========== 從Redis獲取購物車資訊 ========== //
-	public CartDTO getCart(Integer id) {
+	public CartDTO getCart(Integer memNo) {
 		try {
-			String key = generateKey(id);
+			String key = generateKey(memNo);
             String jsonValue = redisTemplate.opsForValue().get(key);
             
             if (jsonValue == null) {
@@ -72,8 +72,8 @@ public class CartRepository {
 	
 	
 	// ========== 刪除購物車 ========== //
-	public void deleteCart(Integer id) {
-		String key = generateKey(id);
+	public void deleteCart(Integer memNo) {
+		String key = generateKey(memNo);
         Boolean deleted = redisTemplate.delete(key);
         
         if (Boolean.TRUE.equals(deleted)) {

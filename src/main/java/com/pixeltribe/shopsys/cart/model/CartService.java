@@ -18,16 +18,16 @@ public class CartService {
 	
 	
 	// ============ 加入商品到購物車 ===========//
-	public CartDTO addToCart(Integer id, Integer proNo, String proName, 
+	public CartDTO addToCart(Integer memNo, Integer proNo, String proName, 
 							Integer proPrice, Integer proNum) {
 		
 		// 取的現有購物車
-		CartDTO cart = cartRepository.getCart(id);
+		CartDTO cart = cartRepository.getCart(memNo);
 		
 		// 如果購物車不存在，就創建新的
 		if (cart == null) {  
 			cart = new CartDTO();
-			cart.setId(id);
+			cart.setMemNo(memNo);
 			cart.setItem(new ArrayList<>());
 		}
 		
@@ -58,7 +58,7 @@ public class CartService {
 		cart.calculateTotals();
 		
 		// 保存到Redis
-		cartRepository.saveCart(id, cart);
+		cartRepository.saveCart(memNo, cart);
 		
 		// 回傳到CartDTO
 		return cart;  
@@ -66,15 +66,15 @@ public class CartService {
 	
 	
 	// ============ 獲取會員購物車 ===========//
-	public CartDTO getMemberCart(Integer id) {
+	public CartDTO getMemberCart(Integer memNo) {
 		
 		// 取得購物車
-		CartDTO cart = cartRepository.getCart(id);
+		CartDTO cart = cartRepository.getCart(memNo);
 		
 		if (cart == null) {
 			// 購物車不存在，創建空的購物車
             cart = new CartDTO();
-            cart.setId(id);
+            cart.setMemNo(memNo);
             cart.setItem(new ArrayList<>());
             cart.calculateTotals();
         }	
@@ -84,15 +84,15 @@ public class CartService {
 	
 	
 	// ============ 移除購物車的產品 ===========//
-	public CartDTO removeFromCart(Integer id, Integer proNo) {
+	public CartDTO removeFromCart(Integer memNo, Integer proNo) {
 		
 		// 取得購物車
-		CartDTO cart = cartRepository.getCart(id);
+		CartDTO cart = cartRepository.getCart(memNo);
         
         if (cart == null) {
             // 購物車不存在，創建空的購物車
             cart = new CartDTO();
-            cart.setId(id);
+            cart.setMemNo(memNo);
             cart.setItem(new ArrayList<>());
             cart.calculateTotals();
             return cart;
@@ -105,22 +105,22 @@ public class CartService {
         cart.calculateTotals();
         
         // 存到Redis
-        cartRepository.saveCart(id, cart);
+        cartRepository.saveCart(memNo, cart);
         
         return cart;  // 回傳到CartDTO
 	}
 	
 	
 	// ============ 更新產品的數量 ===========//
-	public CartDTO updateCartItemQuantity(Integer id, Integer proNo, Integer newQuantity) {
+	public CartDTO updateCartItemQuantity(Integer memNo, Integer proNo, Integer newQuantity) {
 		
 		// 取得購物車
-		CartDTO cart = cartRepository.getCart(id);
+		CartDTO cart = cartRepository.getCart(memNo);
 		
 		// 購物車不存在，創建空的購物車
 		if (cart == null) {
 		    cart = new CartDTO();
-		    cart.setId(id);
+		    cart.setMemNo(memNo);
 		    cart.setItem(new ArrayList<>());
 		    cart.calculateTotals();
 		    return cart;
@@ -139,17 +139,17 @@ public class CartService {
 		cart.calculateTotals();
 		
 		// 存到Redis
-		cartRepository.saveCart(id, cart);
+		cartRepository.saveCart(memNo, cart);
 		
 		return cart;  // 回傳到CartDTO
 	}
 	
 	
 	// ============ 清空購物車 ===========//
-	public void clearCart(Integer id) {
+	public void clearCart(Integer memNo) {
 		
 		// 直接從 Redis 刪除購物車
-        cartRepository.deleteCart(id);
+        cartRepository.deleteCart(memNo);
         
         System.out.println("已清空您的購物車");
 		
