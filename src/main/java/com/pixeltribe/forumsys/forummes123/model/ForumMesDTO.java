@@ -1,14 +1,9 @@
-package com.pixeltribe.forumsys.ForumMes.model;
+package com.pixeltribe.forumsys.forummes123.model;
 
-import com.pixeltribe.forumsys.forumpost.model.ForumPost;
-import com.pixeltribe.membersys.member.model.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 

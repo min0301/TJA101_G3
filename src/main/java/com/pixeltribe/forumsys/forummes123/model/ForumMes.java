@@ -1,4 +1,4 @@
-package com.pixeltribe.forumsys.ForumMes.model;
+package com.pixeltribe.forumsys.forummes123.model;
 
 import com.pixeltribe.forumsys.forumVO.ArticleComReport;
 import com.pixeltribe.forumsys.forumVO.ForumMesLike;

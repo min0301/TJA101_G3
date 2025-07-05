@@ -15,7 +15,7 @@ import com.pixeltribe.forumsys.forumVO.ForumChatReport;
 import com.pixeltribe.forumsys.forumVO.ForumCollect;
 
 
-import com.pixeltribe.forumsys.forummes.model.ForumMes;
+import com.pixeltribe.forumsys.forummes123.model.ForumMes;
 
 import com.pixeltribe.forumsys.forumVO.PostLike;
 
@@ -27,7 +27,6 @@ import com.pixeltribe.membersys.friendlist.model.FriendList;
 import com.pixeltribe.membersys.memberloginlog.model.MemberLoginLog;
 import com.pixeltribe.membersys.privatechatroom.model.PrivateChatroom;
 import com.pixeltribe.membersys.privatemessage.model.PrivateMessage;
-import com.pixeltribe.newssys.news.model.News;
 import com.pixeltribe.newssys.newscomment.model.NewsComment;
 import com.pixeltribe.newssys.newscomreport.model.NewsComReport;
 import com.pixeltribe.newssys.newslike.model.NewsLike;
