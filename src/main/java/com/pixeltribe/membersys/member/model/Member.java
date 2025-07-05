@@ -13,8 +13,13 @@ import com.pixeltribe.forumsys.forumVO.ArticleReport;
 import com.pixeltribe.forumsys.forumVO.ForumChatMessage;
 import com.pixeltribe.forumsys.forumVO.ForumChatReport;
 import com.pixeltribe.forumsys.forumVO.ForumCollect;
+
+
+import com.pixeltribe.forumsys.forummes.model.ForumMes;
+
 import com.pixeltribe.forumsys.forumVO.PostLike;
-import com.pixeltribe.forumsys.ForumMes.model.ForumMes;
+
+
 import com.pixeltribe.forumsys.forumVO.ForumMesLike;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import com.pixeltribe.forumsys.forumVO.PostCollect;

@@ -9,7 +9,9 @@ import com.pixeltribe.forumsys.forumVO.*;
 import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.forumsys.forumVO.ArticleReport;
 import com.pixeltribe.forumsys.forumVO.ForumImage;
-import com.pixeltribe.forumsys.ForumMes.model.ForumMes;
+
+import com.pixeltribe.forumsys.forummes.model.ForumMes;
+
 import com.pixeltribe.forumsys.forumVO.PostCollect;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -124,15 +126,12 @@ public class ForumPost {
     @Column(name = "POST_STATUS", nullable = false)
     private Character postStatus;
 
-    @ColumnDefault("0")
     @Column(name = "MES_NUMBERS")
     private Integer mesNumbers;
 
-    @ColumnDefault("0")
     @Column(name = "POST_LIKE_COUNT")
     private Integer postLikeCount;
 
-    @ColumnDefault("0")
     @Column(name = "POST_LIKE_DLC")
     private Integer postLikeDlc;
 
