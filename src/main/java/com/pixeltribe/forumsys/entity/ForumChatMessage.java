@@ -1,4 +1,4 @@
-package com.pixeltribe.forumsys.forumVO;
+package com.pixeltribe.forumsys.entity;
 
 import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.membersys.member.model.Member;

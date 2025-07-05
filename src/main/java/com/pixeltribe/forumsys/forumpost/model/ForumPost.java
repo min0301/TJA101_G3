@@ -2,17 +2,14 @@ package com.pixeltribe.forumsys.forumpost.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference; // 確保導入
 import com.fasterxml.jackson.annotation.JsonProperty; // 確保導入
+import com.pixeltribe.forumsys.entity.*;
 import org.hibernate.annotations.ColumnDefault;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pixeltribe.forumsys.forum.model.Forum;
-import com.pixeltribe.forumsys.forumVO.*;
 import com.pixeltribe.membersys.member.model.Member;
-import com.pixeltribe.forumsys.forumVO.ArticleReport;
-import com.pixeltribe.forumsys.forumVO.ForumImage;
 
-import com.pixeltribe.forumsys.forummes.model.ForumMes;
+import com.pixeltribe.forumsys.message.model.ForumMes;
 
-import com.pixeltribe.forumsys.forumVO.PostCollect;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
