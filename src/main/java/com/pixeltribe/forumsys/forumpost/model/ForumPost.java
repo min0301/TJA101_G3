@@ -9,7 +9,9 @@ import com.pixeltribe.forumsys.forumVO.*;
 import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.forumsys.forumVO.ArticleReport;
 import com.pixeltribe.forumsys.forumVO.ForumImage;
+
 import com.pixeltribe.forumsys.forummes.model.ForumMes;
+
 import com.pixeltribe.forumsys.forumVO.PostCollect;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -54,6 +56,8 @@ public class ForumPost {
     @JoinColumn(name = "MEM_NO")
     @JsonBackReference
     private Member memNo;
+
+
 
     // **確保這個方法存在** nick new
     @JsonProperty("forumName")
@@ -150,5 +154,9 @@ public class ForumPost {
     @JsonIgnore
     @OneToMany(mappedBy = "postNo")
     private Set<PostCollect> postCollects = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "postNo")
+    @JsonIgnore
+    private Set<PostLike> postLikes = new LinkedHashSet<>();
 
 }

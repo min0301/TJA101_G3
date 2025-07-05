@@ -13,8 +13,13 @@ import com.pixeltribe.forumsys.forumVO.ArticleReport;
 import com.pixeltribe.forumsys.forumVO.ForumChatMessage;
 import com.pixeltribe.forumsys.forumVO.ForumChatReport;
 import com.pixeltribe.forumsys.forumVO.ForumCollect;
-import com.pixeltribe.forumsys.forumVO.ForumLike;
+
+
 import com.pixeltribe.forumsys.forummes.model.ForumMes;
+
+import com.pixeltribe.forumsys.forumVO.PostLike;
+
+
 import com.pixeltribe.forumsys.forumVO.ForumMesLike;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import com.pixeltribe.forumsys.forumVO.PostCollect;
@@ -177,7 +182,7 @@ public class Member {
     private Set<ForumCollect> forumCollects = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "memNo")
-    private Set<ForumLike> forumLikes = new LinkedHashSet<>();
+    private Set<PostLike> postLikes = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "memNo")
     private Set<ForumMes> forumMes = new LinkedHashSet<>();

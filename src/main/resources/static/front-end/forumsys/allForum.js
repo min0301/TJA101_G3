@@ -8,7 +8,7 @@ async function renderForumTable() {
         forumList.forEach(forum => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${forum.id}</td>
+<!--                <td>${forum.id}</td>-->
                 <td>${forum.forName}</td>
                 <td>${forum.categoryName || ''}</td>
 <!--                <td>${forum.forImgUrl ? `<img src="${forum.forImgUrl}" alt="論壇圖" style="max-width:60px;">` : ''}</td>-->
