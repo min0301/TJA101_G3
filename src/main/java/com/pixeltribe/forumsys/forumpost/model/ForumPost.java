@@ -10,7 +10,7 @@ import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.forumsys.forumVO.ArticleReport;
 import com.pixeltribe.forumsys.forumVO.ForumImage;
 
-import com.pixeltribe.forumsys.forummes.model.ForumMes;
+import com.pixeltribe.forumsys.ForumMes.model.ForumMes;
 
 import com.pixeltribe.forumsys.forumVO.PostCollect;
 import jakarta.persistence.Column;
