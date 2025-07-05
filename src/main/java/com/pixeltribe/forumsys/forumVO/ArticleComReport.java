@@ -1,6 +1,6 @@
 package com.pixeltribe.forumsys.forumVO;
 
-import com.pixeltribe.forumsys.ForumMes.model.ForumMes;
+import com.pixeltribe.forumsys.forummes.model.ForumMes;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

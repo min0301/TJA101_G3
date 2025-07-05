@@ -15,7 +15,7 @@ import com.pixeltribe.forumsys.forumVO.ForumChatReport;
 import com.pixeltribe.forumsys.forumVO.ForumCollect;
 
 
-import com.pixeltribe.forumsys.ForumMes.model.ForumMes;
+import com.pixeltribe.forumsys.forummes.model.ForumMes;
 
 import com.pixeltribe.forumsys.forumVO.PostLike;
 
