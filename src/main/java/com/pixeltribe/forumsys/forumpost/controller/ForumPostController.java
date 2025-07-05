@@ -133,7 +133,7 @@ public class ForumPostController {
         forumPost.setMesNumbers(mesNumbers != null ? mesNumbers : 0);
         forumPost.setPostLikeCount(postLikeCount != null ? postLikeCount : 0);
         forumPost.setPostLikeDlc(postLikeDlc != null ? postLikeDlc : 0);
-//TODO
+
 //        Forum selectedForum = forumService.getForumById(forNoId)
 //                .orElseThrow(() -> new IllegalArgumentException("無效的討論區編號: " + forNoId));
 //        forumPost.setForNo(selectedForum);
@@ -250,4 +250,6 @@ public class ForumPostController {
             return is.readAllBytes();
         }
     }
+
+
 }

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新增文章 - 論壇文章管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrNjHq3R8U6/S3A7+wP9m/8M+2yF8zN4Fp9J5N6d5qKj5K5f5A7f5D5f5+5G5+5Q5+5g5+5h5+5Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* CSS 樣式區：定義頁面外觀與排版 (保持與你提供的一致) */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        h1 {
+            color: #2c3e50;
+            margin: 0;
+        }
+        .form-container { /* 修改 class 名稱以與 HTML 匹配 */
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box; /* 確保 padding 不增加寬度 */
+        }
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .btn-submit {
+            background-color: #27ae60; /* 綠色 */
+        }
+        .btn-back {
+            background-color: #95a5a6; /* 灰色 */
+        }
+        .form-actions {
+            text-align: right;
+            margin-top: 30px;
+        }
+        .form-actions .btn {
+            margin-left: 10px;
+        }
+        #message-area {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            display: none; /* 預設隱藏 */
+            font-weight: bold;
+        }
+        #message-area.success {
+            color: #155724;
+            background-color: #d4edda;
+        }
+        #message-area.error {
+            color: #721c24;
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+<div class="header-container">
+    <h1>新增文章</h1> </div>
+
+<div class="form-container"> <form id="add-forumpost-form"> <div class="form-group">
+    <label for="postTitle">文章標題</label>
+    <input type="text" id="postTitle" name="postTitle" required maxlength="50">
+</div>
+
+    <div class="form-group">
+        <label for="postCon">文章內容</label>
+        <textarea id="postCon" name="postCon" required rows="10" minlength="10" maxlength="5000"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="forNoId">所屬討論區</label>
+        <select id="forNoId" name="forNoId" required>
+            <option value="" disabled selected>--載入中--</option> </select>
+    </div>
+
+    <div class="form-group">
+        <label for="ftagNoId">文章類別</label>
+        <select id="ftagNoId" name="ftagNoId" required>
+            <option value="" disabled selected>--載入中--</option> </select>
+    </div>
+
+    <div class="form-group">
+        <label for="postPin">是否置頂</label>
+        <select id="postPin" name="postPin">
+            <option value="0" selected>否</option> <option value="1">是</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="postStatus">文章狀態</label>
+        <select id="postStatus" name="postStatus">
+            <option value="0" selected>正常顯示</option> <option value="1">隱藏</option>
+            <option value="2">待審核</option>
+        </select>
+    </div>
+
+    <div class="form-actions">
+        <a href="/back-end/forumsys/forumpost/allForumPost.html" class="btn btn-back">返回列表</a>
+        <button type="submit" id="submit-button" class="btn btn-submit">確認新增</button>
+    </div>
+</form>
+</div>
+
+<div id="message-area"></div>
+
+<script>
+    // 當 DOM (Document Object Model) 內容完全載入並解析完成後執行此函數
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- 獲取頁面上的 DOM 元素 ---
+        const postTitleInput = document.getElementById('postTitle'); // 文章標題輸入框
+        const postConTextarea = document.getElementById('postCon'); // 文章內容文本框
+        const forNoSelect = document.getElementById('forNoId');     // 所屬討論區下拉選單
+        const ftagNoSelect = document.getElementById('ftagNoId');   // 文章類別下拉選單
+        const postPinSelect = document.getElementById('postPin');   // 置頂狀態下拉選單
+        const postStatusSelect = document.getElementById('postStatus'); // 文章狀態下拉選單
+        // const postCoverImageFileInput = document.getElementById('postCoverImageFile'); // 圖片上傳輸入框 (如果啟用)
+
+        const form = document.getElementById('add-forumpost-form'); // 表單元素 (注意 ID 已修正為 add-forumpost-form)
+        const submitButton = document.getElementById('submit-button'); // 提交按鈕
+        const messageArea = document.getElementById('message-area'); // 訊息顯示區
+
+        // --- 後端 API URLs (統一管理，便於修改) ---
+        const API_ADD_POST_URL = 'http://localhost:8080/api/forumpost/insert'; // 新增文章 API 端點
+        const API_FORUMS_URL = 'http://localhost:8080/api/forums';             // 獲取所有討論區 API 端點 (假設返回 ForumDTO，包含 id 和 forName)
+        const API_FORUM_TAGS_URL = 'http://localhost:8080/api/forumtags';     // 獲取所有文章類別 API 端點 (假設返回 ForumTagDTO，包含 id 和 ftagName)
+
+        // --- 輔助函數：顯示/隱藏訊息區塊 ---
+        /**
+         * 顯示訊息
+         * @param {string} message 要顯示的訊息文本
+         * @param {string} type 訊息類型 ('success' 或 'error')，用於應用 CSS 樣式
+         */
+        function showMessage(message, type) {
+            messageArea.innerHTML = message; // 設定訊息文本，支援 HTML (如 <br>)
+            messageArea.className = type;   // 應用訊息類型對應的 CSS class
+            messageArea.style.display = 'block'; // 顯示訊息區塊
+        }
+
+        /**
+         * 隱藏訊息區塊
+         */
+        function hideMessage() {
+            messageArea.style.display = 'none'; // 隱藏訊息區塊
+            messageArea.textContent = '';       // 清空訊息文本
+        }
+
+        // --- 動態載入討論區 (Forum) 下拉選單選項 ---
+        async function loadForums() {
+            try {
+                const response = await fetch(API_FORUMS_URL); // 發送請求獲取討論區列表
+                if (!response.ok) { // 檢查 HTTP 響應狀態碼
+                    throw new Error(`無法載入討論區資料，狀態碼: ${response.status}`);
+                }
+                const forums = await response.json(); // 解析 JSON 響應 (預期返回 ForumDTO 列表)
+
+                // 清空並添加預設選項
+                forNoSelect.innerHTML = '<option value="" disabled selected>--請選擇討論區--</option>';
+
+                // 遍歷論壇數據，為每個論壇創建 <option> 元素
+                forums.forEach(forum => {
+                    const option = document.createElement('option');
+                    option.value = forum.id;     // <option> 的值為討論區 ID (對應 ForumDTO.id)
+                    option.textContent = forum.forName; // <option> 的顯示文本為討論區名稱 (對應 ForumDTO.forName)
+                    forNoSelect.appendChild(option); // 添加到下拉選單
+                });
+            } catch (error) {
+                console.error('載入討論區失敗:', error); // 錯誤輸出到控制台
+                forNoSelect.innerHTML = '<option value="" disabled>討論區載入失敗</option>'; // 顯示載入失敗提示
+                showMessage(`載入討論區失敗: ${error.message}`, 'error'); // 頁面顯示錯誤訊息
+            }
+        }
+
+        // --- 動態載入文章類別 (ForumTag) 下拉選單選項 ---
+        async function loadForumTags() {
+            try {
+                const response = await fetch(API_FORUM_TAGS_URL); // 發送請求獲取文章類別列表
+                if (!response.ok) { // 檢查 HTTP 響應狀態碼
+                    throw new Error(`無法載入文章類別資料，狀態碼: ${response.status}`);
+                }
+                const tags = await response.json(); // 解析 JSON 響應 (預期返回 ForumTagDTO 列表)
+
+                // 清空並添加預設選項
+                ftagNoSelect.innerHTML = '<option value="" disabled selected>--請選擇文章類別--</option>';
+
+                // 遍歷文章類別數據，為每個類別創建 <option> 元素
+                tags.forEach(tag => {
+                    const option = document.createElement('option');
+                    option.value = tag.id;     // <option> 的值為類別 ID (對應 ForumTagDTO.id)
+                    option.textContent = tag.ftagName; // <option> 的顯示文本為類別名稱 (對應 ForumTagDTO.ftagName)
+                    ftagNoSelect.appendChild(option); // 添加到下拉選單
+                });
+            } catch (error) {
+                console.error('載入文章類別失敗:', error); // 錯誤輸出到控制台
+                ftagNoSelect.innerHTML = '<option value="" disabled>文章類別載入失敗</option>'; // 顯示載入失敗提示
+                showMessage(`載入文章類別失敗: ${error.message}`, 'error'); // 頁面顯示錯誤訊息
+            }
+        }
+
+        // --- 表單提交事件處理 ---
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault(); // 阻止表單的預設提交行為 (防止頁面刷新)
+            hideMessage(); // 提交前隱藏任何之前的訊息
+
+            submitButton.disabled = true; // 禁用提交按鈕，避免用戶重複點擊導致多次提交
+            submitButton.textContent = '新增中...'; // 更改按鈕文本，提供視覺反饋
+
+            // --- 準備 FormData (用於發送 multipart/form-data 請求) ---
+            // FormData 是一個 JavaScript 內置物件，用於構建表單數據，特別適合上傳文件和發送複雜的表單數據。
+            const formData = new FormData();
+
+            // 將所有表單欄位的值添加到 FormData 中。
+            // 這些 'name' 必須與後端 ForumPostController 中 insert 方法的 @RequestParam 參數名完全一致。
+            formData.append('postTitle', postTitleInput.value.trim());     // 文章標題，移除前後空白
+            formData.append('postCon', postConTextarea.value.trim());     // 文章內容，移除前後空白
+            formData.append('forNoId', forNoSelect.value);                 // 所屬討論區 ID (從選中 <option> 的 value 獲取)
+            formData.append('ftagNoId', ftagNoSelect.value);               // 文章類別 ID (從選中 <option> 的 value 獲取)
+            formData.append('postPin', postPinSelect.value);               // 是否置頂 (0 或 1，將 Character 類型轉為字串傳遞)
+            formData.append('postStatus', postStatusSelect.value);         // 文章狀態 (0, 1, 2，將 Character 類型轉為字串傳遞)
+
+            // 如果有圖片上傳功能，解除註釋以下代碼，並確保 postCoverImageFileInput 元素已獲取
+            // if (postCoverImageFileInput.files.length > 0) {
+            //     formData.append('postCoverImageFile', postCoverImageFileInput.files[0]); // 添加文件對象
+            // }
+
+            // 預設設定留言數、讚數、倒讚數為 0。
+            // 即使後端 @RequestParam 設定 required = false，前端發送明確的 '0' 更好。
+            formData.append('mesNumbers', '0');
+            formData.append('postLikeCount', '0');
+            formData.append('postLikeDlc', '0');
+
+
+            // --- 發送 POST 請求到後端 API ---
+            try {
+                const response = await fetch(API_ADD_POST_URL, {
+                    method: 'POST', // 指定 HTTP 方法為 POST
+                    // 當 body 是 FormData 物件時，fetch API 會自動設定正確的 'Content-Type': 'multipart/form-data'
+                    // 因此，我們不需要手動設定 headers: { 'Content-Type': '...' }
+                    body: formData // 將構建好的 FormData 作為請求體發送
+                });
+
+                // 處理後端響應
+                if (!response.ok) { // 如果 HTTP 狀態碼不是 2xx (表示請求失敗)
+                    // 嘗試解析錯誤響應 (假設後端返回 JSON 格式的錯誤訊息 Map)
+                    const errorResponse = await response.json().catch(() => ({ message: `發生錯誤，狀態碼: ${response.status}` }));
+                    // 從錯誤響應中提取訊息，並扁平化為單一字串顯示
+                    // `Object.values(errorResponse)` 獲取 Map 的所有值 (可能是字串或陣列)
+                    // `.flat()` 處理如果值本身是錯誤訊息陣列的情況
+                    // `.join('<br>')` 將多個錯誤訊息用換行符連接
+                    const errorMessage = Object.values(errorResponse).flat().join('<br>');
+                    throw new Error(errorMessage || `發生錯誤，狀態碼: ${response.status}`); // 拋出錯誤
+                }
+
+                // 新增成功處理
+                showMessage('文章新增成功！2秒後將返回文章列表頁。', 'success');
+                form.reset(); // 提交成功後，重置表單所有欄位為預設值或空值
+
+                // 延遲一段時間後跳轉頁面
+                setTimeout(() => {
+                    window.location.href = '/back-end/forumsys/forumpost/allForumPost.html'; // 跳轉到文章列表頁
+                }, 2000);
+
+            } catch (error) {
+                // 捕獲並處理任何在 fetch 請求或響應處理中發生的錯誤
+                showMessage(`新增失敗: ${error.message}`, 'error'); // 頁面顯示錯誤訊息
+                console.error('新增文章失敗:', error); // 錯誤輸出到瀏覽器控制台
+            } finally {
+                // 無論請求成功或失敗，最終都重新啟用提交按鈕並恢復文本
+                submitButton.disabled = false;
+                submitButton.textContent = '確認新增';
+            }
+        });
+
+        // --- 頁面初始化：載入下拉選單數據 ---
+        loadForums();    // 頁面載入時立即呼叫，以填充討論區下拉選單
+        loadForumTags(); // 頁面載入時立即呼叫，以填充文章類別下拉選單
+    });
+</script>
+</body>
+</html>
