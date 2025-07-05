@@ -23,7 +23,9 @@ public class CartService {
 	
 	// ============ 加入商品到購物車 ===========//
 	public CartDTO addToCart(Integer memNo, Integer proNo, Integer proNum) {
+
 		
+
 		// 只先查詢產品是否存在，暫不檢查狀態 (未來要import)
 //		Product product = productRepository.findByProNo(proNo).orElse(null);
 //        
@@ -46,6 +48,7 @@ public class CartService {
         
         // 取得現有購物車
         CartDTO cart = cartRepository.getCart(memNo);
+
 		
 		// 如果購物車不存在，就創建新的
 		if (cart == null) {  
@@ -137,6 +140,7 @@ public class CartService {
 	
 	// ============ 更新產品的數量 ===========//
 	public CartDTO updateCartItemQuantity(Integer memNo, Integer proNo, Integer proNum) {
+
 		
 		// 取得購物車
 		CartDTO cart = cartRepository.getCart(memNo);

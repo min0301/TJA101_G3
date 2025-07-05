@@ -55,7 +55,7 @@ public class CartController {
 		if (!memNo.equals(currentMemNo)) {
 			// 可以拋出權限例外或直接使用當前會員編號
 		};
-        
+
 		CartDTO cart = cartService.getMemberCart(memNo);
         return ResponseEntity.ok(cart);
 	}
