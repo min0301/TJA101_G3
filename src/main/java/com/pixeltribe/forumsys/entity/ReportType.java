@@ -1,4 +1,4 @@
-package com.pixeltribe.forumsys.forumVO;
+package com.pixeltribe.forumsys.entity;
 
 import com.pixeltribe.newssys.newscomreport.model.NewsComReport;
 import jakarta.persistence.*;

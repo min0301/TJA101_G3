@@ -1,4 +1,4 @@
-package com.pixeltribe.forumsys.forumVO;
+package com.pixeltribe.forumsys.entity;
 
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import com.pixeltribe.membersys.member.model.Member;
@@ -6,7 +6,6 @@ import com.pixeltribe.membersys.member.model.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import oracle.jdbc.proxy.annotation.Post;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;

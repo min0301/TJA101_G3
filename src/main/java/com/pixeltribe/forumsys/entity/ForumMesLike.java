@@ -1,7 +1,7 @@
-package com.pixeltribe.forumsys.forumVO;
+package com.pixeltribe.forumsys.entity;
 
 
-import com.pixeltribe.forumsys.forummes.model.ForumMes;
+import com.pixeltribe.forumsys.message.model.ForumMes;
 
 import jakarta.persistence.*;
 import lombok.Getter;

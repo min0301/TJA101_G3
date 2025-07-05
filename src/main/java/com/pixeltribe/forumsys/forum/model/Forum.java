@@ -1,8 +1,8 @@
 package com.pixeltribe.forumsys.forum.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.pixeltribe.forumsys.forumVO.ForumChatMessage;
-import com.pixeltribe.forumsys.forumVO.ForumCollect;
+import com.pixeltribe.forumsys.entity.ForumChatMessage;
+import com.pixeltribe.forumsys.entity.ForumCollect;
 import com.pixeltribe.forumsys.forumcategory.model.ForumCategory;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import jakarta.persistence.*;
