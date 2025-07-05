@@ -1,6 +1,7 @@
 package com.pixeltribe.forumsys.forum.model;
 
-import io.swagger.v3.oas.annotations.media.*;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Schema(description = "討論區list DTO")
+@Builder
 public class ForumDetailDTO {
 
     @Schema(description = "討論區編號", example = "1")
@@ -31,5 +33,19 @@ public class ForumDetailDTO {
     private String categoryName;
     @Schema(description = "類別編號")
     private Integer categoryId;
+
+    public static ForumDetailDTO convertToForumDetailDTO(Forum forum) {
+        return ForumDetailDTO.builder()
+                .id(forum.getId())
+                .forName(forum.getForName())
+                .forDes(forum.getForDes())
+                .forImgUrl(forum.getForImgUrl())
+                .forDate(forum.getForDate())
+                .forUpdate(forum.getForUpdate())
+                .forStatus(forum.getForStatus())
+                .categoryName(forum.getCatNo() == null ? null : forum.getCatNo().getCatName())
+                .categoryId(forum.getCatNo() == null ? null : forum.getCatNo().getId())
+                .build();
+    }
 
 }

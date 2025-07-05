@@ -134,39 +134,16 @@ public class ForumService {
         // 1. 從資料庫取得原始的 Entity 列表
         List<Forum> forums = forumRepository.findAllByOrderByForUpdateDesc();
 
+//
+//        for (Forum x : forums) {
+//
+//        }
+
         // 2. 使用 Stream API 將 List<Forum> 轉換為 List<ForumDetailDTO>
         return forums.stream()
-                .map(this::convertToForumDetailDTO) // 對每個 forum 執行轉換
+//                .map(ForumDetailDTO::convertToForumDetailDTO) // 對每個 forum 執行轉換
+                .map(x->ForumDetailDTO.convertToForumDetailDTO(x))
                 .collect(Collectors.toList());
-    }
-
-    // 這是一個輔助方法，負責將單一 Forum Entity 轉換為 DTO
-    private ForumDetailDTO convertToForumDetailDTO(Forum forum) {
-        ForumDetailDTO dto = new ForumDetailDTO();
-
-        // 複製基本屬性
-        dto.setId(forum.getId());
-        dto.setForName(forum.getForName());
-        dto.setForDes(forum.getForDes());
-        dto.setForImgUrl(forum.getForImgUrl());
-        dto.setForDate(forum.getForDate());
-        dto.setForUpdate(forum.getForUpdate());
-        dto.setForStatus(forum.getForStatus());
-
-
-        // 關鍵：處理關聯物件的屬性
-        // 必須做 null 檢查，防止 Forum 沒有被分配到 Category 的情況
-        if (forum.getCatNo() != null) {
-            dto.setCategoryName(forum.getCatNo().getCatName());
-            dto.setCategoryId(forum.getCatNo().getId());
-        } else {
-            // 如果沒有分類，可以設定為 null 或是一個預設值，例如 "未分類"
-            // 這取決於你的前端想要如何顯示
-            dto.setCategoryName(null);
-            dto.setCategoryId(null);
-        }
-
-        return dto;
     }
 
 
@@ -174,13 +151,13 @@ public class ForumService {
         List<Forum> forums = forumRepository.findByCatNo_Id(catNO);
 
         return forums.stream()
-                .map(this::convertToForumDetailDTO) // 對每個 forum 執行轉換
+                .map(ForumDetailDTO::convertToForumDetailDTO) // 對每個 forum 執行轉換
                 .collect(Collectors.toList());
     }
 
     public ForumDetailDTO getOneForum(Integer forNo) {
         Forum forum = forumRepository.findById(forNo).get();
-        return convertToForumDetailDTO(forum);
+        return ForumDetailDTO.convertToForumDetailDTO(forum);
     }
 
 

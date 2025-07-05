@@ -302,7 +302,7 @@
 <body>
 <!-- 右上角會員功能與LOGO -->
 <div class="topbar">
-    <div class="topbar-logo">
+    <div class="topbar-logo" id="logo-btn" style="cursor:pointer;">
         <img src="images/logo.png" alt="LOGO">
     </div>
     <div class="member-area">
@@ -390,6 +390,14 @@
     const sidebarToggle = document.getElementById('sidebar-toggle');
     sidebarToggle.addEventListener('click', function() {
         sidebar.classList.toggle('collapsed');
+    });
+
+    // 點擊 LOGO 回首頁
+    document.getElementById('logo-btn').addEventListener('click', function() {
+        // 讓首頁按鈕變 active
+        document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
+        document.querySelector('.sidebar li[data-page="home"]').classList.add('active');
+        loadPage('home');
     });
 
     // 動態載入內容

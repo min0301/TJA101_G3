@@ -1,5 +1,7 @@
-package com.pixeltribe.forumsys.forumVO;
+package com.pixeltribe.forumsys.ForumMes.model;
 
+import com.pixeltribe.forumsys.forumVO.ArticleComReport;
+import com.pixeltribe.forumsys.forumVO.ForumMesLike;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;

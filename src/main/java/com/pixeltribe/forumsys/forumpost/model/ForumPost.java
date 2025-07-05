@@ -3,15 +3,13 @@ package com.pixeltribe.forumsys.forumpost.model;
 import com.fasterxml.jackson.annotation.JsonBackReference; // 確保導入
 import com.fasterxml.jackson.annotation.JsonProperty; // 確保導入
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.forumsys.forumVO.*;
 import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.forumsys.forumVO.ArticleReport;
 import com.pixeltribe.forumsys.forumVO.ForumImage;
-import com.pixeltribe.forumsys.forumVO.ForumMes;
+import com.pixeltribe.forumsys.ForumMes.model.ForumMes;
 import com.pixeltribe.forumsys.forumVO.PostCollect;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,20 +18,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
@@ -59,6 +54,8 @@ public class ForumPost {
     @JoinColumn(name = "MEM_NO")
     @JsonBackReference
     private Member memNo;
+
+
 
     // **確保這個方法存在** nick new
     @JsonProperty("forumName")
@@ -158,5 +155,9 @@ public class ForumPost {
     @JsonIgnore
     @OneToMany(mappedBy = "postNo")
     private Set<PostCollect> postCollects = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "postNo")
+    @JsonIgnore
+    private Set<PostLike> postLikes = new LinkedHashSet<>();
 
 }

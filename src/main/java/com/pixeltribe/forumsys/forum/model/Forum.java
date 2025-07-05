@@ -3,9 +3,8 @@ package com.pixeltribe.forumsys.forum.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pixeltribe.forumsys.forumVO.ForumChatMessage;
 import com.pixeltribe.forumsys.forumVO.ForumCollect;
-import com.pixeltribe.forumsys.forumVO.ForumLike;
-import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import com.pixeltribe.forumsys.forumcategory.model.ForumCategory;
+import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -13,6 +12,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -34,14 +34,12 @@ public class Forum {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CAT_NO")
-//    @JsonBackReference
     private ForumCategory catNo;
 
     @Size(max = 255)
     @Column(name = "FOR_IMG_URL")
     private String forImgUrl;
 
-//    @JsonProperty("categoryName")
     public String CategoryName() {
         if (this.catNo != null) {
             return this.catNo.getCatName();
@@ -79,10 +77,6 @@ public class Forum {
     @OneToMany(mappedBy = "forNo")
     @JsonIgnore
     private Set<ForumCollect> forumCollects = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "forNo")
-    @JsonIgnore
-    private Set<ForumLike> forumLikes = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "forNo")
     @JsonIgnore
