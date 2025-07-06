@@ -34,12 +34,13 @@ public class MemForgetPasswordService {
         // 2. 發信
         String subject = "Pixel Tribe 驗證信";
         String text = String.format(
-            "Hello Pixi!! \n\n您的驗證碼為：%s\n\n請於10分鐘內在驗證頁面輸入此驗證碼完成認證。\n\nPixelTribe 團隊敬上", code);
+            "Hello Pixi!! \n\n您的驗證碼為：%s\n\n請於5分鐘內在驗證頁面輸入此驗證碼完成認證。\n\nPixelTribe 團隊敬上", code);
         sendSimpleMail(memEmail, subject, text);
 
         return true;
     }
-
+    
+    //寄信
     private void sendSimpleMail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
@@ -47,7 +48,7 @@ public class MemForgetPasswordService {
         message.setText(text);
         mailSender.send(message);
     }
-
+    // 生成驗證碼
     private static String generateRandomCode(int length) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom rnd = new SecureRandom();
@@ -57,4 +58,5 @@ public class MemForgetPasswordService {
         }
         return sb.toString();
     }
+    
 }
