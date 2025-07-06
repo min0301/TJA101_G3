@@ -212,10 +212,11 @@ body {
 			<div class="modal-desc">請輸入您的Email，我們會寄送認證信給您。</div>
 			<input type="email" id="forgotEmail" class="login-input"
 				placeholder="請輸入Email" required>
-			<button id="sendMailBtn" class="modal-btn">寄送認證碼</button>
+			<button id="sendMailBtn" class="modal-btn">寄送認證碼並前往驗證</button>
 			<div id="modalResult"></div>
 		</div>
 	</div>
+	
 	<script>
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -276,7 +277,7 @@ body {
                 return;
             }
             // 實際請求可用 fetch POST
-            fetch('/api/mem/forgot-password', {
+            fetch('/api/members/forgot-password', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({email})
@@ -286,6 +287,12 @@ body {
                 if(data.success) {
                     result.style.color = "#25a45a";
                     result.textContent = data.message;
+                    // 暫存 email 給重設密碼頁用
+                    localStorage.setItem('emailForReset', email);
+                    // 導向重設密碼頁
+                    setTimeout(() => {
+                        window.location.href = "/front-end/mem/PasswordResetWithVcode.html";
+                    }, 1500);
                 } else {
                     result.style.color = "#b94040";
                     result.textContent = data.message;
