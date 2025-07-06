@@ -2,13 +2,11 @@ package com.pixeltribe.forumsys.forum.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.Instant;
 
-@Getter
-@Setter
+@Data
 @Schema(description = "討論區list DTO")
 @Builder
 public class ForumDetailDTO {
