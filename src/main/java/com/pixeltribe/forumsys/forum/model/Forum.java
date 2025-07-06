@@ -40,16 +40,6 @@ public class Forum {
     @Column(name = "FOR_IMG_URL")
     private String forImgUrl;
 
-    public String CategoryName() {
-        if (this.catNo != null) {
-            return this.catNo.getCatName();
-        }
-        return null;
-    }
-
-    @Transient
-    private Integer categoryId;
-
     @Size(max = 255)
     @NotEmpty(message="討論區描述: 請勿空白")
     @Column(name = "FOR_DES")

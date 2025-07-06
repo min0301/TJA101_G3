@@ -12,8 +12,11 @@ import java.util.stream.Collectors;
 public class ForumCategoryService {
 
     @Autowired
-    ForumCategoryRepository forumCategoryRepository;
+    private final ForumCategoryRepository forumCategoryRepository;
 
+    public ForumCategoryService(ForumCategoryRepository forumCategoryRepository){
+        this.forumCategoryRepository = forumCategoryRepository;
+    }
 
     public void add(ForumCategory forumCategory) {
 
