@@ -18,6 +18,7 @@ public class ForumController {
     private final ForumService forumSvc;
 
     public ForumController(ForumService forumSvc) {
+
         this.forumSvc = forumSvc;
     }
 
@@ -50,7 +51,7 @@ public class ForumController {
             summary = "新增討論區"
     )
     public ResponseEntity<?> addForum(
-            @RequestPart("forum") @Valid ForumCreationDTO forumDTO,
+            @RequestPart("forumcreat") @Valid ForumUpdateDTO forumcreationDTO,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
             BindingResult result) {
         if (result.hasErrors()) {
@@ -59,7 +60,7 @@ public class ForumController {
         }
         //*************************** 2. 開始新增資料 *****************************************/
         // 讓 Service 層回傳新增成功後、包含新 ID 的物件，這在 API 中是個好習慣
-        Forum createdForum = forumSvc.add(forumDTO, imageFile);
+        ForumDetailDTO createdForum = forumSvc.add(forumcreationDTO, imageFile);
 
         //*************************** 3. 新增完成,準備轉交(Send the Success view) **************/
         // 回傳 201 Created 狀態碼，並在 body 中附上新增成功的員工資料
@@ -82,7 +83,7 @@ public class ForumController {
         }
         //*************************** 2. 開始更新資料 *****************************************/
         // 讓 Service 層回傳新增成功後、包含新 ID 的物件，這在 API 中是個好習慣
-        Forum updateForum = forumSvc.update(forNo, forumDTO, imageFile);
+        ForumDetailDTO updateForum = forumSvc.update(forNo, forumDTO, imageFile);
 
         //*************************** 3. 更新完成,準備轉交(Send the Success view) **************/
         // 回傳 201 Created 狀態碼，並在 body 中附上新增成功的員工資料

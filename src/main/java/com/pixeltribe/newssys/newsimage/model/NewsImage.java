@@ -13,6 +13,7 @@ import lombok.Setter;
 @Table(name = "news_image")
 public class NewsImage {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IMG_NO", nullable = false)
     private Integer id;
 

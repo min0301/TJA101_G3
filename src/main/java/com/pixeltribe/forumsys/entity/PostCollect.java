@@ -1,4 +1,4 @@
-package com.pixeltribe.forumsys.forumVO;
+package com.pixeltribe.forumsys.entity;
 
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import jakarta.persistence.*;

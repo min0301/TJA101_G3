@@ -1,6 +1,7 @@
 package com.pixeltribe.newssys.news.model;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Value;
 
@@ -18,11 +19,15 @@ public class NewsCreationDTO implements Serializable {
     @NotNull
     @Size(max = 9000)
     String newsCon;
+//TODO
+//    @PositiveOrZero
+//    Integer imgCount;
 
-    Integer imgCount;
+    @NotNull
+    @PositiveOrZero
+    Integer adminNo;
 
     @NotNull(message = "至少要有一個分類")
     List<Integer> tags;
-
 
 }

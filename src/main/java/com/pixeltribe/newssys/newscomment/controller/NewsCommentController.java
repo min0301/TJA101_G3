@@ -1,14 +1,17 @@
 package com.pixeltribe.newssys.newscomment.controller;
 
 import com.pixeltribe.newssys.newscomment.model.NewsComment;
+import com.pixeltribe.newssys.newscomment.model.NewsCommentCreationDTO;
 import com.pixeltribe.newssys.newscomment.model.NewsCommentDTO;
 import com.pixeltribe.newssys.newscomment.model.NewsCommentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -22,4 +25,17 @@ class NewsCommentController {
     public List<NewsCommentDTO> findAll(@PathVariable Integer id){
         return newsCommentService.findAll(id);
     }
+
+    @PostMapping("NewsComment/add")
+    public NewsCommentCreationDTO addComment(
+            @Valid @RequestBody NewsCommentCreationDTO dto){
+
+        return newsCommentService.add(
+                dto.getNewsNoId(),
+                dto.getMemNoId(),
+                dto.getNcomCon()
+        );
+    }
+
+
 }

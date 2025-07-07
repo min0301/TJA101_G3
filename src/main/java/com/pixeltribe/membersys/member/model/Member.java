@@ -8,21 +8,25 @@ import java.util.Set;
 import org.hibernate.annotations.ColumnDefault;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.pixeltribe.forumsys.forumVO.ArticleComReport;
-import com.pixeltribe.forumsys.forumVO.ArticleReport;
-import com.pixeltribe.forumsys.forumVO.ForumChatMessage;
-import com.pixeltribe.forumsys.forumVO.ForumChatReport;
-import com.pixeltribe.forumsys.forumVO.ForumCollect;
-import com.pixeltribe.forumsys.forumVO.ForumLike;
-import com.pixeltribe.forumsys.forumVO.ForumMes;
-import com.pixeltribe.forumsys.forumVO.ForumMesLike;
+import com.pixeltribe.forumsys.entity.ArticleComReport;
+import com.pixeltribe.forumsys.entity.ArticleReport;
+import com.pixeltribe.forumsys.entity.ForumChatMessage;
+import com.pixeltribe.forumsys.entity.ForumChatReport;
+import com.pixeltribe.forumsys.entity.ForumCollect;
+
+
+import com.pixeltribe.forumsys.message.model.ForumMes;
+
+import com.pixeltribe.forumsys.entity.PostLike;
+
+
+import com.pixeltribe.forumsys.messagelike.model.ForumMesLike;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
-import com.pixeltribe.forumsys.forumVO.PostCollect;
+import com.pixeltribe.forumsys.entity.PostCollect;
 import com.pixeltribe.membersys.friendlist.model.FriendList;
 import com.pixeltribe.membersys.memberloginlog.model.MemberLoginLog;
 import com.pixeltribe.membersys.privatechatroom.model.PrivateChatroom;
 import com.pixeltribe.membersys.privatemessage.model.PrivateMessage;
-import com.pixeltribe.newssys.news.model.News;
 import com.pixeltribe.newssys.newscomment.model.NewsComment;
 import com.pixeltribe.newssys.newscomreport.model.NewsComReport;
 import com.pixeltribe.newssys.newslike.model.NewsLike;
@@ -177,7 +181,7 @@ public class Member {
     private Set<ForumCollect> forumCollects = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "memNo")
-    private Set<ForumLike> forumLikes = new LinkedHashSet<>();
+    private Set<PostLike> postLikes = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "memNo")
     private Set<ForumMes> forumMes = new LinkedHashSet<>();
@@ -199,8 +203,8 @@ public class Member {
     @OneToMany(mappedBy = "memNo")
     private Set<MemberLoginLog> memberLoginLogs = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "memNo")
-    private Set<News> news = new LinkedHashSet<>();
+//    @OneToMany(mappedBy = "memNo")
+//    private Set<News> news = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "reporter")
     private Set<NewsComReport> newsComReports = new LinkedHashSet<>();

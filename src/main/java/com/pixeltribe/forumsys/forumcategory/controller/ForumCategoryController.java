@@ -14,7 +14,6 @@ import java.util.List;
 public class ForumCategoryController {
 
 
-
     private final ForumCategoryService forumCategoryService;
 
     public ForumCategoryController(ForumCategoryService forumCategoryService) {
@@ -28,7 +27,6 @@ public class ForumCategoryController {
     public List<ForumCategoryDTO> getAllForumCategory() {
         return forumCategoryService.getAllForumCategory();
     }
-
 
 
 }

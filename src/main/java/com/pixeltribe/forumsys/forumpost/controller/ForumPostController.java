@@ -1,6 +1,5 @@
 package com.pixeltribe.forumsys.forumpost.controller;
 
-import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import com.pixeltribe.forumsys.forumpost.model.ForumPostService;
 import com.pixeltribe.forumsys.forumpost.model.ForumPostDTO; // **確保導入**
@@ -8,18 +7,12 @@ import com.pixeltribe.forumsys.forumpost.model.ForumPostDTO; // **確保導入**
 // **注意：以下 Service 如果在 Controller 的其他方法中沒有被直接使用，可以移除注入**
 // 但為了 insert 方法，它們的注入通常是必要的。
 import com.pixeltribe.forumsys.forum.model.ForumService;
-import com.pixeltribe.forumsys.forumVO.ForumTag;
 //import com.pixeltribe.forumsys.forumtag.model.ForumTagService;
-import com.pixeltribe.membersys.member.model.Member;
 //import com.pixeltribe.membersys.service.MemberService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication; // 確保導入
-import org.springframework.security.core.context.SecurityContextHolder; // 確保導入
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -133,7 +126,7 @@ public class ForumPostController {
         forumPost.setMesNumbers(mesNumbers != null ? mesNumbers : 0);
         forumPost.setPostLikeCount(postLikeCount != null ? postLikeCount : 0);
         forumPost.setPostLikeDlc(postLikeDlc != null ? postLikeDlc : 0);
-//TODO
+
 //        Forum selectedForum = forumService.getForumById(forNoId)
 //                .orElseThrow(() -> new IllegalArgumentException("無效的討論區編號: " + forNoId));
 //        forumPost.setForNo(selectedForum);
@@ -250,4 +243,6 @@ public class ForumPostController {
             return is.readAllBytes();
         }
     }
+
+
 }

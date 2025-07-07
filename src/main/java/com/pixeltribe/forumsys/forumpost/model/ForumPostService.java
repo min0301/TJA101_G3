@@ -94,4 +94,6 @@ public class ForumPostService {
     public void setForumService(ForumService forumService) {
         this.forumService = forumService;
     }
+
+
 }

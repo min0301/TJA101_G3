@@ -1,4 +1,6 @@
-package com.pixeltribe.forumsys.forumVO;
+package com.pixeltribe.forumsys.entity;
+
+import com.pixeltribe.forumsys.message.model.ForumMes;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

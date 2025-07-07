@@ -1,10 +1,11 @@
-package com.pixeltribe.forumsys.forumVO;
+package com.pixeltribe.forumsys.message.model;
 
+import com.pixeltribe.forumsys.entity.ArticleComReport;
+import com.pixeltribe.forumsys.messagelike.model.ForumMesLike;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
 
 import com.pixeltribe.membersys.member.model.Member;
@@ -13,8 +14,7 @@ import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "forum_mes")
 public class ForumMes {
@@ -36,23 +36,23 @@ public class ForumMes {
     private String mesCon;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "MES_CRDATE")
+    @Column(name = "MES_CRDATE", insertable = false, updatable = false)
     private Instant mesCrdate;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "MES_UPDATA")
+    @Column(name = "MES_UPDATA", insertable = false, updatable = false)
     private Instant mesUpdata;
 
     @ColumnDefault("'0'")
-    @Column(name = "MES_STATUS")
+    @Column(name = "MES_STATUS", insertable = false)
     private Character mesStatus;
 
     @ColumnDefault("0")
-    @Column(name = "MES_LIKE_LC")
+    @Column(name = "MES_LIKE_LC", insertable = false)
     private Integer mesLikeLc;
 
     @ColumnDefault("0")
-    @Column(name = "MES_LIKE_DLC")
+    @Column(name = "MES_LIKE_DLC", insertable = false)
     private Integer mesLikeDlc;
 
     @OneToMany(mappedBy = "mesNo")

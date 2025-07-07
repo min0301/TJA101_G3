@@ -1,0 +1,38 @@
+<div class="forum-list-section">
+  <h2>討論區列表</h2>
+  <table class="forum-table">
+    <thead>
+    <tr>
+<!--      <th>ID</th>-->
+      <th>論壇名稱</th>
+      <th>分類</th>
+<!--      <th>圖片</th>-->
+      <th>描述</th>
+<!--      <th>創建時間</th>-->
+      <th>最新回覆</th>
+<!--      <th>狀態</th>-->
+      <th>點擊進入</th>
+    </tr>
+    </thead>
+    <tbody id="forum-data-body"></tbody>
+  </table>
+  <div class="pagination-container">
+    <div class="items-per-page-selector">
+      <label for="items-per-page">每頁顯示：</label>
+      <select id="items-per-page">
+        <option value="3">3 筆</option>
+        <option value="5">5 筆</option>
+        <option value="10" selected>10 筆</option>
+        <option value="20">20 筆</option>
+      </select>
+    </div>
+    <div id="pagination-info" class="pagination-info"></div>
+    <div id="pagination-controls" class="pagination-controls"></div>
+  </div>
+  <div id="error-message"></div>
+  <div id="lightbox" class="lightbox" style="display:none;">
+    <span id="lightbox-close" class="lightbox-close">&times;</span>
+    <img id="lightbox-img" class="lightbox-content">
+  </div>
+</div>
+<script src="front-end/forumsys/allForum.js"></script>

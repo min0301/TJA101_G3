@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>Pixel Tribe 論壇首頁</title>
+    <title>Pixel Tribe</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
     <style>
         html, body {
@@ -10,7 +10,7 @@
             margin: 0;
             padding: 0;
             background: #f7f4ed;
-            font-family: 'ZCOOL KuaiLe', '微軟正黑體', Arial, sans-serif;
+            font-family: 'ZCOOL KuaiLe', Arial, sans-serif;
             box-sizing: border-box;
             width: 100vw;
             overflow-x: hidden;
@@ -45,10 +45,31 @@
         .member-area {
             display: flex;
             align-items: center;
-            gap: 18px;
+            gap: 14px;
+        }
+        .avatar-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 5px;
+            transition: box-shadow 0.18s;
+        }
+        .avatar-btn img {
+            width: 38px;
+            height: 38px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #d88e24;
+            background: #fffbe7;
+            box-shadow: 0 2px 6px #0001;
+            transition: border 0.15s;
+        }
+        .avatar-btn:hover img {
+            border: 2px solid #c06a12;
         }
         .member-name {
-            font-family: 'Press Start 2P', 'ZCOOL KuaiLe', Arial, sans-serif;
+            font-family: 'ZCOOL KuaiLe', Arial, sans-serif;
             color: #d88e24;
             font-size: 1.05rem;
         }
@@ -58,7 +79,7 @@
             color: #d88e24;
             border-radius: 6px;
             padding: 6px 16px;
-            font-family: 'ZCOOL KuaiLe', Arial, sans-serif;
+            font-family:  'ZCOOL KuaiLe', Arial, sans-serif;
             cursor: pointer;
             font-size: 1rem;
             transition: background .15s;
@@ -100,12 +121,13 @@
             background: #fff;
             border-radius: 14px;
             margin-right: 30px;
-            padding: 36px 10px 24px 0;
+            padding: 36px 0 24px 0;
             box-shadow: 0 2px 12px #0001;
             height: fit-content;
             box-sizing: border-box;
             transition: width 0.2s;
             position: relative;
+            overflow: hidden; /* 關鍵：避免反白溢出 */
         }
         .sidebar.collapsed {
             width: 60px;
@@ -114,8 +136,9 @@
         }
         .sidebar-toggle {
             position: absolute;
-            top: 10px;
-            right: -18px;
+            left: 50%;
+            top: 14px;
+            transform: translateX(-50%);
             width: 36px;
             height: 36px;
             background: #fffbe7;
@@ -134,25 +157,42 @@
             background: #ffe7b3;
         }
         .sidebar ul {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-top: 48px;
+            width: 100%;
+            transition: all 0.2s;
             list-style: none;
-            padding: 0 0 0 18px;
-            margin: 0;
-            transition: padding 0.2s;
+            padding: 0;
         }
         .sidebar.collapsed ul {
-            padding-left: 0;
+            align-items: center;
+            margin-top: 48px;
         }
         .sidebar li {
+            width: calc(100% - 12px);
+            margin-left: 6px;   /* 讓左邊線&背景不會溢出sidebar */
+            box-sizing: border-box;
+            justify-content: flex-start;
             padding: 16px 0 16px 0;
-            color: #555;
-            font-size: 1.08rem;
-            font-family: 'Press Start 2P', 'ZCOOL KuaiLe', Arial, sans-serif;
             display: flex;
             align-items: center;
+            color: #555;
+            font-size: 1.08rem;
+            font-family:  'ZCOOL KuaiLe', Arial, sans-serif;
             cursor: pointer;
             border-left: 3px solid transparent;
-            transition: background .18s, border-color .18s;
+            border-radius: 8px;
+            transition: background .18s, border-color .18s, justify-content .2s;
             white-space: nowrap;
+        }
+        .sidebar.collapsed li {
+            justify-content: center;
+            width: 48px;
+            margin-left: 0;
+            padding-top: 18px;
+            padding-bottom: 18px;
         }
         .sidebar li.active, .sidebar li:hover {
             color: #d88e24;
@@ -164,6 +204,9 @@
             margin-right: 11px;
             font-size: 1.2rem;
             transition: margin 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .sidebar.collapsed li .icon {
             margin-right: 0;
@@ -227,8 +270,10 @@
                 margin-bottom: 8px;
             }
             .sidebar-toggle {
-                right: 10px;
-                top: 10px;
+                left: 50%;
+                right: unset;
+                top: 14px;
+                transform: translateX(-50%);
             }
         }
         @media (max-width: 650px) {
@@ -247,7 +292,7 @@
         }
         /* 論壇表格像素風格 */
         .forum-list-section h2 {
-            font-family: 'Press Start 2P', 'ZCOOL KuaiLe', Arial, sans-serif;
+            font-family:  'ZCOOL KuaiLe', Arial, sans-serif;
             color: #d88e24;
             margin-bottom: 18px;
         }
@@ -268,7 +313,7 @@
         .forum-table th {
             background: #ffe7b3;
             color: #d88e24;
-            font-family: 'Press Start 2P', Arial, sans-serif;
+            font-family: 'ZCOOL KuaiLe', Arial, sans-serif;
         }
         .forum-table tr:nth-child(even) {
             background: #fff;
@@ -302,13 +347,16 @@
 <body>
 <!-- 右上角會員功能與LOGO -->
 <div class="topbar">
-    <div class="topbar-logo">
+    <div class="topbar-logo" id="logo-btn" style="cursor:pointer;">
         <img src="images/logo.png" alt="LOGO">
     </div>
     <div class="member-area">
-        <span class="member-name" id="member-name">訪客</span>
-        <button class="member-btn" id="login-btn" onclick="location.href='front-end/mem/memLogin.html'">登入</button>
-        <button class="member-btn" id="logout-btn" style="display:none;">登出</button>
+        <div class="avatar-btn" id="avatar-btn" title="會員中心">
+            <img id="member-avatar" src="images/demo-avatar.png" alt="會員頭像">
+        </div>
+        <span class="member-name" id="member-name">逵</span>
+        <button class="member-btn" id="login-btn" style="display:none;" onclick="location.href='/front-end/mem/MemberConsole.html'">會員中心</button>
+        <button class="member-btn" id="logout-btn">登出</button>
     </div>
 </div>
 <!-- Banner -->
@@ -321,50 +369,46 @@
         <button class="sidebar-toggle" id="sidebar-toggle" title="收合/展開">≡</button>
         <ul>
             <li class="active" data-page="home">
-                    <span class="icon">
-                        <!-- Pixelarticons home -->
-                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M2 10L10 2L18 10" />
-                            <path d="M4 10V18H16V10" />
-                        </svg>
-                    </span>
+                <span class="icon">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M2 10L10 2L18 10" />
+                        <path d="M4 10V18H16V10" />
+                    </svg>
+                </span>
                 <span>首頁</span>
             </li>
             <li data-page="forum">
-                    <span class="icon">
-                        <!-- Pixelarticons chat -->
-                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="4" width="16" height="10" rx="2" />
-                            <path d="M6 14V18L10 16L14 18V14" />
-                        </svg>
-                    </span>
+                <span class="icon">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="4" width="16" height="10" rx="2" />
+                        <path d="M6 14V18L10 16L14 18V14" />
+                    </svg>
+                </span>
                 <span>論壇</span>
             </li>
             <li data-page="news">
-                    <span class="icon">
-                        <!-- Pixelarticons newspaper -->
-                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="4" width="16" height="12" rx="2" />
-                            <path d="M6 8H14M6 12H10" />
-                        </svg>
-                    </span>
+                <span class="icon">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="4" width="16" height="12" rx="2" />
+                        <path d="M6 8H14M6 12H10" />
+                    </svg>
+                </span>
                 <span>新聞</span>
             </li>
             <li data-page="shop">
-                    <span class="icon">
-                        <!-- Pixelarticons bag -->
-                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="4" y="6" width="12" height="10" rx="2" />
-                            <path d="M7 6V4H13V6" />
-                        </svg>
-                    </span>
+                <span class="icon">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="4" y="6" width="12" height="10" rx="2" />
+                        <path d="M7 6V4H13V6" />
+                    </svg>
+                </span>
                 <span>商城</span>
             </li>
         </ul>
     </nav>
     <!-- 主內容區 -->
     <main class="main-content" id="main-content-area">
-        <h2>歡迎來到 Pixel Tribe！</h2>
+        <h2>歡迎來到 PixelTribe!</h2>
         <p>請從左側選單選擇「論壇」、「新聞」或「商城」瀏覽內容。</p>
     </main>
 </div>
@@ -388,8 +432,17 @@
     // 側邊欄收合/展開
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebar-toggle');
-    sidebarToggle.addEventListener('click', function() {
+    sidebarToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
         sidebar.classList.toggle('collapsed');
+    });
+
+    // 點擊 LOGO 回首頁
+    document.getElementById('logo-btn').addEventListener('click', function() {
+        // 讓首頁按鈕變 active
+        document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
+        document.querySelector('.sidebar li[data-page="home"]').classList.add('active');
+        loadPage('home');
     });
 
     // 動態載入內容
@@ -397,9 +450,9 @@
         const main = document.getElementById('main-content-area');
         if (page === 'home') {
             main.innerHTML = `
-                    <h2>歡迎來到 Pixel Tribe！</h2>
-                    <p>請從左側選單選擇「論壇」、「新聞」或「商城」瀏覽內容。</p>
-                `;
+                <h2>歡迎來到 Pixel Tribe！</h2>
+                <p>請從左側選單選擇「論壇」、「新聞」或「商城」瀏覽內容。</p>
+            `;
         } else if (page === 'forum') {
             fetch('front-end/forumsys/forum-list.html')
                 .then(res => res.text())
@@ -416,16 +469,35 @@
         }
     }
 
-    // 會員登入/登出功能（範例）
+    // 會員頭像點擊：載入會員中心
+    document.getElementById('avatar-btn').addEventListener('click', function() {
+        location.href = '/front-end/mem/MemberConsole.html';
+    });
+
+    // 登出，恢復為訪客
     const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('logout-btn');
     const memberName = document.getElementById('member-name');
-    // 登入按鈕已直接連結，不需 JS 控制
     logoutBtn.addEventListener('click', function() {
         memberName.textContent = '訪客';
         loginBtn.style.display = '';
         logoutBtn.style.display = 'none';
+        document.getElementById('avatar-btn').style.display = 'none';
+        document.getElementById('member-avatar').src = 'images/default-avatar.png';
     });
+
+    // 示範：登入時顯示頭像
+    function showLoginState(avatarUrl, name) {
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = '';
+        document.getElementById('avatar-btn').style.display = '';
+        memberName.textContent = name || '會員';
+        if (avatarUrl) {
+            document.getElementById('member-avatar').src = avatarUrl;
+        }
+    }
+    // 預設為登入狀態（測試用，有後端可換成session控制）
+    showLoginState('images/demo-avatar.png', '逵');
 </script>
 </body>
 </html>
