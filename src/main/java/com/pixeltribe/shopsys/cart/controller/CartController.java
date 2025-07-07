@@ -49,6 +49,7 @@ public class CartController {
 	@GetMapping("/api/cart/{memNo}")
 	public ResponseEntity<CartDTO> getCart(@PathVariable Integer memNo,
 											HttpServletRequest request) {
+	
 		
 		Integer currentMemNo = (Integer) request.getAttribute("currentId");
 		if (!memNo.equals(currentMemNo)) {
