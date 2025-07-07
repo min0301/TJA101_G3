@@ -3,7 +3,7 @@ package com.pixeltribe.membersys.login.model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.pixeltribe.membersys.login.DTO.MemLoginResult;
+import com.pixeltribe.membersys.login.dto.MemLoginResult;
 import com.pixeltribe.membersys.member.model.MemRepository;
 import com.pixeltribe.membersys.member.model.Member;
 

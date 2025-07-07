@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>會員中心 - Pixel Tribe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+    /* ========== 全局字體、背景 ========== */
+    body {
+        margin: 0;
+        background: #f8f6f1;
+        font-family: '微軟正黑體', 'Noto Sans TC', Arial, sans-serif;
+        color: #554431;
+    }
+
+    /* ========== 頂部 Topbar ========== */
+    .topbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 60px;
+        background: #fffbea;
+        box-shadow: 0 1px 8px 0 rgba(120, 100, 60, 0.10);
+        display: flex;
+        align-items: center;
+        z-index: 100;
+        transition: transform 0.34s cubic-bezier(.6, .02, .21, .97);
+    }
+    .topbar.hide { transform: translateY(-100%); }
+    .topbar-logo img { height: 46px; margin-left: 18px; }
+    .member-area {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-right: 36px;
+    }
+    .avatar-btn img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 2px solid #e2d6ac;
+        background: #eee;
+    }
+    .member-name {
+        margin: 0 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #7a670c;
+        letter-spacing: 1.1px;
+    }
+    .member-btn {
+        border: none;
+        background: #fae3aa;
+        color: #7a670c;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.93rem;
+        border-radius: 7px;
+        padding: 7px 17px;
+        margin-left: 6px;
+        cursor: pointer;
+        transition: background .18s;
+        box-shadow: 0 1px 4px 0 rgba(180, 140, 20, 0.08);
+    }
+    .member-btn:hover { background: #f2cb5b; }
+
+    /* ========== Layout: sidebar + 主內容區 ========== */
+    .layout {
+        display: flex;
+        margin-top: 60px; /* topbar 高度 */
+        min-height: calc(100vh - 60px);
+        background: #f8f6f1;
+    }
+    /* Sidebar */
+    .sidebar {
+        width: 225px;
+        background: #f6f3ea;
+        border-right: 2px solid #ebdfc8;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 2px 0 12px 0 rgba(210, 200, 180, 0.06);
+        padding-bottom: 28px;
+    }
+    .sidebar-title {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 1.13rem;
+        color: #c2995a;
+        letter-spacing: 1.3px;
+        margin: 18px 0 21px 34px;
+        padding-bottom: 7px;
+    }
+    .sidebar-list {
+        list-style: none;
+        margin: 0;
+        padding: 0 0 0 6px;
+        width: 100%;
+    }
+    .sidebar-item {
+        padding: 12px 28px 12px 32px;
+        font-size: 1.05rem;
+        color: #887957;
+        cursor: pointer;
+        border-left: 4px solid transparent;
+        border-radius: 0 24px 24px 0;
+        margin-bottom: 2px;
+        transition: background .18s, color .16s, border-color .22s;
+        letter-spacing: 1.1px;
+    }
+    .sidebar-item.active, .sidebar-item:hover {
+        background: #f8efd8;
+        color: #b08d46;
+        border-left: 4px solid #c2995a;
+    }
+
+    /* 主內容 */
+    .main-content {
+        flex: 1;
+        padding: 38px 0 40px 0;
+        min-width: 0;
+        background: #f8f6f1;
+    }
+    .center-content {
+        margin: 0 auto;
+        width: 85%;
+        min-width: 320px;
+        max-width: 970px;
+    }
+
+    /* 卡片區塊共用 */
+    .profile-card, .password-card, .table-section {
+        background: #f5f2ec;
+        border-radius: 20px;
+        padding: 32px 32px 28px 38px;
+        margin-top: 24px;
+        font-size: 1.12rem;
+        box-shadow: 0 2px 13px 0 rgba(190, 170, 140, .10);
+        border: 1.7px solid #ebdfc8;
+    }
+
+    /* 個人資料內容 */
+    .profile-avatar {
+        width: 74px;
+        height: 74px;
+        border-radius: 50%;
+        background: #fff;
+        border: 3px solid #e9d6ac;
+        display: inline-block;
+        margin-bottom: 8px;
+    }
+    .profile-info-title {
+        font-weight: bold;
+        margin-bottom: 12px;
+        font-size: 1.13rem;
+        color: #b89c60;
+        letter-spacing: 1.12px;
+    }
+    .profile-info-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    .profile-info-label {
+        width: 110px;
+        font-weight: bold;
+        color: #a58d5b;
+    }
+    .profile-info-value {
+        letter-spacing: 2px;
+        font-size: 1.14rem;
+        color: #72603b;
+    }
+    .profile-edit-btn {
+        background: #e8d9b9;
+        color: #7a670c;
+        font-size: 1rem;
+        font-weight: bold;
+        padding: 8px 24px;
+        border-radius: 7px;
+        border: none;
+        cursor: pointer;
+        margin-top: 18px;
+        margin-right: 4px;
+        transition: background .17s, color .16s;
+        box-shadow: 0 2px 6px 0 rgba(220, 200, 160, 0.07);
+    }
+    .profile-edit-btn:hover {
+        background: #eddcae;
+        color: #493d26;
+    }
+
+    /* 密碼表單 */
+    .password-title {
+        font-weight: bold;
+        font-size: 1.14rem;
+        margin-bottom: 18px;
+        color: #b89c60;
+        letter-spacing: 1.1px;
+    }
+    .password-form input[type="password"] {
+        font-size: 1.09rem;
+        padding: 11px 10px;
+        border: 1.7px solid #e4e0cf;
+        border-radius: 8px;
+        background: #f9f6ee;
+        margin-bottom: 10px;
+        outline: none;
+        transition: border .2s;
+    }
+    .password-form input[type="password"]:focus {
+        border-color: #cdb690;
+    }
+    .password-btn-group {
+        display: flex;
+        gap: 18px;
+        margin-top: 3px;
+    }
+    .password-btn {
+        background: #e8d9b9;
+        color: #7a670c;
+        font-size: 1rem;
+        font-weight: bold;
+        padding: 8px 24px;
+        border-radius: 7px;
+        border: none;
+        cursor: pointer;
+        transition: background .18s, color .16s;
+    }
+    .password-btn:hover {
+        background: #eddcae;
+        color: #493d26;
+    }
+    .password-btn.cancel {
+        background: #ececec;
+        color: #888;
+    }
+    .password-msg {
+        min-height: 1.2em;
+        margin-top: 4px;
+        color: #b94040;
+        font-size: 1.06rem;
+        letter-spacing: 1.09px;
+    }
+
+    /* 表格區塊統一樣式 */
+    .table-section {
+        padding: 28px 18px 22px 22px;
+        margin-top: 26px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: transparent;
+        margin-top: 5px;
+    }
+    th, td {
+        padding: 10px 9px;
+        border-bottom: 1.2px solid #dfd1b5;
+        font-size: 1.04rem;
+        text-align: left;
+    }
+    th {
+        background: #f3ead7;
+        color: #b89c60;
+        font-weight: bold;
+        font-size: 1.08rem;
+    }
+    tr:last-child td { border-bottom: none; }
+    .empty-row {
+        color: #aaa;
+        text-align: center;
+        font-size: 1.09rem;
+    }
+
+    /* RWD */
+    @media (max-width: 980px) {
+        .center-content { width: 99vw; min-width: unset; }
+        .sidebar { width: 60px; min-width: 60px; }
+        .sidebar-title { font-size: 1rem; margin-left: 11px;}
+        .sidebar-item { font-size: 0; padding: 10px 9px 10px 17px; }
+        .sidebar-item.active, .sidebar-item:hover { font-size: 1.01rem; }
+    }
+    @media (max-width: 680px) {
+        .layout { flex-direction: column; }
+        .sidebar { width: 100vw; flex-direction: row; border-right: none; border-bottom: 2px solid #ebdfc8;}
+        .main-content { padding-top: 17px;}
+        .sidebar-title {margin-bottom:12px;}
+    }
+    </style>
+</head>
+<body>
+    <!-- ========== 頂部導航 ========== -->
+    <div class="topbar" id="mainTopbar">
+        <div class="topbar-logo" id="logo-btn" style="cursor: pointer;">
+            <img src="images/logo.png" alt="LOGO">
+        </div>
+        <div class="member-area">
+            <div class="avatar-btn" id="avatar-btn" title="會員中心">
+                <img id="member-avatar" src="images/demo-avatar.png" alt="會員頭像">
+            </div>
+            <span class="member-name" id="member-name">逵</span>
+            <button class="member-btn" id="login-btn" style="display: none;"
+                onclick="location.href='front-end/mem/MemberLogin.html'">登入</button>
+            <button class="member-btn" id="logout-btn">登出</button>
+        </div>
+    </div>
+    <!-- ========== 主結構 (sidebar + main) ========== -->
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-title">會員中心</div>
+            <ul class="sidebar-list" id="sidebarList">
+                <li class="sidebar-item active" data-page="profile">個人資料</li>
+                <li class="sidebar-item" data-page="orders">過去訂單</li>
+                <li class="sidebar-item" data-page="coupons">優惠券票券</li>
+                <li class="sidebar-item" data-page="collections">收藏文章</li>
+                <li class="sidebar-item" data-page="logins">登入紀錄</li>
+            </ul>
+        </aside>
+        <!-- Main content -->
+        <main class="main-content">
+            <div class="center-content" id="mainContent">
+                <!-- JS 動態插入內容 -->
+            </div>
+        </main>
+    </div>
+
+    <!-- ========== JS SPA 切換 + 密碼修改表單綁定 ========== -->
+    <script>
+    // 各區塊 html 模板
+    const views = {
+        profile: `
+            <div class="profile-card">
+                <div style="display:flex;align-items:center;margin-bottom:10px;">
+                    <div class="profile-avatar"></div>
+                    <div style="margin-left:22px;">
+                        <div style="font-size:1.09rem;">暱稱</div>
+                        <div style="font-size:1.02rem;color:#777;">帳號名稱</div>
+                    </div>
+                </div>
+                <div class="profile-info-title">個人資料</div>
+                <div class="profile-info-row"><span class="profile-info-label">註冊信箱</span><span class="profile-info-value">●●●●●●●</span></div>
+                <div class="profile-info-row"><span class="profile-info-label">聯絡信箱</span><span class="profile-info-value">●●●●●●●</span></div>
+                <div class="profile-info-row"><span class="profile-info-label">姓名</span><span class="profile-info-value">●●●●●</span></div>
+                <div class="profile-info-row"><span class="profile-info-label">生日</span><span class="profile-info-value">●●●●●●</span></div>
+                <div class="profile-info-row"><span class="profile-info-label">身份證末4碼</span><span class="profile-info-value">●●●●</span></div>
+                <div class="profile-info-row"><span class="profile-info-label">手機</span><span class="profile-info-value">●●●●●●●●</span></div>
+                <button class="profile-edit-btn" onclick="alert('開啟編輯彈窗')">修改</button>
+            </div>
+            <!-- 密碼修改區 -->
+            <div class="password-card">
+                <div class="password-title">密碼重設</div>
+                <form id="resetPwdForm" class="password-form" autocomplete="off">
+                    <input type="password" id="oldPassword" placeholder="輸入原密碼" required>
+                    <input type="password" id="newPassword" placeholder="輸入新密碼" required>
+                    <input type="password" id="newPasswordConfirm" placeholder="再次輸入新密碼" required>
+                    <div class="password-btn-group">
+                        <button type="submit" class="password-btn">確認</button>
+                        <button type="button" class="password-btn cancel" onclick="document.getElementById('resetPwdForm').reset();">取消</button>
+                    </div>
+                    <div id="resetPwdMsg" class="password-msg"></div>
+                </form>
+            </div>
+        `,
+        orders: `
+            <div class="table-section">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>訂單編號</th>
+                            <th>訂購時間</th>
+                            <th>訂單狀態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>202504280001A</td>
+                            <td>2025-04-28 19:31</td>
+                            <td>已完成</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="background: #f8f8f8;">
+                                <div style="padding:8px 0 0 13px;">
+                                    <b>商品系列</b>
+                                    <table style="margin-top:4px;">
+                                        <tr><td>貓咪擺飾A</td><td>1</td><td>A0823A492031</td></tr>
+                                        <tr><td>海洋探索置組</td><td>1</td><td>CHd253392KL.asf</td></tr>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `,
+        coupons: `
+            <div class="table-section">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>優惠券編號</th>
+                            <th>適用範圍</th>
+                            <th>到期日</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>202504280001C</td>
+                            <td>youCard禮券</td>
+                            <td>02/22</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `,
+        collections: `
+            <div class="table-section">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>文章標題</th>
+                            <th>文章內容</th>
+                            <th>收藏日期</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>狩獵攻略集：《貓貓獵人 系列始... </td>
+                            <td>田中的貓貓出沒，《貓貓獵人 系...</td>
+                            <td>02/22</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `,
+        logins: `
+            <div class="table-section">
+                <div style="font-weight:bold;margin-bottom:10px;">登入失敗記錄</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>裝置</th><th>登入時間</th><th>瀏覽器</th><th>IP位置</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="4" class="empty-row">（尚無資料）</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        `
+    };
+
+    // --------- SPA 切換 & 密碼表單事件 ---------
+    function renderPage(page) {
+        const mainContent = document.getElementById('mainContent');
+        mainContent.innerHTML = views[page] || '<div>找不到頁面</div>';
+        if (page === 'profile') bindProfilePwdReset();
+    }
+
+    // Sidebar 點擊切換
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', function () {
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            renderPage(this.dataset.page);
+        });
+    });
+
+    // 首頁預設載入
+    renderPage('profile');
+
+    // 密碼修改表單送出
+    function bindProfilePwdReset() {
+        const form = document.getElementById('resetPwdForm');
+        if (!form) return;
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const oldPassword = document.getElementById('oldPassword').value.trim();
+            const newPassword = document.getElementById('newPassword').value.trim();
+            const newPasswordConfirm = document.getElementById('newPasswordConfirm').value.trim();
+            const msg = document.getElementById('resetPwdMsg');
+
+            if (!oldPassword || !newPassword || !newPasswordConfirm) {
+                msg.textContent = '請填寫所有欄位';
+                return;
+            }
+            if (newPassword !== newPasswordConfirm) {
+                msg.textContent = '兩次輸入的新密碼不一致';
+                return;
+            }
+            // 假設已知會員email存在 localStorage
+            const email = localStorage.getItem('emailForReset');
+            if (!email) {
+                msg.textContent = '找不到會員資訊，請重新登入。';
+                return;
+            }
+            // 呼叫API
+            fetch('/api/members/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    oldPassword: oldPassword,
+                    newPassword: newPassword,
+                    newPasswordConfirm: newPasswordConfirm
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    msg.style.color = '#25945a';
+                    msg.textContent = data.message || '密碼已更新';
+                    form.reset();
+                } else {
+                    msg.style.color = '#b94040';
+                    msg.textContent = data.message || '密碼重設失敗';
+                }
+            })
+            .catch(() => {
+                msg.style.color = '#b94040';
+                msg.textContent = '系統錯誤，請稍後再試';
+            });
+        });
+    }
+
+    // --------- Topbar 下滑隱藏 ---------
+    let lastScroll = 0;
+    const topbar = document.getElementById('mainTopbar');
+    window.addEventListener('scroll', function () {
+        const curr = window.scrollY;
+        if (curr > lastScroll && curr > 15) {
+            topbar.classList.add('hide');
+        } else {
+            topbar.classList.remove('hide');
+        }
+        lastScroll = curr;
+    });
+
+    // 點 logo 跳首頁
+    document.getElementById('logo-btn').addEventListener('click', () => location.href = '/');
+    </script>
+</body>
+</html>

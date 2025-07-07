@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.pixeltribe.membersys.login.DTO.MemLoginResult;
+import com.pixeltribe.membersys.login.dto.MemLoginResult;
 import com.pixeltribe.membersys.login.model.MemLoginService;
 
 @RestController
