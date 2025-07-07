@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.pixeltribe.membersys.administrator.model.AdmRepository;
 import com.pixeltribe.membersys.administrator.model.Administrator;
-import com.pixeltribe.membersys.login.DTO.AdmLoginResult;
+import com.pixeltribe.membersys.login.dto.AdmLoginResult;
 
 @Service
 public class AdmLoginService {

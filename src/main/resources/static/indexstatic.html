@@ -355,7 +355,7 @@
             <img id="member-avatar" src="images/demo-avatar.png" alt="會員頭像">
         </div>
         <span class="member-name" id="member-name">逵</span>
-        <button class="member-btn" id="login-btn" style="display:none;" onclick="location.href='front-end/mem/MemberLogin.html'">登入</button>
+        <button class="member-btn" id="login-btn" style="display:none;" onclick="location.href='/front-end/mem/MemberConsole.html'">會員中心</button>
         <button class="member-btn" id="logout-btn">登出</button>
     </div>
 </div>
@@ -471,11 +471,7 @@
 
     // 會員頭像點擊：載入會員中心
     document.getElementById('avatar-btn').addEventListener('click', function() {
-        fetch('front-end/mem/member-center.html')
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById('main-content-area').innerHTML = html;
-            });
+        location.href = '/front-end/mem/MemberConsole.html';
     });
 
     // 登出，恢復為訪客

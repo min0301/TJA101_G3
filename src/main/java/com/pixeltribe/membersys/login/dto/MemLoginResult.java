@@ -1,4 +1,4 @@
-package com.pixeltribe.membersys.login.DTO;
+package com.pixeltribe.membersys.login.dto;
 
 public class MemLoginResult {
 
