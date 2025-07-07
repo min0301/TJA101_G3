@@ -2,15 +2,19 @@ package com.pixeltribe.shopsys.product.model;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class ProductService {
 
 	@Autowired
 	ProductRepository productRepository;
+	@Autowired
+	ProductDTOMapper productDTOMapper;
 	
 	public void add(Product product) {
         productRepository.save(product);
@@ -29,8 +33,10 @@ public class ProductService {
         return optional.orElse(null);
     }
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductManageDTO> getAllProducts() {
+    	 List<Product> products = productRepository.findAll();
+         return productDTOMapper.toProductManageDTOList(products);
+
     }
 
 	

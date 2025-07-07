@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pixeltribe.shopsys.favoriteProduct.model.FavoriteProduct;
 import com.pixeltribe.shopsys.malltag.model.MallTag;
 import com.pixeltribe.shopsys.orderItem.model.OrderItem;

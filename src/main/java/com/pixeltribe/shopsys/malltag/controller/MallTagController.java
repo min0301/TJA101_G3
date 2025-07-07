@@ -24,6 +24,7 @@ import com.pixeltribe.shopsys.malltag.model.MallTag;
 import com.pixeltribe.shopsys.malltag.model.MallTagRepository;
 import com.pixeltribe.shopsys.malltag.model.MallTagService;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 @RestController
@@ -33,6 +34,7 @@ public class MallTagController {
 	@Autowired
 	MallTagService mallTagService;
 	
+	@Transactional
 	@PostMapping("/malltag/add")
 	public String addMallTag(@Valid MallTag malltag, BindingResult result){
 		mallTagService.add(malltag);

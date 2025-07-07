@@ -24,7 +24,25 @@
 		 	cursor: pointer;
 		}
 		.btn_add {
-			text-align: center;
+		    cursor: pointer;
+		    display: block;
+		    margin: 25px auto; /* 關鍵：左右自動居中 */
+		    padding: 12px 16px;
+		    background-color: #007bff;
+		    color: white;
+		    border: none;
+		    border-radius: 6px;
+		    font-size: 16px;
+		}
+		.btn_update{
+			cursor: pointer;
+		    display: block;
+		    margin: 10px auto;
+		    background-color: green;
+		    color: white;
+		    border: none;
+		    border-radius: 6px;
+		    font-size: 16px;
 		}
 		#lightbox_add ,#lightbox_update{
 		/*   border: 1px solid red; */
@@ -85,6 +103,7 @@
     </style>
 </head>
 <body>
+	<a href="/" class="btn btn-home">回到首頁</a>
 	<h1>商品標籤列表</h1>
 	<button type="button" class="btn_add">新增商城標籤</button>
 	<div id="lightbox_add">
