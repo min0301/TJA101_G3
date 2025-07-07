@@ -1,6 +1,9 @@
 package com.pixeltribe.shopsys.cart.model;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -82,4 +85,59 @@ public class CartRepository {
         	System.out.println("Redis中沒有找到要刪除的購物車: " + key);
         }
 	}
+	
+	
+	// ******** 後台 ******** //
+			// ========== 查詢所有購物車 ========== //
+		    public List<CartDTO> getAllCarts(Integer page, Integer size) {
+		    	try {
+		            List<CartDTO> carts = new ArrayList<>();
+		            
+		            // 查詢所有符合前綴的 key
+		            Set<String> keys = redisTemplate.keys(CART_KEY_PREFIX + "*");
+		            
+		            if (keys == null || keys.isEmpty()) {
+		                return carts; // 回傳空清單
+		            }
+		            
+		            // 計算分頁
+		            List<String> keyList = new ArrayList<>(keys);
+		            int startIndex = (page - 1) * size;
+		            int endIndex = Math.min(startIndex + size, keyList.size());
+		            
+		            // 取得分頁範圍內的 key
+		            for (int i = startIndex; i < endIndex; i++) {
+		                String key = keyList.get(i);
+		                String jsonValue = redisTemplate.opsForValue().get(key);
+		                
+		                if (jsonValue != null) {
+		                    try {
+		                        CartDTO cart = objectMapper.readValue(jsonValue, CartDTO.class);
+		                        carts.add(cart);
+		                    } catch (Exception e) {
+		                        System.err.println("解析購物車資料失敗: " + key);
+		                    }
+		                }
+		            }
+		            
+		            return carts;
+		            
+		        } catch (Exception e) {
+		            System.err.println("查詢所有購物車失敗: " + e.getMessage());
+		            return new ArrayList<>(); // 回傳空清單
+		        }
+		    }
+		    
+		    
+		    // ========== 統計購物車總數 ========== //
+		    public Integer getTotalCartsCount() {
+		        try {
+		            Set<String> keys = redisTemplate.keys(CART_KEY_PREFIX + "*");
+		            return keys != null ? keys.size() : 0;
+		        } catch (Exception e) {
+		            System.err.println("統計購物車總數失敗: " + e.getMessage());
+		            return 0;
+		        }
+		    }    
+	
 }
