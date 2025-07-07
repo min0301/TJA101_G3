@@ -2,6 +2,7 @@ package com.pixeltribe.shopsys.cart.exception;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -32,6 +33,7 @@ public class CartExceptionHandler {
 	// 處理所有未抓到的例外  (避免如果不小心觸發了沒有抓到的例外，系統也不會自己丟出500的錯誤訊息給用戶)
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
+
 	public ResponseEntity<ErrorResponse> handleAllException(Exception ex) {
         ErrorResponse error = new ErrorResponse("SYSTEM_ERROR", "系統發生錯誤，部落小精靈正在確認中...");
         return ResponseEntity.status(500).body(error);
