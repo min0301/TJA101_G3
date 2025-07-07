@@ -2158,8 +2158,7 @@ CREATE TABLE `ORDER`
 );
 
 -- 對應的觸發器 ORDER_NO 自動產生 的設定
-DELIMITER
-$$
+DELIMITER $$
 CREATE TRIGGER generate_order_no
     BEFORE INSERT
     ON `ORDER`
