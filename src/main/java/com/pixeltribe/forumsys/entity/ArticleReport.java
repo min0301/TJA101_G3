@@ -1,6 +1,7 @@
 package com.pixeltribe.forumsys.entity;
 
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
+import com.pixeltribe.forumsys.reporttype.model.ReportType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

@@ -5,6 +5,7 @@ import com.pixeltribe.forumsys.message.model.ForumMesRepository;
 import com.pixeltribe.forumsys.shared.LikeStatus;
 import com.pixeltribe.membersys.member.model.MemRepository;
 import com.pixeltribe.membersys.member.model.Member;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public class ForumMesLikeService {
                 .collect(Collectors.toList());
     }
 
-
+    @Transactional
     public ForumMesLikeDTO updateLike(Integer mesNo, Integer memId, LikeStatus requestedStatus) {
         Member member = memRepository.findById(memId).get();
         ForumMes message = forumMesRepository.findById(mesNo).get();

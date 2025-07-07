@@ -1,0 +1,43 @@
+package com.pixeltribe.forumsys.reporttype.model;
+
+import com.pixeltribe.forumsys.exception.ReportTypeAlreadyExistsException;
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+
+@Service("reportTypeService")
+public class ReportTypeService {
+
+    private final ReportTypeRepository reportTypeRepository;
+
+    public ReportTypeService(ReportTypeRepository reportTypeRepository) {
+        this.reportTypeRepository = reportTypeRepository;
+    }
+
+    @Transactional
+    public ReportTypeDTO add(ReportTypeUpdateDTO reportTypeUpdateDTO) {
+        reportTypeRepository.findByRpiType(reportTypeUpdateDTO.getRpiType())
+                .ifPresent(existingType -> {
+                    throw new ReportTypeAlreadyExistsException("檢舉類型 '" + reportTypeUpdateDTO.getRpiType() + "' 已經存在");
+                });
+        ReportType reportType = new ReportType();
+        reportType.setRpiType(reportTypeUpdateDTO.getRpiType());
+        return ReportTypeDTO.convertToReportTypeDTO(reportTypeRepository.save(reportType));
+    }
+
+    @Transactional
+    public ReportTypeDTO update(Integer rpiNo, ReportTypeUpdateDTO reportTypeUpdateDTO) {
+        reportTypeRepository.findByRpiType(reportTypeUpdateDTO.getRpiType())
+                .ifPresent(existingType -> {
+                    throw new ReportTypeAlreadyExistsException("檢舉類型 '" + reportTypeUpdateDTO.getRpiType() + "' 已經存在");
+                });
+        ReportType reportType = reportTypeRepository.findById(rpiNo).get();
+        reportType.setRpiType(reportTypeUpdateDTO.getRpiType());
+        return ReportTypeDTO.convertToReportTypeDTO(reportTypeRepository.save(reportType));
+    }
+
+    public ReportType getOneReportType(Integer rpiNo) {
+
+        return reportTypeRepository.findById(rpiNo).get();
+    }
+
+}

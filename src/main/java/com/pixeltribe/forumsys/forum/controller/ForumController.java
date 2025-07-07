@@ -35,7 +35,7 @@ public class ForumController {
 
     @GetMapping("/category/{catNo}/forums")
     @Operation(
-            summary = "查類別中有哪些文章",
+            summary = "查類別中有哪些討論區",
             description = "222"
     )
     public List<ForumDetailDTO> findByCatNo_Id(
