@@ -1,12 +1,9 @@
 package com.pixeltribe.forumsys.message.model;
 
-import com.pixeltribe.forumsys.forumcategory.model.ForumCategory;
 import com.pixeltribe.forumsys.forumpost.model.ForumPostRepository;
 import com.pixeltribe.membersys.member.model.MemRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,10 +41,10 @@ public class ForumMesService {
     }
 
     @Transactional
-    public ForumMesDTO addForumMes(ForumMesUptateDTO forumMesUptateDTO) {
+    public ForumMesDTO addForumMes(Integer postNo, ForumMesUptateDTO forumMesUptateDTO) {
 
         ForumMes forumMes = new ForumMes();
-        forumMes.setPostNo(forumPostRepository.findById(forumMesUptateDTO.getPostId()).get());
+        forumMes.setPostNo(forumPostRepository.findById(postNo).get());
         forumMes.setMemNo(memRepository.findById(forumMesUptateDTO.getMemId()).get());
         forumMes.setMesCon(forumMesUptateDTO.getMesCon());
 

@@ -1,7 +1,7 @@
 package com.pixeltribe.forumsys.message.model;
 
 import com.pixeltribe.forumsys.entity.ArticleComReport;
-import com.pixeltribe.forumsys.entity.ForumMesLike;
+import com.pixeltribe.forumsys.messagelike.model.ForumMesLike;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;

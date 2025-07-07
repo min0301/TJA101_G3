@@ -1,6 +1,5 @@
 package com.pixeltribe.forumsys.message.controller;
 
-import com.pixeltribe.forumsys.message.model.ForumMes;
 import com.pixeltribe.forumsys.message.model.ForumMesDTO;
 import com.pixeltribe.forumsys.message.model.ForumMesService;
 import com.pixeltribe.forumsys.message.model.ForumMesUptateDTO;
@@ -29,6 +28,7 @@ public class ForumMesController {
             summary = "查所有的留言"
     )
     public List<ForumMesDTO> getAllForumMes() {
+
         return forumMesSvc.getAllForumMes();
     }
 
@@ -53,17 +53,18 @@ public class ForumMesController {
     }
 
 
-    @PostMapping("/posts/messages/")
+    @PostMapping("/posts/{postNo}/messages/")
     @Operation(
             summary = "新增文章留言"
     )
     public ResponseEntity<?> addForumMes(
             @Valid @RequestBody ForumMesUptateDTO forumMesUptateDTO,
+            @PathVariable Integer postNo,
             BindingResult result) {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body("輸入資料有誤！");
         }
-        ForumMesDTO createdForumMes = forumMesSvc.addForumMes(forumMesUptateDTO);
+        ForumMesDTO createdForumMes = forumMesSvc.addForumMes(postNo, forumMesUptateDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdForumMes);
     }

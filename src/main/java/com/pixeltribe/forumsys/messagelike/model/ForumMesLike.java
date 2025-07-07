@@ -1,20 +1,18 @@
-package com.pixeltribe.forumsys.entity;
+package com.pixeltribe.forumsys.messagelike.model;
 
 
 import com.pixeltribe.forumsys.message.model.ForumMes;
-
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-
+import com.pixeltribe.forumsys.shared.LikeStatus;
 import com.pixeltribe.membersys.member.model.Member;
+import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 
-@Getter
-@Setter
+@Data
 @Entity
+
 @Table(name = "forum_mes_like")
 public class ForumMesLike {
     @Id
@@ -26,19 +24,23 @@ public class ForumMesLike {
     @JoinColumn(name = "MEM_NO")
     private Member memNo;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "MLIKE_UPDATE")
-    private Instant mlikeUpdate;
-
     @Column(name = "FMLIKE_STATUS")
-    private Character fmlikeStatus;
+    @Enumerated(EnumType.STRING)
+    private LikeStatus fmlikeStatus;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "NMLIKE_CRDATE")
-    private Instant nmlikeCrdate;
+    @Column(name = "FMLIKE_UPDATE", insertable = false, updatable = false)
+    private Instant fmlikeUpdate;
+
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @Column(name = "FMLIKE_CRDATE", insertable = false, updatable = false)
+    private Instant fmlikeCrdate;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MES_NO")
     private ForumMes mesNo;
+
+
 
 }

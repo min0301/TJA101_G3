@@ -66,15 +66,15 @@ public class ForumService {
         List<Forum> forums = forumRepository.findAllByOrderByForUpdateDesc();
 
 
-        for (Forum x : forums) {
-          ForumDetailDTO.convertToForumDetailDTO(x);
-
-        }
+//        for (Forum x : forums) {
+//          ForumDetailDTO.convertToForumDetailDTO(x);
+//        }
 
         // 2. 使用 Stream API 將 List<Forum> 轉換為 List<ForumDetailDTO>
         return forums.stream()
-//                .map(ForumDetailDTO::convertToForumDetailDTO) // 對每個 forum 執行轉換
+
                 .map(x->ForumDetailDTO.convertToForumDetailDTO(x))
+        //      .map(ForumDetailDTO::convertToForumDetailDTO) // 對每個 forum 執行轉換
                 .collect(Collectors.toList());
     }
 

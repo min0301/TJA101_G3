@@ -20,7 +20,7 @@ import com.pixeltribe.forumsys.message.model.ForumMes;
 import com.pixeltribe.forumsys.entity.PostLike;
 
 
-import com.pixeltribe.forumsys.entity.ForumMesLike;
+import com.pixeltribe.forumsys.messagelike.model.ForumMesLike;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import com.pixeltribe.forumsys.entity.PostCollect;
 import com.pixeltribe.membersys.friendlist.model.FriendList;
