@@ -34,13 +34,15 @@ public class CartDTO {
 		public void calculateTotal() {
 			if (this.proPrice != null && this.proNum != null) {
 				this.subtotal = this.proPrice * this.proNum;
+			} else {
+				this.subtotal = 0;   // 預設值
 			}
 		}
 	}
 	
 	
 	// ========== 整個購物車的資訊 ========== //
-	private Integer id;// 會員編號  (誰的購物車)
+	private Integer memNo;// 會員編號  (誰的購物車)
 	private List<CartItem> item;// 全部的單個產品資訊 (用List包起來)
 	private Integer totalItem;// 全部產品項目 (指全部的不同商品)
 	private Integer totalPrice;// 總價
@@ -57,9 +59,16 @@ public class CartDTO {
 		
 		this.totalItem = item.size();
 		// 計算購物車總數量：取得每個商品的proNum並加總
-		this.totalQuantity = item.stream().mapToInt(CartItem::getProNum).sum();
+		this.totalQuantity = item.stream()
+				.filter(cartItem -> cartItem.getProNum() != null)
+				.mapToInt(CartItem::getProNum)
+				.sum();
+		
 		// 計算購物車總價格：取得每個產品的subtotal並加總
-		this.totalPrice = item.stream().mapToInt(CartItem::getSubtotal).sum();
+		this.totalPrice = item.stream()
+				.filter(cartItem -> cartItem.getSubtotal() != null)
+				.mapToInt(CartItem::getSubtotal)
+				.sum();
 	}
 	
 	

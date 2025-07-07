@@ -57,7 +57,7 @@ public class Cart {
 	
 	
 	// ========== 整個購物車的資訊 ========== //
-	private Integer id;           // 會員編號 (誰的購物車)
+	private Integer memNo;           // 會員編號 (誰的購物車)
 	private List<CartItem> item;  // 全部的單個產品資訊 (用List包起來)
 	private Integer totalItem;    // 全部產品項目 (指全部的不同商品)
 	private Integer totalPrice;   // 總價
@@ -210,12 +210,12 @@ public class Cart {
 	
 	public Cart(Integer id) {
 		this();
-		this.id = id;
+		this.memNo = memNo;
 	}
 	// 轉換方法：轉換為 CartDTO（API 回應用）
 	public CartDTO toDTO() {
 		CartDTO dto = new CartDTO();
-		dto.setId(this.id);
+		dto.setMemNo(this.memNo);
 		dto.setTotalItem(this.totalItem);
 		dto.setTotalPrice(this.totalPrice);
 		dto.setTotalQuantity(this.totalQuantity);
@@ -241,7 +241,7 @@ public class Cart {
 	//*****   從CartDTO轉換  ***** //
 	public static Cart fromDTO(CartDTO dto) {
 		Cart vo = new Cart();
-		vo.setId(dto.getId());
+		vo.setMemNo(dto.getMemNo());
 		vo.setTotalItem(dto.getTotalItem());
 		vo.setTotalPrice(dto.getTotalPrice());
 		vo.setTotalQuantity(dto.getTotalQuantity());
