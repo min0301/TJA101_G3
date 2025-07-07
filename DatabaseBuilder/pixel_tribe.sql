@@ -3,10 +3,13 @@
 
 -- ===== START OF MEMBER_SysAndNEWS_Sys.sql =====
 -- 建立資料庫
-CREATE DATABASE IF NOT EXISTS pixel_tribe;
-USE pixel_tribe;
+CREATE
+DATABASE IF NOT EXISTS pixel_tribe;
+USE
+pixel_tribe;
 
-SET FOREIGN_KEY_CHECKS = 0;
+SET
+FOREIGN_KEY_CHECKS = 0;
 
 -- 移除清除既有資料表（依 FK 先子後父）
 -- 依相依關係由下而上刪除，避免 Foreign-Key Constraint 衝突
@@ -72,29 +75,29 @@ DROP TABLE IF EXISTS MEMBER;
 CREATE TABLE MEMBER
 (
     MEM_NO               INT AUTO_INCREMENT NOT NULL Comment '會員編號(PK)',
-    MEM_NAME             VARCHAR(50)        NOT NULL comment '姓名',
-    MEM_NICK_NAME        VARCHAR(50)        NOT NULL comment '暱稱',
-    MEM_ACCOUNT          VARCHAR(50)        NOT NULL unique Comment '登入帳號',
-    MEM_PASSWORD         VARCHAR(60)        NOT NULL Comment '密碼/Bcrypt',
-    MEM_EMAIL            VARCHAR(100)       NOT NULL unique,
+    MEM_NAME             VARCHAR(50)  NOT NULL comment '姓名',
+    MEM_NICK_NAME        VARCHAR(50)  NOT NULL comment '暱稱',
+    MEM_ACCOUNT          VARCHAR(50)  NOT NULL unique Comment '登入帳號',
+    MEM_PASSWORD         VARCHAR(60)  NOT NULL Comment '密碼/Bcrypt',
+    MEM_EMAIL            VARCHAR(100) NOT NULL unique,
     MEM_ICON_DATA        LONGBLOB Comment '大頭貼',
-    MEM_ADDR             VARCHAR(100)       NOT NULL comment '地址',
-    MEM_PHONE            VARCHAR(50)        NOT NULL unique comment '行動電話',
-    MEM_BIRTHDAY         DATE               NOT NULL,
-    MEM_CREATE           DATETIME                    DEFAULT CURRENT_TIMESTAMP comment '建立時間',
+    MEM_ADDR             VARCHAR(100) NOT NULL comment '地址',
+    MEM_PHONE            VARCHAR(50)  NOT NULL unique comment '行動電話',
+    MEM_BIRTHDAY         DATE         NOT NULL,
+    MEM_CREATE           DATETIME              DEFAULT CURRENT_TIMESTAMP comment '建立時間',
     MEM_UPDATE           DATETIME ON UPDATE CURRENT_TIMESTAMP comment '最後修改時間',
-    MEM_STATUS           CHAR(1)            NOT NULL DEFAULT '1' comment '1:正常 2:停權',
-    MEM_TOKEN            VARCHAR(50)                 DEFAULT NULL comment 'Token',
-    MEM_EMAIL_AUTH       VARCHAR(50)                 DEFAULT NULL comment 'email驗證碼',
-    SEND_AUTH_Email_TIME DATETIME                    DEFAULT NULL comment '發送驗證信時間',
-    CAN_POST             BOOLEAN            NOT NULL DEFAULT TRUE comment '可否發文',
-    CAN_COMMENT          BOOLEAN            NOT NULL DEFAULT TRUE comment '可否留言',
-    CAN_USED_PRO         BOOLEAN            NOT NULL DEFAULT FALSE comment '可否二手交易',
-    PHONE_AUTHED         BOOLEAN            NOT NULL DEFAULT FALSE comment '手機是否驗證',
+    MEM_STATUS           CHAR(1)      NOT NULL DEFAULT '1' comment '1:正常 2:停權',
+    MEM_TOKEN            VARCHAR(50)           DEFAULT NULL comment 'Token',
+    MEM_EMAIL_AUTH       VARCHAR(50)           DEFAULT NULL comment 'email驗證碼',
+    SEND_AUTH_Email_TIME DATETIME              DEFAULT NULL comment '發送驗證信時間',
+    CAN_POST             BOOLEAN      NOT NULL DEFAULT TRUE comment '可否發文',
+    CAN_COMMENT          BOOLEAN      NOT NULL DEFAULT TRUE comment '可否留言',
+    CAN_USED_PRO         BOOLEAN      NOT NULL DEFAULT FALSE comment '可否二手交易',
+    PHONE_AUTHED         BOOLEAN      NOT NULL DEFAULT FALSE comment '手機是否驗證',
     AUTH_PROVIDER        VARCHAR(20) COMMENT '登入來源：LOCAL / GOOGLE / FACEBOOK…',
     PROVIDER_UID         VARCHAR(100) COMMENT 'Provider 回傳之唯一 ID',
-    ROLE                 VARCHAR(20)        NOT NULL DEFAULT 'ROLE_USER' COMMENT 'Spring Security 角色',
-    POINT                INT                         DEFAULT 0 comment '會員積分',
+    ROLE                 VARCHAR(20)  NOT NULL DEFAULT 'ROLE_USER' COMMENT 'Spring Security 角色',
+    POINT                INT                   DEFAULT 0 comment '會員積分',
     CONSTRAINT MEMBER_PK PRIMARY KEY (MEM_NO)
 ) comment '會員資料';
 -- 插入 37 筆會員資料
@@ -183,7 +186,7 @@ VALUES
 CREATE TABLE LOG_FAIL_REASON
 (
     LOG_FAIL_REASON_NO INT AUTO_INCREMENT NOT NULL COMMENT '失敗原因編號',
-    LOG_FAIL_TYPE      VARCHAR(50)        NOT NULL COMMENT '失敗原因種類',
+    LOG_FAIL_TYPE      VARCHAR(50) NOT NULL COMMENT '失敗原因種類',
     PRIMARY KEY (LOG_FAIL_REASON_NO)
 ) COMMENT ='登入失敗原因';
 
@@ -194,9 +197,9 @@ VALUES ('帳號密碼錯誤'),
 CREATE TABLE ADMINISTRATOR
 (
     ADM_NO       INT PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '管理員編號',
-    ADM_ACCOUNT  VARCHAR(50)                    NOT NULL COMMENT '管理員帳號',
-    ADM_NAME     VARCHAR(50)                    NOT NULL COMMENT '管理員名稱',
-    ADM_PASSWORD VARCHAR(60)                    NOT NULL COMMENT '管理員密碼/Bcrypt',
+    ADM_ACCOUNT  VARCHAR(50) NOT NULL COMMENT '管理員帳號',
+    ADM_NAME     VARCHAR(50) NOT NULL COMMENT '管理員名稱',
+    ADM_PASSWORD VARCHAR(60) NOT NULL COMMENT '管理員密碼/Bcrypt',
     CREATE_TIME  DATETIME    DEFAULT CURRENT_TIMESTAMP COMMENT '建立時間',
     ROLE         VARCHAR(20) DEFAULT 'ROLE_ADMIN',
     ADM_PROFILE  LONGBLOB COMMENT '管理員頭像'
@@ -280,12 +283,12 @@ VALUES (22, 34, '待同意', '2024-03-08 01:30:56', Null),
 CREATE TABLE MEMBER_LOGIN_LOG
 (
     LOG_NO             INT AUTO_INCREMENT NOT NULL COMMENT '紀錄編號',
-    MEM_NO             INT                NOT NULL COMMENT '會員編號',
-    LOG_TIME           DATETIME           NOT NULL COMMENT '登入時間',
-    LOG_IP             VARCHAR(50)        NOT NULL COMMENT '登入IP地址',
-    LOG_BROWSER        VARCHAR(50)        NOT NULL COMMENT '登入瀏覽器',
-    LOG_EQUIP          VARCHAR(50)        NOT NULL COMMENT '登入裝置',
-    LOG_SUCCESS        BOOLEAN            NOT NULL COMMENT '是否成功',
+    MEM_NO             INT         NOT NULL COMMENT '會員編號',
+    LOG_TIME           DATETIME    NOT NULL COMMENT '登入時間',
+    LOG_IP             VARCHAR(50) NOT NULL COMMENT '登入IP地址',
+    LOG_BROWSER        VARCHAR(50) NOT NULL COMMENT '登入瀏覽器',
+    LOG_EQUIP          VARCHAR(50) NOT NULL COMMENT '登入裝置',
+    LOG_SUCCESS        BOOLEAN     NOT NULL COMMENT '是否成功',
     LOG_FAIL_REASON_NO INT COMMENT '失敗原因編號',
     PRIMARY KEY (LOG_NO),
     FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
@@ -347,8 +350,8 @@ VALUES (6, '2024-08-31 20:59:01', '192.168.103.114', 'Edge', 'Windows PC', 1, nu
 CREATE TABLE PRIVATE_CHATROOM
 (
     PRIROOM_NO  INT AUTO_INCREMENT NOT NULL COMMENT '聊天室編號',
-    MEMBER1     INT                NOT NULL COMMENT '會員1編號',
-    MEMBER2     INT                NOT NULL COMMENT '會員2編號',
+    MEMBER1     INT NOT NULL COMMENT '會員1編號',
+    MEMBER2     INT NOT NULL COMMENT '會員2編號',
     CREATE_TIME DATETIME COMMENT '創建時間',
     PRI_STATUS  CHAR(1) COMMENT '聊天室狀態(開啟:1,關閉:2)',
     PRIMARY KEY (PRIROOM_NO),
@@ -458,7 +461,7 @@ VALUES (1, 5, 16, '你的簡報很棒！', '2025-05-14 06:32:41', 1),
 CREATE TABLE NEWS_CATEGORY
 (
     NCAT_NO   INT AUTO_INCREMENT NOT NULL comment '新聞類別編號',
-    NCAT_NAME VARCHAR(50)        NOT NULL comment '類別名稱',
+    NCAT_NAME VARCHAR(50) NOT NULL comment '類別名稱',
     CONSTRAINT NEWS_CATEGORY_PK PRIMARY KEY (NCAT_NO)
 ) AUTO_INCREMENT = 1 COMMENT ='新聞類別';
 -- 新增新聞類別資料 --
@@ -490,12 +493,12 @@ VALUES ('PC'),
 CREATE TABLE NEWS
 (
     NEWS_NO     INT AUTO_INCREMENT NOT NULL comment '新聞編號(PK)',
-    NEWS_TIT    VARCHAR(255)       NOT NULL comment '新聞標題',
-    NEWS_CON    VARCHAR(9000)      NOT NULL comment '新聞內容',
+    NEWS_TIT    VARCHAR(255)  NOT NULL comment '新聞標題',
+    NEWS_CON    VARCHAR(9000) NOT NULL comment '新聞內容',
     NEWS_UPDATE DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最後更新時間，預設為 NULL',
-    NEWS_CRDATE DATETIME           NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '自動填入資料插入時間',
-    MEM_NO      INT                NOT NULL DEFAULT 1 COMMENT '預設管理員 1',
-    ADMIN_NO    INT                NOT NULL DEFAULT 1 comment '給Adiminstor 預設為1',
+    NEWS_CRDATE DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '自動填入資料插入時間',
+    MEM_NO      INT           NOT NULL DEFAULT 1 COMMENT '預設管理員 1',
+    ADMIN_NO    INT           NOT NULL DEFAULT 1 comment '給Adiminstor 預設為1',
     CONSTRAINT NEWS_PK PRIMARY KEY (NEWS_NO),
     CONSTRAINT NEWS_FK_MEMBER FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
     CONSTRAINT NEWS_FK_ADMINISTOR FOREIGN KEY (ADMIN_NO) REFERENCES ADMINISTRATOR (ADM_NO)
@@ -529,7 +532,7 @@ CREATE TABLE NEWS_IMAGE
 (
     IMG_NO   INT AUTO_INCREMENT NOT NULL,
     IMG_DATA longblob comment '圖片檔案',
-    NEWS_NO  INT                NOT NULL,
+    NEWS_NO  INT NOT NULL,
     IMG_TYPE VARCHAR(100) comment 'MIME Type,例如image/png',
     CONSTRAINT NEWS_IMAGE_PK PRIMARY KEY (IMG_NO),
     CONSTRAINT NEWS_IMAGE_FK_NEWS FOREIGN KEY (NEWS_NO) REFERENCES NEWS (NEWS_NO)
@@ -540,13 +543,13 @@ CREATE TABLE NEWS_IMAGE
 CREATE TABLE NEWS_COMMENTS
 (
     NCOM_NO       INT AUTO_INCREMENT NOT NULL,
-    NCOM_CON      VARCHAR(4000)      NOT NULL comment '留言內容',
-    NCOM_CRE      DATETIME           NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '自動填入插入當下時間,留言時間',
-    NCOM_STATUS   CHAR(1)            NOT NULL DEFAULT '1' COMMENT '1:正常 2:違規，預設為正常',
-    NEWS_NO       INT                NOT NULL,
-    MEM_NO        INT                NOT NULL,
-    NCOM_LIKE_LC  INT                NOT NULL DEFAULT 0 comment '按讚',
-    NCOM_LIKE_DLC INT                NOT NULL DEFAULT 0 comment '倒讚',
+    NCOM_CON      VARCHAR(4000) NOT NULL comment '留言內容',
+    NCOM_CRE      DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '自動填入插入當下時間,留言時間',
+    NCOM_STATUS   CHAR(1)       NOT NULL DEFAULT '1' COMMENT '1:正常 2:違規，預設為正常',
+    NEWS_NO       INT           NOT NULL,
+    MEM_NO        INT           NOT NULL,
+    NCOM_LIKE_LC  INT           NOT NULL DEFAULT 0 comment '按讚',
+    NCOM_LIKE_DLC INT           NOT NULL DEFAULT 0 comment '倒讚',
     CONSTRAINT NEWS_COMMENTS_PK PRIMARY KEY (NCOM_NO),
     CONSTRAINT NEWS_COMMENTS_FK_NEWS FOREIGN KEY (NEWS_NO) REFERENCES NEWS (NEWS_NO),
     CONSTRAINT NEWS_COMMENTS_FK_MEMBER FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO)
@@ -587,11 +590,11 @@ VALUES
 CREATE TABLE NEWS_LIKE
 (
     NLIKE_NO     INT AUTO_INCREMENT NOT NULL,
-    NLIKE_STATUS CHAR(1)            NOT NULL DEFAULT '1' COMMENT '1:正常 2:讚 3:倒讚 ',
-    MEM_NO       INT                NOT NULL comment '操作人',
-    NLIKE_UPDATE DATETIME           NOT NULL default current_timestamp ON UPDATE CURRENT_TIMESTAMP comment '最後操作時間',
-    NLIKE_CRDATE DATETIME           NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '自動填入插入當下時間,建立時間',
-    NCOM_NO      INT                NOT NULL comment '對應留言',
+    NLIKE_STATUS CHAR(1)  NOT NULL DEFAULT '1' COMMENT '1:正常 2:讚 3:倒讚 ',
+    MEM_NO       INT      NOT NULL comment '操作人',
+    NLIKE_UPDATE DATETIME NOT NULL default current_timestamp ON UPDATE CURRENT_TIMESTAMP comment '最後操作時間',
+    NLIKE_CRDATE DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '自動填入插入當下時間,建立時間',
+    NCOM_NO      INT      NOT NULL comment '對應留言',
     CONSTRAINT NEWS_LIKE_PK PRIMARY KEY (NLIKE_NO),
     CONSTRAINT NEWS_LIKE_FK_MEMBER FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
     CONSTRAINT NEWS_LIKE_FK_COMMENT FOREIGN KEY (NCOM_NO) REFERENCES NEWS_COMMENTS (NCOM_NO)
@@ -733,8 +736,8 @@ VALUES ('2', 2, '2025-05-30 10:27:00', '2025-05-30 10:27:00', 1),
 CREATE TABLE NEW_CONTENT_CLASSIFICATION
 (
     NCC_NO  INT AUTO_INCREMENT NOT NULL,
-    NCAT_NO INT                NOT NULL,
-    NEWS_NO INT                NOT NULL,
+    NCAT_NO INT NOT NULL,
+    NEWS_NO INT NOT NULL,
     CONSTRAINT NEW_CONTENT_CLASSIFICATION_PK PRIMARY KEY (NCC_NO),
     CONSTRAINT NCC_FK_CATEGORY FOREIGN KEY (NCAT_NO)
         REFERENCES NEWS_CATEGORY (NCAT_NO),
@@ -757,11 +760,11 @@ VALUES (1, 1),
 CREATE TABLE NEWS_COM_REPORT
 (
     NEWS_COM_REPORT_NO     INT AUTO_INCREMENT NOT NULL,
-    REPORTER               INT                NOT NULL comment '檢舉者 MEM_NO',                 -- 檢舉者（會員）
-    REPORT_TYPE            INT                NOT NULL comment '檢舉類型 RPI_NO',               -- 檢舉類型（FK：REPORT_TYPE.RPI_NO）
-    NEWS_COM_REPORT_STATUS CHAR(1)            NOT NULL DEFAULT '0' comment '0:未處理 1:已處理', -- 未處理 已處理
-    NCOM_NO                INT                NOT NULL comment '被檢舉留言',                    -- 被檢舉的評論
-    CREATE_TIME            DATETIME           NOT NULL DEFAULT CURRENT_TIMESTAMP comment '創造新聞評論檢舉時間',
+    REPORTER               INT      NOT NULL comment '檢舉者 MEM_NO',                 -- 檢舉者（會員）
+    REPORT_TYPE            INT      NOT NULL comment '檢舉類型 RPI_NO',               -- 檢舉類型（FK：REPORT_TYPE.RPI_NO）
+    NEWS_COM_REPORT_STATUS CHAR(1)  NOT NULL DEFAULT '0' comment '0:未處理 1:已處理', -- 未處理 已處理
+    NCOM_NO                INT      NOT NULL comment '被檢舉留言',                    -- 被檢舉的評論
+    CREATE_TIME            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP comment '創造新聞評論檢舉時間',
     FINISH_TIME            DATETIME comment '處理完成時間',
     CONSTRAINT NEWS_COM_REPORT_PK PRIMARY KEY (NEWS_COM_REPORT_NO),
     CONSTRAINT NCR_FK_MEMBER FOREIGN KEY (REPORTER) REFERENCES MEMBER (MEM_NO),
@@ -793,8 +796,10 @@ VALUES (2, 1, '0', 3, '2025-06-07 12:00:00', NULL),
 -- SELECT DATABASE();
 
 -- 設定自增主鍵起始值與遞增量
-SET auto_increment_offset = 1;
-SET auto_increment_increment = 1;
+SET
+auto_increment_offset = 1;
+SET
+auto_increment_increment = 1;
 
 
 -- 建立 討論區類別 表格 --
@@ -961,21 +966,22 @@ create table FORUM_POST
     `MEM_NO`          INT COMMENT '會員編號',
     `FTAG_NO`         INT COMMENT '類別編號',
     `POST_TITLE`      VARCHAR(50) COMMENT '文章標題',
-    `POST_CON`        VARCHAR(5000)      NOT NULL COMMENT '文章內容',
-    `POST_CRDATE`     DATETIME                    DEFAULT CURRENT_TIMESTAMP COMMENT '創建時間',
-    `POST_UPDATE`     DATETIME                    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新時間',
-    `POST_PIN`        CHAR(1)            NOT NULL DEFAULT '0' COMMENT '置頂狀態',
-    `POST_STATUS`     CHAR(1)            NOT NULL DEFAULT '0' COMMENT '文章狀態(違規)',
-    `MES_NUMBERS`     INT                         DEFAULT '0' COMMENT '留言篇數',
-    `POST_LIKE_COUNT` INT                         DEFAULT '0' COMMENT '讚總數',
-    `POST_LIKE_DLC`   INT                         DEFAULT '0' COMMENT '倒讚總數',
+    `POST_CON`        VARCHAR(5000) NOT NULL COMMENT '文章內容',
+    `POST_CRDATE`     DATETIME               DEFAULT CURRENT_TIMESTAMP COMMENT '創建時間',
+    `POST_UPDATE`     DATETIME               DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新時間',
+    `POST_PIN`        CHAR(1)       NOT NULL DEFAULT '0' COMMENT '置頂狀態',
+    `POST_STATUS`     CHAR(1)       NOT NULL DEFAULT '0' COMMENT '文章狀態(違規)',
+    `MES_NUMBERS`     INT                    DEFAULT '0' COMMENT '留言篇數',
+    `POST_LIKE_COUNT` INT                    DEFAULT '0' COMMENT '讚總數',
+    `POST_LIKE_DLC`   INT                    DEFAULT '0' COMMENT '倒讚總數',
     FOREIGN KEY (`MEM_NO`) REFERENCES MEMBER (`MEM_NO`) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (`FTAG_NO`) REFERENCES FORUM_TAG (`FTAG_NO`) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (`FOR_NO`) REFERENCES FORUM (`FOR_NO`) ON DELETE SET NULL ON UPDATE CASCADE
 ) COMMENT '文章';
 
 -- 新增 文章 資料 --
-INSERT INTO FORUM_POST (`FOR_NO`, `MEM_NO`, `FTAG_NO`, `POST_TITLE`, `POST_CON`, `POST_CRDATE`, `POST_UPDATE`, `MES_NUMBERS`, `POST_LIKE_COUNT`, `POST_LIKE_DLC`)
+INSERT INTO FORUM_POST (`FOR_NO`, `MEM_NO`, `FTAG_NO`, `POST_TITLE`, `POST_CON`, `POST_CRDATE`, `POST_UPDATE`,
+                        `MES_NUMBERS`, `POST_LIKE_COUNT`, `POST_LIKE_DLC`)
 VALUES ( '1', '12', '6'
        , '楓丹探索度100%不迷路！全水神瞳與奇妙能量礦點位整理,親愛的旅行者們，大家好！'
        , '這次為大家帶來楓丹探索的終極攻略！是不是覺得楓丹的水下世界美到想沉溺，但又常常迷失方向呢？別擔心，我整理了一份超級詳細的楓丹全水神瞳點位圖，每個位置都附帶了路線建議和注意事項。
@@ -1528,7 +1534,7 @@ Boss 戰特定 Bug： 修復「熔爐騎士」和「腐敗樹靈」在特定情�
 CREATE TABLE REPORT_TYPE
 (
     `RPI_NO`   INT AUTO_INCREMENT NOT NULL PRIMARY KEY COMMENT '檢舉類型編號',
-    `RPI_TYPE` VARCHAR(255)       NOT NULL COMMENT '檢舉類型項目'
+    `RPI_TYPE` VARCHAR(255) NOT NULL COMMENT '檢舉類型項目'
 ) COMMENT '檢舉類型';
 
 -- 新增 檢舉類型 資料 --
@@ -1548,8 +1554,8 @@ CREATE TABLE ARTICLE_REPORT
     `REPORTER`       INT COMMENT '檢舉者編號',
     `RPI_NO`         INT COMMENT '檢舉類型編號',
     `POST_NO`        INT COMMENT '文章編號',
-    `ART_REP_STATUS` CHAR(1)            NOT NULL DEFAULT '0' COMMENT '處理狀態',
-    `CREATE_TIME`    DATETIME                    DEFAULT CURRENT_TIMESTAMP COMMENT '建立時間',
+    `ART_REP_STATUS` CHAR(1) NOT NULL DEFAULT '0' COMMENT '處理狀態',
+    `CREATE_TIME`    DATETIME         DEFAULT CURRENT_TIMESTAMP COMMENT '建立時間',
     `FINISH_TIME`    DATETIME,
     FOREIGN KEY (`REPORTER`) REFERENCES MEMBER (`MEM_NO`) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (`RPI_NO`) REFERENCES REPORT_TYPE (`RPI_NO`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -1581,41 +1587,58 @@ CREATE TABLE FORUM_MES
 INSERT INTO `FORUM_MES` (`POST_NO`, `MEM_NO`, `MES_CON`, `MES_CRDATE`, `MES_UPDATA`, `MES_LIKE_LC`, `MES_LIKE_DLC`)
 VALUES ('47', '15', '真的！每次成功狩獵大型魔物都超有成就感！那種團隊合作的感覺也很棒。', '2024-07-21 8:20:00',
         '2024-07-21 8:20:00', '0', '0'),
-       ('47', '1', '說到心坎裡了！我就是喜歡這種需要研究和準備的硬核感。', '2024-07-21 8:20:00', '2024-07-21 8:20:00', '0', '0'),
-       ('47', '30', '武器和裝備系統真的太豐富了，光是配裝就能玩很久。', '2024-07-21 8:20:00', '2024-07-21 8:20:00', '0', '0'),
+       ('47', '1', '說到心坎裡了！我就是喜歡這種需要研究和準備的硬核感。', '2024-07-21 8:20:00', '2024-07-21 8:20:00',
+        '0', '0'),
+       ('47', '30', '武器和裝備系統真的太豐富了，光是配裝就能玩很久。', '2024-07-21 8:20:00', '2024-07-21 8:20:00', '0',
+        '0'),
        ('47', '9', '完全同意！這不是無腦砍怪的遊戲，策略性很重要。', '2024-07-21 8:20:00', '2024-07-21 8:20:00', '0', '0'),
-       ('47', '20', '從PSP時代就開始玩了，這種狩獵的醍醐味一直沒變。', '2024-07-21 8:20:00', '2024-07-21 8:20:00', '0', '0'),
+       ('47', '20', '從PSP時代就開始玩了，這種狩獵的醍醐味一直沒變。', '2024-07-21 8:20:00', '2024-07-21 8:20:00', '0',
+        '0'),
        ('47', '31', '這篇指南太實用了！剛入坑真的很多東西看不懂。', '2024-07-21 8:20:00', '2024-07-21 8:20:00', '0', '0'),
-       ('47', '25', '感謝分享！武器選擇真的好糾結，每種都想試試看。', '2024-07-21 8:20:00', '2024-07-21 8:20:00', '0', '0'),
+       ('47', '25', '感謝分享！武器選擇真的好糾結，每種都想試試看。', '2024-07-21 8:20:00', '2024-07-21 8:20:00', '0',
+        '0'),
        ('48', '8', '對新手很友善，很多基礎知識都有提到。', '2024-07-22 8:20:00', '2024-07-22 8:20:00', '0', '0'),
-       ('48', '5', '看完這篇感覺比較有方向了，準備開始我的獵人生涯！', '2024-07-22 8:20:00', '2024-07-22 8:20:00', '0', '0'),
+       ('48', '5', '看完這篇感覺比較有方向了，準備開始我的獵人生涯！', '2024-07-22 8:20:00', '2024-07-22 8:20:00', '0',
+        '0'),
        ('48', '22', '《世界》的畫面真的讚，玩起來很沉浸。', '2024-07-22 8:20:00', '2024-07-22 8:20:00', '0', '0'),
-       ('49', '32', 'MHP2G絕對是神作！當年跟朋友一起聯機的回憶太美好。', '2024-07-22 8:20:00', '2024-07-22 8:20:00', '0', '0'),
+       ('49', '32', 'MHP2G絕對是神作！當年跟朋友一起聯機的回憶太美好。', '2024-07-22 8:20:00', '2024-07-22 8:20:00', '0',
+        '0'),
        ('49', '29', '我也是從這代開始入坑的，永遠的經典！', '2024-07-22 8:20:00', '2024-07-22 8:20:00', '0', '0'),
-       ('49', '18', '貓飯系統也是一大特色，每次出發前都要好好選一下。', '2024-07-22 8:20:00', '2024-07-22 8:20:00', '0', '0'),
-       ('49', '5', '雖然畫面現在看來比較樸素，但遊戲性真的沒話說。', '2024-07-22 8:20:00', '2024-07-22 8:20:00', '0', '0'),
+       ('49', '18', '貓飯系統也是一大特色，每次出發前都要好好選一下。', '2024-07-22 8:20:00', '2024-07-22 8:20:00', '0',
+        '0'),
+       ('49', '5', '雖然畫面現在看來比較樸素，但遊戲性真的沒話說。', '2024-07-22 8:20:00', '2024-07-22 8:20:00', '0',
+        '0'),
        ('49', '32', '懷念當時一起刷轟龍、金獅子的時光！', '2024-07-22 8:20:00', '2024-07-22 8:20:00', '0', '0'),
-       ('50', '6', '武器介紹很詳細！讓我對各種武器的特性有了更深的了解。', '2024-07-23 8:15:00', '2024-07-23 8:15:00', '0', '0'),
-       ('50', '13', '我還是不知道該選哪把武器...感覺每把都很有趣。', '2024-07-23 8:15:00', '2024-07-23 8:15:00', '0', '0'),
+       ('50', '6', '武器介紹很詳細！讓我對各種武器的特性有了更深的了解。', '2024-07-23 8:15:00', '2024-07-23 8:15:00',
+        '0', '0'),
+       ('50', '13', '我還是不知道該選哪把武器...感覺每把都很有趣。', '2024-07-23 8:15:00', '2024-07-23 8:15:00', '0',
+        '0'),
        ('50', '3', '有沒有推薦新手入門的武器啊？', '2024-07-23 8:15:00', '2024-07-23 8:15:00', '0', '0'),
        ('50', '36', '果然每種武器都有其獨特的魅力，要成為武器大師還有一段路要走。', '2024-07-23 8:15:00',
         '2024-07-23 8:15:00', '0', '0'),
        ('50', '28', '希望之後能有更進階的武器操作技巧分享。', '2024-07-23 8:15:00', '2024-07-23 8:15:00', '0', '0'),
        ('51', '11', '原來魔物之間還有這樣的互動關係，長知識了！', '2024-07-24 8:01:00', '2024-07-24 8:01:00', '0', '0'),
-       ('51', '2', '觀察魔物的行為模式真的很有趣，狩獵的時候也更有策略。', '2024-07-24 8:01:00', '2024-07-24 8:01:00', '0', '0'),
-       ('51', '8', '這個世界的生態做得真的很用心，感覺魔物都是活生生的。', '2024-07-24 8:01:00', '2024-07-24 8:01:00', '0', '0'),
-       ('51', '33', '希望之後的系列作能有更多關於魔物生態的描寫。', '2024-07-24 8:01:00', '2024-07-24 8:01:00', '0', '0'),
+       ('51', '2', '觀察魔物的行為模式真的很有趣，狩獵的時候也更有策略。', '2024-07-24 8:01:00', '2024-07-24 8:01:00',
+        '0', '0'),
+       ('51', '8', '這個世界的生態做得真的很用心，感覺魔物都是活生生的。', '2024-07-24 8:01:00', '2024-07-24 8:01:00',
+        '0', '0'),
+       ('51', '33', '希望之後的系列作能有更多關於魔物生態的描寫。', '2024-07-24 8:01:00', '2024-07-24 8:01:00', '0',
+        '0'),
        ('51', '10', '了解生態後，狩獵的沉浸感更強了。', '2024-07-24 8:01:00', '2024-07-24 8:01:00', '0', '0'),
-       ('52', '4', '《世界》的無縫地圖真的回不去了，《崛起》的翔蟲也很讚！', '2024-07-25 8:20:00', '2024-07-25 8:20:00', '0', '0'),
+       ('52', '4', '《世界》的無縫地圖真的回不去了，《崛起》的翔蟲也很讚！', '2024-07-25 8:20:00', '2024-07-25 8:20:00', '0',
+        '0'),
        ('52', '36', '兩款遊戲各有千秋，我都很喜歡。', '2024-07-25 8:20:00', '2024-07-25 8:20:00', '0', '0'),
        ('52', '27', '感覺《世界》比較注重探索，《崛起》更偏向動作性。', '2024-07-25 8:20:00', '2024-07-25 8:20:00', '0', '0'),
        ('52', '19', '期待未來能有結合兩者優點的續作。', '2024-07-25 8:20:00', '2024-07-25 8:20:00', '0', '0'),
-       ('52', '14', '畫面和操作都一直在進步，這個系列真的越來越好。', '2024-07-25 8:20:00', '2024-07-25 8:20:00', '0', '0'),
-       ('53', '1', '跟朋友一起狩獵真的超歡樂！各種神救援和失誤都很好笑。', '2024-07-26 8:10:00', '2024-07-26 8:10:00', '0', '0'),
+       ('52', '14', '畫面和操作都一直在進步，這個系列真的越來越好。', '2024-07-25 8:20:00', '2024-07-25 8:20:00', '0',
+        '0'),
+       ('53', '1', '跟朋友一起狩獵真的超歡樂！各種神救援和失誤都很好笑。', '2024-07-26 8:10:00', '2024-07-26 8:10:00',
+        '0', '0'),
        ('53', '35', '聯機的時候溝通很重要，才能更有效地合作。', '2024-07-26 8:10:00', '2024-07-26 8:10:00', '0', '0'),
        ('53', '16', '有沒有推薦的組隊配置啊？', '2024-07-26 8:10:00', '2024-07-26 8:10:00', '0', '0'),
        ('53', '3', '希望之後能有更多方便組隊的功能。', '2024-07-26 8:10:00', '2024-07-26 8:10:00', '0', '0'),
-       ('53', '12', '一起打贏強大魔物的成就感是單人遊玩無法比擬的。', '2024-07-26 8:10:00', '2024-07-26 8:10:00', '0', '0'),
+       ('53', '12', '一起打贏強大魔物的成就感是單人遊玩無法比擬的。', '2024-07-26 8:10:00', '2024-07-26 8:10:00', '0',
+        '0'),
        ('54', '23', '配裝真的是一門大學問，要考慮技能和屬性。', '2024-07-27 8:01:00', '2024-07-27 8:01:00', '0', '0'),
        ('54', '28', '這篇指南對於裝備製作的流程講解得很清楚。', '2024-07-27 8:01:00', '2024-07-27 8:01:00', '0', '0'),
        ('54', '2', '有沒有推薦的初期裝備啊？', '2024-07-27 8:01:00', '2024-07-27 8:01:00', '0', '0'),
@@ -1629,27 +1652,32 @@ VALUES ('47', '15', '真的！每次成功狩獵大型魔物都超有成就感�
        ('56', '26', '希望下一作能有更多新的魔物和地圖！', '2024-07-29 8:20:00', '2024-07-29 8:20:00', '5', '0'),
        ('56', '37', '我希望武器系統能有更多的創新。', '2024-07-29 8:20:00', '2024-07-29 8:20:00', '4', '0'),
        ('56', '17', '如果能有更豐富的劇情模式就好了。', '2024-07-29 8:20:00', '2024-07-29 8:20:00', '4', '0'),
-       ('56', '24', '期待次世代主機上的《魔物獵人》能帶來更震撼的體驗。', '2024-07-29 8:20:00', '2024-07-29 8:20:00', '2', '0'),
+       ('56', '24', '期待次世代主機上的《魔物獵人》能帶來更震撼的體驗。', '2024-07-29 8:20:00', '2024-07-29 8:20:00', '2',
+        '0'),
        ('56', '22', '這個系列永遠玩不膩，期待未來的發展！', '2024-07-29 8:20:00', '2024-07-29 8:20:00', '2', '0'),
        ('56', '30', '太神啦！這隻魔物我每次都打得七零八落，你的技巧真的值得學習！', '2024-07-29 8:20:00',
         '2024-07-29 8:20:00', '1', '0'),
        ('55', '25', '感謝分享！這個打法我還沒試過，下次狩獵這隻魔物的時候我會嘗試看看的。', '2024-07-30 8:30:00',
         '2024-07-30 8:30:00', '4', '0'),
-       ('56', '17', '哇，這套配裝思路很棒耶！沒想到可以這樣搭配，學到了一課！', '2024-07-31 8:30:00', '2024-07-31 8:30:00', '3', '0'),
+       ('56', '17', '哇，這套配裝思路很棒耶！沒想到可以這樣搭配，學到了一課！', '2024-07-31 8:30:00', '2024-07-31 8:30:00',
+        '3', '0'),
        ('53', '24', '恭喜你成功狩獵！看著你對魔物的理解和熱情，我都想再回去玩了。', '2024-07-30 8:30:00',
         '2024-07-30 8:30:00', '3', '0'),
        ('52', '6', '每次看到這種精彩的狩獵影片，都覺得魔物獵人真的是一款很棒的遊戲！', '2024-07-31 8:30:00',
         '2024-07-31 8:30:00', '1', '0'),
-       ('55', '35', '滅盡龍真的是每個新手的畢業考官，被牠的動作虐到不行！', '2024-07-30 8:30:00', '2024-07-30 8:30:00', '1', '0'),
+       ('55', '35', '滅盡龍真的是每個新手的畢業考官，被牠的動作虐到不行！', '2024-07-30 8:30:00', '2024-07-30 8:30:00',
+        '1', '0'),
        ('54', '7', '打黑龍一定要有耐心，而且對攻擊時機的掌握非常重要，千萬不能貪刀。', '2024-07-31 8:30:00',
         '2024-07-31 8:30:00', '1', '0'),
-       ('51', '14', '這隻魔物確實很煩人，每次都被牠的吼叫搞得手忙腳亂。', '2024-07-30 8:30:00', '2024-07-30 8:30:00', '2', '0'),
+       ('51', '14', '這隻魔物確實很煩人，每次都被牠的吼叫搞得手忙腳亂。', '2024-07-30 8:30:00', '2024-07-30 8:30:00', '2',
+        '0'),
        ('54', '11', '有沒有推薦打這隻魔物的必備技能？每次都被牠的招式打到貓車。', '2024-07-31 8:30:00',
         '2024-07-31 8:30:00', '1', '0'),
        ('53', '19', '成功單刷這隻魔物真的很有成就感，恭喜你！', '2024-07-30 8:30:00', '2024-07-30 8:30:00', '1', '0'),
        ('57', '16', '檢舉！請問這篇文章的魔物屬性是什麼？是會掉落什麼料理素材嗎？（認真）', '2024-07-31 8:30:00',
         '2024-07-31 8:30:00', '0', '0'),
-       ('57', '7', '檢舉！是不是把魔物獵人討論區當成美食獵人版了？', '2024-07-31 8:30:00', '2024-07-31 8:30:00', '0', '0'),
+       ('57', '7', '檢舉！是不是把魔物獵人討論區當成美食獵人版了？', '2024-07-31 8:30:00', '2024-07-31 8:30:00', '0',
+        '0'),
        ('57', '33', '檢舉！樓主你是不是把獵人營地裡的『用餐區』當成現實的廚房了？這裡是打魔物的地方啦！',
         '2024-07-31 8:30:00', '2024-07-31 8:30:00', '0', '0'),
        ('57', '37', '檢舉！這篇文章讓我產生了嚴重的飢餓debuff，導致我狩獵動力大幅下降，你負責！', '2024-07-31 8:30:00',
@@ -1748,7 +1776,7 @@ VALUES (2, 3, 67),
 CREATE TABLE `POST_LIKE`
 (
     `PLIKE_NO`     INT AUTO_INCREMENT PRIMARY KEY COMMENT '討論區喜愛編號',
-    `POST_NO`       INT COMMENT '文章編號',
+    `POST_NO`      INT COMMENT '文章編號',
     `MEM_NO`       INT COMMENT '會員編號',
     `PLIKE_UPDATE` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新時間',
     `PLIKE_STATUS` CHAR(1) COMMENT '文章喜愛狀態',
@@ -1759,68 +1787,68 @@ CREATE TABLE `POST_LIKE`
 
 -- 新增 文章踩讚 資料 --
 INSERT INTO `POST_LIKE` (`POST_NO`, `MEM_NO`, `PLIKE_STATUS`)
-VALUES 	(47, 24, 1),
-          (47, 11, 1),
-          (47, 35, 1),
-          (47, 1, 1),
-          (47, 19, 1),
-          (47, 7, 2),
-          (47, 28, 1),
-          (47, 33, 1),
-          (48, 15, 1),
-          (48, 2, 2),
-          (48, 9, 1),
-          (48, 21, 1),
-          (48, 3, 1),
-          (48, 30, 2),
-          (48, 18, 1),
-          (49, 36, 1),
-          (49, 13, 1),
-          (49, 5, 2),
-          (49, 22, 1),
-          (50, 1, 1),
-          (50, 10, 1),
-          (50, 27, 2),
-          (50, 8, 1),
-          (50, 32, 1),
-          (51, 16, 1),
-          (51, 20, 1),
-          (51, 29, 2),
-          (51, 25, 1),
-          (52, 14, 1),
-          (52, 4, 1),
-          (52, 34, 1),
-          (52, 17, 2),
-          (52, 6, 1),
-          (53, 26, 1),
-          (53, 31, 1),
-          (53, 23, 1),
-          (53, 12, 2),
-          (53, 7, 1),
-          (53, 35, 1),
-          (54, 19, 1),
-          (54, 2, 1),
-          (54, 37, 2),
-          (54, 24, 1),
-          (54, 11, 1),
-          (55, 21, 1),
-          (55, 15, 1),
-          (55, 33, 1),
-          (55, 5, 1),
-          (55, 28, 2),
-          (56, 1, 1),
-          (56, 9, 1),
-          (56, 30, 1),
-          (56, 22, 1),
-          (56, 8, 2),
-          (57, 13, 2),
-          (57, 18, 2),
-          (57, 4, 2),
-          (57, 10, 2),
-          (57, 36, 2),
-          (57, 17, 2),
-          (57, 27, 2),
-          (57, 20, 2);
+VALUES (47, 24, 1),
+       (47, 11, 1),
+       (47, 35, 1),
+       (47, 1, 1),
+       (47, 19, 1),
+       (47, 7, 2),
+       (47, 28, 1),
+       (47, 33, 1),
+       (48, 15, 1),
+       (48, 2, 2),
+       (48, 9, 1),
+       (48, 21, 1),
+       (48, 3, 1),
+       (48, 30, 2),
+       (48, 18, 1),
+       (49, 36, 1),
+       (49, 13, 1),
+       (49, 5, 2),
+       (49, 22, 1),
+       (50, 1, 1),
+       (50, 10, 1),
+       (50, 27, 2),
+       (50, 8, 1),
+       (50, 32, 1),
+       (51, 16, 1),
+       (51, 20, 1),
+       (51, 29, 2),
+       (51, 25, 1),
+       (52, 14, 1),
+       (52, 4, 1),
+       (52, 34, 1),
+       (52, 17, 2),
+       (52, 6, 1),
+       (53, 26, 1),
+       (53, 31, 1),
+       (53, 23, 1),
+       (53, 12, 2),
+       (53, 7, 1),
+       (53, 35, 1),
+       (54, 19, 1),
+       (54, 2, 1),
+       (54, 37, 2),
+       (54, 24, 1),
+       (54, 11, 1),
+       (55, 21, 1),
+       (55, 15, 1),
+       (55, 33, 1),
+       (55, 5, 1),
+       (55, 28, 2),
+       (56, 1, 1),
+       (56, 9, 1),
+       (56, 30, 1),
+       (56, 22, 1),
+       (56, 8, 2),
+       (57, 13, 2),
+       (57, 18, 2),
+       (57, 4, 2),
+       (57, 10, 2),
+       (57, 36, 2),
+       (57, 17, 2),
+       (57, 27, 2),
+       (57, 20, 2);
 
 
 -- 新增 文章留言踩讚 表格 --
@@ -1829,69 +1857,69 @@ CREATE TABLE `FORUM_MES_LIKE`
     `MLIKE_NO`      INT AUTO_INCREMENT PRIMARY KEY COMMENT '討論區喜愛編號',
     `MES_NO`        INT COMMENT '留言編號',
     `MEM_NO`        INT COMMENT '會員編號',
-    `MLIKE_UPDATE`  DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新時間',
-    `FMLIKE_STATUS` CHAR(1) COMMENT '文章留言喜愛狀態',
-    `NMLIKE_CRDATE` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '創建時間',
+    `FMLIKE_UPDATE` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '更新時間',
+    `FMLIKE_STATUS` VARCHAR(50) COMMENT '文章留言喜愛狀態',
+    `FMLIKE_CRDATE` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '創建時間',
     FOREIGN KEY (`MEM_NO`) REFERENCES MEMBER (`MEM_NO`) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (`MES_NO`) REFERENCES FORUM_MES (`MES_NO`) ON DELETE SET NULL ON UPDATE CASCADE
 ) COMMENT '文章留言採讚';
 
 --  新增 文章留言踩讚 資料 --
 INSERT INTO FORUM_MES_LIKE (MES_NO, MEM_NO, FMLIKE_STATUS)
-VALUES 	(67, 2, 2),
-          (67, 3, 2),
-          (67, 4, 2),
-          (67, 5, 2),
-          (67, 6, 2),
-          (67, 7, 2),
-          (45, 8, 1),
-          (46, 9, 1),
-          (47, 10, 1),
-          (48, 11, 1),
-          (48, 12, 1),
-          (47, 13, 1),
-          (46, 14, 1),
-          (44, 15, 1),
-          (45, 16, 1),
-          (44, 17, 1),
-          (44, 18, 1),
-          (43, 19, 1),
-          (43, 20, 1),
-          (43, 21, 1),
-          (42, 22, 1),
-          (41, 23, 1),
-          (41, 24, 1),
-          (49, 25, 1),
-          (50, 26, 1),
-          (50, 27, 1),
-          (51, 28, 1),
-          (52, 29, 1),
-          (52, 30, 1),
-          (52, 1, 1),
-          (52, 2, 1),
-          (53, 3, 1),
-          (53, 4, 1),
-          (53, 5, 1),
-          (44, 6, 1),
-          (45, 7, 1),
-          (47, 8, 1),
-          (46, 9, 1),
-          (46, 10, 1),
-          (46, 11, 1),
-          (47, 12, 1),
-          (48, 13, 1),
-          (48, 14, 1),
-          (49, 15, 1),
-          (54, 2, 1),
-          (54, 5, 1),
-          (54, 8, 1),
-          (55, 11, 1),
-          (56, 14, 1),
-          (57, 15, 1),
-          (58, 17, 1),
-          (58, 23, 1),
-          (59, 22, 1),
-          (60, 26, 1);
+VALUES (67, 2, 'DISLIKE'),
+       (67, 3, 'DISLIKE'),
+       (67, 4, 'DISLIKE'),
+       (67, 5, 'DISLIKE'),
+       (67, 6, 'DISLIKE'),
+       (67, 7, 'DISLIKE'),
+       (45, 8, 'LIKE'),
+       (46, 9, 'LIKE'),
+       (47, 10, 'LIKE'),
+       (48, 11, 'LIKE'),
+       (48, 12, 'LIKE'),
+       (47, 13, 'LIKE'),
+       (46, 14, 'LIKE'),
+       (44, 15, 'LIKE'),
+       (45, 16, 'LIKE'),
+       (44, 17, 'LIKE'),
+       (44, 18, 'LIKE'),
+       (43, 19, 'LIKE'),
+       (43, 20, 'LIKE'),
+       (43, 21, 'LIKE'),
+       (42, 22, 'LIKE'),
+       (41, 23, 'LIKE'),
+       (41, 24, 'LIKE'),
+       (49, 25, 'LIKE'),
+       (50, 26, 'LIKE'),
+       (50, 27, 'LIKE'),
+       (51, 28, 'LIKE'),
+       (52, 29, 'LIKE'),
+       (52, 30, 'LIKE'),
+       (52, 1, 'LIKE'),
+       (52, 2, 'LIKE'),
+       (53, 3, 'LIKE'),
+       (53, 4, 'LIKE'),
+       (53, 5, 'LIKE'),
+       (44, 6, 'LIKE'),
+       (45, 7, 'LIKE'),
+       (47, 8, 'LIKE'),
+       (46, 9, 'LIKE'),
+       (46, 10, 'LIKE'),
+       (46, 11, 'LIKE'),
+       (47, 12, 'LIKE'),
+       (48, 13, 'LIKE'),
+       (48, 14, 'LIKE'),
+       (49, 15, 'LIKE'),
+       (54, 2, 'LIKE'),
+       (54, 5, 'LIKE'),
+       (54, 8, 'LIKE'),
+       (55, 11, 'LIKE'),
+       (56, 14, 'LIKE'),
+       (57, 15, 'LIKE'),
+       (58, 17, 'LIKE'),
+       (58, 23, 'LIKE'),
+       (59, 22, 'LIKE'),
+       (60, 26, 'LIKE');
 
 
 -- 新增 聊天室訊息 表格 --
@@ -2130,7 +2158,8 @@ CREATE TABLE `ORDER`
 );
 
 -- 對應的觸發器 ORDER_NO 自動產生 的設定
-DELIMITER $$
+DELIMITER
+$$
 CREATE TRIGGER generate_order_no
     BEFORE INSERT
     ON `ORDER`
@@ -2143,31 +2172,31 @@ BEGIN
     SET current_month = DATE_FORMAT(NOW(), '%Y%m');
 
     -- 查詢目前月份的最大序號(流水號碼)
-    SELECT COALESCE(MAX(CAST(RIGHT(ORDER_NO, 4) AS UNSIGNED)), 0) + 1
+    SELECT COALESCE(MAX(CAST(RIGHT (ORDER_NO, 4) AS UNSIGNED)), 0) + 1
     INTO next_seq
     FROM `ORDER`
-    WHERE LEFT(ORDER_NO, 6) = current_month;
+    WHERE LEFT (ORDER_NO, 6) = current_month;
 
     -- 生成新的ORDER_NO (格式: YYYYMM0001)
     SET NEW.ORDER_NO = CONCAT(current_month, LPAD(next_seq, 4, '0'));
 END$$
-DELIMITER ;
+    DELIMITER ;
 
 
 -- -- 插入 9筆 訂單ORDER 資料
-INSERT INTO `ORDER` (MEM_NO, COUPON_WALLET_NO, ORDER_STATUS, ORDER_TOTAL, POINT_USED)
-VALUES ('15', '1', '已完成', 1399, 0),
-       ('23', NULL, '處理中', 1990, 0),
-       ('8', '3', '已完成', 1090, 0),
-       ('12', '5', '已完成', 1090, 0),
-       ('23', NULL, '處理中', 1690, 0),
-       ('6', '7', '已完成', 899, 0),
-       ('29', NULL, '已出貨', 1390, 0),
-       ('15', '9', '已完成', 218, 0),
-       ('37', '10', '處理中', 1690, 0);
+    INSERT INTO `ORDER` (MEM_NO, COUPON_WALLET_NO, ORDER_STATUS, ORDER_TOTAL, POINT_USED)
+    VALUES ('15', '1', '已完成', 1399, 0),
+           ('23', NULL, '處理中', 1990, 0),
+           ('8', '3', '已完成', 1090, 0),
+           ('12', '5', '已完成', 1090, 0),
+           ('23', NULL, '處理中', 1690, 0),
+           ('6', '7', '已完成', 899, 0),
+           ('29', NULL, '已出貨', 1390, 0),
+           ('15', '9', '已完成', 218, 0),
+           ('37', '10', '處理中', 1690, 0);
 
 
--- ===== END OF order.sql =====
+    -- ===== END OF order.sql =====
 
 -- ===== START OF oreder_item.sql =====
 -- 建立資料庫並設定自動遞增屬性
@@ -2178,38 +2207,39 @@ VALUES ('15', '1', '已完成', 1399, 0),
 
 
 -- 建立 訂單明細ORDER_ITEM 資料表
-CREATE TABLE ORDER_ITEM
-(
-    ORDER_ITEM_NO          INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '訂單明細編號',
-    ORDER_NO               INT COMMENT '訂單編號',
-    PRO_NO                 INT COMMENT '產品編號',
-    ORDER_AMOUNT           INT COMMENT '訂購數量',
-    PRO_PRICE              INT COMMENT '產品價格',
-    PRO_NAME               VARCHAR(30) COMMENT '產品名稱',
-    PRODUCT_COMMENT        VARCHAR(255) COMMENT '產品評論內容',
-    PRODUCT_COMMENT_CRDATE DATETIME COMMENT '評論時間',
-    PRO_STAR               INT COMMENT '產品評價',
-    PRO_COM_STATUS         CHAR(1) DEFAULT '0' COMMENT '產品評論狀態',
+    CREATE TABLE ORDER_ITEM
+    (
+        ORDER_ITEM_NO          INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '訂單明細編號',
+        ORDER_NO               INT COMMENT '訂單編號',
+        PRO_NO                 INT COMMENT '產品編號',
+        ORDER_AMOUNT           INT COMMENT '訂購數量',
+        PRO_PRICE              INT COMMENT '產品價格',
+        PRO_NAME               VARCHAR(30) COMMENT '產品名稱',
+        PRODUCT_COMMENT        VARCHAR(255) COMMENT '產品評論內容',
+        PRODUCT_COMMENT_CRDATE DATETIME COMMENT '評論時間',
+        PRO_STAR               INT COMMENT '產品評價',
+        PRO_COM_STATUS         CHAR(1) DEFAULT '0' COMMENT '產品評論狀態',
 
-    FOREIGN KEY (ORDER_NO) REFERENCES `ORDER` (ORDER_NO),
-    FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-);
+        FOREIGN KEY (ORDER_NO) REFERENCES `ORDER` (ORDER_NO),
+        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+    );
 
 
 -- -- 插入 9筆 訂單明細ORDER_ITEM  資料
-INSERT INTO ORDER_ITEM (ORDER_NO, PRO_NO, ORDER_AMOUNT, PRO_PRICE, PRO_NAME, PRODUCT_COMMENT, PRODUCT_COMMENT_CRDATE,
-                        PRO_STAR, PRO_COM_STATUS)
-VALUES (2024060001, 1, 1, 1499, '光與影：33 號遠征隊', NULL, NULL, NULL, '1'),
-       (2024060002, 2, 1, 1990, '印第安納瓊斯：古老之圈', NULL, NULL, NULL, '1'),
-       (2024060003, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
-       (2024060004, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
-       (2024060005, 5, 1, 1690, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
-       (2024060006, 6, 1, 999, '雙點博物館', NULL, NULL, NULL, '1'),
-       (2024060007, 7, 1, 1390, '人中之龍 8 外傳 夏威夷海盜', NULL, NULL, NULL, '1'),
-       (2024060008, 8, 1, 318, '即刻離職', NULL, NULL, NULL, '1'),
-       (2024060009, 10, 1, 1790, '歧路旅人 + 歧路旅人 II 合輯', NULL, NULL, NULL, '1');
+    INSERT INTO ORDER_ITEM (ORDER_NO, PRO_NO, ORDER_AMOUNT, PRO_PRICE, PRO_NAME, PRODUCT_COMMENT,
+                            PRODUCT_COMMENT_CRDATE,
+                            PRO_STAR, PRO_COM_STATUS)
+    VALUES (2024060001, 1, 1, 1499, '光與影：33 號遠征隊', NULL, NULL, NULL, '1'),
+           (2024060002, 2, 1, 1990, '印第安納瓊斯：古老之圈', NULL, NULL, NULL, '1'),
+           (2024060003, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
+           (2024060004, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
+           (2024060005, 5, 1, 1690, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
+           (2024060006, 6, 1, 999, '雙點博物館', NULL, NULL, NULL, '1'),
+           (2024060007, 7, 1, 1390, '人中之龍 8 外傳 夏威夷海盜', NULL, NULL, NULL, '1'),
+           (2024060008, 8, 1, 318, '即刻離職', NULL, NULL, NULL, '1'),
+           (2024060009, 10, 1, 1790, '歧路旅人 + 歧路旅人 II 合輯', NULL, NULL, NULL, '1');
 
--- 重新啟用外鍵檢查
+    -- 重新啟用外鍵檢查
 --
 -- ===== END OF oreder_item.sql =====
 
@@ -2226,17 +2256,17 @@ VALUES (2024060001, 1, 1, 1499, '光與影：33 號遠征隊', NULL, NULL, NULL,
 -- SET auto_increment_increment = 1;
 
 -- 建立 產品圖片PRODUCT_IMAGE 資料表
-CREATE TABLE PRODUCT_IMAGE
-(
-    PRO_IMG_NO   INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品圖片編號',
-    PRO_NO       INT                            NOT NULL COMMENT '產品編號',
-    PRO_IMG_DATA LONGBLOB COMMENT '圖片資料',
-    PRO_IMG_TYPE VARCHAR(100) COMMENT '產品圖片類型',
+    CREATE TABLE PRODUCT_IMAGE
+    (
+        PRO_IMG_NO   INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品圖片編號',
+        PRO_NO       INT NOT NULL COMMENT '產品編號',
+        PRO_IMG_DATA LONGBLOB COMMENT '圖片資料',
+        PRO_IMG_TYPE VARCHAR(100) COMMENT '產品圖片類型',
 
-    CONSTRAINT FK_PRODUCT_IMAGE_PRODUCT_PRO_NO
-        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-);
--- ===== END OF product_image.sql =====
+        CONSTRAINT FK_PRODUCT_IMAGE_PRODUCT_PRO_NO
+            FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+    );
+    -- ===== END OF product_image.sql =====
 
 -- ===== START OF favorite_product.sql =====
 -- 建立資料庫並設定自動遞增屬性
@@ -2250,19 +2280,19 @@ CREATE TABLE PRODUCT_IMAGE
 -- SET auto_increment_offset = 1;
 -- SET auto_increment_increment = 1;
 
-CREATE TABLE FAVORITE_PRODUCT
-(
-    FAV_PRO_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '最愛產品編號',
-    MEM_NO     INT                            NOT NULL COMMENT '會員編號',
-    PRO_NO     INT                            NOT NULL COMMENT '產品編號',
+    CREATE TABLE FAVORITE_PRODUCT
+    (
+        FAV_PRO_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '最愛產品編號',
+        MEM_NO     INT NOT NULL COMMENT '會員編號',
+        PRO_NO     INT NOT NULL COMMENT '產品編號',
 
-    FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
-    FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-);
+        FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
+        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+    );
 
 -- -- 插入 產品序號 FAVORITE_PRODUCT 資料
-INSERT INTO FAVORITE_PRODUCT (MEM_NO, PRO_NO)
-    VALUE (20, 1),
+    INSERT INTO FAVORITE_PRODUCT (MEM_NO, PRO_NO)
+        VALUE (20, 1),
     (33, 3),
     (6, 5),
     (5, 7),
@@ -2277,7 +2307,7 @@ INSERT INTO FAVORITE_PRODUCT (MEM_NO, PRO_NO)
     (3, 8),
     (13, 13),
     (25, 16);
--- ===== END OF favorite_product.sql =====
+    -- ===== END OF favorite_product.sql =====
 
 -- ===== START OF pro_serial_numbers.sql =====
 -- 建立資料庫並設定自動遞增屬性
@@ -2292,21 +2322,21 @@ INSERT INTO FAVORITE_PRODUCT (MEM_NO, PRO_NO)
 -- SET auto_increment_increment = 1;
 
 -- 建立 產品序號 PRO_SERIAL_NUMBERS 資料表
-CREATE TABLE PRO_SERIAL_NUMBERS
-(
-    PRODUCT_SN_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品序號流水號',
-    PRODUCT_SN    VARCHAR(100) COMMENT '產品序號',
-    ORDER_ITEM_NO INT COMMENT '訂單明細編號',
-    PRO_NO        INT COMMENT '產品編號',
+    CREATE TABLE PRO_SERIAL_NUMBERS
+    (
+        PRODUCT_SN_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品序號流水號',
+        PRODUCT_SN    VARCHAR(100) COMMENT '產品序號',
+        ORDER_ITEM_NO INT COMMENT '訂單明細編號',
+        PRO_NO        INT COMMENT '產品編號',
 
-    FOREIGN KEY (ORDER_ITEM_NO) REFERENCES ORDER_ITEM (ORDER_ITEM_NO),
-    FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-);
+        FOREIGN KEY (ORDER_ITEM_NO) REFERENCES ORDER_ITEM (ORDER_ITEM_NO),
+        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+    );
 
 
 -- -- 插入 產品序號 PRO_SERIAL_NUMBERS 資料
-INSERT INTO PRO_SERIAL_NUMBERS (PRODUCT_SN, ORDER_ITEM_NO, PRO_NO)
-    VALUE ('N284X-42RP4-0J9KS', 1, 1),
+    INSERT INTO PRO_SERIAL_NUMBERS (PRODUCT_SN, ORDER_ITEM_NO, PRO_NO)
+        VALUE ('N284X-42RP4-0J9KS', 1, 1),
     ('F81F0-G1VP0-L0B96', NULL, 1),
     ('SGH46-30U5H-S89PJ', NULL, 1),
     ('34GL1-72L86-B66YJ', NULL, 1),
@@ -2458,4 +2488,4 @@ INSERT INTO PRO_SERIAL_NUMBERS (PRODUCT_SN, ORDER_ITEM_NO, PRO_NO)
     ('0GP8B-HMD0I-1N4JB', NULL, 17);
 
 -- ===== END OF pro_serial_numbers.sql =====
-SET FOREIGN_KEY_CHECKS = 1;
+    SET FOREIGN_KEY_CHECKS = 1;

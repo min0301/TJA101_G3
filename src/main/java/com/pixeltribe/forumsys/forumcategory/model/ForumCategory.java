@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -22,12 +23,12 @@ public class ForumCategory {
     private Integer id;
 
     @Size(max = 30)
-    @NotEmpty(message="討論區類別名稱: 請勿空白")
+    @NotEmpty(message = "討論區類別名稱: 請勿空白")
     @Column(name = "CAT_NAME", nullable = false, length = 30)
     private String catName;
 
     @Size(max = 255)
-    @NotEmpty(message="討論區類別描述: 請勿空白")
+    @NotEmpty(message = "討論區類別描述: 請勿空白")
     @Column(name = "CAT_DES")
     private String catDes;
 

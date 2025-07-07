@@ -36,8 +36,6 @@ public class ForumService {
     }
 
 
-
-
     @Value("${file.upload-dir}")
     private String uploadDir;
     @Value("${file.base-url}")
@@ -52,7 +50,7 @@ public class ForumService {
     }
 
     @Transactional
-    public ForumDetailDTO update(Integer forNo ,ForumUpdateDTO forumUpdateDTO, MultipartFile imageFile) {
+    public ForumDetailDTO update(Integer forNo, ForumUpdateDTO forumUpdateDTO, MultipartFile imageFile) {
 
         Forum forum = forumRepository.findById(forNo).get();
 
@@ -66,15 +64,15 @@ public class ForumService {
         List<Forum> forums = forumRepository.findAllByOrderByForUpdateDesc();
 
 
-        for (Forum x : forums) {
-          ForumDetailDTO.convertToForumDetailDTO(x);
-
-        }
+//        for (Forum x : forums) {
+//          ForumDetailDTO.convertToForumDetailDTO(x);
+//        }
 
         // 2. 使用 Stream API 將 List<Forum> 轉換為 List<ForumDetailDTO>
         return forums.stream()
-//                .map(ForumDetailDTO::convertToForumDetailDTO) // 對每個 forum 執行轉換
-                .map(x->ForumDetailDTO.convertToForumDetailDTO(x))
+
+                .map(x -> ForumDetailDTO.convertToForumDetailDTO(x))
+                //      .map(ForumDetailDTO::convertToForumDetailDTO) // 對每個 forum 執行轉換
                 .collect(Collectors.toList());
     }
 
@@ -91,7 +89,6 @@ public class ForumService {
         Forum forum = forumRepository.findById(forNo).get();
         return ForumDetailDTO.convertToForumDetailDTO(forum);
     }
-
 
 
     private Forum saveOrUpdateForum(Forum forum, ForumUpdateDTO forumUpdateDTO, MultipartFile imageFile) {

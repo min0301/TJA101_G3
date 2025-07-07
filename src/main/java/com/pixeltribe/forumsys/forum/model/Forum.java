@@ -28,7 +28,7 @@ public class Forum {
     private Integer id;
 
     @Size(max = 30)
-    @NotEmpty(message="討論區名稱: 請勿空白")
+    @NotEmpty(message = "討論區名稱: 請勿空白")
     @Column(name = "FOR_NAME", nullable = false, length = 30)
     private String forName;
 
@@ -41,7 +41,7 @@ public class Forum {
     private String forImgUrl;
 
     @Size(max = 255)
-    @NotEmpty(message="討論區描述: 請勿空白")
+    @NotEmpty(message = "討論區描述: 請勿空白")
     @Column(name = "FOR_DES")
     private String forDes;
 
@@ -59,7 +59,6 @@ public class Forum {
     private Character forStatus;
 
 
-
     @OneToMany(mappedBy = "forNo")
     @JsonIgnore
     private Set<ForumChatMessage> forumChatMessages = new LinkedHashSet<>();
@@ -71,7 +70,6 @@ public class Forum {
     @OneToMany(mappedBy = "forNo")
     @JsonIgnore
     private Set<ForumPost> forumPosts = new LinkedHashSet<>();
-
 
 
 }
