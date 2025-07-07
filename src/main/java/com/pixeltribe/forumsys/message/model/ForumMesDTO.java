@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.Instant;
+
 @Data
 @Builder
 @Schema(description = "文章留言")
@@ -31,7 +32,7 @@ public class ForumMesDTO {
     @Schema(description = "會員名稱")
     private String memberName;
 
-    public static ForumMesDTO convertToForumMesDTO(ForumMes forumMes){
+    public static ForumMesDTO convertToForumMesDTO(ForumMes forumMes) {
         return ForumMesDTO.builder()
                 .id(forumMes.getId())
                 .mesCon(forumMes.getMesCon())

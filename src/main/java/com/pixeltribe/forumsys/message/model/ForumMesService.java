@@ -15,7 +15,7 @@ public class ForumMesService {
     private final ForumPostRepository forumPostRepository;
     private final MemRepository memRepository;
 
-    public ForumMesService(ForumMesRepository forumMesRepository, ForumPostRepository forumPostRepository, MemRepository memRepository){
+    public ForumMesService(ForumMesRepository forumMesRepository, ForumPostRepository forumPostRepository, MemRepository memRepository) {
         this.forumMesRepository = forumMesRepository;
         this.forumPostRepository = forumPostRepository;
         this.memRepository = memRepository;
@@ -28,12 +28,12 @@ public class ForumMesService {
                 .collect(Collectors.toList());
     }
 
-    public ForumMesDTO getOneForumMes(Integer mesNo){
+    public ForumMesDTO getOneForumMes(Integer mesNo) {
         ForumMes forumMes = forumMesRepository.findById(mesNo).get();
         return ForumMesDTO.convertToForumMesDTO(forumMes);
     }
 
-    public List<ForumMesDTO> getForumMesByPost(Integer postNo){
+    public List<ForumMesDTO> getForumMesByPost(Integer postNo) {
         List<ForumMes> forumMes = forumMesRepository.findByPostNo_Id(postNo);
         return forumMes.stream()
                 .map(ForumMesDTO::convertToForumMesDTO)
@@ -51,7 +51,7 @@ public class ForumMesService {
         return ForumMesDTO.convertToForumMesDTO(forumMesRepository.save(forumMes));
     }
 
-    public ForumMesDTO updateForumMes(Integer mesNo,ForumMesUptateDTO forumMesUptateDTO) {
+    public ForumMesDTO updateForumMes(Integer mesNo, ForumMesUptateDTO forumMesUptateDTO) {
         ForumMes forumMes = forumMesRepository.findById(mesNo).get();
         forumMes.setPostNo(forumPostRepository.findById(forumMesUptateDTO.getPostId()).get());
         forumMes.setMemNo(memRepository.findById(forumMesUptateDTO.getMemId()).get());

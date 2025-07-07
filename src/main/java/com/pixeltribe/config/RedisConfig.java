@@ -15,24 +15,24 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 @EnableRedisRepositories
 @EnableCaching
 class RedisConfig {
-	
-	@Bean    // Redis 連線設定
-	public RedisConnectionFactory redisConnectionFactory() {
-		LettuceConnectionFactory factory = new LettuceConnectionFactory("localhost", 6379);
+
+    @Bean    // Redis 連線設定
+    public RedisConnectionFactory redisConnectionFactory() {
+        LettuceConnectionFactory factory = new LettuceConnectionFactory("localhost", 6379);
         return factory;
-	}
-	
-	@Bean   // Redis 操作模板
-	public RedisTemplate<String, Object> redisTemplate() {
-		RedisTemplate<String, Object> template = new RedisTemplate<>();
+    }
+
+    @Bean   // Redis 操作模板
+    public RedisTemplate<String, Object> redisTemplate() {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory());
         return template;
     }
-	
-	@Bean  // 快取管理器
+
+    @Bean  // 快取管理器
     public CacheManager cacheManager() {
         return RedisCacheManager.create(redisConnectionFactory());
     }
-	
-	
+
+
 }

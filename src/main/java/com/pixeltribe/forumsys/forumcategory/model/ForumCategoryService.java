@@ -14,7 +14,7 @@ public class ForumCategoryService {
     @Autowired
     private final ForumCategoryRepository forumCategoryRepository;
 
-    public ForumCategoryService(ForumCategoryRepository forumCategoryRepository){
+    public ForumCategoryService(ForumCategoryRepository forumCategoryRepository) {
         this.forumCategoryRepository = forumCategoryRepository;
     }
 
@@ -22,6 +22,7 @@ public class ForumCategoryService {
 
         forumCategoryRepository.save(forumCategory);
     }
+
     public void update(ForumCategory forumCategory) {
 
         forumCategoryRepository.save(forumCategory);
@@ -52,7 +53,6 @@ public class ForumCategoryService {
 
         return categoryDTO;
     }
-
 
 
 }

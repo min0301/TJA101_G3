@@ -35,15 +35,15 @@ public class ForumMesLikeDTO {
     private String memberName;
 
 
-    public static ForumMesLikeDTO convertToForumMesLikeDTO(ForumMesLike forumMesLike){
+    public static ForumMesLikeDTO convertToForumMesLikeDTO(ForumMesLike forumMesLike) {
         return ForumMesLikeDTO.builder()
                 .id(forumMesLike.getId())
                 .fmlikeUpdate(forumMesLike.getFmlikeUpdate())
                 .fmlikeStatus(forumMesLike.getFmlikeStatus())
                 .fmlikeCrdate(forumMesLike.getFmlikeCrdate())
-                .messageId(forumMesLike.getMesNo().getId() == null ? null :forumMesLike.getMesNo().getId())
-                .memberId(forumMesLike.getMesNo().getId() == null ? null :forumMesLike.getMesNo().getId())
-                .memberName(forumMesLike.getMemNo().getMemName() == null ? null :forumMesLike.getMemNo().getMemName())
+                .messageId(forumMesLike.getMesNo().getId() == null ? null : forumMesLike.getMesNo().getId())
+                .memberId(forumMesLike.getMesNo().getId() == null ? null : forumMesLike.getMesNo().getId())
+                .memberName(forumMesLike.getMemNo().getMemName() == null ? null : forumMesLike.getMemNo().getMemName())
                 .build();
     }
 

@@ -18,7 +18,7 @@ public class ForumMesLikeService {
     private final MemRepository memRepository;
     private final ForumMesRepository forumMesRepository;
 
-    public ForumMesLikeService(ForumMesLikeRepository forumMesLikeRepository, MemRepository memRepository, ForumMesRepository forumMesRepository){
+    public ForumMesLikeService(ForumMesLikeRepository forumMesLikeRepository, MemRepository memRepository, ForumMesRepository forumMesRepository) {
         this.forumMesLikeRepository = forumMesLikeRepository;
         this.memRepository = memRepository;
         this.forumMesRepository = forumMesRepository;
@@ -32,12 +32,12 @@ public class ForumMesLikeService {
     }
 
 
-    public ForumMesLikeDTO updateLike(Integer mesNo,Integer memId, LikeStatus requestedStatus){
+    public ForumMesLikeDTO updateLike(Integer mesNo, Integer memId, LikeStatus requestedStatus) {
         Member member = memRepository.findById(memId).get();
         ForumMes message = forumMesRepository.findById(mesNo).get();
         Optional<ForumMesLike> existingLikeOpt = forumMesLikeRepository.findByMemNoAndMesNo(member, message);
 
-        if(existingLikeOpt.isPresent()){
+        if (existingLikeOpt.isPresent()) {
             ForumMesLike existingLike = existingLikeOpt.get();
             if (existingLike.getFmlikeStatus() == requestedStatus) {
                 existingLike.setFmlikeStatus(LikeStatus.NEUTRAL);
@@ -47,7 +47,7 @@ public class ForumMesLikeService {
             }
             forumMesLikeRepository.save(existingLike); // save 方法會自動判斷是更新還是新增
             return ForumMesLikeDTO.convertToForumMesLikeDTO(existingLike);
-        }else {
+        } else {
             // --- 紀錄不存在，直接新增 ---
             ForumMesLike newLike = new ForumMesLike();
             newLike.setMemNo(member);

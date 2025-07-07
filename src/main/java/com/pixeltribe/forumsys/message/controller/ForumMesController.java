@@ -76,13 +76,13 @@ public class ForumMesController {
     public ResponseEntity<?> updateForumMes(
             @PathVariable Integer mesNo,
             @Valid @RequestBody ForumMesUptateDTO forumMesUptateDTO,
-            BindingResult result){
-                if (result.hasErrors()) {
-                    return ResponseEntity.badRequest().body("輸入資料有誤！");
-                }
+            BindingResult result) {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body("輸入資料有誤！");
+        }
 
-                ForumMesDTO updateForumMes = forumMesSvc.updateForumMes(mesNo, forumMesUptateDTO);
-                return ResponseEntity.ok(updateForumMes);
+        ForumMesDTO updateForumMes = forumMesSvc.updateForumMes(mesNo, forumMesUptateDTO);
+        return ResponseEntity.ok(updateForumMes);
     }
 
 

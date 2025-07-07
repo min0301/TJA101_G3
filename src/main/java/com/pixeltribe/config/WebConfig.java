@@ -7,15 +7,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-	
-	@Autowired
-	private LoginInterceptor loginInterceptor;
-	
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(loginInterceptor)
-				.addPathPatterns("/api/cart/**");    //這個指攔截購物車相關的API
-		
-	}
-	
+
+    @Autowired
+    private LoginInterceptor loginInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(loginInterceptor)
+                .addPathPatterns("/api/cart/**");    //這個指攔截購物車相關的API
+
+    }
+
 }

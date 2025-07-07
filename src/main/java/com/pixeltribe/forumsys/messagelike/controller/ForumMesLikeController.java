@@ -25,7 +25,7 @@ public class ForumMesLikeController {
     @Operation(
             summary = "查所有的討論區留言喜愛"
     )
-    public List<ForumMesLikeDTO> getAllForumMesLike(){
+    public List<ForumMesLikeDTO> getAllForumMesLike() {
         return forumMesLikeService.getAllForumMesLike();
     }
 
@@ -35,8 +35,8 @@ public class ForumMesLikeController {
     )
     public ResponseEntity<?> updateForumMesLike(
             @Valid @RequestBody ForumMesLikeUpdateDTO forumMesLikeUpdateDTO,
-            @PathVariable Integer mesNo){
-        ForumMesLikeDTO forumMesLikecreate =forumMesLikeService.updateLike(mesNo,forumMesLikeUpdateDTO.getMemberId() , forumMesLikeUpdateDTO.getFmlikeStatus());
+            @PathVariable Integer mesNo) {
+        ForumMesLikeDTO forumMesLikecreate = forumMesLikeService.updateLike(mesNo, forumMesLikeUpdateDTO.getMemberId(), forumMesLikeUpdateDTO.getFmlikeStatus());
         return ResponseEntity.status(HttpStatus.CREATED).body(forumMesLikecreate);
     }
 
