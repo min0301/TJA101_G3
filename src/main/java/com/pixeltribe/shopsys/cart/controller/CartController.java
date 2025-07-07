@@ -34,6 +34,7 @@ public class CartController {
 			@RequestParam Integer proNum,
 			HttpServletRequest request) {
 		
+		
 		// 取得會員ID
 		Integer memNo = (Integer) request.getAttribute("currentId");
 		
@@ -48,6 +49,7 @@ public class CartController {
 	@GetMapping("/api/cart/{memNo}")
 	public ResponseEntity<CartDTO> getCart(@PathVariable Integer memNo,
 											HttpServletRequest request) {
+	
 		
 		Integer currentMemNo = (Integer) request.getAttribute("currentId");
 		if (!memNo.equals(currentMemNo)) {
