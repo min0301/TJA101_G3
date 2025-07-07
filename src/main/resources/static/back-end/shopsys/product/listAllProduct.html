@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商品管理後台</title>
+  <style>
+    /* CSS 樣式區 */
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0 auto;
+      max-width: 1400px;
+      padding: 20px;
+      background-color: #f4f7f6;
+      color: #333;
+    }
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px; /* 標題和首頁按鈕的間距 */
+    }
+    h1 {
+      color: #2c3e50;
+      margin: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px 15px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    thead {
+      background-color: #3498db;
+      color: #ffffff;
+    }
+    tbody tr:nth-child(even) { background-color: #f2f2f2; }
+    tbody tr:hover { background-color: #e8f4fd; }
+    .pagination-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+    .pagination-controls button {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      color: #3498db;
+      padding: 8px 12px;
+      margin: 0 2px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .pagination-controls button:hover:not(:disabled) { background-color: #e8f4fd; }
+    .pagination-controls button.active {
+      background-color: #3498db;
+      color: white;
+      border-color: #3498db;
+    }
+    .pagination-controls button:disabled { color: #ccc; cursor: not-allowed; }
+    .items-per-page-selector, .pagination-info { font-size: 14px; color: #555; }
+    #error-message {
+      color: #e74c3c;
+      background-color: #fbecec;
+      border: 1px solid #e74c3c;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 5px;
+      display: none;
+    }
+    .btn {
+      display: inline-block;
+      text-decoration: none;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: opacity 0.3s;
+      text-align: center;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-home { background-color: #95a5a6; }
+    .btn-add { background-color: #2ecc71; }
+    .btn-edit {
+		cursor: pointer;
+		display: block;
+		margin: 6px auto;
+		background-color: #2ecc71;
+		color: white;
+		border: none;
+		border-radius: 5px;
+		font-size: 16px;    
+    }
+    .btn-ismarket{
+    	cursor: pointer;
+		display: block;
+		margin: 6px auto;
+		background-color: #FF9224;
+		color: white;
+		border: none;
+		border-radius: 5px;
+		font-size: 16px; 
+    }
+	
+    .forum-thumbnail {
+      width: 100px;
+      height: 75px;
+      object-fit: cover;
+      border-radius: 4px;
+      vertical-align: middle;
+      transition: transform 0.2s ease-in-out;
+      cursor: pointer;
+    }
+    td a:has(.forum-thumbnail) {
+      text-decoration: none;
+      display: inline-block;
+    }
+    td a:has(.forum-thumbnail):hover .forum-thumbnail {
+      transform: scale(1.1);
+      opacity: 0.9;
+    }
+
+    /* --- 燈箱樣式 --- */
+    .lightbox {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.3s;
+    }
+    .lightbox-content {
+      max-width: 85%;
+      max-height: 85%;
+      border-radius: 5px;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 35px;
+      color: #fff;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+    .lightbox-close:hover {
+      color: #bbb;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    /* --- 在你的 <style> 區塊中加入以下程式碼 --- */
+
+    /* targeting the table header */
+    thead th:nth-child(1) { width: 20px; }  /* 第 1 欄 (ID) */
+    thead th:nth-child(2) { width: 200px; } /* 第 2 欄 (商品名稱) */
+    thead th:nth-child(3) { width: 60px; } /* 第 3 欄 (價格) */
+    thead th:nth-child(4) { width: 50px; } /* 第 4 欄 (狀態) */
+    thead th:nth-child(5) { width: 50px; } /* 第 5 欄 (版本) */
+    thead th:nth-child(6) { width: 70px; }  /* 第 6 欄 (發售日) */
+    thead th:nth-child(7) { width: 60px; } /* 第 7 欄 (封面) */
+    thead th:nth-child(8) { width: 200px; } /* 第 8 欄 (內容物) */
+    thead th:nth-child(9) { width: 50px; } /* 第 9 欄 (平台) */
+    thead th:nth-child(10) { width: 50px; } /* 第 10 欄 (上下架) */
+    thead th:nth-child(11) { width: 50px; } /* 第 11 欄 (操作) */
+
+  </style>
+</head>
+<body>
+<div class="header-container">
+  <div class="header-left">
+    <h1>商品管理</h1>
+    <a href="/" class="btn btn-home">回到首頁</a>
+  </div>
+  <div class="header-right">
+    <a href="addForum.html" class="btn btn-add">＋ 新增商品</a>
+  </div>
+</div>
+
+<div id="error-message"></div>
+
+<table>
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>商品名稱</th>
+    <th>價格</th>
+    <th>狀態</th>
+    <th>版本</th>
+    <th>發售日</th>
+    <th>圖片</th>
+    <th>內容物</th>
+    <th>平台</th>
+    <th>上下架</th>
+    <th>操作</th>
+  </tr>
+  </thead>
+  <tbody id="forum-data-body">
+    <!--  nick new-->
+    <tr><td colspan="9" class="text-center text-muted">載入中...</td></tr>
+    <!--  nick new-->
+  </tbody>
+</table>
+
+<div class="pagination-container">
+  <div class="items-per-page-selector">
+    <label for="items-per-page">每頁顯示：</label>
+    <select id="items-per-page">
+      <option value="3">3 筆</option>
+      <option value="5">5 筆</option>
+      <option value="10" selected>10 筆</option>
+      <option value="20">20 筆</option>
+    </select>
+  </div>
+  <div id="pagination-info" class="pagination-info"></div>
+  <div id="pagination-controls" class="pagination-controls"></div>
+</div>
+
+<div id="lightbox" class="lightbox">
+  <span id="lightbox-close" class="lightbox-close">&times;</span>
+  <img id="lightbox-img" class="lightbox-content">
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const apiUrl = 'http://localhost:8080/api/product';
+
+    const tableBody = document.getElementById('forum-data-body');
+    const errorMessageDiv = document.getElementById('error-message');
+    const itemsPerPageSelect = document.getElementById('items-per-page');
+    const paginationControls = document.getElementById('pagination-controls');
+    const paginationInfo = document.getElementById('pagination-info');
+
+    let allForumsData = [];
+    let currentPage = 1;
+    let itemsPerPage = parseInt(itemsPerPageSelect.value);
+
+    async function initialize() {
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
+        allForumsData = await response.json();
+        currentPage = 1;
+        renderPage();
+      } catch (error) {
+        showError(error);
+      }
+    }
+
+    function renderPage() {
+      renderTable();
+      renderPagination();
+    }
+
+    function renderTable() {
+      tableBody.innerHTML = '';
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const itemsToShow = allForumsData.slice(startIndex, endIndex);
+      // 如果沒有商品資料，顯示提示訊息
+      if (itemsToShow.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="9" class="text-center">目前沒有此商品。</td></tr>`;
+        return itemsToShow;
+      }
+      // 如果沒有論壇資料，顯示提示訊息
+       itemsToShow.forEach(product => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+        	<td>${product.id}</td>
+            <td>${product.proName}</td>
+            <td>${product.proPrice}</td>
+            <td>${product.proStatus}</td>
+            <td>${product.proVersion}</td>
+            <td>${product.proDate}</td>
+            <td><img src="/api/product/cover/${product.id}"  width="100px"/></td> 
+            <td>${product.proInclude}</td>
+            <td>${product.mallTagName}</td>
+            <td><input type = "button" value=${product.proIsmarket == 1 ? '上架' : '下架'} class="btn-ismarket"></td>
+            <td>
+                <a href="product.html?id=${product.id}" class="btn-edit">修改</a>
+            </td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+    }
+
+    function renderPagination() {
+      paginationControls.innerHTML = '';
+      const totalItems = allForumsData.length;
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      if (totalPages <= 1) {
+        paginationInfo.textContent = `共 ${totalItems} 筆資料`;
+        return;
+      }
+      const startItem = (currentPage - 1) * itemsPerPage + 1;
+      const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+      paginationInfo.textContent = `顯示 ${startItem} - ${endItem} 筆，共 ${totalItems} 筆`;
+      paginationControls.appendChild(
+              createPaginationButton('« 上一頁', () => changePage(currentPage - 1), currentPage === 1)
+      );
+      for (let i = 1; i <= totalPages; i++) {
+        const pageButton = createPaginationButton(i, () => changePage(i));
+        if (i === currentPage) pageButton.classList.add('active');
+        paginationControls.appendChild(pageButton);
+      }
+      paginationControls.appendChild(
+              createPaginationButton('下一頁 »', () => changePage(currentPage + 1), currentPage === totalPages)
+      );
+    }
+
+    function createPaginationButton(text, clickHandler, disabled = false) {
+      const button = document.createElement('button');
+      button.textContent = text;
+      button.disabled = disabled;
+      button.addEventListener('click', clickHandler);
+      return button;
+    }
+
+    function changePage(newPage) {
+      const totalPages = Math.ceil(allForumsData.length / itemsPerPage);
+      if (newPage >= 1 && newPage <= totalPages) {
+        currentPage = newPage;
+        renderPage();
+      }
+    }
+
+    function showError(error) {
+      console.error('無法獲取商品資料:', error);
+      errorMessageDiv.style.display = 'block';
+      errorMessageDiv.innerHTML = `<strong>資料載入失敗！</strong> 請檢查後端服務是否啟動及 CORS 設定。<br>詳細錯誤: ${error.message}`;
+    }
+
+    itemsPerPageSelect.addEventListener('change', (event) => {
+      itemsPerPage = parseInt(event.target.value);
+      currentPage = 1;
+      renderPage();
+    });
+
+    // --- 燈箱邏輯控制 ---
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxClose = document.getElementById('lightbox-close');
+
+    tableBody.addEventListener('click', function(event) {
+      const link = event.target.closest('a:has(.forum-thumbnail)');
+      if (link) {
+        event.preventDefault();
+        const imageUrl = link.getAttribute('href');
+        openLightbox(imageUrl);
+      }
+    });
+
+    function openLightbox(imageUrl) {
+      lightboxImg.setAttribute('src', imageUrl);
+      lightbox.style.display = 'flex';
+      document.addEventListener('keydown', handleEscKey);
+    }
+
+    function closeLightbox() {
+      lightbox.style.display = 'none';
+      lightboxImg.setAttribute('src', '');
+      document.removeEventListener('keydown', handleEscKey);
+    }
+
+    function handleEscKey(event) {
+      if (event.key === 'Escape') {
+        closeLightbox();
+      }
+    }
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', function(event) {
+      if (event.target === lightbox) {
+        closeLightbox();
+      }
+    });
+
+    initialize();
+  });
+</script>
+</body>
+</html>
