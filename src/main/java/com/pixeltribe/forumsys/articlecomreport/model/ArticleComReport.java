@@ -4,7 +4,6 @@ import com.pixeltribe.forumsys.message.model.ForumMes;
 import com.pixeltribe.forumsys.reporttype.model.ReportType;
 import com.pixeltribe.membersys.member.model.Member;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
 

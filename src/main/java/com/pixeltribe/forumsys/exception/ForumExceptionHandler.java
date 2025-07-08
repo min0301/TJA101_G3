@@ -6,9 +6,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import java.util.HashMap;
-import java.util.Map;
-
 
 // 註解：@ControllerAdvice 表示這是一個全域設定，會應用到所有 @Controller 或 @RestController。
 @ControllerAdvice(basePackages = "com.pixeltribe.forumsys")
