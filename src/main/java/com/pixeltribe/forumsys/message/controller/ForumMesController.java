@@ -20,6 +20,7 @@ public class ForumMesController {
     private final ForumMesService forumMesSvc;
 
     public ForumMesController(ForumMesService forumMesSvc) {
+
         this.forumMesSvc = forumMesSvc;
     }
 

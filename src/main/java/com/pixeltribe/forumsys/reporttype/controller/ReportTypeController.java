@@ -17,6 +17,7 @@ public class ReportTypeController {
     private final ReportTypeService reportTypeService;
 
     public ReportTypeController(ReportTypeService reportTypeService) {
+
         this.reportTypeService = reportTypeService;
     }
 
@@ -38,7 +39,7 @@ public class ReportTypeController {
     public ResponseEntity<?> updateReportType(
             @Valid @RequestBody ReportTypeUpdateDTO reportTypeUpdateDTO,
             @PathVariable("rpino") Integer rpiNo
-    ){
+    ) {
         return ResponseEntity.ok(reportTypeService.update(rpiNo, reportTypeUpdateDTO));
     }
 
@@ -47,7 +48,7 @@ public class ReportTypeController {
             summary = "查單一檢舉類型"
     )
     public ReportTypeDTO findOneReportType(
-            @Valid@PathVariable("rpino") Integer rpiNo
+            @Valid @PathVariable("rpino") Integer rpiNo
     ) {
         ReportType reportType = new ReportType();
         reportType = reportTypeService.getOneReportType(rpiNo);

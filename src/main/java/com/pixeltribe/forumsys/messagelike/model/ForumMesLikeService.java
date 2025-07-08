@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
+@Service("forumMesLikeService")
 public class ForumMesLikeService {
 
     private final ForumMesLikeRepository forumMesLikeRepository;

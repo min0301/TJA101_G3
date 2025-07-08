@@ -1,19 +1,16 @@
-package com.pixeltribe.forumsys.entity;
+package com.pixeltribe.forumsys.articlecomreport.model;
 
 import com.pixeltribe.forumsys.message.model.ForumMes;
-
 import com.pixeltribe.forumsys.reporttype.model.ReportType;
+import com.pixeltribe.membersys.member.model.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
-import com.pixeltribe.membersys.member.model.Member;
 
 import java.time.Instant;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "article_com_report")
 public class ArticleComReport {
@@ -34,16 +31,15 @@ public class ArticleComReport {
     @JoinColumn(name = "RPI_NO")
     private ReportType rpiNo;
 
-    @NotNull
     @ColumnDefault("'0'")
-    @Column(name = "ART_COM_REP_STATUS", nullable = false)
+    @Column(name = "ART_COM_REP_STATUS", insertable = false)
     private Character artComRepStatus;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "CREATE_TIME")
+    @Column(name = "CREATE_TIME", insertable = false, updatable = false)
     private Instant createTime;
 
-    @Column(name = "FINISH_TIME")
+    @Column(name = "FINISH_TIME", insertable = false)
     private Instant finishTime;
 
 }

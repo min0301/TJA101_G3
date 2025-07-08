@@ -1,7 +1,6 @@
 package com.pixeltribe.forumsys.forumcategory.model;
 
-import com.pixeltribe.forumsys.exception.ForumCategoryAlreadyExistsException;
-import com.pixeltribe.forumsys.exception.ReportTypeAlreadyExistsException;
+import com.pixeltribe.forumsys.exception.ConflictException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -22,26 +21,25 @@ public class ForumCategoryService {
     public ForumCategoryDTO add(ForumCategoryUpdateDTO forumCategoryUpdateDTO) {
         forumCategoryRepository.findByCatName(forumCategoryUpdateDTO.getCatName())
                 .ifPresent(existingCat -> {
-                    throw new ForumCategoryAlreadyExistsException("Category with name " + existingCat.getCatName() + " already exists");
+                    throw new ConflictException("Category with name " + existingCat.getCatName() + " already exists");
                 });
         ForumCategory forumCategory = new ForumCategory();
         forumCategory.setCatName(forumCategoryUpdateDTO.getCatName());
         forumCategory.setCatDes(forumCategoryUpdateDTO.getCatDes());
-       return ForumCategoryDTO.convertToCategoryDTO(forumCategoryRepository.save(forumCategory));
+        return ForumCategoryDTO.convertToCategoryDTO(forumCategoryRepository.save(forumCategory));
     }
 
 
-
-
     @Transactional
-    public ForumCategoryDTO update(Integer catNo,ForumCategoryUpdateDTO forumCategoryUpdateDTO) {
+    public ForumCategoryDTO update(Integer catNo, ForumCategoryUpdateDTO forumCategoryUpdateDTO) {
 
         forumCategoryRepository.findByCatName(forumCategoryUpdateDTO.getCatName())
-                .ifPresent(existingCat ->{
-                    throw new ForumCategoryAlreadyExistsException("Category with name " + existingCat.getCatName() + " already exists");
+                .ifPresent(existingCat -> {
+                    throw new ConflictException("Category with name " + existingCat.getCatName() + " already exists");
                 });
 
-        ForumCategory forumCategory = forumCategoryRepository.findById(catNo).get();;
+        ForumCategory forumCategory = forumCategoryRepository.findById(catNo).get();
+        ;
         forumCategory.setCatName(forumCategoryUpdateDTO.getCatName());
         forumCategory.setCatDes(forumCategoryUpdateDTO.getCatDes());
         return ForumCategoryDTO.convertToCategoryDTO(forumCategoryRepository.save(forumCategory));

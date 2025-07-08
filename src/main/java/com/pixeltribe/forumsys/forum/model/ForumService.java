@@ -26,9 +26,6 @@ public class ForumService {
     private final ForumRepository forumRepository;
     private final ForumCategoryRepository forumCategoryRepository;
 
-    // Spring 會自動尋找這個唯一的公開建構子，並將對應的 Bean 傳入
-// 在較新版的 Spring Boot 中，如果你的類別只有一個建構子，甚至可以省略 @Autowired
-    @Autowired
     public ForumService(ForumRepository forumRepository, ForumCategoryRepository forumCategoryRepository) {
 
         this.forumRepository = forumRepository;

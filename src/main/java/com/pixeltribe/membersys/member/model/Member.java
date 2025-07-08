@@ -8,7 +8,7 @@ import java.util.Set;
 import org.hibernate.annotations.ColumnDefault;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.pixeltribe.forumsys.entity.ArticleComReport;
+import com.pixeltribe.forumsys.articlecomreport.model.ArticleComReport;
 import com.pixeltribe.forumsys.entity.ArticleReport;
 import com.pixeltribe.forumsys.entity.ForumChatMessage;
 import com.pixeltribe.forumsys.entity.ForumChatReport;

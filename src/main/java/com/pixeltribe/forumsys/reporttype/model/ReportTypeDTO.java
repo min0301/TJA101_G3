@@ -17,7 +17,7 @@ public class ReportTypeDTO {
     @Schema(description = "檢舉類型")
     private String rpiType;
 
-    public static ReportTypeDTO convertToReportTypeDTO(ReportType reportType){
+    public static ReportTypeDTO convertToReportTypeDTO(ReportType reportType) {
         return ReportTypeDTO.builder()
                 .id(reportType.getId())
                 .rpiType(reportType.getRpiType())
