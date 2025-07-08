@@ -21,7 +21,7 @@ public class ForumMesLikeController {
         this.forumMesLikeService = forumMesLikeService;
     }
 
-    @GetMapping("/forumMesLikes")
+    @GetMapping("/forummeslikes")
     @Operation(
             summary = "查所有的討論區留言喜愛"
     )
@@ -29,13 +29,13 @@ public class ForumMesLikeController {
         return forumMesLikeService.getAllForumMesLike();
     }
 
-    @PostMapping("/posts/message/{mesNo}/like")
+    @PostMapping("/posts/message/{mesno}/like")
     @Operation(
             summary = "討論區留言踩讚"
     )
-    public ResponseEntity<?> updateForumMesLike(
+    public ResponseEntity<ForumMesLikeDTO> updateForumMesLike(
             @Valid @RequestBody ForumMesLikeUpdateDTO forumMesLikeUpdateDTO,
-            @PathVariable Integer mesNo) {
+            @PathVariable("mesno") Integer mesNo) {
         ForumMesLikeDTO forumMesLikecreate = forumMesLikeService.updateLike(mesNo, forumMesLikeUpdateDTO.getMemberId(), forumMesLikeUpdateDTO.getFmlikeStatus());
         return ResponseEntity.status(HttpStatus.CREATED).body(forumMesLikecreate);
     }

@@ -1,17 +1,18 @@
-package com.pixeltribe.forumsys.entity;
+package com.pixeltribe.forumsys.reporttype.model;
 
+import com.pixeltribe.forumsys.articlecomreport.model.ArticleComReport;
+import com.pixeltribe.forumsys.entity.ArticleReport;
+import com.pixeltribe.forumsys.entity.ForumChatReport;
 import com.pixeltribe.newssys.newscomreport.model.NewsComReport;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "report_type")
 public class ReportType {

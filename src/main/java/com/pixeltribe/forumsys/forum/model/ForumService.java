@@ -1,13 +1,13 @@
 package com.pixeltribe.forumsys.forum.model;
 
+import com.pixeltribe.forumsys.exception.FileStorageException;
+import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
 import com.pixeltribe.forumsys.forumcategory.model.ForumCategory;
 import com.pixeltribe.forumsys.forumcategory.model.ForumCategoryRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service("forumService")
 public class ForumService {
@@ -26,9 +25,6 @@ public class ForumService {
     private final ForumRepository forumRepository;
     private final ForumCategoryRepository forumCategoryRepository;
 
-    // Spring 會自動尋找這個唯一的公開建構子，並將對應的 Bean 傳入
-// 在較新版的 Spring Boot 中，如果你的類別只有一個建構子，甚至可以省略 @Autowired
-    @Autowired
     public ForumService(ForumRepository forumRepository, ForumCategoryRepository forumCategoryRepository) {
 
         this.forumRepository = forumRepository;
@@ -52,7 +48,8 @@ public class ForumService {
     @Transactional
     public ForumDetailDTO update(Integer forNo, ForumUpdateDTO forumUpdateDTO, MultipartFile imageFile) {
 
-        Forum forum = forumRepository.findById(forNo).get();
+        Forum forum = forumRepository.findById(forNo)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到討論區編號: " + forNo));
 
         return ForumDetailDTO.convertToForumDetailDTO(saveOrUpdateForum(forum, forumUpdateDTO, imageFile));
     }
@@ -63,7 +60,7 @@ public class ForumService {
         // 1. 從資料庫取得原始的 Entity 列表
         List<Forum> forums = forumRepository.findAllByOrderByForUpdateDesc();
 
-
+//  TODO
 //        for (Forum x : forums) {
 //          ForumDetailDTO.convertToForumDetailDTO(x);
 //        }
@@ -72,8 +69,9 @@ public class ForumService {
         return forums.stream()
 
                 .map(x -> ForumDetailDTO.convertToForumDetailDTO(x))
+                //  TODO
                 //      .map(ForumDetailDTO::convertToForumDetailDTO) // 對每個 forum 執行轉換
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -82,11 +80,12 @@ public class ForumService {
 
         return forums.stream()
                 .map(ForumDetailDTO::convertToForumDetailDTO) // 對每個 forum 執行轉換
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ForumDetailDTO getOneForum(Integer forNo) {
-        Forum forum = forumRepository.findById(forNo).get();
+        Forum forum = forumRepository.findById(forNo)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到討論區編號: " + forNo));
         return ForumDetailDTO.convertToForumDetailDTO(forum);
     }
 
@@ -97,7 +96,8 @@ public class ForumService {
         forum.setForDes(forumUpdateDTO.getForDes());
         forum.setForStatus(forumUpdateDTO.getForStatus());
 
-        ForumCategory category = forumCategoryRepository.findById(forumUpdateDTO.getCategoryId()).get();
+        ForumCategory category = forumCategoryRepository.findById(forumUpdateDTO.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("找不到討論區類別"));
         forum.setCatNo(category);
 
 
@@ -123,8 +123,7 @@ public class ForumService {
                 forum.setForImgUrl(imageUrl);
 
             } catch (IOException e) {
-                // 在真實專案中，應拋出一個自訂的執行時例外，讓 @ControllerAdvice 統一處理
-                throw new RuntimeException("檔案儲存失敗", e);
+                throw new FileStorageException("檔案儲存失敗，無法寫入目標路徑。", e);
             }
         }
         // 6. 將包含 imageURL 的 forum 物件存入資料庫

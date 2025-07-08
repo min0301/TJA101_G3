@@ -33,7 +33,7 @@ public class ForumCategory {
     private String catDes;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "CAT_DATE")
+    @Column(name = "CAT_DATE", insertable = false, updatable = false)
     private Instant catDate;
 
     @OneToMany(mappedBy = "catNo")

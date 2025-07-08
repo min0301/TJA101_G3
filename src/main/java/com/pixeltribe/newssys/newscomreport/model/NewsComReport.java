@@ -1,6 +1,6 @@
 package com.pixeltribe.newssys.newscomreport.model;
 
-import com.pixeltribe.forumsys.entity.ReportType;
+import com.pixeltribe.forumsys.reporttype.model.ReportType;
 import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.newssys.newscomment.model.NewsComment;
 import jakarta.persistence.*;
