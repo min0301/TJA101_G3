@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +23,7 @@ public class ForumMesController {
         this.forumMesSvc = forumMesSvc;
     }
 
-    @GetMapping("/forum-messages")
+    @GetMapping("/posts/message")
     @Operation(
             summary = "查所有的留言"
     )
@@ -33,7 +32,7 @@ public class ForumMesController {
         return forumMesSvc.getAllForumMes();
     }
 
-    @GetMapping("/forumMes/{mesno}")
+    @GetMapping("/posts/{mesno}")
     @Operation(
             summary = "查單一則留言"
     )
@@ -43,14 +42,13 @@ public class ForumMesController {
         return forumMesSvc.getOneForumMes(mesNo);
     }
 
-    @GetMapping("/forum-mesList/{postno}")
+    @GetMapping("/posts/{postno}/messages")
     @Operation(
-            summary = "查單一討論區文章留言"
+            summary = "查單一文章留言list"
     )
     public List<ForumMesDTO> getForumMesByPost(
             @PathVariable("postno") Integer postNo) {
-        List<ForumMesDTO> forumMes = forumMesSvc.getForumMesByPost(postNo);
-        return forumMes;
+        return forumMesSvc.getForumMesByPost(postNo);
     }
 
 
@@ -58,13 +56,9 @@ public class ForumMesController {
     @Operation(
             summary = "新增文章留言"
     )
-    public ResponseEntity<?> addForumMes(
+    public ResponseEntity<ForumMesDTO> addForumMes(
             @Valid @RequestBody ForumMesUptateDTO forumMesUptateDTO,
-            @PathVariable("postno") Integer postNo,
-            BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body("輸入資料有誤！");
-        }
+            @PathVariable("postno") Integer postNo) {
         ForumMesDTO createdForumMes = forumMesSvc.addForumMes(postNo, forumMesUptateDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdForumMes);
@@ -74,14 +68,9 @@ public class ForumMesController {
     @Operation(
             summary = "修改文章留言"
     )
-    public ResponseEntity<?> updateForumMes(
-            @PathVariable("postno") Integer mesNo,
-            @Valid @RequestBody ForumMesUptateDTO forumMesUptateDTO,
-            BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body("輸入資料有誤！");
-        }
-
+    public ResponseEntity<ForumMesDTO> updateForumMes(
+            @PathVariable("mesno") Integer mesNo,
+            @Valid @RequestBody ForumMesUptateDTO forumMesUptateDTO) {
         ForumMesDTO updateForumMes = forumMesSvc.updateForumMes(mesNo, forumMesUptateDTO);
         return ResponseEntity.ok(updateForumMes);
     }

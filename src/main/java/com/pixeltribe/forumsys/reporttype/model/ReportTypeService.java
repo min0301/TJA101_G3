@@ -1,6 +1,7 @@
 package com.pixeltribe.forumsys.reporttype.model;
 
 import com.pixeltribe.forumsys.exception.ConflictException;
+import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -26,18 +27,24 @@ public class ReportTypeService {
 
     @Transactional
     public ReportTypeDTO update(Integer rpiNo, ReportTypeUpdateDTO reportTypeUpdateDTO) {
+
+        ReportType reportType = reportTypeRepository.findById(rpiNo)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到檢舉類型，ID: " + rpiNo));
+
         reportTypeRepository.findByRpiType(reportTypeUpdateDTO.getRpiType())
+                .filter(existingType -> !existingType.getId().equals(rpiNo))
                 .ifPresent(existingType -> {
                     throw new ConflictException("檢舉類型 '" + reportTypeUpdateDTO.getRpiType() + "' 已經存在");
                 });
-        ReportType reportType = reportTypeRepository.findById(rpiNo).get();
+
         reportType.setRpiType(reportTypeUpdateDTO.getRpiType());
         return ReportTypeDTO.convertToReportTypeDTO(reportTypeRepository.save(reportType));
     }
 
     public ReportType getOneReportType(Integer rpiNo) {
 
-        return reportTypeRepository.findById(rpiNo).get();
+        return reportTypeRepository.findById(rpiNo)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到檢舉類型，ID: " + rpiNo));
     }
 
 }

@@ -1,12 +1,12 @@
 package com.pixeltribe.forumsys.message.model;
 
+import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
 import com.pixeltribe.forumsys.forumpost.model.ForumPostRepository;
 import com.pixeltribe.membersys.member.model.MemRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service("forumMesService")
 public class ForumMesService {
@@ -25,11 +25,12 @@ public class ForumMesService {
         List<ForumMes> forumMess = forumMesRepository.findAll();
         return forumMess.stream()
                 .map(ForumMesDTO::convertToForumMesDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ForumMesDTO getOneForumMes(Integer mesNo) {
-        ForumMes forumMes = forumMesRepository.findById(mesNo).get();
+        ForumMes forumMes = forumMesRepository.findById(mesNo)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到留言ID: " + mesNo));
         return ForumMesDTO.convertToForumMesDTO(forumMes);
     }
 
@@ -37,24 +38,30 @@ public class ForumMesService {
         List<ForumMes> forumMes = forumMesRepository.findByPostNo_Id(postNo);
         return forumMes.stream()
                 .map(ForumMesDTO::convertToForumMesDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
     public ForumMesDTO addForumMes(Integer postNo, ForumMesUptateDTO forumMesUptateDTO) {
 
         ForumMes forumMes = new ForumMes();
-        forumMes.setPostNo(forumPostRepository.findById(postNo).get());
-        forumMes.setMemNo(memRepository.findById(forumMesUptateDTO.getMemId()).get());
+        forumMes.setPostNo(forumPostRepository.findById(postNo)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到文章ID: " + postNo)));
+        forumMes.setMemNo(memRepository.findById(forumMesUptateDTO.getMemId())
+                .orElseThrow(() -> new ResourceNotFoundException("找不到會員")));
         forumMes.setMesCon(forumMesUptateDTO.getMesCon());
 
         return ForumMesDTO.convertToForumMesDTO(forumMesRepository.save(forumMes));
     }
 
+    @Transactional
     public ForumMesDTO updateForumMes(Integer mesNo, ForumMesUptateDTO forumMesUptateDTO) {
-        ForumMes forumMes = forumMesRepository.findById(mesNo).get();
-        forumMes.setPostNo(forumPostRepository.findById(forumMesUptateDTO.getPostId()).get());
-        forumMes.setMemNo(memRepository.findById(forumMesUptateDTO.getMemId()).get());
+        ForumMes forumMes = forumMesRepository.findById(mesNo)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到留言ID: " + mesNo));
+        forumMes.setPostNo(forumPostRepository.findById(forumMesUptateDTO.getPostId())
+                .orElseThrow(() -> new ResourceNotFoundException("找不到文章")));
+        forumMes.setMemNo(memRepository.findById(forumMesUptateDTO.getMemId())
+                .orElseThrow(() -> new ResourceNotFoundException("找不到會員")));
         forumMes.setMesCon(forumMesUptateDTO.getMesCon());
 
         return ForumMesDTO.convertToForumMesDTO(forumMesRepository.save(forumMes));

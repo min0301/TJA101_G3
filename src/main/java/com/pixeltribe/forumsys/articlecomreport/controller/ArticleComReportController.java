@@ -26,7 +26,7 @@ public class ArticleComReportController {
     @Operation(
             summary = "新增文章留言檢舉"
     )
-    public ResponseEntity<?> addArticleComReport(
+    public ResponseEntity<ArticleComReportDTO> addArticleComReport(
             @Valid @RequestBody ArticleComReportCreateDTO articleComReportCreateDTO
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -37,7 +37,7 @@ public class ArticleComReportController {
     @Operation(
             summary = "文章留言檢舉處理"
     )
-    public ResponseEntity<?> updateArticleComReport(
+    public ResponseEntity<ArticleComReportDTO> updateArticleComReport(
             @PathVariable("comno") Integer comNo,
             @Valid @RequestBody ArticleComReportUpdateDTO articleComReportUpdateDTO
     ) {

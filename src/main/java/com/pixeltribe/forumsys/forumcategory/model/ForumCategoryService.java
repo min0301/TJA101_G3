@@ -1,12 +1,12 @@
 package com.pixeltribe.forumsys.forumcategory.model;
 
 import com.pixeltribe.forumsys.exception.ConflictException;
+import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service("forumCategoryService")
 public class ForumCategoryService {
@@ -38,8 +38,9 @@ public class ForumCategoryService {
                     throw new ConflictException("Category with name " + existingCat.getCatName() + " already exists");
                 });
 
-        ForumCategory forumCategory = forumCategoryRepository.findById(catNo).get();
-        ;
+        ForumCategory forumCategory = forumCategoryRepository.findById(catNo)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到討論區編號: " + catNo));
+
         forumCategory.setCatName(forumCategoryUpdateDTO.getCatName());
         forumCategory.setCatDes(forumCategoryUpdateDTO.getCatDes());
         return ForumCategoryDTO.convertToCategoryDTO(forumCategoryRepository.save(forumCategory));
@@ -58,7 +59,7 @@ public class ForumCategoryService {
 
         return forumCategories.stream()
                 .map(ForumCategoryDTO::convertToCategoryDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 

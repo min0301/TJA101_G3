@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service("forumMesLikeService")
 public class ForumMesLikeService {
@@ -29,13 +28,15 @@ public class ForumMesLikeService {
         List<ForumMesLike> forumMesLike = forumMesLikeRepository.findAll();
         return forumMesLike.stream()
                 .map(ForumMesLikeDTO::convertToForumMesLikeDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
     public ForumMesLikeDTO updateLike(Integer mesNo, Integer memId, LikeStatus requestedStatus) {
-        Member member = memRepository.findById(memId).get();
-        ForumMes message = forumMesRepository.findById(mesNo).get();
+        Member member = memRepository.findById(memId)
+                .orElseThrow(() -> new IllegalArgumentException("找不到會員編號:" + memId));
+        ForumMes message = forumMesRepository.findById(mesNo)
+                .orElseThrow(() -> new IllegalArgumentException("找不到訊息編號:" + mesNo));
         Optional<ForumMesLike> existingLikeOpt = forumMesLikeRepository.findByMemNoAndMesNo(member, message);
 
         if (existingLikeOpt.isPresent()) {

@@ -1,6 +1,7 @@
 package com.pixeltribe.forumsys.articlecomreport.model;
 
 import com.pixeltribe.forumsys.exception.ConflictException;
+import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
 import com.pixeltribe.forumsys.message.model.ForumMes;
 import com.pixeltribe.forumsys.message.model.ForumMesRepository;
 import com.pixeltribe.forumsys.reporttype.model.ReportTypeRepository;
@@ -33,8 +34,10 @@ public class ArticleComReportService {
 
     @Transactional
     public ArticleComReportDTO add(ArticleComReportCreateDTO articleComReportCreateDTO) {
-        ForumMes message = forumMesRepository.findById(articleComReportCreateDTO.getMessageNo()).get();
-        Member member = memRepository.findById(articleComReportCreateDTO.getMemberNo()).get();
+        ForumMes message = forumMesRepository.findById(articleComReportCreateDTO.getMessageNo())
+                .orElseThrow(() -> new ResourceNotFoundException("找不到訊息"));
+        Member member = memRepository.findById(articleComReportCreateDTO.getMemberNo())
+                .orElseThrow(() -> new ResourceNotFoundException("找不到會員"));
 
         articleComReportRepository.findByMesNoAndReporter(message, member)
                 .ifPresent(
@@ -42,14 +45,17 @@ public class ArticleComReportService {
                             throw new ConflictException("留言檢舉 '" + articleComReportCreateDTO + "' 已經存在");
                         });
         ArticleComReport articleComReport = new ArticleComReport();
-        articleComReport.setMesNo(forumMesRepository.findById(articleComReportCreateDTO.getMessageNo()).get());
-        articleComReport.setReporter(memRepository.findById(articleComReportCreateDTO.getMemberNo()).get());
-        articleComReport.setRpiNo(reportTypeRepository.findById(articleComReportCreateDTO.getReportTypeNo()).get());
+        articleComReport.setMesNo(message);
+        articleComReport.setReporter(member);
+        articleComReport.setRpiNo(reportTypeRepository.findById(articleComReportCreateDTO.getReportTypeNo())
+                .orElseThrow(() -> new ResourceNotFoundException("找不到文章留言檢舉類型編號")));
         return ArticleComReportDTO.convertToArticleComReportDTO(articleComReportRepository.save(articleComReport));
     }
 
+    @Transactional
     public ArticleComReportDTO update(Integer articleComReportNo, ArticleComReportUpdateDTO articleComReportUpdateDTO) {
-        ArticleComReport articleComReport = articleComReportRepository.findById(articleComReportNo).get();
+        ArticleComReport articleComReport = articleComReportRepository.findById(articleComReportNo)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到文章留言檢舉編號: " + articleComReportNo));
         articleComReport.setArtComRepStatus(articleComReportUpdateDTO.getArtComRepStatus());
         articleComReport.setFinishTime(Instant.now());
         return ArticleComReportDTO.convertToArticleComReportDTO(articleComReportRepository.save(articleComReport));

@@ -1,6 +1,5 @@
 package com.pixeltribe.forumsys.reporttype.controller;
 
-import com.pixeltribe.forumsys.reporttype.model.ReportType;
 import com.pixeltribe.forumsys.reporttype.model.ReportTypeDTO;
 import com.pixeltribe.forumsys.reporttype.model.ReportTypeService;
 import com.pixeltribe.forumsys.reporttype.model.ReportTypeUpdateDTO;
@@ -25,7 +24,7 @@ public class ReportTypeController {
     @Operation(
             summary = "新增檢舉類型"
     )
-    ResponseEntity<?> addReportType(
+    ResponseEntity<ReportTypeDTO> addReportType(
             @Valid @RequestBody ReportTypeUpdateDTO reportTypeUpdateDTO) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(reportTypeService.add(reportTypeUpdateDTO));
@@ -36,7 +35,7 @@ public class ReportTypeController {
     @Operation(
             summary = "更新檢舉類型"
     )
-    public ResponseEntity<?> updateReportType(
+    public ResponseEntity<ReportTypeDTO> updateReportType(
             @Valid @RequestBody ReportTypeUpdateDTO reportTypeUpdateDTO,
             @PathVariable("rpino") Integer rpiNo
     ) {
@@ -50,9 +49,7 @@ public class ReportTypeController {
     public ReportTypeDTO findOneReportType(
             @Valid @PathVariable("rpino") Integer rpiNo
     ) {
-        ReportType reportType = new ReportType();
-        reportType = reportTypeService.getOneReportType(rpiNo);
-        return ReportTypeDTO.convertToReportTypeDTO(reportType);
+        return ReportTypeDTO.convertToReportTypeDTO(reportTypeService.getOneReportType(rpiNo));
     }
 
 }
