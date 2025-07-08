@@ -16,12 +16,12 @@ public class ArticleComReportCreateDTO {
     @Schema(description = "檢舉類型編號")
     private Integer reportTypeNo;
 
-    public static ArticleComReportCreateDTO convertToArticleComReportCreateDTO (ArticleComReport articleComReport) {
-         return ArticleComReportCreateDTO.builder()
-                 .messageNo(articleComReport.getMesNo().getId())
-                 .memberNo(articleComReport.getReporter().getId())
-                 .reportTypeNo(articleComReport.getRpiNo().getId())
-                 .build();
-        }
+    public static ArticleComReportCreateDTO convertToArticleComReportCreateDTO(ArticleComReport articleComReport) {
+        return ArticleComReportCreateDTO.builder()
+                .messageNo(articleComReport.getMesNo().getId())
+                .memberNo(articleComReport.getReporter().getId())
+                .reportTypeNo(articleComReport.getRpiNo().getId())
+                .build();
+    }
 
 }
