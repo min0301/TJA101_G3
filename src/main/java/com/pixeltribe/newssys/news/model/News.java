@@ -3,9 +3,8 @@ package com.pixeltribe.newssys.news.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pixeltribe.membersys.administrator.model.Administrator;
-import com.pixeltribe.newssys.newscontentclassification.model.NewContentClassification;
-import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.newssys.newscomment.model.NewsComment;
+import com.pixeltribe.newssys.newscontentclassification.model.NewContentClassification;
 import com.pixeltribe.newssys.newsimage.model.NewsImage;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -13,8 +12,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
@@ -39,12 +36,17 @@ public class News {
     @NotNull
     @Column(name = "NEWS_CON", nullable = false, length = 9000)
     private String newsCon;
-    @Column(name = "NEWS_UPDATE",insertable = false, updatable = false)
+    @Column(name = "NEWS_UPDATE", insertable = false, updatable = false)
     private Instant newsUpdate;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "NEWS_CRDATE", nullable = false,insertable = false)
+    @Column(name = "NEWS_CRDATE", nullable = false, insertable = false)
     private Instant newsCrdate;
+
+    @NotNull
+    @ColumnDefault("1")
+    @Column(name = "IS_SHOWED", nullable = false)
+    private Boolean isShowed = true;
 
 //TODO
 //    @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -67,7 +69,6 @@ public class News {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @ColumnDefault("1")
     @JoinColumn(name = "ADMIN_NO", nullable = false)
     @JsonIgnore
     private Administrator adminNo;

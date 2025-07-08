@@ -13,6 +13,8 @@ import java.util.List;
  */
 @Value
 public class NewsCreationDTO implements Serializable {
+
+    Integer id;
     @NotNull
     @Size(max = 255)
     String newsTit;

@@ -1,5 +1,7 @@
 package com.pixeltribe.newssys.news.model;
 
+import com.pixeltribe.common.PageResponse;
+import com.pixeltribe.common.PageResponseFactory;
 import com.pixeltribe.membersys.administrator.model.AdmRepository;
 import com.pixeltribe.membersys.administrator.model.Administrator;
 import com.pixeltribe.membersys.member.model.MemRepository;
@@ -13,7 +15,9 @@ import com.pixeltribe.newssys.newsimage.model.NewsImageRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,14 +38,6 @@ public class NewsService {
     @Autowired
     NewContentClassificationRepository newContentClassificationRepository;
 
-//TODO
-//    @Transactional(readOnly = true)
-//    public void addNews(News news) {
-//        newsRepository.save(news);
-//    }
-//    public void updateNews(News news) {
-//        newsRepository.save(news);
-//    }
     @Transactional(readOnly = true)
     public NewsDTO getOneNews(Integer id) {
         NewsDTO newsDto = newsRepository.getNewsById(id);
@@ -49,8 +45,9 @@ public class NewsService {
     }
 
     @Transactional(readOnly = true)
-    public List<NewsDTO> findAll() {
-        return newsRepository.getLastFiveNews(PageRequest.of(0, 5));
+    public PageResponse<NewsDTO> findAll(int page, int size) {
+        Page<NewsDTO> pageData = newsRepository.getPageNews(PageRequest.of(page,size));
+        return PageResponseFactory.fromPage(pageData);
     }
 
     @Transactional
@@ -77,9 +74,13 @@ public class NewsService {
             newContentClassificationRepository.save(ncc);
         }
 
-        NewsCreationDTO nCDTO = new NewsCreationDTO(tit,con,adminNoId,tags);
+        NewsCreationDTO nCDTO = new NewsCreationDTO(news.getId(), tit,con,adminNoId,tags);
 
         return  nCDTO;
     }
 
+    public PageResponse<NewsAdminDTO> findAllAdminNews(int page, int size) {
+        Page<NewsAdminDTO> pageData = newsRepository.findAdminPageNews(PageRequest.of(page,size));
+        return PageResponseFactory.fromPage(pageData);
+    }
 }

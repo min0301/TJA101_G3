@@ -4,12 +4,12 @@
 -- ===== START OF MEMBER_SysAndNEWS_Sys.sql =====
 -- 建立資料庫
 CREATE
-DATABASE IF NOT EXISTS pixel_tribe;
+    DATABASE IF NOT EXISTS pixel_tribe;
 USE
-pixel_tribe;
+    pixel_tribe;
 
 SET
-FOREIGN_KEY_CHECKS = 0;
+    FOREIGN_KEY_CHECKS = 0;
 
 -- 移除清除既有資料表（依 FK 先子後父）
 -- 依相依關係由下而上刪除，避免 Foreign-Key Constraint 衝突
@@ -75,29 +75,29 @@ DROP TABLE IF EXISTS MEMBER;
 CREATE TABLE MEMBER
 (
     MEM_NO               INT AUTO_INCREMENT NOT NULL Comment '會員編號(PK)',
-    MEM_NAME             VARCHAR(50)  NOT NULL comment '姓名',
-    MEM_NICK_NAME        VARCHAR(50)  NOT NULL comment '暱稱',
-    MEM_ACCOUNT          VARCHAR(50)  NOT NULL unique Comment '登入帳號',
-    MEM_PASSWORD         VARCHAR(60)  NOT NULL Comment '密碼/Bcrypt',
-    MEM_EMAIL            VARCHAR(100) NOT NULL unique,
+    MEM_NAME             VARCHAR(50)        NOT NULL comment '姓名',
+    MEM_NICK_NAME        VARCHAR(50)        NOT NULL comment '暱稱',
+    MEM_ACCOUNT          VARCHAR(50)        NOT NULL unique Comment '登入帳號',
+    MEM_PASSWORD         VARCHAR(60)        NOT NULL Comment '密碼/Bcrypt',
+    MEM_EMAIL            VARCHAR(100)       NOT NULL unique,
     MEM_ICON_DATA        LONGBLOB Comment '大頭貼',
-    MEM_ADDR             VARCHAR(100) NOT NULL comment '地址',
-    MEM_PHONE            VARCHAR(50)  NOT NULL unique comment '行動電話',
-    MEM_BIRTHDAY         DATE         NOT NULL,
-    MEM_CREATE           DATETIME              DEFAULT CURRENT_TIMESTAMP comment '建立時間',
+    MEM_ADDR             VARCHAR(100)       NOT NULL comment '地址',
+    MEM_PHONE            VARCHAR(50)        NOT NULL unique comment '行動電話',
+    MEM_BIRTHDAY         DATE               NOT NULL,
+    MEM_CREATE           DATETIME                    DEFAULT CURRENT_TIMESTAMP comment '建立時間',
     MEM_UPDATE           DATETIME ON UPDATE CURRENT_TIMESTAMP comment '最後修改時間',
-    MEM_STATUS           CHAR(1)      NOT NULL DEFAULT '1' comment '1:正常 2:停權',
-    MEM_TOKEN            VARCHAR(50)           DEFAULT NULL comment 'Token',
-    MEM_EMAIL_AUTH       VARCHAR(50)           DEFAULT NULL comment 'email驗證碼',
-    SEND_AUTH_Email_TIME DATETIME              DEFAULT NULL comment '發送驗證信時間',
-    CAN_POST             BOOLEAN      NOT NULL DEFAULT TRUE comment '可否發文',
-    CAN_COMMENT          BOOLEAN      NOT NULL DEFAULT TRUE comment '可否留言',
-    CAN_USED_PRO         BOOLEAN      NOT NULL DEFAULT FALSE comment '可否二手交易',
-    PHONE_AUTHED         BOOLEAN      NOT NULL DEFAULT FALSE comment '手機是否驗證',
+    MEM_STATUS           CHAR(1)            NOT NULL DEFAULT '1' comment '1:正常 2:停權',
+    MEM_TOKEN            VARCHAR(50)                 DEFAULT NULL comment 'Token',
+    MEM_EMAIL_AUTH       VARCHAR(50)                 DEFAULT NULL comment 'email驗證碼',
+    SEND_AUTH_Email_TIME DATETIME                    DEFAULT NULL comment '發送驗證信時間',
+    CAN_POST             BOOLEAN            NOT NULL DEFAULT TRUE comment '可否發文',
+    CAN_COMMENT          BOOLEAN            NOT NULL DEFAULT TRUE comment '可否留言',
+    CAN_USED_PRO         BOOLEAN            NOT NULL DEFAULT FALSE comment '可否二手交易',
+    PHONE_AUTHED         BOOLEAN            NOT NULL DEFAULT FALSE comment '手機是否驗證',
     AUTH_PROVIDER        VARCHAR(20) COMMENT '登入來源：LOCAL / GOOGLE / FACEBOOK…',
     PROVIDER_UID         VARCHAR(100) COMMENT 'Provider 回傳之唯一 ID',
-    ROLE                 VARCHAR(20)  NOT NULL DEFAULT 'ROLE_USER' COMMENT 'Spring Security 角色',
-    POINT                INT                   DEFAULT 0 comment '會員積分',
+    ROLE                 VARCHAR(20)        NOT NULL DEFAULT 'ROLE_USER' COMMENT 'Spring Security 角色',
+    POINT                INT                         DEFAULT 0 comment '會員積分',
     CONSTRAINT MEMBER_PK PRIMARY KEY (MEM_NO)
 ) comment '會員資料';
 -- 插入 37 筆會員資料
@@ -186,7 +186,7 @@ VALUES
 CREATE TABLE LOG_FAIL_REASON
 (
     LOG_FAIL_REASON_NO INT AUTO_INCREMENT NOT NULL COMMENT '失敗原因編號',
-    LOG_FAIL_TYPE      VARCHAR(50) NOT NULL COMMENT '失敗原因種類',
+    LOG_FAIL_TYPE      VARCHAR(50)        NOT NULL COMMENT '失敗原因種類',
     PRIMARY KEY (LOG_FAIL_REASON_NO)
 ) COMMENT ='登入失敗原因';
 
@@ -197,9 +197,9 @@ VALUES ('帳號密碼錯誤'),
 CREATE TABLE ADMINISTRATOR
 (
     ADM_NO       INT PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '管理員編號',
-    ADM_ACCOUNT  VARCHAR(50) NOT NULL COMMENT '管理員帳號',
-    ADM_NAME     VARCHAR(50) NOT NULL COMMENT '管理員名稱',
-    ADM_PASSWORD VARCHAR(60) NOT NULL COMMENT '管理員密碼/Bcrypt',
+    ADM_ACCOUNT  VARCHAR(50)                    NOT NULL COMMENT '管理員帳號',
+    ADM_NAME     VARCHAR(50)                    NOT NULL COMMENT '管理員名稱',
+    ADM_PASSWORD VARCHAR(60)                    NOT NULL COMMENT '管理員密碼/Bcrypt',
     CREATE_TIME  DATETIME    DEFAULT CURRENT_TIMESTAMP COMMENT '建立時間',
     ROLE         VARCHAR(20) DEFAULT 'ROLE_ADMIN',
     ADM_PROFILE  LONGBLOB COMMENT '管理員頭像'
@@ -283,12 +283,12 @@ VALUES (22, 34, '待同意', '2024-03-08 01:30:56', Null),
 CREATE TABLE MEMBER_LOGIN_LOG
 (
     LOG_NO             INT AUTO_INCREMENT NOT NULL COMMENT '紀錄編號',
-    MEM_NO             INT         NOT NULL COMMENT '會員編號',
-    LOG_TIME           DATETIME    NOT NULL COMMENT '登入時間',
-    LOG_IP             VARCHAR(50) NOT NULL COMMENT '登入IP地址',
-    LOG_BROWSER        VARCHAR(50) NOT NULL COMMENT '登入瀏覽器',
-    LOG_EQUIP          VARCHAR(50) NOT NULL COMMENT '登入裝置',
-    LOG_SUCCESS        BOOLEAN     NOT NULL COMMENT '是否成功',
+    MEM_NO             INT                NOT NULL COMMENT '會員編號',
+    LOG_TIME           DATETIME           NOT NULL COMMENT '登入時間',
+    LOG_IP             VARCHAR(50)        NOT NULL COMMENT '登入IP地址',
+    LOG_BROWSER        VARCHAR(50)        NOT NULL COMMENT '登入瀏覽器',
+    LOG_EQUIP          VARCHAR(50)        NOT NULL COMMENT '登入裝置',
+    LOG_SUCCESS        BOOLEAN            NOT NULL COMMENT '是否成功',
     LOG_FAIL_REASON_NO INT COMMENT '失敗原因編號',
     PRIMARY KEY (LOG_NO),
     FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
@@ -350,8 +350,8 @@ VALUES (6, '2024-08-31 20:59:01', '192.168.103.114', 'Edge', 'Windows PC', 1, nu
 CREATE TABLE PRIVATE_CHATROOM
 (
     PRIROOM_NO  INT AUTO_INCREMENT NOT NULL COMMENT '聊天室編號',
-    MEMBER1     INT NOT NULL COMMENT '會員1編號',
-    MEMBER2     INT NOT NULL COMMENT '會員2編號',
+    MEMBER1     INT                NOT NULL COMMENT '會員1編號',
+    MEMBER2     INT                NOT NULL COMMENT '會員2編號',
     CREATE_TIME DATETIME COMMENT '創建時間',
     PRI_STATUS  CHAR(1) COMMENT '聊天室狀態(開啟:1,關閉:2)',
     PRIMARY KEY (PRIROOM_NO),
@@ -461,7 +461,7 @@ VALUES (1, 5, 16, '你的簡報很棒！', '2025-05-14 06:32:41', 1),
 CREATE TABLE NEWS_CATEGORY
 (
     NCAT_NO   INT AUTO_INCREMENT NOT NULL comment '新聞類別編號',
-    NCAT_NAME VARCHAR(50) NOT NULL comment '類別名稱',
+    NCAT_NAME VARCHAR(50)        NOT NULL comment '類別名稱',
     CONSTRAINT NEWS_CATEGORY_PK PRIMARY KEY (NCAT_NO)
 ) AUTO_INCREMENT = 1 COMMENT ='新聞類別';
 -- 新增新聞類別資料 --
@@ -493,12 +493,13 @@ VALUES ('PC'),
 CREATE TABLE NEWS
 (
     NEWS_NO     INT AUTO_INCREMENT NOT NULL comment '新聞編號(PK)',
-    NEWS_TIT    VARCHAR(255)  NOT NULL comment '新聞標題',
-    NEWS_CON    VARCHAR(9000) NOT NULL comment '新聞內容',
+    NEWS_TIT    VARCHAR(255)       NOT NULL comment '新聞標題',
+    NEWS_CON    VARCHAR(9000)      NOT NULL comment '新聞內容',
     NEWS_UPDATE DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最後更新時間，預設為 NULL',
-    NEWS_CRDATE DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '自動填入資料插入時間',
-    MEM_NO      INT           NOT NULL DEFAULT 1 COMMENT '預設管理員 1',
-    ADMIN_NO    INT           NOT NULL DEFAULT 1 comment '給Adiminstor 預設為1',
+    NEWS_CRDATE DATETIME           NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '自動填入資料插入時間',
+    IS_SHOWED   BOOLEAN            NOT NULL DEFAULT true COMMENT 'true:顯示 false:不顯示',
+    MEM_NO      INT                NOT NULL DEFAULT 1 COMMENT '預設管理員 1',
+    ADMIN_NO    INT                NOT NULL DEFAULT 1 comment '給Adiminstor 預設為1',
     CONSTRAINT NEWS_PK PRIMARY KEY (NEWS_NO),
     CONSTRAINT NEWS_FK_MEMBER FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
     CONSTRAINT NEWS_FK_ADMINISTOR FOREIGN KEY (ADMIN_NO) REFERENCES ADMINISTRATOR (ADM_NO)
@@ -532,7 +533,7 @@ CREATE TABLE NEWS_IMAGE
 (
     IMG_NO   INT AUTO_INCREMENT NOT NULL,
     IMG_DATA longblob comment '圖片檔案',
-    NEWS_NO  INT NOT NULL,
+    NEWS_NO  INT                NOT NULL,
     IMG_TYPE VARCHAR(100) comment 'MIME Type,例如image/png',
     CONSTRAINT NEWS_IMAGE_PK PRIMARY KEY (IMG_NO),
     CONSTRAINT NEWS_IMAGE_FK_NEWS FOREIGN KEY (NEWS_NO) REFERENCES NEWS (NEWS_NO)
@@ -543,13 +544,13 @@ CREATE TABLE NEWS_IMAGE
 CREATE TABLE NEWS_COMMENTS
 (
     NCOM_NO       INT AUTO_INCREMENT NOT NULL,
-    NCOM_CON      VARCHAR(4000) NOT NULL comment '留言內容',
-    NCOM_CRE      DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '自動填入插入當下時間,留言時間',
-    NCOM_STATUS   CHAR(1)       NOT NULL DEFAULT '1' COMMENT '1:正常 2:違規，預設為正常',
-    NEWS_NO       INT           NOT NULL,
-    MEM_NO        INT           NOT NULL,
-    NCOM_LIKE_LC  INT           NOT NULL DEFAULT 0 comment '按讚',
-    NCOM_LIKE_DLC INT           NOT NULL DEFAULT 0 comment '倒讚',
+    NCOM_CON      VARCHAR(4000)      NOT NULL comment '留言內容',
+    NCOM_CRE      DATETIME           NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '自動填入插入當下時間,留言時間',
+    NCOM_STATUS   CHAR(1)            NOT NULL DEFAULT '1' COMMENT '1:正常 2:違規，預設為正常',
+    NEWS_NO       INT                NOT NULL,
+    MEM_NO        INT                NOT NULL,
+    NCOM_LIKE_LC  INT                NOT NULL DEFAULT 0 comment '按讚',
+    NCOM_LIKE_DLC INT                NOT NULL DEFAULT 0 comment '倒讚',
     CONSTRAINT NEWS_COMMENTS_PK PRIMARY KEY (NCOM_NO),
     CONSTRAINT NEWS_COMMENTS_FK_NEWS FOREIGN KEY (NEWS_NO) REFERENCES NEWS (NEWS_NO),
     CONSTRAINT NEWS_COMMENTS_FK_MEMBER FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO)
@@ -590,11 +591,11 @@ VALUES
 CREATE TABLE NEWS_LIKE
 (
     NLIKE_NO     INT AUTO_INCREMENT NOT NULL,
-    NLIKE_STATUS CHAR(1)  NOT NULL DEFAULT '1' COMMENT '1:正常 2:讚 3:倒讚 ',
-    MEM_NO       INT      NOT NULL comment '操作人',
-    NLIKE_UPDATE DATETIME NOT NULL default current_timestamp ON UPDATE CURRENT_TIMESTAMP comment '最後操作時間',
-    NLIKE_CRDATE DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '自動填入插入當下時間,建立時間',
-    NCOM_NO      INT      NOT NULL comment '對應留言',
+    NLIKE_STATUS CHAR(1)            NOT NULL DEFAULT '1' COMMENT '1:正常 2:讚 3:倒讚 ',
+    MEM_NO       INT                NOT NULL comment '操作人',
+    NLIKE_UPDATE DATETIME           NOT NULL default current_timestamp ON UPDATE CURRENT_TIMESTAMP comment '最後操作時間',
+    NLIKE_CRDATE DATETIME           NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '自動填入插入當下時間,建立時間',
+    NCOM_NO      INT                NOT NULL comment '對應留言',
     CONSTRAINT NEWS_LIKE_PK PRIMARY KEY (NLIKE_NO),
     CONSTRAINT NEWS_LIKE_FK_MEMBER FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
     CONSTRAINT NEWS_LIKE_FK_COMMENT FOREIGN KEY (NCOM_NO) REFERENCES NEWS_COMMENTS (NCOM_NO)
@@ -736,8 +737,8 @@ VALUES ('2', 2, '2025-05-30 10:27:00', '2025-05-30 10:27:00', 1),
 CREATE TABLE NEW_CONTENT_CLASSIFICATION
 (
     NCC_NO  INT AUTO_INCREMENT NOT NULL,
-    NCAT_NO INT NOT NULL,
-    NEWS_NO INT NOT NULL,
+    NCAT_NO INT                NOT NULL,
+    NEWS_NO INT                NOT NULL,
     CONSTRAINT NEW_CONTENT_CLASSIFICATION_PK PRIMARY KEY (NCC_NO),
     CONSTRAINT NCC_FK_CATEGORY FOREIGN KEY (NCAT_NO)
         REFERENCES NEWS_CATEGORY (NCAT_NO),
@@ -760,11 +761,11 @@ VALUES (1, 1),
 CREATE TABLE NEWS_COM_REPORT
 (
     NEWS_COM_REPORT_NO     INT AUTO_INCREMENT NOT NULL,
-    REPORTER               INT      NOT NULL comment '檢舉者 MEM_NO',                 -- 檢舉者（會員）
-    REPORT_TYPE            INT      NOT NULL comment '檢舉類型 RPI_NO',               -- 檢舉類型（FK：REPORT_TYPE.RPI_NO）
-    NEWS_COM_REPORT_STATUS CHAR(1)  NOT NULL DEFAULT '0' comment '0:未處理 1:已處理', -- 未處理 已處理
-    NCOM_NO                INT      NOT NULL comment '被檢舉留言',                    -- 被檢舉的評論
-    CREATE_TIME            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP comment '創造新聞評論檢舉時間',
+    REPORTER               INT                NOT NULL comment '檢舉者 MEM_NO',                 -- 檢舉者（會員）
+    REPORT_TYPE            INT                NOT NULL comment '檢舉類型 RPI_NO',               -- 檢舉類型（FK：REPORT_TYPE.RPI_NO）
+    NEWS_COM_REPORT_STATUS CHAR(1)            NOT NULL DEFAULT '0' comment '0:未處理 1:已處理', -- 未處理 已處理
+    NCOM_NO                INT                NOT NULL comment '被檢舉留言',                    -- 被檢舉的評論
+    CREATE_TIME            DATETIME           NOT NULL DEFAULT CURRENT_TIMESTAMP comment '創造新聞評論檢舉時間',
     FINISH_TIME            DATETIME comment '處理完成時間',
     CONSTRAINT NEWS_COM_REPORT_PK PRIMARY KEY (NEWS_COM_REPORT_NO),
     CONSTRAINT NCR_FK_MEMBER FOREIGN KEY (REPORTER) REFERENCES MEMBER (MEM_NO),
@@ -797,9 +798,9 @@ VALUES (2, 1, '0', 3, '2025-06-07 12:00:00', NULL),
 
 -- 設定自增主鍵起始值與遞增量
 SET
-auto_increment_offset = 1;
+    auto_increment_offset = 1;
 SET
-auto_increment_increment = 1;
+    auto_increment_increment = 1;
 
 
 -- 建立 討論區類別 表格 --
@@ -966,14 +967,14 @@ create table FORUM_POST
     `MEM_NO`          INT COMMENT '會員編號',
     `FTAG_NO`         INT COMMENT '類別編號',
     `POST_TITLE`      VARCHAR(50) COMMENT '文章標題',
-    `POST_CON`        VARCHAR(5000) NOT NULL COMMENT '文章內容',
-    `POST_CRDATE`     DATETIME               DEFAULT CURRENT_TIMESTAMP COMMENT '創建時間',
-    `POST_UPDATE`     DATETIME               DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新時間',
-    `POST_PIN`        CHAR(1)       NOT NULL DEFAULT '0' COMMENT '置頂狀態',
-    `POST_STATUS`     CHAR(1)       NOT NULL DEFAULT '0' COMMENT '文章狀態(違規)',
-    `MES_NUMBERS`     INT                    DEFAULT '0' COMMENT '留言篇數',
-    `POST_LIKE_COUNT` INT                    DEFAULT '0' COMMENT '讚總數',
-    `POST_LIKE_DLC`   INT                    DEFAULT '0' COMMENT '倒讚總數',
+    `POST_CON`        VARCHAR(5000)      NOT NULL COMMENT '文章內容',
+    `POST_CRDATE`     DATETIME                    DEFAULT CURRENT_TIMESTAMP COMMENT '創建時間',
+    `POST_UPDATE`     DATETIME                    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新時間',
+    `POST_PIN`        CHAR(1)            NOT NULL DEFAULT '0' COMMENT '置頂狀態',
+    `POST_STATUS`     CHAR(1)            NOT NULL DEFAULT '0' COMMENT '文章狀態(違規)',
+    `MES_NUMBERS`     INT                         DEFAULT '0' COMMENT '留言篇數',
+    `POST_LIKE_COUNT` INT                         DEFAULT '0' COMMENT '讚總數',
+    `POST_LIKE_DLC`   INT                         DEFAULT '0' COMMENT '倒讚總數',
     FOREIGN KEY (`MEM_NO`) REFERENCES MEMBER (`MEM_NO`) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (`FTAG_NO`) REFERENCES FORUM_TAG (`FTAG_NO`) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (`FOR_NO`) REFERENCES FORUM (`FOR_NO`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -1534,7 +1535,7 @@ Boss 戰特定 Bug： 修復「熔爐騎士」和「腐敗樹靈」在特定情�
 CREATE TABLE REPORT_TYPE
 (
     `RPI_NO`   INT AUTO_INCREMENT NOT NULL PRIMARY KEY COMMENT '檢舉類型編號',
-    `RPI_TYPE` VARCHAR(255) NOT NULL COMMENT '檢舉類型項目'
+    `RPI_TYPE` VARCHAR(255)       NOT NULL COMMENT '檢舉類型項目'
 ) COMMENT '檢舉類型';
 
 -- 新增 檢舉類型 資料 --
@@ -1554,8 +1555,8 @@ CREATE TABLE ARTICLE_REPORT
     `REPORTER`       INT COMMENT '檢舉者編號',
     `RPI_NO`         INT COMMENT '檢舉類型編號',
     `POST_NO`        INT COMMENT '文章編號',
-    `ART_REP_STATUS` CHAR(1) NOT NULL DEFAULT '0' COMMENT '處理狀態',
-    `CREATE_TIME`    DATETIME         DEFAULT CURRENT_TIMESTAMP COMMENT '建立時間',
+    `ART_REP_STATUS` CHAR(1)            NOT NULL DEFAULT '0' COMMENT '處理狀態',
+    `CREATE_TIME`    DATETIME                    DEFAULT CURRENT_TIMESTAMP COMMENT '建立時間',
     `FINISH_TIME`    DATETIME,
     FOREIGN KEY (`REPORTER`) REFERENCES MEMBER (`MEM_NO`) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (`RPI_NO`) REFERENCES REPORT_TYPE (`RPI_NO`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -2171,31 +2172,31 @@ BEGIN
     SET current_month = DATE_FORMAT(NOW(), '%Y%m');
 
     -- 查詢目前月份的最大序號(流水號碼)
-    SELECT COALESCE(MAX(CAST(RIGHT (ORDER_NO, 4) AS UNSIGNED)), 0) + 1
+    SELECT COALESCE(MAX(CAST(RIGHT(ORDER_NO, 4) AS UNSIGNED)), 0) + 1
     INTO next_seq
     FROM `ORDER`
-    WHERE LEFT (ORDER_NO, 6) = current_month;
+    WHERE LEFT(ORDER_NO, 6) = current_month;
 
     -- 生成新的ORDER_NO (格式: YYYYMM0001)
     SET NEW.ORDER_NO = CONCAT(current_month, LPAD(next_seq, 4, '0'));
 END$$
-    DELIMITER ;
+DELIMITER ;
 
 
 -- -- 插入 9筆 訂單ORDER 資料
-    INSERT INTO `ORDER` (MEM_NO, COUPON_WALLET_NO, ORDER_STATUS, ORDER_TOTAL, POINT_USED)
-    VALUES ('15', '1', '已完成', 1399, 0),
-           ('23', NULL, '處理中', 1990, 0),
-           ('8', '3', '已完成', 1090, 0),
-           ('12', '5', '已完成', 1090, 0),
-           ('23', NULL, '處理中', 1690, 0),
-           ('6', '7', '已完成', 899, 0),
-           ('29', NULL, '已出貨', 1390, 0),
-           ('15', '9', '已完成', 218, 0),
-           ('37', '10', '處理中', 1690, 0);
+INSERT INTO `ORDER` (MEM_NO, COUPON_WALLET_NO, ORDER_STATUS, ORDER_TOTAL, POINT_USED)
+VALUES ('15', '1', '已完成', 1399, 0),
+       ('23', NULL, '處理中', 1990, 0),
+       ('8', '3', '已完成', 1090, 0),
+       ('12', '5', '已完成', 1090, 0),
+       ('23', NULL, '處理中', 1690, 0),
+       ('6', '7', '已完成', 899, 0),
+       ('29', NULL, '已出貨', 1390, 0),
+       ('15', '9', '已完成', 218, 0),
+       ('37', '10', '處理中', 1690, 0);
 
 
-    -- ===== END OF order.sql =====
+-- ===== END OF order.sql =====
 
 -- ===== START OF oreder_item.sql =====
 -- 建立資料庫並設定自動遞增屬性
@@ -2206,39 +2207,39 @@ END$$
 
 
 -- 建立 訂單明細ORDER_ITEM 資料表
-    CREATE TABLE ORDER_ITEM
-    (
-        ORDER_ITEM_NO          INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '訂單明細編號',
-        ORDER_NO               INT COMMENT '訂單編號',
-        PRO_NO                 INT COMMENT '產品編號',
-        ORDER_AMOUNT           INT COMMENT '訂購數量',
-        PRO_PRICE              INT COMMENT '產品價格',
-        PRO_NAME               VARCHAR(30) COMMENT '產品名稱',
-        PRODUCT_COMMENT        VARCHAR(255) COMMENT '產品評論內容',
-        PRODUCT_COMMENT_CRDATE DATETIME COMMENT '評論時間',
-        PRO_STAR               INT COMMENT '產品評價',
-        PRO_COM_STATUS         CHAR(1) DEFAULT '0' COMMENT '產品評論狀態',
+CREATE TABLE ORDER_ITEM
+(
+    ORDER_ITEM_NO          INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '訂單明細編號',
+    ORDER_NO               INT COMMENT '訂單編號',
+    PRO_NO                 INT COMMENT '產品編號',
+    ORDER_AMOUNT           INT COMMENT '訂購數量',
+    PRO_PRICE              INT COMMENT '產品價格',
+    PRO_NAME               VARCHAR(30) COMMENT '產品名稱',
+    PRODUCT_COMMENT        VARCHAR(255) COMMENT '產品評論內容',
+    PRODUCT_COMMENT_CRDATE DATETIME COMMENT '評論時間',
+    PRO_STAR               INT COMMENT '產品評價',
+    PRO_COM_STATUS         CHAR(1) DEFAULT '0' COMMENT '產品評論狀態',
 
-        FOREIGN KEY (ORDER_NO) REFERENCES `ORDER` (ORDER_NO),
-        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-    );
+    FOREIGN KEY (ORDER_NO) REFERENCES `ORDER` (ORDER_NO),
+    FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+);
 
 
 -- -- 插入 9筆 訂單明細ORDER_ITEM  資料
-    INSERT INTO ORDER_ITEM (ORDER_NO, PRO_NO, ORDER_AMOUNT, PRO_PRICE, PRO_NAME, PRODUCT_COMMENT,
-                            PRODUCT_COMMENT_CRDATE,
-                            PRO_STAR, PRO_COM_STATUS)
-    VALUES (2024060001, 1, 1, 1499, '光與影：33 號遠征隊', NULL, NULL, NULL, '1'),
-           (2024060002, 2, 1, 1990, '印第安納瓊斯：古老之圈', NULL, NULL, NULL, '1'),
-           (2024060003, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
-           (2024060004, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
-           (2024060005, 5, 1, 1690, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
-           (2024060006, 6, 1, 999, '雙點博物館', NULL, NULL, NULL, '1'),
-           (2024060007, 7, 1, 1390, '人中之龍 8 外傳 夏威夷海盜', NULL, NULL, NULL, '1'),
-           (2024060008, 8, 1, 318, '即刻離職', NULL, NULL, NULL, '1'),
-           (2024060009, 10, 1, 1790, '歧路旅人 + 歧路旅人 II 合輯', NULL, NULL, NULL, '1');
+INSERT INTO ORDER_ITEM (ORDER_NO, PRO_NO, ORDER_AMOUNT, PRO_PRICE, PRO_NAME, PRODUCT_COMMENT,
+                        PRODUCT_COMMENT_CRDATE,
+                        PRO_STAR, PRO_COM_STATUS)
+VALUES (2024060001, 1, 1, 1499, '光與影：33 號遠征隊', NULL, NULL, NULL, '1'),
+       (2024060002, 2, 1, 1990, '印第安納瓊斯：古老之圈', NULL, NULL, NULL, '1'),
+       (2024060003, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
+       (2024060004, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
+       (2024060005, 5, 1, 1690, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1'),
+       (2024060006, 6, 1, 999, '雙點博物館', NULL, NULL, NULL, '1'),
+       (2024060007, 7, 1, 1390, '人中之龍 8 外傳 夏威夷海盜', NULL, NULL, NULL, '1'),
+       (2024060008, 8, 1, 318, '即刻離職', NULL, NULL, NULL, '1'),
+       (2024060009, 10, 1, 1790, '歧路旅人 + 歧路旅人 II 合輯', NULL, NULL, NULL, '1');
 
-    -- 重新啟用外鍵檢查
+-- 重新啟用外鍵檢查
 --
 -- ===== END OF oreder_item.sql =====
 
@@ -2255,17 +2256,17 @@ END$$
 -- SET auto_increment_increment = 1;
 
 -- 建立 產品圖片PRODUCT_IMAGE 資料表
-    CREATE TABLE PRODUCT_IMAGE
-    (
-        PRO_IMG_NO   INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品圖片編號',
-        PRO_NO       INT NOT NULL COMMENT '產品編號',
-        PRO_IMG_DATA LONGBLOB COMMENT '圖片資料',
-        PRO_IMG_TYPE VARCHAR(100) COMMENT '產品圖片類型',
+CREATE TABLE PRODUCT_IMAGE
+(
+    PRO_IMG_NO   INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品圖片編號',
+    PRO_NO       INT                            NOT NULL COMMENT '產品編號',
+    PRO_IMG_DATA LONGBLOB COMMENT '圖片資料',
+    PRO_IMG_TYPE VARCHAR(100) COMMENT '產品圖片類型',
 
-        CONSTRAINT FK_PRODUCT_IMAGE_PRODUCT_PRO_NO
-            FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-    );
-    -- ===== END OF product_image.sql =====
+    CONSTRAINT FK_PRODUCT_IMAGE_PRODUCT_PRO_NO
+        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+);
+-- ===== END OF product_image.sql =====
 
 -- ===== START OF favorite_product.sql =====
 -- 建立資料庫並設定自動遞增屬性
@@ -2279,19 +2280,19 @@ END$$
 -- SET auto_increment_offset = 1;
 -- SET auto_increment_increment = 1;
 
-    CREATE TABLE FAVORITE_PRODUCT
-    (
-        FAV_PRO_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '最愛產品編號',
-        MEM_NO     INT NOT NULL COMMENT '會員編號',
-        PRO_NO     INT NOT NULL COMMENT '產品編號',
+CREATE TABLE FAVORITE_PRODUCT
+(
+    FAV_PRO_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '最愛產品編號',
+    MEM_NO     INT                            NOT NULL COMMENT '會員編號',
+    PRO_NO     INT                            NOT NULL COMMENT '產品編號',
 
-        FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
-        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-    );
+    FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
+    FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+);
 
 -- -- 插入 產品序號 FAVORITE_PRODUCT 資料
-    INSERT INTO FAVORITE_PRODUCT (MEM_NO, PRO_NO)
-        VALUE (20, 1),
+INSERT INTO FAVORITE_PRODUCT (MEM_NO, PRO_NO)
+    VALUE (20, 1),
     (33, 3),
     (6, 5),
     (5, 7),
@@ -2306,7 +2307,7 @@ END$$
     (3, 8),
     (13, 13),
     (25, 16);
-    -- ===== END OF favorite_product.sql =====
+-- ===== END OF favorite_product.sql =====
 
 -- ===== START OF pro_serial_numbers.sql =====
 -- 建立資料庫並設定自動遞增屬性
@@ -2321,21 +2322,21 @@ END$$
 -- SET auto_increment_increment = 1;
 
 -- 建立 產品序號 PRO_SERIAL_NUMBERS 資料表
-    CREATE TABLE PRO_SERIAL_NUMBERS
-    (
-        PRODUCT_SN_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品序號流水號',
-        PRODUCT_SN    VARCHAR(100) COMMENT '產品序號',
-        ORDER_ITEM_NO INT COMMENT '訂單明細編號',
-        PRO_NO        INT COMMENT '產品編號',
+CREATE TABLE PRO_SERIAL_NUMBERS
+(
+    PRODUCT_SN_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品序號流水號',
+    PRODUCT_SN    VARCHAR(100) COMMENT '產品序號',
+    ORDER_ITEM_NO INT COMMENT '訂單明細編號',
+    PRO_NO        INT COMMENT '產品編號',
 
-        FOREIGN KEY (ORDER_ITEM_NO) REFERENCES ORDER_ITEM (ORDER_ITEM_NO),
-        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-    );
+    FOREIGN KEY (ORDER_ITEM_NO) REFERENCES ORDER_ITEM (ORDER_ITEM_NO),
+    FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+);
 
 
 -- -- 插入 產品序號 PRO_SERIAL_NUMBERS 資料
-    INSERT INTO PRO_SERIAL_NUMBERS (PRODUCT_SN, ORDER_ITEM_NO, PRO_NO)
-        VALUE ('N284X-42RP4-0J9KS', 1, 1),
+INSERT INTO PRO_SERIAL_NUMBERS (PRODUCT_SN, ORDER_ITEM_NO, PRO_NO)
+    VALUE ('N284X-42RP4-0J9KS', 1, 1),
     ('F81F0-G1VP0-L0B96', NULL, 1),
     ('SGH46-30U5H-S89PJ', NULL, 1),
     ('34GL1-72L86-B66YJ', NULL, 1),
@@ -2487,4 +2488,4 @@ END$$
     ('0GP8B-HMD0I-1N4JB', NULL, 17);
 
 -- ===== END OF pro_serial_numbers.sql =====
-    SET FOREIGN_KEY_CHECKS = 1;
+SET FOREIGN_KEY_CHECKS = 1;
