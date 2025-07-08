@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>論壇文章管理後台</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrNjHq3R8U6/S3A7+wP9m/8M+2yF8zN4Fp9J5N6d5qKj5K5f5A7f5D5f5+5G5+5Q5+5g5+5h5+5Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         /* CSS 樣式區 - 定義頁面外觀 */
 
@@ -443,7 +443,6 @@
     <span id="lightbox-close" class="lightbox-close">&times;</span>
     <img id="lightbox-img" class="lightbox-content">
 </div>
-<!--編輯文章-->
 <div id="editModal" class="modal">
     <div class="modal-content">
         <span class="close-button">&times;</span>
@@ -523,15 +522,27 @@
 
         const forumId = getUrlParameter('forNo');
 
+        // --- API URL 常量定義 ---
+        // 請確保這些 URL 與後端 ForumPostController 中實際定義的路徑完全一致
+        const API_BASE_URL = 'http://localhost:8080'; // 基礎 URL
+        const API_FORUM_POST_PREFIX = '/api/forumpost'; // 文章相關 API 的通用前綴
+        const API_FORUM_PREFIX = '/api/forum';       // 論壇相關 API 的通用前綴
+        const API_FORUM_TAG_PREFIX = '/api/forumtag'; // 文章類別相關 API 的通用前綴
+
+        // 載入所有文章列表或特定論壇的文章列表
         async function initialize() {
             try {
                 let apiUrl = '';
                 if (forumId) {
-                    apiUrl = `http://localhost:8080/api/forum/${forumId}/posts`;
-                    console.log(`正在獲取論壇 ID ${forumId} 的文章... URL: ${apiUrl}`); // Added URL to log
+                    // 【修改點 1: 根據論壇 ID 獲取文章列表的路徑】
+                    // 後端 @GetMapping("/api/forum/{forumId}/posts")
+                    apiUrl = `${API_BASE_URL}${API_FORUM_PREFIX}/${forumId}/posts`;
+                    console.log(`正在獲取論壇 ID ${forumId} 的文章... URL: ${apiUrl}`);
                 } else {
-                    apiUrl = 'http://localhost:8080/api/forumpost/allForumPost';
-                    console.log('正在獲取所有論壇文章... URL: ' + apiUrl); // Added URL to log
+                    // 【確認點: 獲取所有文章的路徑】
+                    // 後端 @GetMapping("/api/forumpost/allForumPost")
+                    apiUrl = `${API_BASE_URL}${API_FORUM_POST_PREFIX}/allForumPost`;
+                    console.log('正在獲取所有論壇文章... URL: ' + apiUrl);
                 }
 
                 const response = await fetch(apiUrl);
@@ -714,7 +725,8 @@
         async function loadModalSelectOptions() {
             try {
                 // 載入討論區
-                const forumResponse = await fetch('http://localhost:8080/api/forum/all');
+                // 後端 @GetMapping("/api/forum/all")
+                const forumResponse = await fetch(`${API_BASE_URL}${API_FORUM_PREFIX}/all`);
                 if (!forumResponse.ok) throw new Error(`載入討論區失敗: ${forumResponse.statusText}`);
                 const forums = await forumResponse.json();
                 modalForNoIdSelect.innerHTML = '<option value="">請選擇討論區</option>';
@@ -726,7 +738,8 @@
                 });
 
                 // 載入文章類別
-                const ftagResponse = await fetch('http://localhost:8080/api/forumtag/all');
+                // 後端 @GetMapping("/api/forumtag/all")
+                const ftagResponse = await fetch(`${API_BASE_URL}${API_FORUM_TAG_PREFIX}/all`);
                 if (!ftagResponse.ok) throw new Error(`載入文章類別失敗: ${ftagResponse.statusText}`);
                 const forumTags = await ftagResponse.json();
                 modalFtagNoIdSelect.innerHTML = '<option value="">請選擇文章類別</option>';
@@ -746,7 +759,9 @@
         // 載入文章資料並填充模態框表單
         async function loadPostDataToModal(postId) {
             try {
-                const response = await fetch(`http://localhost:8080/api/forumpost/${postId}`);
+                // 【修改點 2: 載入單一文章資料的路徑 (用於編輯模態框)】
+                // 後端 @GetMapping("/api/forumpost/forpost/{id}")
+                const response = await fetch(`${API_BASE_URL}${API_FORUM_POST_PREFIX}/forpost/${postId}`);
                 if (!response.ok) {
                     const errorText = await response.text();
                     throw new Error(`獲取文章資料失敗！狀態: ${response.status}, 訊息: ${errorText}`);
@@ -791,7 +806,9 @@
             };
 
             try {
-                const response = await fetch(`http://localhost:8080/api/forumpost/update`, {
+                // 【修改點 3: 提交更新文章資料的路徑】
+                // 後端 @PutMapping("/api/forumpost/update")
+                const response = await fetch(`${API_BASE_URL}${API_FORUM_POST_PREFIX}/update`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -842,7 +859,7 @@
         }
 
         try {
-            const deleteApiUrl = `http://localhost:8080/api/forumpost/${postId}`;
+            const deleteApiUrl = `${API_BASE_URL}${API_FORUM_POST_PREFIX}/${postId}`; // 修改刪除 API 路徑
             const response = await fetch(deleteApiUrl, {
                 method: 'DELETE'
             });
