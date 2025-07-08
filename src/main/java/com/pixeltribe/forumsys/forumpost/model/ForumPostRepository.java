@@ -26,4 +26,10 @@ public interface ForumPostRepository extends JpaRepository<ForumPost, Integer> {
     //後台較有用處 查詢一個討論區共有幾篇文章數量
     @Query("SELECT fp FROM ForumPost fp JOIN FETCH fp.forNo JOIN FETCH fp.memNo")
     List<ForumPost> findAllWithForumAndMember();
+
+    // **【重要新增】**   nick new1
+    // 根據文章 ID 查詢單篇文章，並急切加載 Forum 和 Member
+    // 這個方法用於 Service 層的 getForumPostDTOById，確保關聯數據被載入
+    @Query("SELECT fp FROM ForumPost fp JOIN FETCH fp.forNo JOIN FETCH fp.memNo WHERE fp.id = :id")
+    Optional<ForumPost> findByIdWithForumAndMember(@Param("id") Integer id); // `findByIdWithForumAndMember` 是可變的方法名稱
 }

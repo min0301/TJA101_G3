@@ -3,6 +3,7 @@ package com.pixeltribe.forumsys.forumpost.model;
 import com.fasterxml.jackson.annotation.JsonBackReference; // 確保導入
 import com.fasterxml.jackson.annotation.JsonProperty; // 確保導入
 import com.pixeltribe.forumsys.entity.*;
+import com.pixeltribe.forumsys.forumtag.model.ForumTag;
 import org.hibernate.annotations.ColumnDefault;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pixeltribe.forumsys.forum.model.Forum;
@@ -53,8 +54,6 @@ public class ForumPost {
     @JoinColumn(name = "MEM_NO")
     @JsonBackReference
     private Member memNo;
-
-
 
     // **確保這個方法存在** nick new
     @JsonProperty("forumName")

@@ -41,15 +41,25 @@ public class ForumPostService {
         return forumPostRepository.save(forumPost);
     }
 
-    @Transactional
-    public void delete(Integer forumPostId) { // delete 方法通常接收 ID
-        forumPostRepository.deleteById(forumPostId);
-    }
+//    @Transactional
+//    public void delete(Integer forumPostId) { // delete 方法通常接收 ID
+//        forumPostRepository.deleteById(forumPostId);
+//    }
 
     @Transactional(readOnly = true)
-    public ForumPost getOneForumpost(Integer forumPostId) { // 返回 Entity
-        Optional<ForumPost> forumPost = forumPostRepository.findById(forumPostId);
-        return forumPost.orElse(null);
+    public Optional<ForumPost> getOneForumpostEntity(Integer forumPostId) { // 這個方法名和簽名
+        return forumPostRepository.findById(forumPostId);
+    }
+    // 提供給 Controller 使用的，根據 ID 獲取單篇文章的 DTO 方法
+    // 前端請求 `http://localhost:8080/api/forumpost/{postId}` 會調用這個方法
+    @Transactional(readOnly = true)
+    public Optional<ForumPostDTO> getForumPostDTOById(Integer forumPostId) { // `getForumPostDTOById` 是可變的方法名稱
+        // 從 Repository 獲取 ForumPost Entity，並確保關聯的 Forum 和 Member 數據被載入
+        // 為了避免 N+1 問題，建議在 Repository 中為此方法添加 JOIN FETCH
+        // 否則在 ForumPostDTO 轉換時，如果 Forum 或 Member 是懶加載，可能會拋出 LazyInitializationException
+        // 這裡調用 `findByIdWithForumAndMember` (假設 Repository 有這個方法) 來確保一次性載入所有必要數據
+        return forumPostRepository.findByIdWithForumAndMember(forumPostId) // 這個方法名是可變的，但應與 Repository 匹配
+                .map(ForumPostDTO::new); // 如果找到 ForumPost，則將其轉換為 ForumPostDTO，`ForumPostDTO::new` 是不可變的方法引用
     }
 
     // --- 查詢操作 (返回 DTOs 或計數) ---
@@ -64,6 +74,7 @@ public class ForumPostService {
                 .map(ForumPostDTO::new) // 呼叫 ForumPostDTO 的建構子進行轉換
                 .collect(Collectors.toList());
     }
+
 
     // 計算特定討論區的文章數量
 //    @Transactional(readOnly = true)
@@ -80,12 +91,12 @@ public class ForumPostService {
                 .collect(Collectors.toList());
     }
 
-    // 根據文章 ID 和討論區 ID 查詢單篇文章 (返回 Optional<ForumPostDTO>)
-//    @Transactional(readOnly = true)
-//    public Optional<ForumPostDTO> getPostByIdAndForumId(Integer postId, Integer forumId) {
-//        return forumPostRepository.findByIdAndForNoId(postId, forumId) // 注意 Repository 方法名中的 forNo_Id
-//                .map(ForumPostDTO::new);
-//    }
+//     根據文章 ID 和討論區 ID 查詢單篇文章 (返回 Optional<ForumPostDTO>)
+    @Transactional(readOnly = true)
+    public Optional<ForumPostDTO> getPostByIdAndForumId(Integer postId, Integer forumId) {
+        return forumPostRepository.findByIdAndForNoId(postId, forumId) // 注意 Repository 方法名中的 forNo_Id
+                .map(ForumPostDTO::new);
+    }
     //nick new 假設你還有一個 Forum 服務來獲取 Forum 詳細信息，這裡簡化處理
     public ForumService getForumService() {
         return forumService;

@@ -1,10 +1,12 @@
-package com.pixeltribe.forumsys.entity;
+package com.pixeltribe.forumsys.forumtag.model;
 
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.LinkedHashSet;
@@ -14,9 +16,11 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "forum_tag")
+@NoArgsConstructor // Lombok 自動生成無參建構子
+@AllArgsConstructor // Lombok 自動生成全參建構子
 public class ForumTag {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "FTAG_NO", nullable = false)
     private Integer id;
 
