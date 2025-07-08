@@ -48,7 +48,7 @@ public class ForumPost {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FOR_NO")
     @JsonBackReference  // 保持 JsonBackReference，它與 Forum.java 的 JsonManagedReference 配對
-    @NotEmpty(message = "討論區編號: 請勿空白")
+//    @NotEmpty(message="討論區編號: 請勿空白")
     private Forum forNo;
 
     @ManyToOne(fetch = FetchType.LAZY)

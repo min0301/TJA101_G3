@@ -8,6 +8,7 @@ import com.pixeltribe.forumsys.forumpost.model.ForumPostDTO; // **確保導入**
 // 但為了 insert 方法，它們的注入通常是必要的。
 import com.pixeltribe.forumsys.forum.model.ForumService;
 //import com.pixeltribe.forumsys.forumtag.model.ForumTagService;
+import com.pixeltribe.forumsys.forumtag.model.ForumTagService;
 import com.pixeltribe.membersys.member.model.MemService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,21 +36,18 @@ public class ForumPostController {
 
     private final ForumPostService forumPostSvc;
     private final ForumService forumService;
-    //private final ForumTagService forumTagService;
+    private final ForumTagService forumTagService;
     //private final MemberService memberService;
 
     // **建構子注入**
     @Autowired
-    public ForumPostController(ForumPostService forumPostSvc, ForumService forumService) {
-        this.forumPostSvc = forumPostSvc;
-        this.forumService = forumService;
-    }
-//    ForumTagService forumTagService,
+    public ForumPostController(ForumPostService forumPostSvc, ForumService forumService, ForumTagService forumTagService)
+    {this.forumPostSvc = forumPostSvc;this.forumService = forumService;this.forumTagService = forumTagService;}
+
 //    MemberService memberService
-//     this.forumTagService = forumTagService;
 //     this.memberService = memberService;
     //nick new1
-@GetMapping("/{id}") // 這裡的 `{id}` 是不可變的，用於匹配 URL 中的路徑變數
+@GetMapping("/api/forumpost/{id}") // 這裡的 `{id}` 是不可變的，用於匹配 URL 中的路徑變數
 public ResponseEntity<ForumPostDTO> getForumPostById(@PathVariable("id") Integer id) { // `getForumPostById` 是可變的方法名稱
     // 調用 Service 層新增的獲取 DTO 的方法
     return forumPostSvc.getForumPostDTOById(id) // `getForumPostDTOById` 是不可變的方法名稱 (因為 Service 中已經定義)
@@ -57,7 +55,7 @@ public ResponseEntity<ForumPostDTO> getForumPostById(@PathVariable("id") Integer
             .orElseGet(() -> ResponseEntity.notFound().build()); // 如果找不到，返回 404 Not Found
 }
     // 處理前端提交更新的 PUT 請求
-    @PutMapping("/update") // `/update` 是不可變的，與前端請求路徑匹配
+    @PutMapping("/api/forumpost/update") // `/update` 是不可變的，與前端請求路徑匹配
     public ResponseEntity<ForumPostDTO> updateForumPost(@RequestBody ForumPostDTO forumPostDTO) { // `updateForumPost` 是可變的方法名稱，`forumPostDTO` 參數名稱是可變的
         // 在實際應用中，通常會先根據 ID 查找現有實體，更新其屬性，然後保存。
         // 這裡需要將 DTO 轉換回 Entity，進行業務邏輯處理，然後再保存。
@@ -147,12 +145,8 @@ public ResponseEntity<ForumPostDTO> getForumPostById(@PathVariable("id") Integer
         if (postCon == null || postCon.isEmpty() || postCon.length() < 10 || postCon.length() > 5000) {
             errors.put("postCon", "文章內容: 請勿空白(最少十個字) ");
         }
-        if (forNoId == null) {
-            errors.put("forNoId", "討論區編號: 請選擇一個討論區編號");
-        }
-        if (ftagNoId == null) {
-            errors.put("ftagNoId", "類別編號: 請選擇您的類別");
-        }
+        if (forNoId == null) { errors.put("forNoId", "討論區編號: 請選擇一個討論區編號"); }
+        if (ftagNoId == null) { errors.put("ftagNoId", "類別編號: 請選擇您的類別"); }
 
         if (!errors.isEmpty()) {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
