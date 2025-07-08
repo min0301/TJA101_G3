@@ -8,7 +8,7 @@ import com.pixeltribe.forumsys.forumpost.model.ForumPostDTO; // **確保導入**
 // 但為了 insert 方法，它們的注入通常是必要的。
 import com.pixeltribe.forumsys.forum.model.ForumService;
 //import com.pixeltribe.forumsys.forumtag.model.ForumTagService;
-//import com.pixeltribe.membersys.service.MemberService;
+import com.pixeltribe.membersys.member.model.MemService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,7 +48,41 @@ public class ForumPostController {
 //    MemberService memberService
 //     this.forumTagService = forumTagService;
 //     this.memberService = memberService;
+    //nick new1
+@GetMapping("/{id}") // 這裡的 `{id}` 是不可變的，用於匹配 URL 中的路徑變數
+public ResponseEntity<ForumPostDTO> getForumPostById(@PathVariable("id") Integer id) { // `getForumPostById` 是可變的方法名稱
+    // 調用 Service 層新增的獲取 DTO 的方法
+    return forumPostSvc.getForumPostDTOById(id) // `getForumPostDTOById` 是不可變的方法名稱 (因為 Service 中已經定義)
+            .map(postDTO -> ResponseEntity.ok(postDTO)) // 如果找到文章，返回 200 OK 和文章 DTO
+            .orElseGet(() -> ResponseEntity.notFound().build()); // 如果找不到，返回 404 Not Found
+}
+    // 處理前端提交更新的 PUT 請求
+    @PutMapping("/update") // `/update` 是不可變的，與前端請求路徑匹配
+    public ResponseEntity<ForumPostDTO> updateForumPost(@RequestBody ForumPostDTO forumPostDTO) { // `updateForumPost` 是可變的方法名稱，`forumPostDTO` 參數名稱是可變的
+        // 在實際應用中，通常會先根據 ID 查找現有實體，更新其屬性，然後保存。
+        // 這裡需要將 DTO 轉換回 Entity，進行業務邏輯處理，然後再保存。
+        // 假設你的 service.update 方法能處理 DTO 到 Entity 的轉換或直接更新
+        // 以下是一個簡化範例，你需要根據實際業務邏輯實現
+        ForumPost updatedPost = forumPostSvc.getOneForumpostEntity(forumPostDTO.getId())
+                .map(existingPost -> {
+                    // 更新 existingPost 的屬性
+                    existingPost.setPostTitle(forumPostDTO.getPostTitle());
+                    existingPost.setPostCon(forumPostDTO.getPostCon());
+                    // ... 其他屬性，注意處理關聯物件的更新邏輯
+                    existingPost.setPostPin(forumPostDTO.getPostPin());
+                    existingPost.setPostStatus(forumPostDTO.getPostStatus());
+                    existingPost.setPostUpdate(java.time.Instant.now()); // 更新時間
+                    return forumPostSvc.update(existingPost); // 保存更新
+                })
+                .orElse(null); // 如果找不到，返回 null 或拋出異常
 
+        if (updatedPost != null) {
+            return ResponseEntity.ok(new ForumPostDTO(updatedPost)); // 返回更新後的 DTO
+        } else {
+            return ResponseEntity.notFound().build(); // 或其他適當的錯誤碼
+        }
+    }
+    //nick new1
     // --- API 端點 ---
 
     // 1. 查詢所有文章 (返回 DTO 列表)
@@ -76,17 +110,19 @@ public class ForumPostController {
 //    }
 
     // 4. 查詢特定討論區下的特定文章 (根據文章 ID 和討論區 ID，返回 ForumPostDTO)
-    // URL: /api/forum/{forNo}/posts/{postId}
-//    @GetMapping("/forum/{forNo}/posts/{postId}")
-//    public ResponseEntity<ForumPostDTO> getPostInForum(@PathVariable("forNo") Integer forNo,
-//                                                       @PathVariable("postId") Integer postId) {
-//        Optional<ForumPostDTO> postOptional = forumPostSvc.getPostByIdAndForumId(postId, forNo);
-//        if (postOptional.isPresent()) {
-//            return ResponseEntity.ok(postOptional.get());
-//        } else {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//    }
+//     URL: /api/forum/{forNo}/posts/{postId}
+    @GetMapping("/forum/{forNo}/posts/{postId}")
+    public ResponseEntity<ForumPostDTO> getPostInForum(@PathVariable("forNo") Integer forNo,
+                                                       @PathVariable("postId") Integer postId) {
+        Optional<ForumPostDTO> postOptional = forumPostSvc.getPostByIdAndForumId(postId, forNo);
+        if (postOptional.isPresent()) {
+            return ResponseEntity.ok(postOptional.get());
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    
+
 
     // 5. 新增文章 (保持現有邏輯)
     @PostMapping(value = "/forumpost/insert", consumes = {"multipart/form-data"})

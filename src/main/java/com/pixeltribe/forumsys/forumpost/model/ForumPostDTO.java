@@ -80,4 +80,5 @@ public class ForumPostDTO {
         this.memberName = post.getMemberName(); // 這裡調用 ForumPost 的 getMemberName() 方法
         this.memNo = post.getMemNo() != null ? post.getMemNo().getId() : null; // 從 ForumPost 的 Member 物件獲取 ID
     }
+
 }
