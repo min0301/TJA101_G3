@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="p-4 rounded" style="background-color: var(--bs-gray-100);">
                 <h1 class="fw-bold">${forum.forName}</h1>
                 <p class="lead">${forum.forDes}</p>
-                <a href="../../indexstatic2.html" class="btn btn-outline-secondary btn-sm">
+                <a href="../../forum/index.html" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-arrow-left"></i> 返回首頁
                 </a>
             </div>
