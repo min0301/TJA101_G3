@@ -9,6 +9,10 @@ public interface ForumRepository extends JpaRepository<Forum, Integer> {
     //    依最後更新時間排序
     List<Forum> findAllByOrderByForUpdateDesc();
 
+    List<Forum> findAllByForStatusOrderByForUpdateDesc(Character forStatus);
+
     List<Forum> findByCatNo_Id(Integer catNo); // 方法名稱 findBy{欄位名稱} 是固定的，參數名稱可
+
+    List<Forum> findAllByForStatus(Character status);
 
 }

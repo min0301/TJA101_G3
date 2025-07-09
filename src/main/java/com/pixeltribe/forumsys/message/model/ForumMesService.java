@@ -22,7 +22,7 @@ public class ForumMesService {
     }
 
     public List<ForumMesDTO> getAllForumMes() {
-        List<ForumMes> forumMess = forumMesRepository.findAll();
+        List<ForumMes> forumMess = forumMesRepository.findByMesStatus('0');
         return forumMess.stream()
                 .map(ForumMesDTO::convertToForumMesDTO)
                 .toList();
