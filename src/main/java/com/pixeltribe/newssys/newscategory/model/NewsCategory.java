@@ -1,9 +1,7 @@
 package com.pixeltribe.newssys.newscategory.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.pixeltribe.newssys.newscontentclassification.model.NewContentClassification;
+import com.pixeltribe.newssys.newscontentclassification.model.NewsContentClassification;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -30,6 +28,6 @@ public class NewsCategory {
 
     @OneToMany(mappedBy = "ncatNo")
     @JsonBackReference
-    private Set<NewContentClassification> newContentClassifications = new LinkedHashSet<>();
+    private Set<NewsContentClassification> newContentClassifications = new LinkedHashSet<>();
 
 }
