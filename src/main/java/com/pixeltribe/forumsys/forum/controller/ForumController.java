@@ -23,7 +23,7 @@ public class ForumController {
     }
 
 
-    @GetMapping("forums")
+    @GetMapping("/forums")
     @Operation(
             summary = "查全部討論區"
     )

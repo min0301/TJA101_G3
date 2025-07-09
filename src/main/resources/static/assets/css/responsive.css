@@ -1,0 +1,65 @@
+
+@media (min-width:1400px) {
+
+    .hero-content h1 { font-size: 50px;}
+    .banner-content h1 { margin-bottom: 60px; font-size: 60px;}
+    .banner-content p { margin-bottom: 60px;}
+    .buttons-group {margin-bottom: 60px;}
+}
+@media (min-width: 1200px) and (max-width: 1399.95px){
+
+    .hero-content h1 { font-size: 50px;}
+    .banner-content h1 { margin-bottom: 35px; font-size: 50px;}
+    .banner-content p { margin-bottom: 35px;}
+    .buttons-group {margin-bottom: 35px;}
+}
+@media (min-width: 992px) and (max-width: 1199.95px) {
+
+    .hero-content h1 { font-size: 45px;}
+    .banner-content h1 { margin-bottom: 28px; font-size: 45px;}
+    .banner-content p { margin-bottom: 35px;}
+    .buttons-group {margin-bottom: 35px;}
+}
+@media (min-width: 768px) and (max-width: 991.95px) {
+
+    .hero-content h1 { font-size: 40px;}
+    .banner-content h1 { margin-bottom: 28px; font-size: 40px;}
+    .banner-content p { margin-bottom: 28px;}
+    .buttons-group {margin-bottom: 28px;}
+}    
+@media (max-width: 767.95px) {
+
+    .hero-content h1 { font-size: 36px;}
+    .banner-content h1 { margin-bottom: 28px; font-size: 36px;}
+    .banner-content p { margin-bottom: 28px;}
+    .buttons-group {margin-bottom: 28px;}
+    
+}
+@media (min-width: 480px) and (max-width: 767.95px) {
+
+    .hero-content h1 { font-size: 36px;}
+    .banner-content h1 { margin-bottom: 25px; font-size: 36px;}
+    .banner-content p { margin-bottom: 25px;}
+    .buttons-group {margin-bottom: 25px;}
+}    
+@media (min-width: 414px) and (max-width: 479.95px) {
+
+    .hero-content h1 { font-size: 36px;}
+    .banner-content h1 { margin-bottom: 25px; font-size: 30px;}
+    .banner-content p { margin-bottom: 25px;}
+    .buttons-group {margin-bottom: 25px;}
+}    
+@media (min-width: 321px) and (max-width: 413.95px) {
+
+    .hero-content h1 { font-size: 28px;}
+    .banner-content h1 { margin-bottom: 25px; font-size: 28px;}
+    .banner-content p { margin-bottom: 25px;}
+    .buttons-group {margin-bottom: 25px;}
+}    
+@media (max-width: 320.95px) {
+
+    .hero-content h1 { font-size: 24px;}
+    .banner-content h1 { margin-bottom: 25px; font-size: 24px;}
+    .banner-content p { margin-bottom: 25px;}
+    .buttons-group {margin-bottom: 25px;}
+}    
