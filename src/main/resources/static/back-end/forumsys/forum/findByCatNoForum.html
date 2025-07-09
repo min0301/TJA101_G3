@@ -1,211 +1,257 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>分類論壇列表</title>
-  <style>
-    /* CSS 樣式與 allForum.html 相同，此處直接沿用 */
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0 auto;
-      max-width: 1400px;
-      padding: 20px;
-      background-color: #f4f7f6;
-      color: #333;
-    }
-    .header-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-    h1 {
-      color: #2c3e50;
-      margin: 0;
-    }
-    h2 {
-      color: #2980b9;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 12px 15px;
-      text-align: center;
-      vertical-align: middle;
-    }
-    thead {
-      background-color: #3498db;
-      color: #ffffff;
-    }
-    tbody tr:nth-child(even) { background-color: #f2f2f2; }
-    tbody tr:hover { background-color: #e8f4fd; }
-    #error-message {
-      color: #e74c3c;
-      background-color: #fbecec;
-      border: 1px solid #e74c3c;
-      padding: 15px;
-      margin-top: 20px;
-      border-radius: 5px;
-      display: none;
-    }
-    .btn {
-      display: inline-block;
-      text-decoration: none;
-      color: white;
-      padding: 8px 15px;
-      border-radius: 5px;
-      font-weight: bold;
-      transition: opacity 0.3s;
-      text-align: center;
-    }
-    .btn:hover { opacity: 0.85; }
-    .btn-back { background-color: #7f8c8d; }
-    .btn-home { background-color: #95a5a6; }
-    .btn-edit { background-color: #f39c12; }
-    .forum-thumbnail {
-      width: 100px;
-      height: 75px;
-      object-fit: cover;
-      border-radius: 4px;
-    }
-    /* 燈箱樣式 */
-    .lightbox {
-      display: none; position: fixed; z-index: 1000; left: 0; top: 0;
-      width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85);
-      justify-content: center; align-items: center;
-    }
-    .lightbox-content { max-width: 85%; max-height: 85%; }
-    .lightbox-close {
-      position: absolute; top: 20px; right: 35px; color: #fff;
-      font-size: 40px; font-weight: bold; cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分類論壇列表</title>
+    <style>
+        /* CSS 樣式與 allForum.html 相同，此處直接沿用 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0 auto;
+            max-width: 1400px;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        h2 {
+            color: #2980b9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        thead {
+            background-color: #3498db;
+            color: #ffffff;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tbody tr:hover {
+            background-color: #e8f4fd;
+        }
+
+        #error-message {
+            color: #e74c3c;
+            background-color: #fbecec;
+            border: 1px solid #e74c3c;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: opacity 0.3s;
+            text-align: center;
+        }
+
+        .btn:hover {
+            opacity: 0.85;
+        }
+
+        .btn-back {
+            background-color: #7f8c8d;
+        }
+
+        .btn-home {
+            background-color: #95a5a6;
+        }
+
+        .btn-edit {
+            background-color: #f39c12;
+        }
+
+        .forum-thumbnail {
+            width: 100px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        /* 燈箱樣式 */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox-content {
+            max-width: 85%;
+            max-height: 85%;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 <div class="header-container">
-  <div class="header-left">
-    <h1>分類論壇列表</h1>
-    <a href="/" class="btn btn-home">回到首頁</a>
-    <a href="allForum.html" class="btn btn-back">回到論壇總表</a>
-  </div>
+    <div class="header-left">
+        <h1>分類論壇列表</h1>
+        <a href="/" class="btn btn-home">回到首頁</a>
+        <a href="allForum.html" class="btn btn-back">回到論壇總表</a>
+    </div>
 </div>
 
 <h2 id="category-name-title"></h2>
 <div id="error-message"></div>
 
 <table>
-  <thead>
-  <tr>
-    <th>ID</th>
-    <th>論壇名稱</th>
-    <th>圖片</th>
-    <th>描述</th>
-    <th>創建時間</th>
-    <th>更新時間</th>
-    <th>狀態</th>
-    <th>操作</th>
-  </tr>
-  </thead>
-  <tbody id="forum-data-body"></tbody>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>論壇名稱</th>
+        <th>圖片</th>
+        <th>描述</th>
+        <th>創建時間</th>
+        <th>更新時間</th>
+        <th>狀態</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody id="forum-data-body"></tbody>
 </table>
 
 <div id="lightbox" class="lightbox">
-  <span id="lightbox-close" class="lightbox-close">&times;</span>
-  <img id="lightbox-img" class="lightbox-content">
+    <span id="lightbox-close" class="lightbox-close">&times;</span>
+    <img id="lightbox-img" class="lightbox-content">
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // === 變數定義 (可變) ===
-    // 這些變數名稱可以依你的編碼風格修改
-    const tableBody = document.getElementById('forum-data-body');
-    const errorMessageDiv = document.getElementById('error-message');
-    const categoryNameTitle = document.getElementById('category-name-title');
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    const lightboxClose = document.getElementById('lightbox-close');
+    document.addEventListener('DOMContentLoaded', function () {
+        // === 變數定義 (可變) ===
+        // 這些變數名稱可以依你的編碼風格修改
+        const tableBody = document.getElementById('forum-data-body');
+        const errorMessageDiv = document.getElementById('error-message');
+        const categoryNameTitle = document.getElementById('category-name-title');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxClose = document.getElementById('lightbox-close');
 
-    // === 核心邏輯 (方法名稱可變，但內部 API URL 路徑不可變) ===
+        // === 核心邏輯 (方法名稱可變，但內部 API URL 路徑不可變) ===
 
-    /**
-     * 初始化頁面，獲取並渲染資料
-     */
-    async function initialize() {
-      // 1. 從 URL 取得 catId
-      const urlParams = new URLSearchParams(window.location.search);
-      const catId = urlParams.get('catId'); // 'catId' 不可變，需與 allForum.html 的連結對應
+        /**
+         * 初始化頁面，獲取並渲染資料
+         */
+        async function initialize() {
+            // 1. 從 URL 取得 catId
+            const urlParams = new URLSearchParams(window.location.search);
+            const catId = urlParams.get('catId'); // 'catId' 不可變，需與 allForum.html 的連結對應
 
-      if (!catId) {
-        showError(new Error('未提供分類 ID，無法載入資料。'));
-        return;
-      }
+            if (!catId) {
+                showError(new Error('未提供分類 ID，無法載入資料。'));
+                return;
+            }
 
-      // 2. 根據 catId 組合 API URL
-      //    "/api/category/${catId}/forums" 這段路徑不可變，必須與 Controller 的 @GetMapping 相符
-      const apiUrl = `http://localhost:8080/api/category/${catId}/forums`;
+            // 2. 根據 catId 組合 API URL
+            //    "/api/category/${catId}/forums" 這段路徑不可變，必須與 Controller 的 @GetMapping 相符
+            const apiUrl = `http://localhost:8080/api/category/${catId}/forums`;
 
-      try {
-        // 3. 發送請求
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-          throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
+            try {
+                // 3. 發送請求
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
+                }
+                const forums = await response.json();
+
+                // 4. 渲染頁面
+                renderCategoryTitle(forums);
+                renderTable(forums);
+
+            } catch (error) {
+                showError(error);
+            }
         }
-        const forums = await response.json();
 
-        // 4. 渲染頁面
-        renderCategoryTitle(forums);
-        renderTable(forums);
+        /**
+         * 渲染分類標題
+         * @param {Array} forums - 從 API 獲取的論壇資料陣列
+         */
+        function renderCategoryTitle(forums) {
+            // 從第一筆資料取得分類名稱來顯示
+            if (forums.length > 0) {
+                // "categoryName" 不可變，需與你的 ForumDetailDTO 屬性名一致
+                categoryNameTitle.textContent = `分類：「${forums[0].categoryName}」`;
+            } else {
+                categoryNameTitle.textContent = '此分類下目前沒有討論區';
+            }
+        }
 
-      } catch (error) {
-        showError(error);
-      }
-    }
-
-    /**
-     * 渲染分類標題
-     * @param {Array} forums - 從 API 獲取的論壇資料陣列
-     */
-    function renderCategoryTitle(forums) {
-      // 從第一筆資料取得分類名稱來顯示
-      if (forums.length > 0) {
-        // "categoryName" 不可變，需與你的 ForumDetailDTO 屬性名一致
-        categoryNameTitle.textContent = `分類：「${forums[0].categoryName}」`;
-      } else {
-        categoryNameTitle.textContent = '此分類下目前沒有討論區';
-      }
-    }
-
-    /**
-     * 渲染表格資料
-     * @param {Array} forums - 從 API 獲取的論壇資料陣列
-     */
-    function renderTable(forums) {
-      tableBody.innerHTML = ''; // 清空舊資料
-      forums.forEach(forum => {
-        const row = document.createElement('tr');
-        // 下方的 forum.id, forum.forName 等屬性名稱不可變，必須與 ForumDetailDTO 的屬性名完全對應
-        row.innerHTML = `
+        /**
+         * 渲染表格資料
+         * @param {Array} forums - 從 API 獲取的論壇資料陣列
+         */
+        function renderTable(forums) {
+            tableBody.innerHTML = ''; // 清空舊資料
+            forums.forEach(forum => {
+                const row = document.createElement('tr');
+                // 下方的 forum.id, forum.forName 等屬性名稱不可變，必須與 ForumDetailDTO 的屬性名完全對應
+                row.innerHTML = `
           <td>${forum.id}</td>
           <td>${forum.forName}</td>
           <td>
             ${forum.forImgUrl ?
-                `<a href="${forum.forImgUrl}">
+                    `<a href="${forum.forImgUrl}">
                  <img src="${forum.forImgUrl}" alt="${forum.forName} 的縮圖" class="forum-thumbnail">
                </a>` :
-                '無圖片'
-        }
+                    '無圖片'
+                }
           </td>
           <td>${forum.forDes}</td>
           <td>${new Date(forum.forDate).toLocaleString()}</td>
@@ -215,44 +261,51 @@
             <a href="edit-forum.html?id=${forum.id}" class="btn btn-edit">修改</a>
           </td>
         `;
-        tableBody.appendChild(row);
-      });
-    }
+                tableBody.appendChild(row);
+            });
+        }
 
-    /**
-     * 顯示錯誤訊息
-     * @param {Error} error - 錯誤物件
-     */
-    function showError(error) {
-      console.error('無法獲取該分類的論壇資料:', error);
-      errorMessageDiv.style.display = 'block';
-      errorMessageDiv.innerHTML = `<strong>資料載入失敗！</strong><br>詳細錯誤: ${error.message}`;
-    }
+        /**
+         * 顯示錯誤訊息
+         * @param {Error} error - 錯誤物件
+         */
+        function showError(error) {
+            console.error('無法獲取該分類的論壇資料:', error);
+            errorMessageDiv.style.display = 'block';
+            errorMessageDiv.innerHTML = `<strong>資料載入失敗！</strong><br>詳細錯誤: ${error.message}`;
+        }
 
-    // --- 燈箱邏輯 ---
-    // 這部分與 allForum.html 完全相同，直接複用
-    tableBody.addEventListener('click', function(event) {
-      const link = event.target.closest('a:has(.forum-thumbnail)');
-      if (link) {
-        event.preventDefault();
-        openLightbox(link.getAttribute('href'));
-      }
+        // --- 燈箱邏輯 ---
+        // 這部分與 allForum.html 完全相同，直接複用
+        tableBody.addEventListener('click', function (event) {
+            const link = event.target.closest('a:has(.forum-thumbnail)');
+            if (link) {
+                event.preventDefault();
+                openLightbox(link.getAttribute('href'));
+            }
+        });
+
+        function openLightbox(imageUrl) {
+            lightboxImg.setAttribute('src', imageUrl);
+            lightbox.style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            lightbox.style.display = 'none';
+            lightboxImg.setAttribute('src', '');
+        }
+
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', e => {
+            if (e.target === lightbox) closeLightbox();
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        // 啟動頁面
+        initialize();
     });
-    function openLightbox(imageUrl) {
-      lightboxImg.setAttribute('src', imageUrl);
-      lightbox.style.display = 'flex';
-    }
-    function closeLightbox() {
-      lightbox.style.display = 'none';
-      lightboxImg.setAttribute('src', '');
-    }
-    lightboxClose.addEventListener('click', closeLightbox);
-    lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
-
-    // 啟動頁面
-    initialize();
-  });
 </script>
 </body>
 </html>

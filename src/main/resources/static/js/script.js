@@ -2,7 +2,7 @@
  * script.js
  * 負責處理頁面動態內容載入
  */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
 
     const mainContentArea = document.getElementById('main-content-area');
     const navLinks = document.querySelectorAll('.sidebar a');
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     navLinks.forEach(link => {
-        link.addEventListener('click', function(event) {
+        link.addEventListener('click', function (event) {
             event.preventDefault();
             document.querySelector('.sidebar li.active')?.classList.remove('active');
             this.closest('li').classList.add('active');

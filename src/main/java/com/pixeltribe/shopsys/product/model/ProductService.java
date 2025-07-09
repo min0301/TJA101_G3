@@ -1,11 +1,22 @@
 package com.pixeltribe.shopsys.product.model;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.pixeltribe.shopsys.malltag.model.MallTag;
+import com.pixeltribe.shopsys.malltag.model.MallTagRepository;
 
 
 @Service
@@ -15,13 +26,21 @@ public class ProductService {
 	ProductRepository productRepository;
 	@Autowired
 	ProductDTOMapper productDTOMapper;
+	@Autowired
+	MallTagRepository mallTagRepository;
 	
-	public void add(Product product) {
-        productRepository.save(product);
+	@Autowired
+	public ProductService(ProductRepository productRepository,MallTagRepository mallTagRepository){
+		this.productRepository = productRepository;
+		this.mallTagRepository = mallTagRepository;
+	}
+	
+	public Product add(Product product) {
+		return productRepository.save(product);
     }
 
-    public void update(Product product) {
-    	productRepository.save(product);
+    public Product update(Product product) {
+    	return productRepository.save(product);
     }
 
     public void delete(Product product) {
@@ -38,6 +57,6 @@ public class ProductService {
          return productDTOMapper.toProductManageDTOList(products);
 
     }
-
+   
 	
 }

@@ -1,4 +1,3 @@
-
 $(document).ready(function () {
 
     "use strict";
@@ -19,7 +18,7 @@ $(document).ready(function () {
                 enabled: false
             }
         },
-        dataLabels: { 	
+        dataLabels: {
             enabled: false
         },
         stroke: {
@@ -38,7 +37,7 @@ $(document).ready(function () {
     };
 
     var chart = new ApexCharts(document.querySelector("#chart"), options);
-    chart.render();		
+    chart.render();
 
-  
+
 });

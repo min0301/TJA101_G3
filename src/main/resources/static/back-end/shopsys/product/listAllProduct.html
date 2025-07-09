@@ -194,7 +194,7 @@
     <a href="/" class="btn btn-home">回到首頁</a>
   </div>
   <div class="header-right">
-    <a href="addForum.html" class="btn btn-add">＋ 新增商品</a>
+    <a href="addProduct.html" class="btn btn-add">＋ 新增商品</a>
   </div>
 </div>
 
@@ -216,7 +216,7 @@
     <th>操作</th>
   </tr>
   </thead>
-  <tbody id="forum-data-body">
+  <tbody id="product-data-body">
     <!--  nick new-->
     <tr><td colspan="9" class="text-center text-muted">載入中...</td></tr>
     <!--  nick new-->
@@ -246,7 +246,7 @@
   document.addEventListener('DOMContentLoaded', function() {
     const apiUrl = 'http://localhost:8080/api/product';
 
-    const tableBody = document.getElementById('forum-data-body');
+    const tableBody = document.getElementById('product-data-body');
     const errorMessageDiv = document.getElementById('error-message');
     const itemsPerPageSelect = document.getElementById('items-per-page');
     const paginationControls = document.getElementById('pagination-controls');
@@ -293,12 +293,12 @@
             <td>${product.proStatus}</td>
             <td>${product.proVersion}</td>
             <td>${product.proDate}</td>
-            <td><img src="/api/product/cover/${product.id}"  width="100px"/></td> 
+            <td><img src="/api/product/cover/${product.id}" width="100px"/></td>
             <td>${product.proInclude}</td>
             <td>${product.mallTagName}</td>
-            <td><input type = "button" value=${product.proIsmarket == 1 ? '上架' : '下架'} class="btn-ismarket"></td>
+            <td><button class="btn-ismarket" value="${product.proIsmarket}" id=${product.id}>${product.proIsmarket == 0 ? '上架' : '下架'}</button></td>
             <td>
-                <a href="product.html?id=${product.id}" class="btn-edit">修改</a>
+                <a href="updateProduct.html?id=${product.id}" class="btn-edit">修改</a>
             </td>
         `;
         tableBody.appendChild(row);
