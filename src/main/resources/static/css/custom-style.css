@@ -7,7 +7,7 @@ body {
 
 .jumbotron {
     /* 讓 jumbotron 有一點陰影，增加立體感 */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .navbar-brand {

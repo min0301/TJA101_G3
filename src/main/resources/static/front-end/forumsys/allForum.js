@@ -13,7 +13,7 @@ async function showForumListView() {
     try {
         const listTemplate = await fetch('../front-end/forumsys/forum-list.html').then(res => res.text());
         dynamicContainer.innerHTML = listTemplate;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({top: 0, behavior: 'smooth'});
         await renderForumTable();
         triggerAOS();
     } catch (error) {
@@ -26,7 +26,7 @@ async function showPostListView(forumId) {
     try {
         const postTemplate = await fetch('../front-end/forumsys/forum-posts-template.html').then(res => res.text());
         dynamicContainer.innerHTML = postTemplate;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({top: 0, behavior: 'smooth'});
 
         console.log(`正在抓取 forumId: ${forumId} 的資料...`);
         const [forum, posts] = await Promise.all([
@@ -146,7 +146,7 @@ function renderPosts(posts) {
     console.log("所有文章渲染完畢。");
 }
 
-dynamicContainer.addEventListener('click', function(e) {
+dynamicContainer.addEventListener('click', function (e) {
     if (e.target.id === 'back-to-forums-btn') {
         showForumListView();
         return;

@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
 
     // Header 邏輯保持不變，因為它目前是正常的
     const headerPlaceholder = document.getElementById('header-placeholder');
@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 headerPlaceholder.innerHTML = data;
                 // 為 Header 也加上，確保一致性
-                setTimeout(function() {
+                setTimeout(function () {
                     const aosElements = headerPlaceholder.querySelectorAll('[data-aos]');
                     aosElements.forEach(el => el.classList.add('aos-animate'));
                 }, 100);
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 // 【【【 最終解決方案：手動觸發 AOS 動畫 】】】
                 // 我們給予一個稍微長一點的延遲 (100毫秒)，確保瀏覽器有充足時間完成渲染
-                setTimeout(function() {
+                setTimeout(function () {
                     // 1. 只尋找 footer placeholder 內部帶有 data-aos 的所有元素
                     const aosElementsInFooter = footerPlaceholder.querySelectorAll('[data-aos]');
 

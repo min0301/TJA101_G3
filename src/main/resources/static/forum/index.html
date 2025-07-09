@@ -15,7 +15,7 @@
         themeToSet = localS
 
         // If local storage is not set, we check the OS preference
-        if(!localS){
+        if (!localS) {
             themeToSet = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
         }
 
@@ -65,28 +65,32 @@
                 <div class="col-lg-3 pe-lg-3 border-end">
                     <div class="vine-categories mb-4 pb-3">
                         <ul class="navbar-nav flex-column">
-                            <li class="mb-3"><h5 data-aos="fade-up" data-aos-easing="linear">Categories</h5> </li>
+                            <li class="mb-3"><h5 data-aos="fade-up" data-aos-easing="linear">Categories</h5></li>
                             <li class="nav-item" data-aos="fade-up" data-aos-easing="linear">
                                 <a class="nav-link" href="../index.html">
-                                    <span class="nav-icon-wrap"><img src="../assets/img/categories/10.jpg" class="img-fluid rounded-2" alt="Category"></span>
+                                    <span class="nav-icon-wrap"><img src="../assets/img/categories/10.jpg"
+                                                                     class="img-fluid rounded-2" alt="Category"></span>
                                     <span class="nav-link-text">討論區1</span>
                                 </a>
                             </li>
                             <li class="nav-item" data-aos="fade-up" data-aos-easing="linear">
                                 <a class="nav-link" href="/forum/index.html" style="cursor:pointer;">
-                                    <span class="nav-icon-wrap"><img src="../assets/img/categories/1.jpg" class="img-fluid rounded-2" alt="Category"></span>
+                                    <span class="nav-icon-wrap"><img src="../assets/img/categories/1.jpg"
+                                                                     class="img-fluid rounded-2" alt="Category"></span>
                                     <span class="nav-link-text">討論區2</span>
                                 </a>
                             </li>
                             <li class="nav-item" data-aos="fade-up" data-aos-easing="linear">
                                 <a class="nav-link" href="../index.html">
-                                    <span class="nav-icon-wrap"><img src="../assets/img/categories/2.jpg" class="img-fluid rounded-2" alt="Category"></span>
+                                    <span class="nav-icon-wrap"><img src="../assets/img/categories/2.jpg"
+                                                                     class="img-fluid rounded-2" alt="Category"></span>
                                     <span class="nav-link-text">討論區3</span>
                                 </a>
                             </li>
                             <li class="nav-item" data-aos="fade-up" data-aos-easing="linear">
                                 <a class="nav-link" href="../index.html">
-                                    <span class="nav-icon-wrap"><img src="../assets/img/categories/3.jpg" class="img-fluid rounded-2" alt="Category"></span>
+                                    <span class="nav-icon-wrap"><img src="../assets/img/categories/3.jpg"
+                                                                     class="img-fluid rounded-2" alt="Category"></span>
                                     <span class="nav-link-text">討論區4</span>
                                 </a>
                             </li>
@@ -116,7 +120,7 @@
 <script src="../front-end/forumsys/allForum.js"></script>
 <script>
     // 當頁面載入後，自動執行顯示討論區列表的邏輯
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // 隱藏原始內容
         const originalContent = document.querySelector('.original-content');
         if (originalContent) {
@@ -125,7 +129,7 @@
 
         // 顯示動態容器
         const container = document.getElementById('dynamic-content-container');
-        if(container) {
+        if (container) {
             container.style.display = 'block';
         }
 
