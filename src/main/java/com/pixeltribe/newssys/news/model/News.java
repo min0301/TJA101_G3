@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pixeltribe.membersys.administrator.model.Administrator;
 import com.pixeltribe.newssys.newscomment.model.NewsComment;
-import com.pixeltribe.newssys.newscontentclassification.model.NewContentClassification;
+import com.pixeltribe.newssys.newscontentclassification.model.NewsContentClassification;
 import com.pixeltribe.newssys.newsimage.model.NewsImage;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -57,7 +57,7 @@ public class News {
 
     @OneToMany(mappedBy = "newsNo")
     @JsonManagedReference
-    private Set<NewContentClassification> newContentClassifications = new LinkedHashSet<>();
+    private Set<NewsContentClassification> newContentClassifications = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "newsNo")
     @JsonIgnore

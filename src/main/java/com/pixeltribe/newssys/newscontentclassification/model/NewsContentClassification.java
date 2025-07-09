@@ -1,8 +1,5 @@
 package com.pixeltribe.newssys.newscontentclassification.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pixeltribe.newssys.news.model.News;
 import com.pixeltribe.newssys.newscategory.model.NewsCategory;
 import jakarta.persistence.*;
@@ -13,8 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "new_content_classification")
-public class NewContentClassification {
+@Table(name = "news_content_classification")
+public class NewsContentClassification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "NCC_NO", nullable = false)
@@ -23,13 +20,10 @@ public class NewContentClassification {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "NCAT_NO", nullable = false)
-    @JsonManagedReference
     private NewsCategory ncatNo;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "NEWS_NO", nullable = false)
-    @JsonBackReference
     private News newsNo;
-
 }

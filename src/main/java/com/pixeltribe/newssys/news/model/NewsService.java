@@ -6,8 +6,8 @@ import com.pixeltribe.membersys.administrator.model.AdmRepository;
 import com.pixeltribe.membersys.administrator.model.Administrator;
 import com.pixeltribe.newssys.newscategory.model.NewsCategory;
 import com.pixeltribe.newssys.newscategory.model.NewsCategoryRepository;
-import com.pixeltribe.newssys.newscontentclassification.model.NewContentClassification;
-import com.pixeltribe.newssys.newscontentclassification.model.NewContentClassificationRepository;
+import com.pixeltribe.newssys.newscontentclassification.model.NewsContentClassification;
+import com.pixeltribe.newssys.newscontentclassification.model.NewsContentClassificationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class NewsService {
     @Autowired
     NewsCategoryRepository newsCategoryRepository;
     @Autowired
-    NewContentClassificationRepository newContentClassificationRepository;
+    NewsContentClassificationRepository newsContentClassificationRepository;
 
     @Transactional(readOnly = true)
     public NewsDTO getOneNews(Integer id) {
@@ -59,11 +59,11 @@ public class NewsService {
             NewsCategory tag = newsCategoryRepository.findById(tagId)
                     .orElseThrow(() -> new EntityNotFoundException("分類編號不存在：" + tagId));
 
-            NewContentClassification ncc = new NewContentClassification();
+            NewsContentClassification ncc = new NewsContentClassification();
             ncc.setNewsNo(news);
             ncc.setNcatNo(tag);
 
-            newContentClassificationRepository.save(ncc);
+            newsContentClassificationRepository.save(ncc);
         }
 
         NewsCreationDTO nCDTO = new NewsCreationDTO(news.getId(), tit, con, adminNoId, tags);
