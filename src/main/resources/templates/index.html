@@ -1,29 +1,32 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>PixelTribe - 首頁</title>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>PixelTribe - 首頁</title>
 
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.2.1/css/bootstrap.min.css}"/>
+<link rel="stylesheet"
+	th:href="@{/webjars/bootstrap/4.2.1/css/bootstrap.min.css}" />
 
-    <link rel="stylesheet" th:href="@{/css/custom-style.css}"/>
+<link rel="stylesheet" th:href="@{/css/custom-style.css}" />
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" th:href="@{/}">PixelTribe</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<a class="navbar-brand" th:href="@{/}">PixelTribe</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navbarNav" aria-controls="navbarNav"
+			aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
 
-</nav>
+	</nav>
 
-<main role="main" class="container text-center mt-5">
-    <div class="jumbotron">
-        <h1 class="display-4">歡迎來到 PixelTribe！</h1>
-        <p class="lead">這是一個提供給開發者與創作者交流的社群。點擊下方按鈕開始探索。</p>
+	<main role="main" class="container text-center mt-5">
+		<div class="jumbotron">
+			<h1 class="display-4">歡迎來到 PixelTribe！</h1>
+			<p class="lead">這是一個提供給開發者與創作者交流的社群。點擊下方按鈕開始探索。</p>
 
         <p>立即前往我們的核心功能區。</p>
         <hr class="my-4">
@@ -37,68 +40,74 @@
                 模板修改前端頁面
             </a>
         </div>
+			<div class="jumbotron p-2">
+				<p class="lead">系統功能</p>
+				<a class="btn btn-primary btn-lg"
+					href="http://localhost:8080/swagger-ui/index.html" role="button">查看
+					Swagger</a>
+			</div>
+			<div class="jumbotron p-2">
+				<p class="lead">會員</p>
+				<a class="btn btn-primary btn-lg"
+					th:href="@{/front-end/mem/MemberLogin.html}" role="button">進入會員登入頁面</a>
+			</div>
+			<div class="jumbotron p-2">
+				<p class="lead">新聞</p>
+				<a class="btn btn-primary btn-lg"
+					th:href="@{/front-end/newspage/NewsHomePage.html}" role="button">進入Pixel新聞</a>
 
-        <div class="jumbotron p-2">
-            <p class="lead">系統功能</p>
-            <a class="btn btn-primary btn-lg" href="http://localhost:8080/swagger-ui/index.html" role="button">查看
-                Swagger</a>
-        </div>
-        <div class="jumbotron p-2">
-            <p class="lead">會員</p>
-            <a class="btn btn-primary btn-lg" th:href="@{/front-end/mem/MemberLogin.html}" role="button">進入會員登入頁面</a>
-        </div>
-        <div class="jumbotron p-2">
-            <p class="lead">新聞</p>
-            <a class="btn btn-primary btn-lg" th:href="@{/front-end/newspage/NewsHomePage.html}"
-               role="button">進入Pixel新聞</a>
+			</div>
+			<div class="jumbotron p-2">
+				<p class="lead">討論區</p>
+				<a class="btn btn-primary btn-lg"
+					th:href="@{/back-end/forumsys/forum/allForum.html}" role="button">討論區列表</a>
+				<hr class="my-4">
+			</div>
+			<div class="jumbotron p-2">
+				<p class="lead">討論區文章</p>
+				<a class="btn btn-primary btn-lg"
+					th:href="@{/back-end/forumsys/forumpost/allForumPost.html}"
+					role="button">討論區文章列表</a>
+				<hr class="my-4">
+			</div>
+			<div class="jumbotron p-2">
+				<p class="lead">新增文章</p>
+				<a class="btn btn-primary btn-lg"
+					th:href="@{/back-end/forumsys/forumpost/addForumPost.html}"
+					role="button">新增文章</a>
+				<hr class="my-4">
+			</div>
+			<div class="jumbotron p-2">
+				<p class="lead">商城</p>
+				<a class="btn btn-primary btn-lg"
+					th:href="@{/back-end/shopsys/order/allOrder.html}" role="button">進入訂單</a>
+				<a class="btn btn-primary btn-lg"
+					th:href="@{/back-end/shopsys/malltag/listAllMallTag.html}"
+					role="button">進入商城標籤</a> <a class="btn btn-primary btn-lg"
+					th:href="@{/back-end/shopsys/product/listAllProduct.html}"
+					role="button">進入商品頁</a>
+			</div>
+			<div class="jumbotron p-2">
+				<p class="lead">購物車(暫時測試用)</p>
+				<a class="btn btn-primary btn-lg"
+					th:href="@{/front-end/shopsys/Cart.html}" role="button">購物車頁面</a>
+			</div>
+			<div class="jumbotron p-2">
+				<p class="lead">管理員登入</p>
+				<a class="btn btn-primary btn-lg"
+					th:href="@{/back-end/adm/admLogin.html}" role="button">進入管理員登入頁面</a>
+			</div>
+			<div class="jumbotron p-2">
+				<p class="lead">會員註冊測試</p>
+				<a class="btn btn-primary btn-lg"
+					th:href="@{/front-end/mem/MemRegisterPage.html}" role="button">會員註冊頁</a>
+			</div>
 
-        </div>
-        <div class="jumbotron p-2">
-            <p class="lead">討論區</p>
-            <a class="btn btn-primary btn-lg" th:href="@{/back-end/forumsys/forum/allForum.html}"
-               role="button">討論區列表</a>
-            <hr class="my-4">
-        </div>
-        <div class="jumbotron p-2">
-            <p class="lead">討論區文章</p>
-            <a class="btn btn-primary btn-lg" th:href="@{/back-end/forumsys/forumpost/allForumPost.html}"
-               role="button">討論區文章列表</a>
-            <hr class="my-4">
-        </div>
-        <div class="jumbotron p-2">
-            <p class="lead">新增文章</p>
-            <a class="btn btn-primary btn-lg" th:href="@{/back-end/forumsys/forumpost/addForumPost.html}"
-               role="button">新增文章</a>
-            <hr class="my-4">
-        </div>
-        <div class="jumbotron p-2">
-            <p class="lead">商城</p>
-            <a class="btn btn-primary btn-lg" th:href="@{/back-end/shopsys/order/allOrder.html}"
-               role="button">進入訂單</a>
-			      <a class="btn btn-primary btn-lg" th:href="@{/back-end/shopsys/malltag/listAllMallTag.html}"
-               role="button">進入商城標籤</a>
-            <a class="btn btn-primary btn-lg" th:href="@{/back-end/shopsys/product/listAllProduct.html}"
-               role="button">進入商品頁</a>
-        </div>
-        <div class="jumbotron p-2">
-            <p class="lead">購物車(暫時測試用)</p>
-            <a class="btn btn-primary btn-lg" th:href="@{/front-end/shopsys/Cart.html}"
-               role="button">購物車頁面</a>
-        </div>
-                <div class="jumbotron p-2">
-            <p class="lead">管理員登入</p>
-            <a class="btn btn-primary btn-lg" th:href="@{/back-end/adm/admLogin.html}"
-               role="button">進入管理員登入頁面</a>
-        </div>
-         <div class="jumbotron p-2">
-            <p class="lead">忘記密碼測試</p>
-            <a class="btn btn-primary btn-lg" th:href="@{/front-end/mem/PasswordReset.html}" role="button">忘記密碼修改</a>
-        </div>
-    </div>
+		</div>
 
-</main>
+	</main>
 
-<script th:src="@{/webjars/jquery/3.3.1-1/jquery.min.js}"></script>
-<script th:src="@{/webjars/bootstrap/4.2.1/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/webjars/jquery/3.3.1-1/jquery.min.js}"></script>
+	<script th:src="@{/webjars/bootstrap/4.2.1/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

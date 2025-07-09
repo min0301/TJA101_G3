@@ -2,114 +2,127 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>會員登入</title>
-<link
-	href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
-	rel="stylesheet">
-<link
-	href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap"
-	rel="stylesheet">
+<title>會員登入 - Pixel Tribe</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
 <style>
+:root {
+    --main-bg: #fff;
+    --main-brown: #3b3327;
+    --light-yellow: #fdf7d0;
+    --deep-yellow: #ffe98a;
+    --input-bg: #f8f7e7;
+    --input-border: #bfbfbf;
+    --box-shadow: 0 6px 32px #0003;
+    --pixel-font: 'Press Start 2P', cursive;
+    --main-font: 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', Arial, sans-serif;
+}
+
 body {
-	background: #fff;
-	margin: 0;
-	padding: 0;
-	font-family: "ZCOOL KuaiLe", Arial, sans-serif;
+    background: var(--main-bg);
+    margin: 0;
+    padding: 0;
+    font-family: var(--main-font);
+    color: var(--main-brown);
 }
 
 .banner {
-	width: 100%;
-	height: 140px;
-	background: #fff;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+    width: 100%;
+    height: 140px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-
 .banner img {
-	width: 100%;
-	max-width: 700px;
-	object-fit: cover;
-	border-radius: 8px;
-	box-shadow: 0 4px 16px #0002;
+    width: 100%;
+    max-width: 700px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px #0002;
 }
 
 .login-container {
-	background: #fff;
-	width: 350px;
-	margin: 40px auto;
-	border-radius: 16px;
-	box-shadow: 0 6px 32px #0003;
-	padding: 32px 32px 24px 32px;
-	text-align: center;
+    background: #fff;
+    width: 350px;
+    margin: 40px auto;
+    border-radius: 16px;
+    box-shadow: var(--box-shadow);
+    padding: 32px 32px 24px 32px;
+    text-align: center;
 }
 
-.pixel-title {
-	font-family: 'Press Start 2P', cursive;
-	color: #3b3327;
-	font-size: 2rem;
-	margin-bottom: 16px;
-	letter-spacing: 2px;
-	text-shadow: 2px 2px 0 #efe7c7, 4px 4px 0 #a19e89;
+.pixel-title,
+.modal-title {
+    font-family: var(--pixel-font), var(--main-font);
+    color: var(--main-brown);
+    font-size: 2rem;
+    margin-bottom: 16px;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0 #efe7c7, 4px 4px 0 #a19e89;
+}
+.modal-title {
+    font-size: 1.18rem;
+    margin-bottom: 12px;
 }
 
 .login-label {
-	font-size: 1.2rem;
-	margin-bottom: 24px;
-	display: block;
-	color: #3b3327;
-	letter-spacing: 1px;
-	font-family: "ZCOOL KuaiLe", Arial, sans-serif;
+    font-size: 1.2rem;
+    margin-bottom: 24px;
+    display: block;
+    color: var(--main-brown);
+    letter-spacing: 1px;
+    font-family: var(--main-font);
 }
 
 .input-area {
-	margin-bottom: 12px;
+    margin-bottom: 12px;
 }
 
 .login-input {
-	width: 90%;
-	padding: 10px;
-	font-size: 1.1rem;
-	border: 1.5px solid #bfbfbf;
-	border-radius: 6px;
-	margin-bottom: 10px;
-	font-family: 'Press Start 2P', cursive, "ZCOOL KuaiLe", Arial,
-		sans-serif;
-	background: #f8f7e7;
-	color: #635d4c;
+    width: 90%;
+    padding: 10px;
+    font-size: 1.1rem;
+    border: 1.5px solid var(--input-border);
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-family: var(--main-font);
+    background: var(--input-bg);
+    color: #635d4c;
 }
-
 .login-input::placeholder {
-	color: #dddcc6;
-	font-family: "ZCOOL KuaiLe", Arial, sans-serif;
+    color: #dddcc6;
+    font-family: var(--main-font);
 }
 
 #loginBtn {
-	width: 90%;
-	padding: 10px 0;
-	background: #fdf7d0;
-	color: #2c2722;
-	font-family: 'Press Start 2P', 'ZCOOL KuaiLe', cursive, sans-serif;
-	font-size: 1.15rem;
-	border: 1.5px solid #a9a27e;
-	border-radius: 6px;
-	margin-top: 10px;
-	cursor: pointer;
-	transition: background .2s;
+    width: 90%;
+    padding: 10px 0;
+    background: var(--light-yellow);
+    color: #2c2722;
+    font-family: var(--main-font);
+    font-size: 1.15rem;
+    border: 1.5px solid #a9a27e;
+    border-radius: 6px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: background .2s;
 }
-
 #loginBtn:hover {
-	background: #ffe98a;
+    background: var(--deep-yellow);
 }
 
 #result {
-	display: block;
-	margin-top: 12px;
-	color: #b94040;
-	font-size: 1rem;
-	min-height: 1.3em;
+    display: block;
+    margin-top: 12px;
+    color: #b94040;
+    font-size: 1rem;
+    min-height: 1.3em;
+    font-family: var(--main-font);
 }
 
+/* ==== 忘記密碼 Modal ==== */
 .modal {
     display: none;
     position: fixed;
@@ -117,17 +130,19 @@ body {
     left: 0; top: 0; width: 100vw; height: 100vh;
     background: rgba(34,34,34,0.38);
     justify-content: center; align-items: center;
+    font-family: var(--main-font);
 }
 .modal-content {
     background: #fff;
     border-radius: 16px;
-    box-shadow: 0 6px 32px #0003;
+    box-shadow: var(--box-shadow);
     width: 330px; max-width: 90vw;
     padding: 28px 24px 18px 24px;
     display: flex; flex-direction: column;
     align-items: center;
     position: relative;
-    animation: popin 0.23s
+    animation: popin 0.23s;
+    font-family: var(--main-font);
 }
 @keyframes popin {
     0% { transform: scale(0.86); opacity: 0;}
@@ -138,27 +153,23 @@ body {
     font-size: 1.6rem; color: #bbb; cursor: pointer;
     transition: color 0.18s;
     z-index: 2;
+    font-family: var(--main-font);
 }
 .close:hover { color: #d88e24; }
-.modal-title {
-    font-family: 'Press Start 2P', 'ZCOOL KuaiLe', Arial, sans-serif;
-    font-size: 1.15rem; color: #3b3327;
-    margin-bottom: 9px; letter-spacing: 1px;
-}
 .modal-desc {
     font-size: 1.01rem;
     color: #7a6d54;
     margin-bottom: 14px;
-    font-family: 'ZCOOL KuaiLe', Arial, sans-serif;
+    font-family: var(--main-font);
     text-align: center;
 }
 .modal-btn {
     margin-top: 12px;
     width: 100%;
     padding: 9px 0;
-    background: #fdf7d0;
+    background: var(--light-yellow);
     color: #2c2722;
-    font-family: 'Press Start 2P', 'ZCOOL KuaiLe', cursive, sans-serif;
+    font-family: var(--main-font);
     font-size: 1.07rem;
     border: 1.5px solid #a9a27e;
     border-radius: 6px;
@@ -166,140 +177,207 @@ body {
     transition: background .2s;
 }
 .modal-btn:hover {
-    background: #ffe98a;
+    background: var(--deep-yellow);
 }
 #modalResult {
     margin-top: 10px;
     color: #b94040;
     font-size: 0.96rem;
     min-height: 1.2em;
+    font-family: var(--main-font);
+}
+/* ===== Loading Spinner for 寄送認證信 ===== */
+#loadingBox {
+    display: none;
+    margin-top: 15px;
+    font-family: var(--main-font);
+}
+.spinner {
+    border: 3px solid #eee7c2;
+    border-top: 3px solid #a9a27e;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    animation: spin 0.85s linear infinite;
+    margin: 0 auto;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+}
+.loading-text {
+    color:#6d603d;
+    font-family: var(--main-font);
+    margin-top:6px;
+    font-size: 1.02rem;
+    letter-spacing: 1px;
+    text-align: center;
+}
+.forgot-row { text-align: right; }
+.forgot-link {
+    color: #b89b61;
+    text-decoration: underline;
+    font-size: 0.99rem;
+    font-family: var(--main-font);
+    cursor: pointer;
+    transition: color .18s;
+}
+.forgot-link:hover { color: #ce871a; }
+
+/* 強制 modal 裡全部元素都用主字型 */
+.modal * {
+    font-family: var(--main-font) !important;
+}
+.modal-title {
+    font-family: var(--pixel-font), var(--main-font) !important;
 }
 
 </style>
 </head>
 <body>
-	<!-- Banner 圖片區，可換成你的 banner -->
-	<div class="banner">
-		<img src="your-banner.png" alt="PIXEL-TRIBE Banner">
-		<!-- 請將 your-banner.png 換成你的像素風 banner 圖片路徑 -->
-	</div>
-	<!-- 登入表單區塊 -->
-	<div class="login-container">
-		<div class="pixel-title">PIXEL TRIBE</div>
-		<div class="login-label">Welcome back，Pixi!!</div>
-		<form id="loginForm" autocomplete="off">
-			<div class="input-area">
-				<input type="text" id="memAccount" class="login-input"
-					placeholder="帳號" autocomplete="username">
-			</div>
-			<div class="input-area">
-				<input type="password" id="memPassword" class="login-input"
-					placeholder="密碼" autocomplete="current-password">
-			</div>
-			<div class="forgot-row">
-				<a href="javascript:void(0)" class="forgot-link" id="forgotLink">忘記密碼？</a>
-			</div>
-			<button type="submit" id="loginBtn">登入</button>
-			<span id="result"></span>
-		</form>
-	</div>
-	
-	<!-- 忘記密碼燈箱 -->
-	<div id="forgotModal" class="modal">
-		<div class="modal-content">
-			<span class="close" id="closeModal">&times;</span>
-			<div class="modal-title">忘記密碼</div>
-			<div class="modal-desc">請輸入您的Email，我們會寄送認證信給您。</div>
-			<input type="email" id="forgotEmail" class="login-input"
-				placeholder="請輸入Email" required>
-			<button id="sendMailBtn" class="modal-btn">寄送認證碼並前往驗證</button>
-			<div id="modalResult"></div>
-		</div>
-	</div>
-	
-	<script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const memAccount = document.getElementById('memAccount').value.trim();
-            const memPassword = document.getElementById('memPassword').value.trim();
-            const result = document.getElementById('result');
-            if (!memAccount && !memPassword) {
-                result.textContent = '請輸入帳號及密碼';
-                return;
-            } else if (!memAccount) {
-                result.textContent = '請輸入帳號';
-                return;
-            } else if (!memPassword) {
-                result.textContent = '請輸入密碼';
-                return;
+    <!-- Banner 區 -->
+    <div class="banner">
+        <img src="your-banner.png" alt="PIXEL-TRIBE Banner">
+        <!-- 請將 your-banner.png 換成你的像素風 banner 圖片路徑 -->
+    </div>
+    <!-- 登入表單區 -->
+    <div class="login-container">
+        <div class="pixel-title">PIXEL TRIBE</div>
+        <div class="login-label">Welcome back，Pixi!!</div>
+        <form id="loginForm" autocomplete="off">
+            <div class="input-area">
+                <input type="text" id="memAccount" class="login-input"
+                    placeholder="帳號" autocomplete="username">
+            </div>
+            <div class="input-area">
+                <input type="password" id="memPassword" class="login-input"
+                    placeholder="密碼" autocomplete="current-password">
+            </div>
+            <div class="forgot-row">
+                <a href="javascript:void(0)" class="forgot-link" id="forgotLink">忘記密碼？</a>
+            </div>
+            <button type="submit" id="loginBtn">登入</button>
+            <span id="result"></span>
+        </form>
+    </div>
+    <!-- 忘記密碼燈箱 Modal -->
+    <div id="forgotModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <div class="modal-desc">請輸入您的Email，我們會寄送認證信給您</div>
+            <input type="email" id="forgotEmail" class="login-input"
+                placeholder="請輸入Email" required>
+            <button id="sendMailBtn" class="modal-btn">寄送認證碼並前往驗證</button>
+            <div id="modalResult"></div>
+            <!-- loadingBox: 寄信時顯示等待 -->
+            <div id="loadingBox">
+                <div class="spinner"></div>
+                <div class="loading-text">正在寄出驗證信，請稍後...</div>
+            </div>
+        </div>
+    </div>
+    <script>
+    // ================== 登入功能 ==================
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const memAccount = document.getElementById('memAccount').value.trim();
+        const memPassword = document.getElementById('memPassword').value.trim();
+        const result = document.getElementById('result');
+        if (!memAccount && !memPassword) {
+            result.textContent = '請輸入帳號及密碼';
+            return;
+        } else if (!memAccount) {
+            result.textContent = '請輸入帳號';
+            return;
+        } else if (!memPassword) {
+            result.textContent = '請輸入密碼';
+            return;
+        }
+        fetch('/api/mem/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({memAccount, memPassword})
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                result.textContent = data.message;
+            } else {
+                alert('登入成功！');
+                window.location.href = "/indexstatic.html";
             }
-            fetch('/api/mem/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({memAccount, memPassword})
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.success) {
-                    result.textContent = data.message;
-                } else {
-                    alert('登入成功！');
-                    window.location.href = "/indexstatic.html";
-                }
-            });
         });
-        
-     // 打開忘記密碼燈箱
-        document.getElementById('forgotLink').onclick = function() {
-            document.getElementById('forgotModal').style.display = 'flex';
-        };
-        // 關閉燈箱
-        document.getElementById('closeModal').onclick = function() {
-            document.getElementById('forgotModal').style.display = 'none';
-            document.getElementById('modalResult').textContent = '';
-            document.getElementById('forgotEmail').value = '';
-        };
-        // 點背景也可關閉
-        document.getElementById('forgotModal').onclick = function(e) {
-            if(e.target === this) {
-                this.style.display = 'none';
-                document.getElementById('modalResult').textContent = '';
-                document.getElementById('forgotEmail').value = '';
-            }
-        };
-        
-        // 點送出按鈕
-        document.getElementById('sendMailBtn').onclick = function() {
-            const email = document.getElementById('forgotEmail').value.trim();
-            const result = document.getElementById('modalResult');
-            if(!email) {
-                result.textContent = '請輸入Email';
-                return;
-            }
-            // 實際請求可用 fetch POST
-            fetch('/api/members/forgot-password', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email})
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    result.style.color = "#25a45a";
-                    result.textContent = data.message;
-                    // 暫存 email 給重設密碼頁用
-                    localStorage.setItem('emailForReset', email);
-                    // 導向重設密碼頁
-                    setTimeout(() => {
-                        window.location.href = "/front-end/mem/PasswordResetWithVcode.html";
-                    }, 1500);
-                } else {
-                    result.style.color = "#b94040";
-                    result.textContent = data.message;
-                }
-            });
-        };
+    });
 
+    // =============== 忘記密碼 Modal 開關 ===============
+    document.getElementById('forgotLink').onclick = function() {
+        document.getElementById('forgotModal').style.display = 'flex';
+        // 重設欄位/訊息
+        document.getElementById('modalResult').textContent = '';
+        document.getElementById('modalResult').style.color = '#b94040';
+        document.getElementById('loadingBox').style.display = 'none';
+        document.getElementById('forgotEmail').value = '';
+    };
+    document.getElementById('closeModal').onclick = function() {
+        document.getElementById('forgotModal').style.display = 'none';
+        document.getElementById('modalResult').textContent = '';
+        document.getElementById('loadingBox').style.display = 'none';
+        document.getElementById('forgotEmail').value = '';
+    };
+    // 點背景也可關閉
+    document.getElementById('forgotModal').onclick = function(e) {
+        if(e.target === this) {
+            this.style.display = 'none';
+            document.getElementById('modalResult').textContent = '';
+            document.getElementById('loadingBox').style.display = 'none';
+            document.getElementById('forgotEmail').value = '';
+        }
+    };
+
+    // =============== 寄送認證信功能與Loading提示 ===============
+    document.getElementById('sendMailBtn').onclick = function() {
+        const email = document.getElementById('forgotEmail').value.trim();
+        const result = document.getElementById('modalResult');
+        const loadingBox = document.getElementById('loadingBox');
+        result.textContent = "";
+        result.style.color = ""; // 清除前次訊息顏色
+
+        if(!email) {
+            result.textContent = '請輸入Email';
+            result.style.color = "#b94040";
+            return;
+        }
+        // 顯示 loading 動畫
+        loadingBox.style.display = 'block';
+
+        fetch('/api/members/forgot-password', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email})
+        })
+        .then(res => res.json())
+        .then(data => {
+            loadingBox.style.display = 'none';
+            if(data.success) {
+                result.style.color = "#25a45a";
+                result.textContent = data.message || '認證信已寄出，請至信箱查收！';
+                // 暫存 email 給重設密碼頁用
+                localStorage.setItem('emailForReset', email);
+                // 1.5 秒後導向重設密碼頁
+                setTimeout(() => {
+                    window.location.href = "/front-end/mem/PasswordResetWithVcode.html";
+                }, 1500);
+            } else {
+                result.style.color = "#b94040";
+                result.textContent = data.message || '寄送失敗，請確認Email';
+            }
+        })
+        .catch(() => {
+            loadingBox.style.display = 'none';
+            result.style.color = "#b94040";
+            result.textContent = "系統異常，請稍後再試";
+        });
+    };
     </script>
 </body>
 </html>

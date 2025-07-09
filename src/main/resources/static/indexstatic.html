@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
+<<<<<<< Upstream, based on branch 'master' of https://github.com/TommyHCY/TJA101_G3.git
     <meta charset="UTF-8">
     <title>Pixel Tribe</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
@@ -463,80 +464,73 @@
     </style>
 </head>
 <body>
-<!-- 右上角會員功能與LOGO -->
-<div class="topbar">
-    <div class="topbar-logo" id="logo-btn" style="cursor:pointer;">
-        <img src="images/logo.png" alt="LOGO">
-    </div>
-    <div class="member-area">
-        <div class="avatar-btn" id="avatar-btn" title="會員中心">
-            <img id="member-avatar" src="images/demo-avatar.png" alt="會員頭像">
-        </div>
-        <span class="member-name" id="member-name">逵</span>
-        <button class="member-btn" id="login-btn" style="display:none;" onclick="location.href='/front-end/mem/MemberConsole.html'">會員中心</button>
-        <button class="member-btn" id="logout-btn">登出</button>
-    </div>
-</div>
-<!-- Banner -->
-<div class="banner">
-    <img src="images/home.png" alt="PIXEL-TRIBE Banner">
-</div>
-<div class="container">
-    <!-- 左側 Sidebar -->
-    <nav class="sidebar" id="sidebar">
-        <button class="sidebar-toggle" id="sidebar-toggle" title="收合/展開">≡</button>
-        <ul>
-            <li class="active" data-page="home">
-                <span class="icon">
-                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+	<!-- 右上角會員功能與LOGO -->
+	<div class="topbar">
+		<div class="topbar-logo" id="logo-btn" style="cursor: pointer;">
+			<img src="images/logo.png" alt="LOGO">
+		</div>
+		<div class="member-area">
+			<div class="avatar-btn" id="avatar-btn" title="會員中心">
+				<img id="member-avatar" src="images/default-avatar.png" alt="會員頭像">
+			</div>
+			<span class="member-name" id="member-name"></span>
+			<button class="member-btn" id="login-btn"
+				onclick="location.href='/front-end/mem/MemberConsole.html'">會員中心</button>
+			<button class="member-btn" id="register-btn"
+				onclick="location.href='/front-end/mem/MemRegisterPage.html'">註冊</button>
+			<button class="member-btn" id="logout-btn">登出</button>
+		</div>
+	</div>
+	<!-- Banner -->
+	<div class="banner">
+		<img src="images/home.png" alt="PIXEL-TRIBE Banner">
+	</div>
+	<div class="container">
+		<!-- 左側 Sidebar -->
+		<nav class="sidebar" id="sidebar">
+			<button class="sidebar-toggle" id="sidebar-toggle" title="收合/展開">≡</button>
+			<ul>
+				<li class="active" data-page="home"><span class="icon">
+						<svg viewBox="0 0 20 20" fill="none" stroke="currentColor"
+							stroke-width="2">
                         <path d="M2 10L10 2L18 10" />
                         <path d="M4 10V18H16V10" />
                     </svg>
-                </span>
-                <span>首頁</span>
-            </li>
-            <li data-page="forum">
-                <span class="icon">
-                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+				</span> <span>首頁</span></li>
+				<li data-page="forum"><span class="icon"> <svg
+							viewBox="0 0 20 20" fill="none" stroke="currentColor"
+							stroke-width="2">
                         <rect x="2" y="4" width="16" height="10" rx="2" />
                         <path d="M6 14V18L10 16L14 18V14" />
                     </svg>
-                </span>
-                <span>論壇</span>
-            </li>
-            <li data-page="news">
-                <span class="icon">
-                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+				</span> <span>論壇</span></li>
+				<li data-page="news"><span class="icon"> <svg
+							viewBox="0 0 20 20" fill="none" stroke="currentColor"
+							stroke-width="2">
                         <rect x="2" y="4" width="16" height="12" rx="2" />
                         <path d="M6 8H14M6 12H10" />
                     </svg>
-                </span>
-                <span>新聞</span>
-            </li>
-            <li data-page="shop">
-                <span class="icon">
-                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+				</span> <span>新聞</span></li>
+				<li data-page="shop"><span class="icon"> <svg
+							viewBox="0 0 20 20" fill="none" stroke="currentColor"
+							stroke-width="2">
                         <rect x="4" y="6" width="12" height="10" rx="2" />
                         <path d="M7 6V4H13V6" />
                     </svg>
-                </span>
-                <span>商城</span>
-            </li>
-        </ul>
-    </nav>
-    <!-- 主內容區 -->
-    <main class="main-content" id="main-content-area">
-        <h2>歡迎來到 PixelTribe!</h2>
-        <p>請從左側選單選擇「論壇」、「新聞」或「商城」瀏覽內容。</p>
-    </main>
-</div>
-<!-- 頁尾 Footer -->
-<footer class="footer">
-    <a href="#">關於我們</a> |
-    <a href="#">問題回報</a> |
-    <a href="#">合作提案</a>
-</footer>
-<script>
+				</span> <span>商城</span></li>
+			</ul>
+		</nav>
+		<!-- 主內容區 -->
+		<main class="main-content" id="main-content-area">
+			<h2>歡迎來到 PixelTribe!</h2>
+			<p>請從左側選單選擇「論壇」、「新聞」或「商城」瀏覽內容。</p>
+		</main>
+	</div>
+	<!-- 頁尾 Footer -->
+	<footer class="footer">
+		<a href="#">關於我們</a> | <a href="#">問題回報</a> | <a href="#">合作提案</a>
+	</footer>
+	<script>
     // 側邊欄切換功能
     document.querySelectorAll('.sidebar li').forEach(function(item) {
         item.addEventListener('click', function() {
@@ -633,6 +627,53 @@
     }
     // 預設為登入狀態（測試用，有後端可換成session控制）
     showLoginState('images/demo-avatar.png', '逵');
+    
+ // 取得會員資料
+    function fetchMemberProfile() {
+        // 假設後端API為 /api/member/profile
+        fetch('/api/member/profile')
+            .then(res => res.json())
+            .then(data => {
+                if (data.isLogin) {
+                    showLoginState(data.avatarUrl || 'images/default-avatar.png', data.memName);
+                } else {
+                    showLogoutState();
+                }
+            })
+            .catch(() => {
+                showLogoutState();
+            });
+    }
+
+    // 登入狀態
+    function showLoginState(avatarUrl, name) {
+        document.getElementById('login-btn').style.display = 'none';
+        document.getElementById('register-btn').style.display = 'none';
+        document.getElementById('logout-btn').style.display = '';
+        document.getElementById('avatar-btn').style.display = '';
+        document.getElementById('member-name').textContent = name || '會員';
+        document.getElementById('member-avatar').src = avatarUrl || 'images/default-avatar.png';
+    }
+
+    // 登出（或尚未登入）狀態
+    function showLogoutState() {
+        document.getElementById('login-btn').style.display = '';
+        document.getElementById('register-btn').style.display = '';
+        document.getElementById('logout-btn').style.display = 'none';
+        document.getElementById('avatar-btn').style.display = 'none';
+        document.getElementById('member-name').textContent = '訪客';
+        document.getElementById('member-avatar').src = 'images/default-avatar.png';
+    }
+
+    // 頁面一開始載入會員資料
+    fetchMemberProfile();
+
+    document.getElementById('logout-btn').addEventListener('click', function() {
+        // 你可以加上呼叫後端登出API邏輯
+        // fetch('/api/member/logout', {method: 'POST'})...
+        showLogoutState();
+    });
+
 </script>
 </body>
 </html>
