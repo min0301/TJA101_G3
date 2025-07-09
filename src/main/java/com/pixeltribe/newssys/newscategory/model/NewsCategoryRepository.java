@@ -5,4 +5,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface NewsCategoryRepository extends JpaRepository<NewsCategory, Integer> {
+
+
+    boolean existsByNcatNameIgnoreCase(String ncatName);
 }

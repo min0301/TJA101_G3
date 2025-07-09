@@ -2,17 +2,10 @@ package com.pixeltribe.newssys.news.controller;
 
 
 import com.pixeltribe.common.PageResponse;
-import com.pixeltribe.newssys.news.model.NewsAdminDTO;
-import com.pixeltribe.newssys.news.model.NewsCreationDTO;
-import com.pixeltribe.newssys.news.model.NewsDTO;
-import com.pixeltribe.newssys.news.model.NewsService;
+import com.pixeltribe.newssys.news.model.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -23,7 +16,7 @@ public class NewsController {
 
     @GetMapping("News")
     public PageResponse<NewsDTO> findAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
-        return newsSrv.findAll(page,size);
+        return newsSrv.findAll(page, size);
     }
 
     @GetMapping("News/{newsId}")
@@ -38,7 +31,13 @@ public class NewsController {
 
     @PostMapping("/News/admin/create")
     public NewsCreationDTO creationNews(@Valid @RequestBody NewsCreationDTO nCDTO) {
-        return newsSrv.createNews(nCDTO.getNewsTit(), nCDTO.getNewsCon(),nCDTO.getAdminNo(), nCDTO.getTags());
+        return newsSrv.createNews(nCDTO.getNewsTit(), nCDTO.getNewsCon(), nCDTO.getAdminNo(), nCDTO.getTags());
+    }
+
+    @PatchMapping("News/admin/update/{id}")
+    public NewsAdminUpdateDto updateNews(@PathVariable Integer id, @Valid @RequestBody NewsAdminUpdateDto nauDTO) {
+        nauDTO.setId(id);
+        return newsSrv.updateNews(nauDTO);
     }
 
 
