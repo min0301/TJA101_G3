@@ -9,7 +9,6 @@ import org.hibernate.annotations.ColumnDefault;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.membersys.member.model.Member;
-
 import com.pixeltribe.forumsys.message.model.ForumMes;
 
 import jakarta.persistence.Column;
@@ -22,12 +21,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-
-
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -48,7 +46,7 @@ public class ForumPost {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FOR_NO")
     @JsonBackReference  // 保持 JsonBackReference，它與 Forum.java 的 JsonManagedReference 配對
-//    @NotEmpty(message="討論區編號: 請勿空白")
+    @NotEmpty(message = "討論區編號: 請勿空白")
     private Forum forNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
