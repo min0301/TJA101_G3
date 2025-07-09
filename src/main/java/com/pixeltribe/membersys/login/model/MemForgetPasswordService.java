@@ -20,7 +20,7 @@ public class MemForgetPasswordService {
     @Autowired
     private JavaMailSender mailSender;
 
-    // 1. 產生驗證碼並更新資料庫
+    //產生驗證碼並更新資料庫
     public boolean sendEmailAuthCode(String memEmail) {
         Member member = memberRepository.findByMemEmail(memEmail);
         if (member == null) return false; // 查無此帳號
