@@ -23,7 +23,6 @@ public class ProductManageDTO {
 	    private String proVersion;
 	    private LocalDate proDate;
 	    private byte[] proCover;
-	    private String proDetails;
 	    private String proInclude;
 	    private String mallTagName;
 	    private Character proIsmarket;
