@@ -1,106 +1,71 @@
 package com.pixeltribe.membersys.administrator.controller;
 
-import com.pixeltribe.membersys.administrator.model.Administrator;
-import com.pixeltribe.membersys.administrator.model.AdmService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.pixeltribe.membersys.administrator.model.AdmRepository;
+import com.pixeltribe.membersys.administrator.model.AdmService;
+import com.pixeltribe.membersys.administrator.model.Administrator;
 
-@Controller
-@RequestMapping("/adm")
+@RestController
+@RequestMapping("/api/adm")
 public class AdmController {
 
 	@Autowired
-	private AdmService admSvc;
+	private AdmRepository admRepository;
+	@Autowired
+	private AdmService admService;
+	
+	@PostMapping("/check-email")
+	public Map<String, Object> registerMailCheck(@RequestBody Map<String, String> payload) {
+		String email = payload.get("email");
+		Map<String, Object> result = new HashMap<>();
 
-	@GetMapping("addAdm")
-	public String addAdm(ModelMap model) {
-		Administrator admin = new Administrator();
-		model.addAttribute("administrator", admin);
-		return "back-end/adm/addAdm";
-	}
-
-	@PostMapping("insert")
-	public String insert(@Valid Administrator administrator, BindingResult result, ModelMap model,
-			@RequestParam("upFiles") MultipartFile[] parts) throws IOException {
-
-		result = removeFieldError(administrator, result, "upFiles");
-
-		if (parts[0].isEmpty()) {
-			model.addAttribute("errorMessage", "請上傳頭像");
+		// 檢查信箱是否已被註冊
+		boolean mailExist = admRepository.existsByAdmAccount(email);
+		result.put("exist", mailExist); // true:已註冊 ; false:可使用
+		if (mailExist) {
+			result.put("message", "此信箱已被註冊");
 		} else {
-			for (MultipartFile multipartFile : parts) {
-				administrator.setAdmProfile(multipartFile.getBytes());
-			}
+			result.put("message", "✅此信箱可使用");
 		}
-
-		if (result.hasErrors() || parts[0].isEmpty()) {
-			return "back-end/adm/addAdm";
-		}
-
-		admSvc.addAdm(administrator);
-		model.addAttribute("admListData", admSvc.findAll());
-		model.addAttribute("success", "- (新增成功)");
-		return "redirect:/adm/listAllAdm";
-	}
-
-	@PostMapping("getOne_For_Update")
-	public String getOneForUpdate(@RequestParam("id") String id, ModelMap model) {
-		Administrator administrator = admSvc.getOneAdm(Integer.valueOf(id));
-		model.addAttribute("administrator", administrator);
-		return "back-end/adm/update_adm_input";
-	}
-
-	@PostMapping("update")
-	public String update(@Valid Administrator administrator, BindingResult result, ModelMap model,
-			@RequestParam("upFiles") MultipartFile[] parts) throws IOException {
-
-		result = removeFieldError(administrator, result, "upFiles");
-
-		if (parts[0].isEmpty()) {
-			byte[] origin = admSvc.getOneAdm(administrator.getId()).getAdmProfile();
-			administrator.setAdmProfile(origin);
-		} else {
-			for (MultipartFile multipartFile : parts) {
-				administrator.setAdmProfile(multipartFile.getBytes());
-			}
-		}
-
-		if (result.hasErrors()) {
-			return "back-end/adm/update_adm_input";
-		}
-
-		admSvc.updateAdm(administrator);
-		model.addAttribute("success", "- (修改成功)");
-		model.addAttribute("administrator", admSvc.getOneAdm(administrator.getId()));
-		return "back-end/adm/listOneAdm";
-	}
-
-	@GetMapping("listAllAdm")
-	public String listAllAdm(ModelMap model) {
-		List<Administrator> list = admSvc.findAll();
-		model.addAttribute("admListData", list);
-		return "back-end/adm/listAllAdm";
+		return result;
 	}
 	
-	public BindingResult removeFieldError(Administrator empVO, BindingResult result, String removedFieldname) {
-		List<FieldError> errorsListToKeep = result.getFieldErrors().stream()
-				.filter(fieldname -> !fieldname.getField().equals(removedFieldname))
-				.collect(Collectors.toList());
-		result = new BeanPropertyBindingResult(empVO, "empVO");
-		for (FieldError fieldError : errorsListToKeep) {
-			result.addError(fieldError);
+	@PostMapping("/register")
+	public Map<String, Object> admRegister(@RequestBody Map<String, String> payload) {
+		Map<String, Object> result = new HashMap<>();
+		
+		//從JSON提取資料
+		String admAccount = payload.get("admAccount");
+		String admName = payload.get("admName");
+		String admPassword = payload.get("admPassword");
+		
+		//設定管理員Role
+		String admRole = "ROLE_ADMIN";
+		
+		//將資料寫入新administrator
+		Administrator administrator = new Administrator();
+		
+		try {
+			administrator.setAdmAccount(admAccount);
+			administrator.setAdmName(admName);
+			administrator.setAdmPassword(admPassword);
+			
+			//將新administrator存入DB並回傳成功
+			administrator = admRepository.save(administrator);
+			
+			result.put("success", true);
+			result.put("message", "註冊成功!");
+		} catch (Exception ex) {
+			result.put("success", false);
+			result.put("message", "管理員註冊失敗: " + ex.getMessage());
 		}
 		return result;
 	}
