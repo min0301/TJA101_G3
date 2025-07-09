@@ -32,6 +32,12 @@ public class ForumDetailDTO {
     @Schema(description = "類別編號")
     private Integer categoryId;
 
+    @Schema(description = "熱度分數 (例如：近7日留言數)", example = "120")
+    private Integer hotScore;
+
+    @Schema(description = "最後留言時間")
+    private Instant lastMessageTime;
+
     public static ForumDetailDTO convertToForumDetailDTO(Forum forum) {
         return ForumDetailDTO.builder()
                 .id(forum.getId())

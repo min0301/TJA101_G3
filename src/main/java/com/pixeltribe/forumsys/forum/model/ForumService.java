@@ -15,8 +15,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service("forumService")
 public class ForumService {
@@ -128,6 +133,41 @@ public class ForumService {
         }
         // 6. 將包含 imageURL 的 forum 物件存入資料庫
         return forumRepository.save(forum);
+
+    }
+
+
+    public List<ForumDetailDTO> getHotForums() {
+        List<Forum> forums = forumRepository.findAllByForStatusOrderByForUpdateDesc('0');
+        if (forums.isEmpty()) {
+            return List.of();
+        }
+        // 計算查詢起始時間（30天前）
+        Instant since = Instant.now().minus(30, ChronoUnit.DAYS);
+
+        Map<Integer, Object[]> forumHotMap = forumRepository.findForumHotSince(since).stream()
+                .collect(Collectors.toMap(
+                        row -> (Integer) row[0], // Key: Forum ID
+                        row -> new Object[]{row[1], row[2]} // Value: [留言數, 最後留言時間]
+                ));
+        List<ForumDetailDTO> hotForumDTOs = forums.stream()
+                .map(forum -> {
+                    ForumDetailDTO dto = ForumDetailDTO.convertToForumDetailDTO(forum);
+                    Object[] stats = forumHotMap.get(forum.getId());
+                    if (stats != null) {
+                        // 如果找到了，表示30天內有留言
+                        dto.setHotScore((Integer) stats[0]);
+                        dto.setLastMessageTime((Instant) stats[1]);
+                    } else {
+                        // 如果沒找到，表示7天內沒有留言，都設為預設值
+                        dto.setHotScore(0);
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        hotForumDTOs.sort(Comparator.comparing(ForumDetailDTO::getHotScore).reversed());
+        return hotForumDTOs;
 
     }
 
