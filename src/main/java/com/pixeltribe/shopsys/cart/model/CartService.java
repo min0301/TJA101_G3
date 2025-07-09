@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.pixeltribe.shopsys.cart.exception.CartErrorCode;
 import com.pixeltribe.shopsys.cart.exception.CartException;
+import com.pixeltribe.shopsys.product.model.Product;
+import com.pixeltribe.shopsys.product.model.ProductRepository;
 
 
 @Service
@@ -18,31 +20,38 @@ public class CartService {
 	@Autowired
 	private CartRepository cartRepository;  // 注入 Redis Repository
 
-//	@Autowired    // ProductRepository未完成，所以先註解掉(未來要import)
-//	private ProductRepository productRepository;  // 注入產品資料庫
+	@Autowired    
+	private ProductRepository productRepository;  
 	
 	// ============ 加入商品到購物車 ===========//
 	public CartDTO addToCart(Integer memNo, Integer proNo, Integer proNum) {
-
-		// 只先查詢產品是否存在，暫不檢查狀態 (未來要import)
-//		Product product = productRepository.findByProNo(proNo).orElse(null);
-//        
-//        if (product == null) {
-//            throw new CartException(CartErrorCode.CART_002); // 商品不存在
-//        }
-        
-        // 等產品完成後,再把檢查狀態打開
-//        if (!"Y".equals(product.getProIsmarket()) || !"可販售".equals(product.getProStatus())) {
-//        	throw new CartException(CartErrorCode.CART_002); // 商品不可購買
-//        }
-        
-        // 使用資料庫裡的產品資訊  (等產品完成後，在打開)
-//        String proName = product.getProName();
-//        Integer proPrice = product.getProPrice();
 		
-		// 暫時先用固定值去跑
-		String proName = "商品" + proNo;
-        Integer proPrice = 100;
+		Product product = productRepository.findById(proNo).orElse(null);
+        
+        if (product == null) {
+            throw new CartException(CartErrorCode.CART_002); // 商品不存在
+        }
+        
+        boolean 已下架 = (product.getProIsmarket() == '1');
+        if (已下架) {
+        	throw new CartException(CartErrorCode.CART_002); // 商品不可購買
+        }
+        
+        // ******* 預留 等庫存功能完成後啟用 ************ //
+        // 檢查庫存是否足夠
+/*        if (product.getProStock() == null || product.getProStock() <= 0) {
+            throw new CartException(CartErrorCode.CART_003);    // 商品庫存不足
+        }
+        
+        // 檢查要購買的數量是否超過庫存
+        if (proNum > product.getProStock()) {
+            throw new CartException(CartErrorCode.CART_004); // 購買數量超過庫存
+        }
+*/
+        // 使用資料庫裡的產品資訊
+        String proName = product.getProName();
+        Integer proPrice = product.getProPrice();
+		
         
         // 取得現有購物車
         CartDTO cart = cartRepository.getCart(memNo);
