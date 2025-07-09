@@ -57,8 +57,9 @@ public class ForumService {
 
     public List<ForumDetailDTO> getAllForum() {
 
-        // 1. 從資料庫取得原始的 Entity 列表
-        List<Forum> forums = forumRepository.findAllByOrderByForUpdateDesc();
+        // 1. 從資料庫取得原始的 Entity 列表，
+        // 討論區狀態為'0'(正常)
+        List<Forum> forums = forumRepository.findAllByForStatusOrderByForUpdateDesc('0');
 
 //  TODO
 //        for (Forum x : forums) {
@@ -67,7 +68,6 @@ public class ForumService {
 
         // 2. 使用 Stream API 將 List<Forum> 轉換為 List<ForumDetailDTO>
         return forums.stream()
-
                 .map(x -> ForumDetailDTO.convertToForumDetailDTO(x))
                 //  TODO
                 //      .map(ForumDetailDTO::convertToForumDetailDTO) // 對每個 forum 執行轉換
