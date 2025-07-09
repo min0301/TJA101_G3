@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 @Transactional
 public class NewsCategoryService {
-    public final NewsCategoryRepository newsCategoryRepository;
+    private final NewsCategoryRepository newsCategoryRepository;
 
     @Autowired
     NewsCategoryService(NewsCategoryRepository newsCategoryRepository) {
@@ -36,25 +36,37 @@ public class NewsCategoryService {
         NewsCategory newsCategory = new NewsCategory();
         newsCategory.setNcatName(categoryName);
 
-        newsCategoryRepository.save(newsCategory);
-        return newsCategoryDTO;
+        NewsCategory saved = newsCategoryRepository.save(newsCategory);
+
+        NewsCategoryDTO returnedNewsCategoryDTO = new NewsCategoryDTO();
+        returnedNewsCategoryDTO.setCategoryId(saved.getId());
+        returnedNewsCategoryDTO.setCategoryName(saved.getNcatName());
+
+        return returnedNewsCategoryDTO;
     }
 
     @Transactional
-    public NewsCategoryDTO updateCategory(NewsCategoryDTO newsCategoryDTO) {
-        NewsCategory newsCategory = newsCategoryRepository.findById(newsCategoryDTO.getCategoryId()).orElseThrow(() -> new EntityNotFoundException("CategoryId: " + newsCategoryDTO.getCategoryId()));
+    public NewsCategoryDTO updateCategory(@Valid NewsCategoryDTO newsCategoryDTO) {
+        NewsCategory newsCategory = newsCategoryRepository.findById(newsCategoryDTO.getCategoryId()).orElseThrow(
+                () -> new EntityNotFoundException("CategoryId: " + newsCategoryDTO.getCategoryId()));
 
         String newName = newsCategoryDTO.getCategoryName().trim();
 
-        if (newsCategoryRepository.existsByNcatNameIgnoreCase(newName)){
+        if (newsCategoryRepository.existsByNcatNameIgnoreCaseAndIdNot(newName, newsCategory.getId())) {
             throw new IllegalArgumentException("Category: " + newName + ". Already exists!");
         }
 
-        if(newName.equalsIgnoreCase(newsCategory.getNcatName())){
-            return newsCategoryDTO;
-        }
-        newsCategory.setNcatName(newName);
+        if (!newName.equals(newsCategory.getNcatName())) {
 
-        return newsCategoryDTO;
+            newsCategory.setNcatName(newName);
+        }
+
+        NewsCategory saved = newsCategoryRepository.save(newsCategory);
+
+        NewsCategoryDTO returnedNewsCategoryDTO = new NewsCategoryDTO();
+        returnedNewsCategoryDTO.setCategoryId(saved.getId());
+        returnedNewsCategoryDTO.setCategoryName(saved.getNcatName());
+
+        return returnedNewsCategoryDTO;
     }
 }
