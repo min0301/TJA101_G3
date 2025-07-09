@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/news/image")
-class NewsImageController {
+public class NewsImageController {
 
     @Autowired
     NewsImageService newsImageSrv;
