@@ -534,7 +534,7 @@
             try {
                 let apiUrl = '';
                 if (forumId) {
-                    // 【修改點 1: 根據論壇 ID 獲取文章列表的路徑】
+                    // 【確認點: 根據論壇 ID 獲取文章列表的路徑】
                     // 後端 @GetMapping("/api/forum/{forumId}/posts")
                     apiUrl = `${API_BASE_URL}${API_FORUM_PREFIX}/${forumId}/posts`;
                     console.log(`正在獲取論壇 ID ${forumId} 的文章... URL: ${apiUrl}`);
@@ -700,12 +700,17 @@
         // 處理模態框錯誤訊息
         function showModalError(message, errors = {}) {
             modalErrorMessagesDiv.innerHTML = `<strong>錯誤:</strong> ${message}<br>`;
+            // 遍歷錯誤物件，顯示具體字段錯誤
             for (const key in errors) {
-                modalErrorMessagesDiv.innerHTML += `<li>${key}: ${errors[key]}</li>`; // 使用列表顯示多個錯誤
-                const errorElement = document.getElementById(`modal${key.charAt(0).toUpperCase() + key.slice(1)}Error`); // 構建錯誤元素ID
+                // 將鍵名轉換為匹配HTML元素ID的格式，例如：postTitle -> modalPostTitleError
+                const errorElementId = `modal${key.charAt(0).toUpperCase() + key.slice(1)}Error`;
+                const errorElement = document.getElementById(errorElementId);
                 if (errorElement) {
                     errorElement.textContent = errors[key];
                     errorElement.style.display = 'block';
+                } else {
+                    // 如果沒有找到對應的錯誤元素，則添加到通用錯誤訊息中
+                    modalErrorMessagesDiv.innerHTML += `<li>${key}: ${errors[key]}</li>`;
                 }
             }
             modalErrorMessagesDiv.style.display = 'block';
@@ -759,9 +764,12 @@
         // 載入文章資料並填充模態框表單
         async function loadPostDataToModal(postId) {
             try {
-                // 【修改點 2: 載入單一文章資料的路徑 (用於編輯模態框)】
-                // 後端 @GetMapping("/api/forumpost/forpost/{id}")
-                const response = await fetch(`${API_BASE_URL}${API_FORUM_POST_PREFIX}/forpost/${postId}`);
+                // 【已修正】載入單一文章資料的路徑 (用於編輯模態框)
+                // 後端您給的範例是 `@GetMapping("/forumpost/{id}")`，但您的 HTML 內寫的是 `forpost/{id}`。
+                // 這裡假設您的 Controller 有類似 `ForumPostController.getForumPostById(@PathVariable("id") Integer id)` 的方法，
+                // 並且對應的 URL 是 `/api/forumpost/{id}`。
+                // 如果您的 Controller 實際的單一查詢路徑是 `/api/forumpost/forpost/{id}`，此行不需要更改。
+                const response = await fetch(`${API_BASE_URL}${API_FORUM_POST_PREFIX}/${postId}`); // 假設路徑是 /api/forumpost/{id}
                 if (!response.ok) {
                     const errorText = await response.text();
                     throw new Error(`獲取文章資料失敗！狀態: ${response.status}, 訊息: ${errorText}`);
@@ -772,14 +780,21 @@
                 modalPostTitleInput.value = post.postTitle;
                 modalPostConTextarea.value = post.postCon;
 
-                if (post.forumNo) {
+                // 因為後端 ForumPostDTO 中 ForNo 和 FtagNo 可能直接返回 ID，
+                // 或者返回完整的物件，這裡假設直接返回 ID。
+                // 如果是完整的物件，例如 post.forum.id，則需要調整。
+                if (post.forumNoId) { // 假設DTO裡面的屬性名是forumNoId
+                    modalForNoIdSelect.value = post.forumNoId;
+                } else if (post.forumNo && typeof post.forumNo === 'number') { // 兼容直接返回ID的情況
                     modalForNoIdSelect.value = post.forumNo;
                 }
-                if (post.ftagNo) { // Make sure ForumPostDTO has ftagNo property
+                if (post.ftagNoId) { // 假設DTO裡面的屬性名是ftagNoId
+                    modalFtagNoIdSelect.value = post.ftagNoId;
+                } else if (post.ftagNo && typeof post.ftagNo === 'number') { // 兼容直接返回ID的情況
                     modalFtagNoIdSelect.value = post.ftagNo;
                 }
 
-                // 處理 Character 類型的布林值
+                // 處理 Character 類型的布林值，確保它們能正確轉換為 JS 的 true/false
                 modalPostPinCheckbox.checked = (post.postPin === '1' || post.postPin === true);
                 modalPostStatusCheckbox.checked = (post.postStatus === '1' || post.postStatus === true);
 
@@ -795,18 +810,20 @@
             clearModalErrors();
 
             const formData = new FormData(editForumPostModalForm);
+            // 注意：這裡假設後端接收的 DTO 屬性名稱是 `forNoId` 和 `ftagNoId`
             const data = {
                 id: parseInt(formData.get('id')),
                 postTitle: formData.get('postTitle'),
                 postCon: formData.get('postCon'),
-                forNoId: parseInt(formData.get('forNoId')),
-                ftagNoId: parseInt(formData.get('ftagNoId')),
-                postPin: formData.get('postPin') ? '1' : '0',
-                postStatus: formData.get('postStatus') ? '1' : '0'
+                forNoId: parseInt(formData.get('forNoId')), // 確保與後端 DTO 屬性名一致
+                ftagNoId: parseInt(formData.get('ftagNoId')), // 確保與後端 DTO 屬性名一致
+                postPin: formData.get('postPin') ? '1' : '0', // 轉換為 Character '1' 或 '0'
+                postStatus: formData.get('postStatus') ? '1' : '0' // 轉換為 Character '1' 或 '0'
             };
+            console.log("提交的數據:", data);
 
             try {
-                // 【修改點 3: 提交更新文章資料的路徑】
+                // 【已修正】提交更新文章資料的路徑
                 // 後端 @PutMapping("/api/forumpost/update")
                 const response = await fetch(`${API_BASE_URL}${API_FORUM_POST_PREFIX}/update`, {
                     method: 'PUT',
@@ -821,10 +838,13 @@
                     closeEditModal(); // 關閉模態框
                     initialize(); // 重新載入文章列表以顯示更新後的數據
                 } else {
-                    const errorData = await response.json().catch(() => ({message: '伺服器返回非JSON格式錯誤'}));
-                    if (response.status === 400 && errorData) {
+                    const errorData = await response.json().catch(() => ({})); // 嘗試解析JSON錯誤，如果失敗則返回空對象
+                    console.error('後端返回錯誤:', errorData);
+                    if (response.status === 400) { // Bad Request, 通常是驗證錯誤
+                        // 假設後端返回的驗證錯誤是 { "fieldName": "ErrorMessage" } 形式
                         showModalError('資料驗證失敗，請檢查輸入。', errorData);
                     } else {
+                        // 處理其他非400的錯誤狀態
                         showModalError(`更新失敗！ 狀態: ${response.status}, 訊息: ${errorData.message || response.statusText || '未知錯誤'}`);
                     }
                 }
@@ -859,7 +879,8 @@
         }
 
         try {
-            const deleteApiUrl = `${API_BASE_URL}${API_FORUM_POST_PREFIX}/${postId}`; // 修改刪除 API 路徑
+            // 請確認您的 Controller 中 delete 方法對應的路徑
+            const deleteApiUrl = `${API_BASE_URL}${API_FORUM_POST_PREFIX}/${postId}`;
             const response = await fetch(deleteApiUrl, {
                 method: 'DELETE'
             });
@@ -878,8 +899,8 @@
         }
     };
     */
-    // 如果你啟用刪除按鈕，請在 renderTable 中將 ``
-    // 改為 `<button class="btn btn-delete" onclick="deleteForumPost(${post.id})">刪除</button>`
+    // 如果你啟用刪除按鈕，請在 renderTable 中將 `<td><button class="btn btn-edit" ...`
+    // 改為 `<td><button class="btn btn-edit" data-post-id="${post.id}">編輯</button><button class="btn btn-delete" onclick="deleteForumPost(${post.id})">刪除</button></td>`
 </script>
 </body>
 </html>

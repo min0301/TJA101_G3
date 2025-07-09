@@ -47,7 +47,7 @@ public class ForumPostController {
 //    MemberService memberService
 //     this.memberService = memberService;
     //nick new1
-@GetMapping("/api/forumpost/{id}") // 這裡的 `{id}` 是不可變的，用於匹配 URL 中的路徑變數
+@GetMapping("/forumpost/{id}") // 這裡的 `{id}` 是不可變的，用於匹配 URL 中的路徑變數
 public ResponseEntity<ForumPostDTO> getForumPostById(@PathVariable("id") Integer id) { // `getForumPostById` 是可變的方法名稱
     // 調用 Service 層新增的獲取 DTO 的方法
     return forumPostSvc.getForumPostDTOById(id) // `getForumPostDTOById` 是不可變的方法名稱 (因為 Service 中已經定義)
@@ -55,7 +55,7 @@ public ResponseEntity<ForumPostDTO> getForumPostById(@PathVariable("id") Integer
             .orElseGet(() -> ResponseEntity.notFound().build()); // 如果找不到，返回 404 Not Found
 }
     // 處理前端提交更新的 PUT 請求
-    @PutMapping("/api/forumpost/update") // `/update` 是不可變的，與前端請求路徑匹配
+    @PutMapping("/forumpost/update") // `/update` 是不可變的，與前端請求路徑匹配
     public ResponseEntity<ForumPostDTO> updateForumPost(@RequestBody ForumPostDTO forumPostDTO) { // `updateForumPost` 是可變的方法名稱，`forumPostDTO` 參數名稱是可變的
         // 在實際應用中，通常會先根據 ID 查找現有實體，更新其屬性，然後保存。
         // 這裡需要將 DTO 轉換回 Entity，進行業務邏輯處理，然後再保存。
