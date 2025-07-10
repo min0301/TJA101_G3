@@ -303,13 +303,10 @@ body {
         	if (data.success && data.token) {
         	    alert('登入成功！');
         	    localStorage.setItem('jwt', data.token);
-
-        	    // 存會員資訊到 localStorage（建議用 JSON.stringify）
-        	    if (data.memberInfo) {
-        	        localStorage.setItem('memberInfo', JSON.stringify(data.memberInfo));
-        	    }
-
+        	    localStorage.setItem('memberInfo', JSON.stringify(data.memberInfo));
         	    window.location.href = "/indexstatic.html";
+        	} else {
+        		result.textContent = data.message;
         	}
         });
     });

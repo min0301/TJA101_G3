@@ -139,11 +139,13 @@
             })
             .then(res => res.json())
             .then(data => {
-                if (!data.success) {
-                    result.textContent = data.message;
-                } else {
+                if (data.success && data.token) {
                     alert('登入成功！');
+                    localStorage.setItem('jwt',data.token);
+                    localStorage.setItem('adminInfo',JSON.stringify(data.adminInfo));
                     window.location.href = "/back-end/adm/AdmHomePage.html";
+                } else {
+                    result.textContent = data.message;
                 }
             });
         });
