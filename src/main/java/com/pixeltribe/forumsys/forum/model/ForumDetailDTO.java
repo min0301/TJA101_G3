@@ -1,14 +1,18 @@
 package com.pixeltribe.forumsys.forum.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
 @Data
 @Schema(description = "討論區list DTO")
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ForumDetailDTO {
 
     @Schema(description = "討論區編號", example = "1")
@@ -33,7 +37,7 @@ public class ForumDetailDTO {
     private Integer categoryId;
 
     @Schema(description = "熱度分數 (例如：近7日留言數)", example = "120")
-    private Integer hotScore;
+    private Long hotScore;
 
     @Schema(description = "最後留言時間")
     private Instant lastMessageTime;

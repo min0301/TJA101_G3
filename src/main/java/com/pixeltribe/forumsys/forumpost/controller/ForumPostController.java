@@ -40,8 +40,10 @@ public class ForumPostController {
 
     // **建構子注入**
     @Autowired
-    public ForumPostController(ForumPostService forumPostSvc, ForumService forumService)
-    {this.forumPostSvc = forumPostSvc;this.forumService = forumService;}
+    public ForumPostController(ForumPostService forumPostSvc, ForumService forumService) {
+        this.forumPostSvc = forumPostSvc;
+        this.forumService = forumService;
+    }
 //    ForumTagService forumTagService,
 //    MemberService memberService
 //     this.forumTagService = forumTagService;
@@ -109,8 +111,12 @@ public class ForumPostController {
         if (postCon == null || postCon.isEmpty() || postCon.length() < 10 || postCon.length() > 5000) {
             errors.put("postCon", "文章內容: 請勿空白(最少十個字) ");
         }
-        if (forNoId == null) { errors.put("forNoId", "討論區編號: 請選擇一個討論區編號"); }
-        if (ftagNoId == null) { errors.put("ftagNoId", "類別編號: 請選擇您的類別"); }
+        if (forNoId == null) {
+            errors.put("forNoId", "討論區編號: 請選擇一個討論區編號");
+        }
+        if (ftagNoId == null) {
+            errors.put("ftagNoId", "類別編號: 請選擇您的類別");
+        }
 
         if (!errors.isEmpty()) {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);

@@ -5,7 +5,10 @@ import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
 import com.pixeltribe.forumsys.forumcategory.model.ForumCategory;
 import com.pixeltribe.forumsys.forumcategory.model.ForumCategoryRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service("forumService")
@@ -35,6 +39,11 @@ public class ForumService {
         this.forumRepository = forumRepository;
         this.forumCategoryRepository = forumCategoryRepository;
     }
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
+    private static final String HOT_FORUMS_KEY = "forums:hot";
 
 
     @Value("${file.upload-dir}")
@@ -142,7 +151,7 @@ public class ForumService {
         if (forums.isEmpty()) {
             return List.of();
         }
-        // 計算查詢起始時間（30天前）
+        // 計算查詢起始時間（n天前）
         Instant since = Instant.now().minus(30, ChronoUnit.DAYS);
 
         Map<Integer, Object[]> forumHotMap = forumRepository.findForumHotSince(since).stream()
@@ -155,12 +164,12 @@ public class ForumService {
                     ForumDetailDTO dto = ForumDetailDTO.convertToForumDetailDTO(forum);
                     Object[] stats = forumHotMap.get(forum.getId());
                     if (stats != null) {
-                        // 如果找到了，表示30天內有留言
-                        dto.setHotScore((Integer) stats[0]);
+                        // 如果找到了，表示n天內有留言
+                        dto.setHotScore((Long) stats[0]);
                         dto.setLastMessageTime((Instant) stats[1]);
                     } else {
-                        // 如果沒找到，表示7天內沒有留言，都設為預設值
-                        dto.setHotScore(0);
+                        // 如果沒找到，表示n天內沒有留言，都設為預設值
+                        dto.setHotScore(0L);
                     }
                     return dto;
                 })
@@ -170,5 +179,55 @@ public class ForumService {
         return hotForumDTOs;
 
     }
+
+    public List<ForumDetailDTO> getHotForumsRedis() {
+        List<ForumDetailDTO> hotForums = (List<ForumDetailDTO>) redisTemplate.opsForValue().get(HOT_FORUMS_KEY);
+        return hotForums != null ? hotForums : List.of();
+    }
+
+    @Scheduled(fixedRate = 3_600_000)
+    @Transactional
+    public void updateHotForumsCache() {
+//        System.out.println("====== 開始更新熱門看板快取 ======");
+        List<Forum> forums = forumRepository.findAllByForStatusOrderByForUpdateDesc('0');
+        if (forums.isEmpty()) {
+            // 如果沒有任何討論區，也更新一個空列表到快取，避免前端拿到舊資料
+            redisTemplate.opsForValue().set(HOT_FORUMS_KEY, List.of(), 2, TimeUnit.HOURS);
+//            System.out.println("====== 熱門看板快取更新完成（無資料） ======");
+            return;
+        }
+        Instant since = Instant.now().minus(30, ChronoUnit.DAYS);
+
+        Map<Integer, Object[]> forumHotMap = forumRepository.findForumHotSince(since).stream()
+                .collect(Collectors.toMap(
+                        row -> (Integer) row[0],
+                        row -> new Object[]{row[1], row[2]}
+                ));
+
+        List<ForumDetailDTO> hotForumDTOs = forums.stream()
+                .map(forum -> {
+                    ForumDetailDTO dto = ForumDetailDTO.convertToForumDetailDTO(forum);
+                    Object[] stats = forumHotMap.get(forum.getId());
+                    if (stats != null) {
+                        dto.setHotScore((Long) stats[0]); // 注意：COUNT(id) 在 JPA 中通常返回 Long
+                        dto.setLastMessageTime((Instant) stats[1]);
+                    } else {
+                        dto.setHotScore(0L);
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        hotForumDTOs.sort(Comparator.comparing(ForumDetailDTO::getHotScore).reversed());
+
+        // --- 最重要的一步：將計算好的結果存入 Redis ---
+        // 方法 'opsForValue().set()': 不可變，是 RedisTemplate 的 API。
+        // 我們設定 2 小時過期，比定時任務的 1 小時長，確保資料不會在更新前就失效。
+        redisTemplate.opsForValue().set(HOT_FORUMS_KEY, hotForumDTOs, 2, TimeUnit.HOURS);
+
+//        System.out.println("====== 熱門看板快取更新完成 ======");
+    }
+
+
 
 }

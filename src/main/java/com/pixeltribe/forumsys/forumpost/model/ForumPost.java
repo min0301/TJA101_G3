@@ -47,14 +47,13 @@ public class ForumPost {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FOR_NO")
     @JsonBackReference  // 保持 JsonBackReference，它與 Forum.java 的 JsonManagedReference 配對
-    @NotEmpty(message="討論區編號: 請勿空白")
+    @NotEmpty(message = "討論區編號: 請勿空白")
     private Forum forNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEM_NO")
     @JsonBackReference
     private Member memNo;
-
 
 
     // **確保這個方法存在** nick new
@@ -74,6 +73,7 @@ public class ForumPost {
         }
         return "匿名會員";
     }
+
     // **確保這個方法存在 (供 DTO 獲取 ID)** nick new
     @JsonProperty("forNoId")
     public Integer getForNoId() {
