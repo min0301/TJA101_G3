@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonBackReference; // 確保導入
 import com.fasterxml.jackson.annotation.JsonProperty; // 確保導入
 import com.pixeltribe.forumsys.entity.*;
 import com.pixeltribe.forumsys.forumtag.model.ForumTag;
-import com.pixeltribe.forumsys.entity.ArticleReport;
+import com.pixeltribe.forumsys.articlereport.model.ArticleReport;
 import org.hibernate.annotations.ColumnDefault;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore; // 保留，用於忽略 OneToMany 關係
 import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.forumsys.message.model.ForumMes;
@@ -21,7 +21,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty; // 這些驗證註解通常用於 DTO，但保留在 Entity 也可以作為資料庫層的基礎約束
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -45,51 +45,14 @@ public class ForumPost {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FOR_NO")
-    @JsonBackReference  // 保持 JsonBackReference，它與 Forum.java 的 JsonManagedReference 配對
-    @NotEmpty(message = "討論區編號: 請勿空白")
-    private Forum forNo;
+    // 移除 @JsonBackReference，交由 DTO 處理關聯資料
+    // @NotEmpty(message = "討論區編號: 請勿空白") // Entity 層的驗證通常較寬鬆，或交由 DTO 處理
+    private Forum forNo; // 變數名稱 `forNo` 不可變，因為對應資料庫欄位或 JPA 關聯映射
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEM_NO")
-    @JsonBackReference
+    // 移除 @JsonBackReference，交由 DTO 處理關聯資料
     private Member memNo;
-
-
-    // **確保這個方法存在** nick new
-    @JsonProperty("forumName")
-    public String getForumName() {
-        if (this.forNo != null) {
-            return this.forNo.getForName(); // 呼叫 Forum Entity 的 getForName()
-        }
-        return "未知討論區";
-    }
-
-    // **確保這個方法存在** nick new
-    @JsonProperty("memberName")
-    public String getMemberName() {
-        if (this.memNo != null) {
-            return this.memNo.getMemName(); // 呼叫 Member Entity 的 getMemName()
-        }
-        return "匿名會員";
-    }
-
-    // **確保這個方法存在 (供 DTO 獲取 ID)** nick new
-    @JsonProperty("forNoId")
-    public Integer getForNoId() {
-        if (this.forNo != null) {
-            return this.forNo.getId();
-        }
-        return null;
-    }
-
-    // **確保這個方法存在 (供 DTO 獲取 ID)** nick new
-    @JsonProperty("memNoId")
-    public Integer getMemNoId() {
-        if (this.memNo != null) {
-            return this.memNo.getId();
-        }
-        return null;
-    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FTAG_NO")
@@ -97,6 +60,7 @@ public class ForumPost {
 
     @Size(max = 50)
     @Column(name = "POST_TITLE", length = 50)
+    // 註解中的正規表達式，由於 DTO 中會進行驗證，Entity 層可選擇性保留或移除
     @Pattern(regexp = "^[一-龥-a-zA-Z0-9_]{2,10}$", message = "文章標題: 只能是中、英文字母、數字和_ , 且長度必需在2到10之間")
     private String postTitle;
 
@@ -117,7 +81,6 @@ public class ForumPost {
     @ColumnDefault("'0'")
     @Column(name = "POST_PIN", nullable = false)
     private Character postPin;
-
     @NotNull
     @ColumnDefault("'0'")
     @Column(name = "POST_STATUS", nullable = false)
@@ -132,28 +95,28 @@ public class ForumPost {
     @Column(name = "POST_LIKE_DLC")
     private Integer postLikeDlc;
 
-//    @Lob
-//    @Column(name = "POST_COVER_IMAGE")
-//    private byte[] postCoverImage; // **確保這個欄位存在** nick new
+    // 將 byte[] 替換為 String，用於儲存圖片 URL
+    @Column(name = "IMG_DATA") //與資料庫名稱相同
+    private String postCoverImageUrl; // 新增圖片 URL 欄位，變數名稱 `postCoverImageUrl` 可變，但建議與資料庫欄位名一致
 
     @JsonIgnore
     @OneToMany(mappedBy = "postNo")
-    private Set<ArticleReport> articleReports = new LinkedHashSet<>();
+    private Set<ArticleReport> articleReports = new LinkedHashSet<>(); // 變數名稱 `articleReports` 可變
 
     @JsonIgnore
     @OneToMany(mappedBy = "postNo")
-    private Set<ForumImage> forumImages = new LinkedHashSet<>();
+    private Set<ForumImage> forumImages = new LinkedHashSet<>(); // 變數名稱 `forumImages` 可變
 
     @JsonIgnore
     @OneToMany(mappedBy = "postNo")
-    private Set<ForumMes> forumMes = new LinkedHashSet<>();
+    private Set<ForumMes> forumMes = new LinkedHashSet<>(); // 變數名稱 `forumMes` 可變
 
     @JsonIgnore
     @OneToMany(mappedBy = "postNo")
-    private Set<PostCollect> postCollects = new LinkedHashSet<>();
+    private Set<PostCollect> postCollects = new LinkedHashSet<>(); // 變數名稱 `postCollects` 可變
 
-    @OneToMany(mappedBy = "postNo")
     @JsonIgnore
-    private Set<PostLike> postLikes = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "postNo")
+    private Set<PostLike> postLikes = new LinkedHashSet<>(); // 變數名稱 `postLikes` 可變
 
 }
