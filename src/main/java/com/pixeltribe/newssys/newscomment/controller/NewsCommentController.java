@@ -4,6 +4,7 @@ import com.pixeltribe.newssys.newscomment.model.NewsComment;
 import com.pixeltribe.newssys.newscomment.model.NewsCommentCreationDTO;
 import com.pixeltribe.newssys.newscomment.model.NewsCommentDTO;
 import com.pixeltribe.newssys.newscomment.model.NewsCommentService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,15 +19,20 @@ import java.util.List;
 @RequestMapping("/api")
 class NewsCommentController {
 
-    @Autowired
-    NewsCommentService newsCommentService;
+    private final NewsCommentService newsCommentService;
+
+    NewsCommentController(NewsCommentService newsCommentService) {
+        this.newsCommentService = newsCommentService;
+    }
 
     @GetMapping("NewsComment/{id}")
+    @Operation(summary = "取得某則新聞的評論")
     public List<NewsCommentDTO> findAll(@PathVariable Integer id){
         return newsCommentService.findAll(id);
     }
 
     @PostMapping("NewsComment/add")
+    @Operation(summary = "新增新聞評論")
     public NewsCommentCreationDTO addComment(
             @Valid @RequestBody NewsCommentCreationDTO dto){
 

@@ -1,0 +1,137 @@
+<!-- new-article.html  (vFinal‑plus：CKEditor 顯示圖片、toolbar 正確使用 imageUpload，符合後端 NewsCreationDTO：adminNo / newsTit / newsCon / tags / isShowed) -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>新增新聞 | Pixel Tribe CMS</title>
+
+    <!-- ===== 核心樣式 ===== -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <style>
+        :root { --primary:#0056b3; --accent:#1abc9c; }
+        body{background:#f8fafc} h1{color:var(--primary)}
+        .card{border:0;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+        .btn-primary{background:var(--primary);border:0}.btn-primary:hover{background:#003d82}
+        .ck-editor__editable{min-height:300px}
+        .required::after{content:" *";color:#dc3545}
+    </style>
+</head>
+<body>
+<div class="container py-5">
+    <h1 class="mb-4">新增新聞</h1>
+
+    <div class="card p-4">
+        <form id="newsForm">
+            <div class="mb-3">
+                <label class="form-label required">標題</label>
+                <input class="form-control" id="title" name="newsTit" maxlength="255" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label required">分類 (可複選做為 tags)</label>
+                <select class="form-select" id="categorySelect" name="tags" multiple size="4" required></select>
+                <div class="form-text">※ 按 Ctrl / ⌘ 可複選，最少選 1 項</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label required">內文</label>
+                <textarea id="editor" name="newsCon"></textarea>
+            </div>
+
+            <div class="form-check form-switch mb-4">
+                <input class="form-check-input" type="checkbox" role="switch" id="isShow" checked>
+                <label class="form-check-label" for="isShow">前台顯示</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">發佈</button>
+        </form>
+    </div>
+
+    <div id="toast" class="toast position-fixed bottom-0 end-0 m-4 text-bg-success" role="alert" data-bs-delay="2500">
+        <div class="d-flex">
+            <div class="toast-body">已成功發佈！</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 依賴腳本 ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-build-classic@41.3.0/build/ckeditor.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@1.6.8/dist/axios.min.js"></script>
+
+<script>
+    // ========= 通用設定 =========
+    const token = sessionStorage.getItem('accessToken');
+    axios.defaults.headers.common['Authorization'] = token ? `Bearer ${token}` : '';
+
+    // 0. 預設 adminNo = 2，可由 JWT 覆蓋
+    let adminNo = 2; // ★ 預設管理員編號
+    try {
+        if (token) {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            if (payload.adminNo) adminNo = payload.adminNo;
+        }
+    } catch(e){ console.warn('無法解析 token adminNo，已使用預設 2'); }
+
+    // 1. 動態載入分類 (tags)
+    axios.get('/api/admin/allNewsCategories')
+        .then(res => {
+            const sel = document.getElementById('categorySelect');
+            res.data.forEach(c => sel.insertAdjacentHTML('beforeend', `<option value="${c.id}">${c.ncatName}</option>`));
+        })
+        .catch(err => { console.error(err); alert('載入分類失敗'); });
+
+    // 2. 初始化 CKEditor (toolbar 改用 imageUpload；含圖片上傳)
+    let editor;
+    ClassicEditor.create(document.querySelector('#editor'), {
+        language: 'zh',
+        toolbar: [
+            'heading','|','bold','italic','link',
+            'bulletedList','numberedList','|',
+            'insertTable','blockQuote','imageUpload','undo','redo'
+        ],
+        image: {
+            toolbar: ['imageTextAlternative','imageStyle:full','imageStyle:side']
+        },
+        simpleUpload: {
+            uploadUrl: '/api/admin/news-images',
+            headers: token ? { Authorization: `Bearer ${token}` } : {}
+        }
+    }).then(e => editor = e).catch(console.error);
+
+    // 3. 送出表單
+    const form = document.getElementById('newsForm');
+    form.addEventListener('submit', async evt => {
+        evt.preventDefault();
+
+        const tagIds = Array.from(document.getElementById('categorySelect').selectedOptions).map(o => +o.value);
+
+        const payload = {
+            adminNo:  adminNo,
+            newsTit:  document.getElementById('title').value.trim(),
+            newsCon:  editor.getData(),
+            tags:     tagIds,
+            isShowed: document.getElementById('isShow').checked ? 1 : 0
+        };
+
+        // 簡易驗證
+        if (!payload.newsTit || !payload.newsCon || tagIds.length === 0) {
+            alert('「標題／內文／至少一個分類」為必填');
+            return;
+        }
+
+        try {
+            await axios.post('/api/News/admin/create', payload, {
+                headers: { 'Content-Type': 'application/json' }
+            });;
+            form.reset(); editor.setData('');
+            new bootstrap.Toast(document.getElementById('toast')).show();
+        } catch (err) {
+            console.error(err);
+            alert('發佈失敗：' + (err.response?.data?.message || err));
+        }
+    });
+</script>
+</body>
+</html>
