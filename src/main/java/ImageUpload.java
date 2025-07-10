@@ -51,6 +51,8 @@ public class ImageUpload {
 
     // ====== 圖片根目錄（固定在 class‑path） ===============================
     private static final String ROOT = "src/main/resources/imgseed";
+    private static final String PUBLIC_PREFIX = "/images/news_img";
+
 
     public static void main(String[] args) {
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS)) {
@@ -204,9 +206,9 @@ public class ImageUpload {
      * -------------------------------------------------------------------*/
     private static void seedNewsImg(Connection conn) throws IOException, SQLException {
         Path dir = Paths.get(ROOT, "news_img");
-        Pattern p = Pattern.compile("new(\\d+)[-_](\\d+)\\.png");
-        String insert = "INSERT INTO NEWS_IMAGE (NEWS_NO, IMG_DATA, IMG_TYPE) VALUES (?,?,?)";
-        uploadImageList(conn, dir, p, insert);
+        Pattern p = Pattern.compile("new(\\d+)[-_](\\d+)\\.png", Pattern.CASE_INSENSITIVE);
+        String insert = "INSERT INTO NEWS_IMAGE (NEWS_NO, IMG_URL, IMG_TYPE) VALUES (?,?,?)";
+        uploadImgUrlList(conn, dir, p, insert);
     }
 
     /* ---------------------------------------------------------------------
@@ -218,6 +220,33 @@ public class ImageUpload {
 //        String sql = "UPDATE FORUM SET FOR_IMG = ? WHERE FOR_NO = ?";
 //        uploadByPattern(conn, dir, p, sql, 1);
 //    }
+    /* ──────────────────────────────────────────────────────────
+     * 通用：依 Pattern 擷取兩段整數 → 僅寫入「圖片路徑」
+     * ─────────────────────────────────────────────────────────*/
+    private static void uploadImgUrlList(Connection conn, Path dir, Pattern p,
+                                         String insertSql)
+            throws IOException, SQLException {
+
+        Files.list(dir).filter(Files::isRegularFile).forEach(path -> {
+            Matcher m = p.matcher(path.getFileName().toString());
+            if (m.matches()) {
+                int newsNo = Integer.parseInt(m.group(1));           // NEWS_NO
+                String url = PUBLIC_PREFIX + "/" + path.getFileName(); // /img/news_img/new1-1.png
+                try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+
+                    ps.setInt   (1, newsNo);
+                    ps.setString(2, url);
+                    ps.setString(3, "image/png");
+                    ps.executeUpdate();
+
+                    System.out.printf("[news_img] newsNo=%d file=%s -> inserted%n",
+                            newsNo, path.getFileName());
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });}
 
     /* ---------------------------------------------------------------------
      * 通用：依 Pattern 擷取一組整數主鍵，更新單欄位 BLOB
@@ -241,6 +270,8 @@ public class ImageUpload {
             }
         });
     }
+
+
 
     /* ---------------------------------------------------------------------
      * 通用：依 Pattern 擷取兩段整數（主鍵 + 流水號）插入多筆圖片
