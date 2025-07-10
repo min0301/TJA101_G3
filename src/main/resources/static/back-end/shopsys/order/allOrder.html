@@ -498,7 +498,7 @@
                             <table class="table table-sm">
                             	<thead style="background-color: #f8f9fa; color: #333;">
                                     <tr>
-                                        <th style="color: #333;">產品編號</th>
+                                    	<th style="color: #333;">項次</th>
                                         <th style="color: #333;">產品名稱</th>
                                         <th style="color: #333;">產品價格</th>
                                         <th style="color: #333;">訂購數量</th>
@@ -524,12 +524,12 @@
      	// 新增：產生訂單項目HTML的函數
         function generateOrderItemsHTML(orderItems) {
     		if (!orderItems || orderItems.length === 0) {
-        	return '<tr><td colspan="5" class="text-muted text-center">此訂單暫無商品項目</td></tr>';
+        	return '<tr><td colspan="8" class="text-muted text-center">此訂單暫無商品項目</td></tr>';
     		}
     
-    		return orderItems.map(item => `
+    		return orderItems.map((item, index) => `
         		<tr>
-            		<td>${item.proNo || '無'}</td>
+    				<td><strong>${index + 1}</strong></td>
             		<td>${item.proName || '商品名稱'}</td>
             		<td>NT$ ${item.proPrice ? item.proPrice.toLocaleString() : '0'}</td>
             		<td>${item.orderAmount || '0'}</td>
