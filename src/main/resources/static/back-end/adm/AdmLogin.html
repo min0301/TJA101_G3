@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>管理員登入</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
 <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
 <style>
     body {
@@ -70,12 +69,12 @@
         color: #dddcc6;
         font-family: 'Press Start 2P', cursive;
     }
-    #loginBtn {
+    #loginBtn, #Register{
         width: 90%;
         padding: 10px 0;
         background: #fdf7d0;
         color: #2c2722;
-        font-family: 'Press Start 2P', 'ZCOOL KuaiLe', cursive, sans-serif;
+        font-family: 'Press Start 2P', cursive;
         font-size: 1.15rem;
         border: 1.5px solid #a9a27e;
         border-radius: 6px;
@@ -83,7 +82,7 @@
         cursor: pointer;
         transition: background .2s;
     }
-    #loginBtn:hover {
+    #loginBtn:hover,#Register:hover{
         background: #ffe98a;
     }
     #result {
@@ -113,6 +112,7 @@
                 <input type="password" id="admPassword" class="login-input" placeholder="密碼" autocomplete="current-password">
             </div>
             <button type="submit" id="loginBtn">登入</button>
+            <button type="submit" id="Register" onclick="window.location.href='/back-end/adm/AdmRegisterPage.html'">註冊</button>
             <span id="result"></span>
         </form>
     </div>
@@ -132,7 +132,7 @@
                 result.textContent = '請輸入密碼';
                 return;
             }
-            fetch('/api/login', {
+            fetch('/api/adm/login', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({admAccount, admPassword})
@@ -143,7 +143,7 @@
                     result.textContent = data.message;
                 } else {
                     alert('登入成功！');
-                    window.location.href = "/back-end/adm/admHomePage.html";
+                    window.location.href = "/back-end/adm/AdmHomePage.html";
                 }
             });
         });

@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>會員註冊 - PIXEL TRIBE</title>
+<title>管理員註冊 - PIXEL TRIBE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- 字體 -->
@@ -121,51 +121,26 @@ body {
 		<span class="logo">PIXEL TRIBE</span>
 	</div>
 	<div class="register-container">
-		<div class="register-title">會員註冊</div>
-		<div class="register-desc">請填寫以下資料，完成會員註冊</div>
-		<form id="memRegister" method="post" autocomplete="off">
+		<div class="register-title">管理員註冊</div>
+		<div class="register-desc">請填寫以下資料，完成管理員註冊</div>
+		<form id="admRegister" method="post" autocomplete="off">
 			<div class="input-box">
-				<label class="input-label" for="memAccount">帳號</label> <input
-					class="input-field" type="text" id="memAccount" name="memAccount"
-					required placeholder="請輸入帳號">
-			</div>
-			<div class="input-box">
-				<label class="input-label" for="memEmail">信箱</label> <input
-					class="input-field" type="text" id="memEmail" name="memEmail"
-					required placeholder="請輸入信箱" autocomplete="email"
+				<label class="input-label" for="admEmail">帳號/信箱</label> <input
+					class="input-field" type="email" id="admEmail" name="admEmail"
+					required placeholder="請輸入信箱作為帳號使用" autocomplete="email"
 					onblur="checkEmailDuplicate()">
 				<div id="emailMsg"
 					style="color: #c14444; font-size: 0.95em; margin: 4px 0 0 6px;"></div>
 			</div>
 			<div class="input-box">
-				<label class="input-label" for="memName">姓名</label> <input
-					class="input-field" type="text" id="memName" name="memName"
+				<label class="input-label" for="admName">姓名</label> <input
+					class="input-field" type="text" id="admName" name="admName"
 					required placeholder="請輸入姓名">
 			</div>
 			<div class="input-box">
-				<label class="input-label" for="memNickName">暱稱</label> <input
-					class="input-field" type="text" id="memNickName" name="memNickName"
-					required placeholder="請輸入暱稱">
-			</div>
-			<div class="input-box">
-				<label class="input-label" for="memBirthday">生日</label> <input
-					class="input-field" type="date" id="memBirthday" name="memBirthday"
-					required>
-			</div>
-			<div class="input-box">
-				<label class="input-label" for="memAddr">地址</label> <input
-					class="input-field" type="text" id="memAddr" name="memaddr"
-					required placeholder="請輸入聯絡地址" autocomplete="address-line1">
-			</div>
-			<div class="input-box">
-				<label class="input-label" for="memPhone">電話</label> <input
-					class="input-field" type="text" id="memPhone" name="memPhone"
-					required placeholder="請輸入聯絡電話" autocomplete="tel">
-			</div>
-			<div class="input-box">
-				<label class="input-label" for="memPassword">密碼</label> <input
-					class="input-field" type="password" id="memPassword"
-					name="memPassword" required placeholder="請輸入密碼">
+				<label class="input-label" for="admPassword">密碼</label> <input
+					class="input-field" type="password" id="admPassword"
+					name="admPassword" required placeholder="請輸入密碼">
 			</div>
 			<div class="input-box">
 				<label class="input-label" for="confirmPassword">確認密碼</label> <input
@@ -183,7 +158,7 @@ body {
 	let emailIsUnique = false;
 
 	async function checkEmailDuplicate() {
-	    const emailInput = document.getElementById('memEmail');
+	    const emailInput = document.getElementById('admEmail');
 	    const emailMsg = document.getElementById('emailMsg');
 	    const email = emailInput.value.trim();
 	
@@ -202,7 +177,7 @@ body {
 	
 	    // 向後端查詢
 	    try {
-	        const resp = await fetch('/api/members/check-email', {
+	        const resp = await fetch('/api/adm/check-email', {
 	            method: 'POST',
 	            headers: { 'Content-Type': 'application/json' },
 	            body: JSON.stringify({ email })
@@ -225,15 +200,15 @@ body {
 	}
 	
 	// 表單送出
-	document.getElementById('memRegister').addEventListener('submit', async function(e) {
+	document.getElementById('admRegister').addEventListener('submit', async function(e) {
 	    e.preventDefault();
-	    const emailInput = document.getElementById('memEmail');
+	    const emailInput = document.getElementById('admEmail');
 	    const emailMsg = document.getElementById('emailMsg');
-	    const memPassword = document.getElementById('memPassword').value;
+	    const admPassword = document.getElementById('admPassword').value;
 	    const confirmPassword = document.getElementById('confirmPassword').value;
 	
 	    // 密碼一致檢查
-	    if (memPassword !== confirmPassword) {
+	    if (admPassword !== confirmPassword) {
 	        alert('密碼與確認密碼不一致！');
 	        document.getElementById('confirmPassword').focus();
 	        return;
@@ -241,26 +216,21 @@ body {
 	
 	    // 組資料送後端
 	    const data = {
-	        memAccount: document.getElementById('memAccount').value.trim(),
-	        memEmail: emailInput.value.trim(),
-	        memName: document.getElementById('memName').value.trim(),
-	        memNickName: document.getElementById('memNickName').value.trim(),
-	        memBirthday: document.getElementById('memBirthday').value,
-	        memAddr: document.getElementById('memAddr').value.trim(),
-	        memPhone: document.getElementById('memPhone').value.trim(),
-	        memPassword: memPassword
+	        admAccount: emailInput.value.trim(),
+	        admName: document.getElementById('admName').value.trim(),
+	        admPassword: admPassword
 	    };
 	
 	    try {
-	        const resp = await fetch('/api/members/register', {
+	        const resp = await fetch('/api/adm/register', {
 	            method: 'POST',
 	            headers: { 'Content-Type': 'application/json' },
 	            body: JSON.stringify(data)
 	        });
 	        const result = await resp.json();
 	        if (result.success) {
-	            alert('註冊成功！歡迎加入 PIXEL TRIBE！');
-	            window.location.href = '/indexstatic.html';
+	            alert('已成功註冊管理員');
+	            window.location.href = '/back-end/adm/AdmHomePage.html';
 	        } else {
 	            alert(result.message);
 	        }

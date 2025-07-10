@@ -6,4 +6,5 @@ public interface AdmRepository extends JpaRepository<Administrator, Integer> {
 	
 	Administrator findByAdmAccount(String admAccount);
 	Administrator findByAdmPassword(String admPassword);
+	boolean existsByAdmAccount(String admEmail);
 }

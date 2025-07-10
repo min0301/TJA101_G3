@@ -1,17 +1,15 @@
-package com.pixeltribe.forumsys.entity;
+package com.pixeltribe.forumsys.forumcollect.model;
 
 import com.pixeltribe.forumsys.forum.model.Forum;
+import com.pixeltribe.forumsys.shared.CollectStatus;
 import com.pixeltribe.membersys.member.model.Member;
-
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "forum_collect")
 public class ForumCollect {
@@ -29,7 +27,11 @@ public class ForumCollect {
     private Member memNo;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "FCOLL_UPDATE")
+    @Column(name = "FCOLL_UPDATE", insertable = false, updatable = false)
     private Instant fcollUpdate;
+
+    @Column(name = "COLLECT_STATUS", length = 50)
+    @Enumerated(EnumType.STRING)
+    private CollectStatus collectStatus;
 
 }

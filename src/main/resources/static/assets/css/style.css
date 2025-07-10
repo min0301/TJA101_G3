@@ -1144,6 +1144,7 @@ input, select {
     overflow: hidden;
     margin-top: 100px;
     padding: 60px 0px;
+    width: 100%;
 }
 
 .vine-hero-2 {
@@ -1166,7 +1167,7 @@ input, select {
 }
 
 .bg-img-1 {
-    background-image: linear-gradient(rgba(35, 37, 38, 0.50), rgba(35, 37, 38, 0.50)), url(../img/bg/1.png);
+    background-image: linear-gradient(rgba(35, 37, 38, 0.50), rgba(35, 37, 38, 0.50)), url(../../images/Home1.png);
 }
 
 .bg-img-2 {
