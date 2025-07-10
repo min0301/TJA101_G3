@@ -1,7 +1,10 @@
 package com.pixeltribe.forumsys.forum.model;
 
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.time.Instant;
 import java.util.List;
 
 public interface ForumRepository extends JpaRepository<Forum, Integer> {
@@ -15,4 +18,12 @@ public interface ForumRepository extends JpaRepository<Forum, Integer> {
 
     List<Forum> findAllByForStatus(Character status);
 
+
+    @Query("SELECT f.id, COUNT(m.id), MAX(m.mesCrdate) " +
+            "FROM ForumMes m " +
+            "JOIN m.postNo p " +
+            "JOIN p.forNo f " +
+            "WHERE m.mesCrdate >= :since " +
+            "GROUP BY f.id")
+    List<Object[]> findForumHotSince(@Param("since") Instant since);
 }

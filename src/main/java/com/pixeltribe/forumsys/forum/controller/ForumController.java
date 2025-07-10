@@ -102,6 +102,12 @@ public class ForumController {
         return forumSvc.getOneForum(forNo);
     }
 
+    @GetMapping("/forums/hot")
+    @Operation(summary = "查全部討論區(按熱度排序)")
+    public List<ForumDetailDTO> findHotForums() {
+        return forumSvc.getHotForums();
+    }
+
 
 }
 

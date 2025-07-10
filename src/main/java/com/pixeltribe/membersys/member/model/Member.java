@@ -12,7 +12,7 @@ import com.pixeltribe.forumsys.articlecomreport.model.ArticleComReport;
 import com.pixeltribe.forumsys.entity.ArticleReport;
 import com.pixeltribe.forumsys.entity.ForumChatMessage;
 import com.pixeltribe.forumsys.entity.ForumChatReport;
-import com.pixeltribe.forumsys.entity.ForumCollect;
+import com.pixeltribe.forumsys.forumcollect.model.ForumCollect;
 
 
 import com.pixeltribe.forumsys.message.model.ForumMes;
