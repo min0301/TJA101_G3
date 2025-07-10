@@ -157,7 +157,7 @@
      * 取第一張圖
      */
     function loadFirstImage(newsId) {
-        fetch(`/api/news/image/${newsId}/NewsImage`)
+        fetch(`/api/news/image/News/${newsId}`)
             .then(res => res.json())
             .then(imgs => {
                 if (!Array.isArray(imgs) || imgs.length === 0) return;

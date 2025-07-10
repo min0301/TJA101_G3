@@ -9,9 +9,10 @@ public class NewsImageDTO {
     private String imgType;
     private String imgUrl;
 
-    public NewsImageDTO(Integer id, String imgType) {
+    public NewsImageDTO(Integer id, String imgType, String imgUrl) {
         this.id = id;
         this.imgType = imgType;
-        this.imgUrl = "/api/news/image/"+id;
+        this.imgUrl = imgUrl;
     }
+
 }

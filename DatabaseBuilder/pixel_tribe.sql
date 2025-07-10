@@ -531,7 +531,7 @@ VALUES ('PS5 獨佔大作《貓咪大亂鬥》宣布延期！原因竟是貓咪�
 CREATE TABLE NEWS_IMAGE
 (
     IMG_NO   INT AUTO_INCREMENT NOT NULL,
-    IMG_DATA VARCHAR(1000) comment '圖片路徑',
+    IMG_URL VARCHAR(1000) comment '圖片路徑',
     NEWS_NO  INT                NOT NULL,
     IMG_TYPE VARCHAR(100) comment 'MIME Type,例如image/png',
     CONSTRAINT NEWS_IMAGE_PK PRIMARY KEY (IMG_NO),

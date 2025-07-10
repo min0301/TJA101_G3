@@ -8,11 +8,6 @@ import java.util.List;
 
 public interface NewsImageRepository extends JpaRepository<NewsImage, Integer> {
 
-    @Query("""
-                SELECT new com.pixeltribe.newssys.newsimage.model.NewsImageDTO(n.id, n.imgType)
-                FROM NewsImage n
-                WHERE n.newsNo.id = :newsNo
-            """)
-    List<NewsImageDTO> findAllMetaByNewsNo(@Param("newsNo") Integer newsNo);
+    List<NewsImageDTO> findNewsImageByNewsNo_Id(Integer newsNoId);
 
 }

@@ -237,7 +237,7 @@
         news.categoryTags.forEach(t => $('.tags', box).append(tagSpan(t)));
 
         /* 圖片 ------------------------------------------------ */
-        const imgs = await fetch(`/api/news/image/${id}/NewsImage`).then(r => r.json());
+        const imgs = await fetch(`/api/news/image/${id}`).then(r => r.json());
         if (imgs.length) {
             const wrap = document.createElement('div');
             wrap.className = 'news-images';
