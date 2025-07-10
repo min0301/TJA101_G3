@@ -14,7 +14,7 @@
         let localS = localStorage.getItem('theme')
         themeToSet = localS
 
-        // If local storage is not set, we check the OS preference	
+        // If local storage is not set, we check the OS preference
         if (!localS) {
             themeToSet = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
         }
@@ -189,28 +189,18 @@
                             </div>
                         </div><!--/post-box-2-->
 
-                        <div class="post-box-2" data-aos="fade-up" data-aos-easing="linear">
-                            <div class="user-box-img">
-                                <a href=""><img src="assets/img/avatar/2.jpg" class="img-fluid" alt="User"></a>
-                                <span class="title-box-name d-block d-md-none d-lg-none"><a
-                                        href=""> Adaline Riley</a></span>
-                            </div>
-                            <div class="arrow-box d-none d-md-block d-lg-block">
-                                <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                <span>81</span>
-                            </div>
-                            <div class="title-box">
-                                <h6><a href="">熱門討論區</a></h6>
-                                <div class="d-flex align-items-center flex-wrap">
-                                    <div class="arrow-box d-block d-md-none d-lg-none">
-                                        <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                        <span>81</span>
+                        <div class="hot-section mb-5" data-aos="fade-up">
+                            <h4 class="section-title">熱門討論區</h4>
+                            <div id="hot-forums-container" class="row g-3">
+                                <div id="hot-forums-col-1" class="col-lg-6 d-flex flex-column gap-3">
+                                </div>
+                                <div id="hot-forums-col-2" class="col-lg-6 d-flex flex-column gap-3">
+                                </div>
+
+                                <div id="initial-spinner" class="col-12 text-center p-5">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Loading...</span>
                                     </div>
-                                    <span class="title-box-name d-none d-md-block d-lg-block"><a
-                                            href=""> Adaline Riley</a></span>
-                                    <span class="title-box-category">in <a href="">AI</a></span>
-                                    <span class="title-box-text"><i class="bi bi-clock-history"></i> 1 hr ago</span>
-                                    <span class="title-box-text"><i class="bi bi-chat-dots"></i> 70 replies</span>
                                 </div>
                             </div>
                         </div><!--/post-box-2-->
@@ -241,215 +231,6 @@
                             </div>
                         </div><!--/post-box-2-->
 
-                        <div class="post-box-2" data-aos="fade-up" data-aos-easing="linear">
-                            <div class="user-box-img">
-                                <a href=""><img src="assets/img/avatar/4.jpg" class="img-fluid" alt="User"></a>
-                                <span class="title-box-name d-block d-md-none d-lg-none"><a href=""> Louisa Triston</a></span>
-                            </div>
-                            <div class="arrow-box d-none d-md-block d-lg-block">
-                                <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                <span>69</span>
-                            </div>
-                            <div class="title-box">
-                                <h6><a href="">I'm Loisa, Manager at ApexCodeStudios, Ask me anything!</a></h6>
-                                <div class="d-flex align-items-center flex-wrap">
-                                    <div class="arrow-box d-block d-md-none d-lg-none">
-                                        <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                        <span>69</span>
-                                    </div>
-                                    <span class="title-box-name d-none d-md-block d-lg-block"><a
-                                            href=""> Louisa Triston</a></span>
-                                    <span class="title-box-category">in <a href="">Ideas and Validation</a></span>
-                                    <span class="title-box-text"><i class="bi bi-clock-history"></i> 5 hrs ago</span>
-                                    <span class="title-box-text"><i class="bi bi-chat-dots"></i> 70 replies</span>
-                                </div>
-                            </div>
-                        </div><!--/post-box-2-->
-
-                        <div class="post-box-2" data-aos="fade-up" data-aos-easing="linear">
-                            <div class="user-box-img">
-                                <a href=""><img src="assets/img/avatar/5.jpg" class="img-fluid" alt="User"></a>
-                                <span class="title-box-name d-block d-md-none d-lg-none"><a
-                                        href=""> Damon Tucker</a></span>
-                            </div>
-                            <div class="arrow-box d-none d-md-block d-lg-block">
-                                <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                <span>28</span>
-                            </div>
-                            <div class="title-box">
-                                <h6><a href="">Would you like to have a 4-day workweek? And how would you compensate the
-                                    extra day off?</a></h6>
-                                <div class="d-flex align-items-center flex-wrap">
-                                    <div class="arrow-box d-block d-md-none d-lg-none">
-                                        <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                        <span>28</span>
-                                    </div>
-                                    <span class="title-box-name d-none d-md-block d-lg-block"><a
-                                            href=""> Damon Tucker</a></span>
-                                    <span class="title-box-category">in <a href="">Feedback</a></span>
-                                    <span class="title-box-text"><i class="bi bi-clock-history"></i> 7 hrs ago</span>
-                                    <span class="title-box-text"><i class="bi bi-chat-dots"></i> 70 replies</span>
-                                </div>
-                            </div>
-                        </div><!--/post-box-2-->
-
-                        <div class="post-box-2" data-aos="fade-up" data-aos-easing="linear">
-                            <div class="user-box-img">
-                                <a href=""><img src="assets/img/avatar/6.jpg" class="img-fluid" alt="User"></a>
-                                <span class="title-box-name d-block d-md-none d-lg-none"><a href=""> Charlene Cross</a></span>
-                            </div>
-                            <div class="arrow-box d-none d-md-block d-lg-block">
-                                <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                <span>1200</span>
-                            </div>
-                            <div class="title-box">
-                                <h6><a href="">Entrepreneur Vs Employee, What would you choose and why?</a></h6>
-                                <div class="d-flex align-items-center flex-wrap">
-                                    <div class="arrow-box d-block d-md-none d-lg-none">
-                                        <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                        <span>1200</span>
-                                    </div>
-                                    <span class="title-box-name d-none d-md-block d-lg-block"><a
-                                            href=""> Charlene Cross</a></span>
-                                    <span class="title-box-category">in <a href="">Feedback</a></span>
-                                    <span class="title-box-text"><i class="bi bi-clock-history"></i> 9 hrs ago</span>
-                                    <span class="title-box-text"><i class="bi bi-chat-dots"></i> 270 replies</span>
-                                </div>
-                            </div>
-                        </div><!--/post-box-2-->
-
-                        <div class="post-box-2" data-aos="fade-up" data-aos-easing="linear">
-                            <div class="user-box-img">
-                                <a href=""><img src="assets/img/avatar/7.jpg" class="img-fluid" alt="User"></a>
-                                <span class="title-box-name d-block d-md-none d-lg-none"><a
-                                        href=""> Rafael Frank</a></span>
-                            </div>
-                            <div class="arrow-box d-none d-md-block d-lg-block">
-                                <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                <span>150</span>
-                            </div>
-                            <div class="title-box">
-                                <h6><a href="">What was the biggest risk you took in your startup, and what did you
-                                    learn from it?</a></h6>
-                                <div class="d-flex align-items-center flex-wrap">
-                                    <div class="arrow-box d-block d-md-none d-lg-none">
-                                        <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                        <span>150</span>
-                                    </div>
-                                    <span class="title-box-name d-none d-md-block d-lg-block"><a
-                                            href=""> Rafael Frank</a></span>
-                                    <span class="title-box-category">in <a href="">Feedback</a></span>
-                                    <span class="title-box-text"><i class="bi bi-clock-history"></i> 9 hrs ago</span>
-                                    <span class="title-box-text"><i class="bi bi-chat-dots"></i> 270 replies</span>
-                                </div>
-                            </div>
-                        </div><!--/post-box-2-->
-
-                        <div class="post-box-2" data-aos="fade-up" data-aos-easing="linear">
-                            <div class="user-box-img">
-                                <a href=""><img src="assets/img/avatar/8.jpg" class="img-fluid" alt="User"></a>
-                                <span class="title-box-name d-block d-md-none d-lg-none"><a
-                                        href=""> Lynda Briggs</a></span>
-                            </div>
-                            <div class="arrow-box d-none d-md-block d-lg-block">
-                                <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                <span>67</span>
-                            </div>
-                            <div class="title-box">
-                                <h6><a href="">What are the biggest challenges you faced while building your product and
-                                    how did you solve for it?</a></h6>
-                                <div class="d-flex align-items-center flex-wrap">
-                                    <div class="arrow-box d-block d-md-none d-lg-none">
-                                        <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                        <span>67</span>
-                                    </div>
-                                    <span class="title-box-name d-none d-md-block d-lg-block"><a
-                                            href=""> Lynda Briggs</a></span>
-                                    <span class="title-box-category">in <a href="">Products</a></span>
-                                    <span class="title-box-text"><i class="bi bi-clock-history"></i> 12 hrs ago</span>
-                                    <span class="title-box-text"><i class="bi bi-chat-dots"></i> 270 replies</span>
-                                </div>
-                            </div>
-                        </div><!--/post-box-2-->
-
-                        <div class="post-box-2" data-aos="fade-up" data-aos-easing="linear">
-                            <div class="user-box-img">
-                                <a href=""><img src="assets/img/avatar/9.jpg" class="img-fluid" alt="User"></a>
-                                <span class="title-box-name d-block d-md-none d-lg-none"><a
-                                        href=""> Bernard Holt</a></span>
-                            </div>
-                            <div class="arrow-box d-none d-md-block d-lg-block">
-                                <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                <span>70</span>
-                            </div>
-                            <div class="title-box">
-                                <h6><a href="">Are you building on ChatGPT, GPT3 or Dall-E, do share your projects!</a>
-                                </h6>
-                                <div class="d-flex align-items-center flex-wrap">
-                                    <div class="arrow-box d-block d-md-none d-lg-none">
-                                        <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                        <span>70</span>
-                                    </div>
-                                    <span class="title-box-name d-none d-md-block d-lg-block"><a
-                                            href=""> Bernard Holt</a></span>
-                                    <span class="title-box-category">in <a href="">AI</a></span>
-                                    <span class="title-box-text"><i class="bi bi-clock-history"></i> 13 hrs ago</span>
-                                    <span class="title-box-text"><i class="bi bi-chat-dots"></i> 324 replies</span>
-                                </div>
-                            </div>
-                        </div><!--/post-box-2-->
-
-                        <div class="post-box-2" data-aos="fade-up" data-aos-easing="linear">
-                            <div class="user-box-img">
-                                <a href=""><img src="assets/img/avatar/10.jpg" class="img-fluid" alt="User"></a>
-                                <span class="title-box-name d-block d-md-none d-lg-none"><a
-                                        href=""> Krista Haynes</a></span>
-                            </div>
-                            <div class="arrow-box d-none d-md-block d-lg-block">
-                                <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                <span>113</span>
-                            </div>
-                            <div class="title-box">
-                                <h6><a href="">Will AI disrupt Enterprise Saas?</a></h6>
-                                <div class="d-flex align-items-center flex-wrap">
-                                    <div class="arrow-box d-block d-md-none d-lg-none">
-                                        <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                        <span>113</span>
-                                    </div>
-                                    <span class="title-box-name d-none d-md-block d-lg-block"><a
-                                            href=""> Krista Haynes</a></span>
-                                    <span class="title-box-category">in <a href="">AI</a></span>
-                                    <span class="title-box-text"><i class="bi bi-clock-history"></i> 15 hrs ago</span>
-                                    <span class="title-box-text"><i class="bi bi-chat-dots"></i> 400 replies</span>
-                                </div>
-                            </div>
-                        </div><!--/post-box-2-->
-
-                        <div class="post-box-2" data-aos="fade-up" data-aos-easing="linear">
-                            <div class="user-box-img">
-                                <a href=""><img src="assets/img/avatar/11.jpg" class="img-fluid" alt="User"></a>
-                                <span class="title-box-name d-block d-md-none d-lg-none"><a
-                                        href=""> Lionel Henderson</a></span>
-                            </div>
-                            <div class="arrow-box d-none d-md-block d-lg-block">
-                                <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                <span>14</span>
-                            </div>
-                            <div class="title-box">
-                                <h6><a href="">What are the biggest challenges for you working with Excel and CSV
-                                    sheets?</a></h6>
-                                <div class="d-flex align-items-center flex-wrap">
-                                    <div class="arrow-box d-block d-md-none d-lg-none">
-                                        <a href=""><i class="bi bi-caret-up-fill"></i></a>
-                                        <span>113</span>
-                                    </div>
-                                    <span class="title-box-name d-none d-md-block d-lg-block"><a href=""> Lionel Henderson</a></span>
-                                    <span class="title-box-category">in <a href="">Ideas and Feedback</a></span>
-                                    <span class="title-box-text"><i class="bi bi-clock-history"></i> 16 hrs ago</span>
-                                    <span class="title-box-text"><i class="bi bi-chat-dots"></i> 13 replies</span>
-                                </div>
-                            </div>
-                        </div><!--/post-box-2-->
 
                         <div class="post-box-2" data-aos="fade-up" data-aos-easing="linear">
                             <div class="user-box-img">
@@ -480,37 +261,37 @@
 
                     </div><!--/Discussions-->
 
-                    <div class="pagination" data-aos="fade-up" data-aos-easing="linear">
+                    <!--                    <div class="pagination" data-aos="fade-up" data-aos-easing="linear">-->
 
-                        <a href="#" class="page-numbers btn-start">
-                            <i class="b bi-chevron-double-left"></i>
-                        </a>
+                    <!--                        <a href="#" class="page-numbers btn-start">-->
+                    <!--                            <i class="b bi-chevron-double-left"></i>-->
+                    <!--                        </a>-->
 
-                        <a href="#" class="page-numbers btn--prev">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                        <span class="page-numbers pagination-space"> <i class="bi bi-three-dots"></i> </span>
-                        <a href="#" class="page-numbers current"><span>1</span></a>
-                        <a href="#" class="page-numbers"><span>2</span></a>
-                        <a href="#" class="page-numbers"><span>3</span></a>
-                        <a href="#" class="page-numbers"><span>4</span></a>
-                        <a href="#" class="page-numbers"><span>5</span></a>
-                        <a href="#" class="page-numbers"><span>6</span></a>
+                    <!--                        <a href="#" class="page-numbers btn&#45;&#45;prev">-->
+                    <!--                            <i class="bi bi-chevron-left"></i>-->
+                    <!--                        </a>-->
+                    <!--                        <span class="page-numbers pagination-space"> <i class="bi bi-three-dots"></i> </span>-->
+                    <!--                        <a href="#" class="page-numbers current"><span>1</span></a>-->
+                    <!--                        <a href="#" class="page-numbers"><span>2</span></a>-->
+                    <!--                        <a href="#" class="page-numbers"><span>3</span></a>-->
+                    <!--                        <a href="#" class="page-numbers"><span>4</span></a>-->
+                    <!--                        <a href="#" class="page-numbers"><span>5</span></a>-->
+                    <!--                        <a href="#" class="page-numbers"><span>6</span></a>-->
 
-                        <span class="page-numbers pagination-space"> <i class="bi bi-three-dots"></i></span>
-                        <a href="#" class="page-numbers btn--next">
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
+                    <!--                        <span class="page-numbers pagination-space"> <i class="bi bi-three-dots"></i></span>-->
+                    <!--                        <a href="#" class="page-numbers btn&#45;&#45;next">-->
+                    <!--                            <i class="bi bi-chevron-right"></i>-->
+                    <!--                        </a>-->
 
-                        <a href="#" class="page-numbers btn-end">
-                            <i class="bi bi-chevron-double-right"></i>
-                        </a>
+                    <!--                        <a href="#" class="page-numbers btn-end">-->
+                    <!--                            <i class="bi bi-chevron-double-right"></i>-->
+                    <!--                        </a>-->
 
-                        <span class="page-numbers all-pages">
-								70 Pages
-							</span>
+                    <!--                        <span class="page-numbers all-pages">-->
+                    <!--								70 Pages-->
+                    <!--							</span>-->
 
-                    </div><!--/pagination-->
+                    <!--                    </div>&lt;!&ndash;/pagination&ndash;&gt;-->
 
                 </div>
                 <div class="col-lg-3">
@@ -717,5 +498,6 @@ Scripts
 <script src="assets/vendors/simplebar/simplebar.min.js"></script>
 <script src="assets/js/main.js"></script>
 <script src="assets/vendors/aos/aos.js"></script>
+<script src="front-end/index-hot-loader.js"></script>
 </body>
 </html>

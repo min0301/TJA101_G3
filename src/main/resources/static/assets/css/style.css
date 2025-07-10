@@ -1724,7 +1724,7 @@ input, select {
 }
 
 /* ================================================================================================================================================================== 
-  Forum index.html
+  Forum forumindex.html
 ===================================================================================================================================================================== */
 
 /* Categories */
@@ -2146,10 +2146,227 @@ input, select {
         height: 40px;
     }
 }
+/* ========================================================= */
+/* 首頁與討論區頁共用樣式 (Pixel Tribe Custom Styles)         */
+/* ========================================================= */
+
+/* Section 標題樣式 (用於 index.html) */
+.section-title {
+    font-weight: bold;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    /* 【不可變】: var(--bs-primary) 會自動抓取 Bootstrap 的主題色，此處為 var(--green-color)。 */
+    border-bottom: 2px solid var(--green-color);
+    display: inline-block;
+}
+
+/* 熱門項目卡片 (用於 index.html) */
+.hot-item-card {
+    /* 【不可變】: var(...) 是為了適應深淺色主題，請保留。 */
+    background-color: var(--theme-white);
+    padding: 0.75rem;
+    border-radius: 12px;
+    border: 1px solid var(--bs-border-color);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    color: var(--text-color);
+}
+
+.hot-item-card:hover {
+    transform: translateY(-5px); /* 【可變】: 控制滑鼠懸停時卡片上移的距離 */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    color: var(--text-color);
+}
+
+/* 卡片內的排名數字 */
+.hot-item-rank {
+    font-size: 1.25rem; /* 【可變】: 可調整字體大小 */
+    font-weight: bold;
+    color: var(--bs-secondary);
+    width: 40px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+/* 卡片內的討論區圖片 */
+.hot-item-img {
+    width: 60px; /* 【可變】: 可調整圖片寬度 */
+    height: 60px; /* 【可變】: 可調整圖片高度 */
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 1rem;
+}
+
+/* 卡片內的標題與分數容器 */
+.hot-item-details {
+    flex-grow: 1;
+}
+
+.hot-item-title {
+    font-weight: 600;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 標題最多顯示兩行 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.hot-item-score {
+    /* 【不可變】: var(--bs-danger) 會自動抓取 Bootstrap 的危險色 (通常是紅色)。 */
+    color: var(--bs-danger);
+}
+
+/* 卡片內的愛心圖示 */
+.hot-item-like {
+    font-size: 1.2rem;
+    color: var(--bs-gray-400);
+    transition: color 0.2s;
+}
+
+.hot-item-card:hover .hot-item-like {
+    color: var(--bs-danger);
+}
+
+
+/* ========================================================= */
+/* 討論區頁 - 左側列表與頁籤 (forumindex.html)                */
+/* ========================================================= */
+
+/* 討論區列表樣式 (熱門/分類) */
+.hot-forum-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background-color: var(--theme-white);
+    border-left: 4px solid transparent; /* 預設左側邊框為透明 */
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    min-height: 64px; /* 【關鍵】設定最小高度，讓每行對齊 */
+}
+
+/* 列表項目的圖片樣式 */
+.forum-list-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover; /* 讓圖片自動縮放填滿容器，不變形 */
+    margin-right: 12px;
+    flex-shrink: 0;
+    background-color: var(--bg-icons);
+}
+
+.hot-forum-item:hover {
+    background-color: var(--bg-color);
+    transform: translateX(5px);
+    border-left-color: var(--green-color-hover); /* 滑鼠懸停時顯示主題色 */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+}
+
+/* 當前被選中 (Active) 的項目樣式 */
+.hot-forum-item.active {
+    background-color: var(--bg-icons);
+    border-left-color: var(--green-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transform: translateX(5px);
+}
+
+.hot-forum-item.active .forum-name {
+    font-weight: 700;
+    color: var(--link-color);
+}
+
+.hot-forum-item .forum-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.hot-forum-item .hot-score {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--theme); /* 熱門分數的顏色 */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: var(--bg-color);
+    padding: 4px 8px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+/* 「顯示更多」按鈕 */
+#show-more-btn {
+    border-style: dashed;
+    transition: all 0.3s ease;
+}
+
+#show-more-btn:hover {
+    border-style: solid;
+    background-color: var(--bg-icons);
+    letter-spacing: 1px; /* 滑鼠懸停時增加文字間距 */
+}
+
+/* 頁籤 (Tabs) 樣式 */
+#forum-view-tabs .nav-link {
+    color: var(--text-muted);
+    font-weight: 600;
+    border-radius: 8px 8px 0 0;
+    border: 1px solid transparent;
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.2s ease-in-out;
+}
+
+#forum-view-tabs .nav-link.active {
+    color: var(--green-color);
+    background-color: var(--bg-color);
+    border-color: var(--border-color) var(--border-color) var(--bg-color);
+}
+
+#forum-view-tabs .nav-link:not(.active):hover {
+    color: var(--link-hover);
+    border-bottom-color: var(--link-hover);
+}
+
+/* 分類下拉選單 (Category Dropdown) */
+#categoryDropdownButton {
+    font-weight: 500;
+    text-overflow: ellipsis; /* 文字過長時顯示省略號 */
+    overflow: hidden;
+    white-space: nowrap;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#category-dropdown-menu {
+    max-height: 300px; /* 限制最大高度 */
+    overflow-y: auto; /* 超出時顯示滾動條 */
+}
+
+.category-item {
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.category-item:hover, .category-item:focus {
+    background-color: var(--green-color) !important;
+    color: var(--white) !important;
+}
+
+.category-item i {
+    transition: color 0.2s ease-in-out;
+}
+
+.category-item:hover i, .category-item:focus i {
+    color: var(--white) !important;
+}
+
 
 
 /* ================================================================================================================================================================== 
-  Community index.html
+  Community forumindex.html
 ===================================================================================================================================================================== */
 
 .post-box-2 {
@@ -4273,4 +4490,5 @@ input, select {
 .category-item:hover i, .category-item:focus i {
     color: var(--white) !important;
 }
+
 

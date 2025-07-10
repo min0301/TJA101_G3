@@ -119,25 +119,63 @@
 <script src="../front-end/forumsys/forumListManager.js"></script>
 <script src="../front-end/forumsys/allForum.js"></script>
 <script>
-    // 當頁面載入後，自動執行顯示討論區列表的邏輯
+    /**
+     * 當頁面載入完成後，根據 URL 決定要顯示的內容
+     */
     document.addEventListener('DOMContentLoaded', function () {
-        // 隱藏原始內容
         const originalContent = document.querySelector('.original-content');
-        if (originalContent) {
-            originalContent.style.display = 'none';
-        }
-
-        // 顯示動態容器
         const container = document.getElementById('dynamic-content-container');
-        if (container) {
-            container.style.display = 'block';
-        }
 
-        // 直接呼叫主函式
-        if (typeof showForumListView === 'function') {
-            showForumListView();
+        // 1. 建立 URL 參數物件來解析網址
+        const urlParams = new URLSearchParams(window.location.search);
+        // 2. 試著從 URL 中讀取 'forumId' 參數
+        const forumId = urlParams.get('forumId');
+
+        if (forumId) {
+            // 【【情況一：URL 中有 forumId】】
+            // 代表是從首頁點擊跳轉過來的
+
+            // 確保 showPostListView 函式存在
+            if (typeof showPostListView === 'function') {
+                // 直接呼叫函式，並傳入從 URL 拿到的 ID
+                showPostListView(forumId);
+
+                // (UX 優化) 為了確保左側列表已由 forumListManager.js 載入完成，
+                // 我們稍微延遲一下，再去執行高亮(highlight)操作
+                setTimeout(() => {
+                    // a. 先移除所有項目上可能存在的 'active' class
+                    const allForumItems = document.querySelectorAll('.forum-link');
+                    allForumItems.forEach(item => item.classList.remove('active'));
+
+                    // b. 找到 data-forum-id 符合的那個討論區連結
+                    const activeLink = document.querySelector(`.forum-link[data-forum-id='${forumId}']`);
+
+                    if (activeLink) {
+                        // c. 幫它加上 'active' class，使其高亮
+                        activeLink.classList.add('active');
+
+                        // d. (可選) 將該項目平滑滾動到畫面的中間，方便使用者看到
+                        activeLink.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    }
+                }, 500); // 延遲 500 毫秒，給予左側列表足夠的載入時間
+
+            } else {
+                console.error('錯誤：showPostListView 函式未定義，請檢查 allForum.js 是否正確載入。');
+            }
+
         } else {
-            console.error('showForumListView 函式未定義，請檢查 allForum.js 的路徑是否正確，以及檔案內容是否有誤。');
+            // 【【情況二：URL 中沒有 forumId】】
+            // 代表是直接瀏覽討論區頁面，尚未選擇任何看板
+
+            // 顯示預設的提示訊息
+            if (originalContent) {
+                originalContent.style.display = 'block';
+            }
+            if (container) {
+                container.innerHTML = '';
+                container.appendChild(originalContent);
+                container.style.display = 'block';
+            }
         }
     });
 </script>
