@@ -1,17 +1,25 @@
 package com.pixeltribe.util;
 
-import io.jsonwebtoken.*;
-import org.springframework.stereotype.Component;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
+
+import org.springframework.stereotype.Component;
+
+import com.pixeltribe.membersys.member.model.Member;
+
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
 public class JwtUtil {
 	private final String SECRET_KEY = "PPPPPIIIIIXXXXXEEEEELLLLL_TTTTTRRRRRIIIIIBBBBBEEEEE";
-	
-	public String generateToken(String username) {
-		return Jwts.builder().setSubject(username).setIssuedAt(new Date())
-				.setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)) // 1天
-				.signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+
+	public String generateToken(Member member) {
+		return Jwts.builder().setSubject(member.getMemAccount()).claim("memId", member.getId()).claim("role", "MEMBER")
+				.setIssuedAt(new Date()).setExpiration(Date.from(Instant.now().plus(7, ChronoUnit.DAYS))) // 7天有效
+				.signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes()).compact();
 	}
 
 	public String extractUsername(String token) {

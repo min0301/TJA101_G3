@@ -3,137 +3,338 @@
 <head>
     <meta charset="UTF-8">
     <title>PixelTribe 管理員首頁</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Pixel 字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: "微軟正黑體", Arial, sans-serif;
-            background: #f6f6f6;
+        :root {
+            --milktea-bg: #f7f4ed;
+            --card-bg: #fff;
+            --milktea-yellow: #fff7db;
+            --milktea-border: #e8dec7;
+            --milktea-brown: #70513b;
+            --milktea-main: #ab8556;
+            --milktea-hover: #fae7c2;
+        }
+        html, body {
             margin: 0;
-        }
-        .header {
-            background: #fff;
             padding: 0;
-            margin-bottom: 40px;
-            border-bottom: 1px solid #eee;
+            height: 100%;
+            min-height: 100vh;
+            background: var(--milktea-bg);
+            font-family: '微軟正黑體', Arial, sans-serif;
+            box-sizing: border-box;
         }
-        .logo-banner {
-            width: 100%;
-            height: 110px;
-            background: url('https://i.imgur.com/jRIk6sf.png') no-repeat left center/auto 100%;
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow-x: hidden;
         }
         .topbar {
+            width: 100%;
+            height: 60px;
+            background: var(--card-bg);
             display: flex;
-            justify-content: flex-end;
             align-items: center;
-            padding: 8px 30px;
-            font-size: 15px;
+            justify-content: space-between;
+            box-shadow: 0 1.5px 8px #e2dbc53f;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            padding: 0 16px;
+            box-sizing: border-box;
         }
-        .container {
-            max-width: 1100px;
-            margin: 40px auto 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
+        .pixel-title {
+            font-family: 'Press Start 2P', Arial, sans-serif;
+            font-size: 20px;
+            color: var(--milktea-main);
+            letter-spacing: 1.6px;
         }
-        .sys-block {
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 2px 10px #ddd;
-            padding: 30px 30px 20px 30px;
-            min-height: 240px;
+        .logout-btn {
+            background: var(--milktea-yellow);
+            color: var(--milktea-brown);
+            border: 2px solid var(--milktea-border);
+            border-radius: 10px;
+            padding: 10px 32px;
+            font-family: 'Press Start 2P', Arial, sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.15s, border 0.2s;
+            box-shadow: 0 2px 0 #e2dbc5;
+        }
+        .logout-btn:hover {
+            background: var(--milktea-hover);
+            border-color: var(--milktea-main);
+        }
+        .main-wrap {
+            display: flex;
+            height: calc(100vh - 60px);
+            min-height: 540px;
+            margin-top: 60px;
+        }
+        .sidebar-card {
+            width: 250px;
+            background: var(--card-bg);
+            border-radius: 0 24px 24px 0;
+            box-shadow: 6px 0 18px -8px #e2dbc577;
+            padding: 36px 0 36px 0;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
-        }
-        .sys-block h2 {
-            margin: 0 0 16px 0;
-            font-size: 25px;
-            font-weight: bold;
-            display: flex;
             align-items: center;
+            height: 100%;
+            min-height: 100%;
         }
-        .sys-block ul {
+        .sidebar-menu {
+            width: 100%;
             list-style: none;
             padding: 0;
             margin: 0;
         }
-        .sys-block li {
-            margin-bottom: 12px;
-            font-size: 17px;
+        .sidebar-menu li {
+            width: 100%;
         }
-        .icon {
-            margin-right: 10px;
+        .sidebar-btn {
+            display: flex;
+            align-items: center;
+            width: 93%;
+            margin: 0 auto 16px auto;
+            padding: 16px 26px;
+            font-size: 18px;
+            color: var(--milktea-brown);
+            background: none;
+            border: none;
+            border-radius: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            outline: none;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+        .sidebar-btn.active, .sidebar-btn:hover {
+            background: var(--milktea-yellow);
+            color: var(--milktea-main);
+        }
+        .sidebar-btn .icon {
+            margin-right: 18px;
+            font-size: 20px;
+        }
+        .content-card {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 24px 0 0 24px;
+            box-shadow: 0 2px 18px #e2dbc577;
+            min-width: 0;
+            min-height: 100%;
+            padding: 56px 68px 44px 68px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+        /* 主副標 */
+        .sys-subtitle {
+            font-family: 'Press Start 2P', Arial, sans-serif;
+            font-size: 22px;
+            color: var(--milktea-main);
+            font-weight: bold;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 8px 18px;
+            background: #fff7dbc2;
+            border-left: 5px solid var(--milktea-main);
+            border-radius: 10px 0 0 10px;
+            box-shadow: 0 2px 10px #e9dec5a1;
+        }
+        .sys-subtitle .icon {
             font-size: 22px;
         }
-        .star {
-            color: #b90000;
-            margin-right: 10px;
+        /* 項目列表 */
+        .sys-block ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            width: 100%;
         }
-        .shield {
-            color: #777;
-            margin-right: 10px;
+        .sys-block li {
+            margin-bottom: 14px;
+            font-size: 17px;
+            color: var(--milktea-brown);
+            font-family: '微軟正黑體', Arial, sans-serif;
+            padding: 11px 18px 11px 38px;
+            border-radius: 9px;
+            background: #fff9f0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1.5px 9px #f4ead860;
+            position: relative;
+            transition: background 0.13s, color 0.13s, box-shadow 0.14s;
         }
-        .bubble {
-            color: #888;
-            margin-right: 10px;
+        .sys-block li:last-child {
+            margin-bottom: 0;
         }
-        .gamepad {
-            color: #555;
-            margin-right: 10px;
+        .sys-block li:hover {
+            background: #fae7c2;
+            color: var(--milktea-main);
+            box-shadow: 0 4px 14px #f7ebc9b2;
         }
-        @media (max-width: 900px) {
-            .container { grid-template-columns: 1fr; }
+        .sys-block li .item-icon {
+            position: absolute;
+            left: 14px;
+            font-size: 18px;
+            margin-right: 15px;
+            color: var(--milktea-main);
+        }
+        @media (max-width: 1100px) {
+            .main-wrap {
+                flex-direction: column;
+            }
+            .sidebar-card, .content-card {
+                border-radius: 0 0 24px 24px;
+                width: 98vw;
+            }
+            .content-card {
+                padding: 30px 4vw;
+            }
+        }
+        @media (max-width: 650px) {
+            .main-wrap {
+                flex-direction: column;
+            }
+            .sidebar-card, .content-card {
+                border-radius: 0 0 16px 16px;
+                width: 100vw;
+            }
+            .content-card {
+                padding: 16px 3vw;
+            }
+            .topbar {
+                padding: 0 3vw;
+            }
+            .pixel-title {
+                font-size: 13px;
+            }
+            .sys-subtitle {
+                font-size: 15px;
+                padding: 6px 10px;
+            }
+            .sys-block li {
+                font-size: 15px;
+                padding: 9px 12px 9px 32px;
+            }
         }
     </style>
-    <!-- 可以用 unicode 做簡易 icon，也可以自己換成 <img> -->
 </head>
 <body>
-    <div class="header">
-        <div class="logo-banner"></div>
-        <div class="topbar">
-            管理員登出
-        </div>
+    <!-- Topbar -->
+    <div class="topbar">
+        <span class="pixel-title">PIXEL TRIBE 管理員首頁</span>
+        <button class="logout-btn" onclick="handleLogout()">登出</button>
     </div>
+    <div class="main-wrap">
+        <!-- Sidebar -->
+        <nav class="sidebar-card">
+            <ul class="sidebar-menu">
+                <li><button id="btn-store" class="sidebar-btn active" onclick="renderPage('store')"><span class="icon">🛒</span>商城系統</button></li>
+                <li><button id="btn-news" class="sidebar-btn" onclick="renderPage('news')"><span class="icon">📰</span>新聞系統</button></li>
+                <li><button id="btn-forum" class="sidebar-btn" onclick="renderPage('forum')"><span class="icon">💬</span>論壇系統</button></li>
+                <li><button id="btn-member" class="sidebar-btn" onclick="renderPage('member')"><span class="icon">👤</span>會員系統</button></li>
+            </ul>
+        </nav>
+        <!-- Content -->
+        <main class="content-card" id="content-area">
+            <!-- 初始渲染內容 -->
+        </main>
+    </div>
+    <script>
+        const pages = {
+            store: {
+                icon: '🛒',
+                title: '商城系統',
+                items: [
+                    '商品上/下架',
+                    '商品分類',
+                    '編輯商品資訊',
+                    '商品評論管理',
+                    '優惠券發放'
+                ]
+            },
+            news: {
+                icon: '📰',
+                title: '新聞系統',
+                items: [
+                    '新聞編輯',
+                    '審核檢舉',
+                    '新聞評論管理',
+                    '黑名單管理'
+                ]
+            },
+            forum: {
+                icon: '💬',
+                title: '論壇系統',
+                items: [
+                    '討論區管理',
+                    '文章管理',
+                    '發布官方文章',
+                    '審核檢舉'
+                ]
+            },
+            member: {
+                icon: '👤',
+                title: '會員系統',
+                items: [
+                    '會員資料查詢',
+                    '會員停權'
+                ]
+            }
+        };
 
-    <div class="container">
-        <!-- 商城系統 -->
-        <div class="sys-block">
-            <h2><span class="shield">🛡️</span>商城系統</h2>
-            <ul>
-                <li>商品上/下架</li>
-                <li>商品分類</li>
-                <li>編輯商品資訊</li>
-                <li>商品評論管理</li>
-                <li>優惠券發放</li>
-            </ul>
-        </div>
-        <!-- 新聞系統 -->
-        <div class="sys-block">
-            <h2><span class="bubble">💬</span>新聞系統</h2>
-            <ul>
-                <li>新聞編輯</li>
-                <li>審核檢舉</li>
-                <li>新聞評論管理</li>
-                <li>黑名單管理</li>
-            </ul>
-        </div>
-        <!-- 論壇系統 -->
-        <div class="sys-block">
-            <h2><span class="gamepad">🎮</span>論壇系統</h2>
-            <ul>
-                <li>討論區管理</li>
-                <li>文章管理</li>
-                <li>發布官方文章</li>
-                <li>審核檢舉</li>
-            </ul>
-        </div>
-        <!-- 會員系統 -->
-        <div class="sys-block">
-            <h2><span class="star">⭐</span>會員系統</h2>
-            <ul>
-                <li>會員資料查詢</li>
-                <li>會員停權</li>
-            </ul>
-        </div>
-    </div>
+        const itemIcons = {
+            '商品上/下架': '🛍️',
+            '商品分類': '🏷️',
+            '編輯商品資訊': '✏️',
+            '商品評論管理': '⭐',
+            '優惠券發放': '🎫',
+
+            '新聞編輯': '📰',
+            '審核檢舉': '🔍',
+            '新聞評論管理': '💬',
+            '黑名單管理': '⛔',
+
+            '討論區管理': '📚',
+            '文章管理': '📝',
+            '發布官方文章': '📢',
+            '會員資料查詢': '👤',
+            '會員停權': '🚫'
+        };
+
+        function renderPage(pageKey) {
+            document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + pageKey).classList.add('active');
+            const page = pages[pageKey];
+            document.getElementById('content-area').innerHTML = `
+                <div class="sys-block">
+                    <div class="sys-subtitle"><span class="icon">${page.icon}</span>${page.title}</div>
+                    <ul>
+                        ${page.items.map(item =>
+                            `<li><span class="item-icon">${itemIcons[item] || '•'}</span>${item}</li>`
+                        ).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        function handleLogout() {
+            window.location.href = '/back-end/adm/AdmLogin.html';
+        }
+        // 頁面預設
+        window.onload = function() {
+            renderPage('store');
+        }
+    </script>
 </body>
 </html>
