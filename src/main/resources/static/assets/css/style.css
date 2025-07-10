@@ -247,43 +247,43 @@ img, svg {
 /****************************/
 /** Switcher **/
 /****************************/
-.switcher {
-    cursor: pointer;
-    position: fixed !important;
-    bottom: 30px;
-    right: 40px;
-    display: block;
-    z-index: 99;
-    visibility: hidden;
-    opacity: 0;
-    -webkit-transform: translateY(50%);
-    transform: translateY(50%);
-    -webkit-transition: all 0.3s ease-in-out;
-    transition: all 0.3s ease-in-out;
-    background: var(--theme);
-    color: var(--white);
-    border-radius: 50%;
-    width: 42px;
-    height: 42px;
-    line-height: 42px;
-    text-align: center;
-}
+/*.switcher {*/
+/*    cursor: pointer;*/
+/*    position: fixed !important;*/
+/*    bottom: 30px;*/
+/*    right: 40px;*/
+/*    display: block;*/
+/*    z-index: 99;*/
+/*    visibility: hidden;*/
+/*    opacity: 0;*/
+/*    -webkit-transform: translateY(50%);*/
+/*    transform: translateY(50%);*/
+/*    -webkit-transition: all 0.3s ease-in-out;*/
+/*    transition: all 0.3s ease-in-out;*/
+/*    background: var(--theme);*/
+/*    color: var(--white);*/
+/*    border-radius: 50%;*/
+/*    width: 42px;*/
+/*    height: 42px;*/
+/*    line-height: 42px;*/
+/*    text-align: center;*/
+/*}*/
 
-.switcher.switcher-show {
-    visibility: visible;
-    opacity: 1;
-    -webkit-transform: translateY(0%);
-    transform: translateY(0%);
-}
+/*.switcher.switcher-show {*/
+/*    visibility: visible;*/
+/*    opacity: 1;*/
+/*    -webkit-transform: translateY(0%);*/
+/*    transform: translateY(0%);*/
+/*}*/
 
-.switcher i {
-    font-weight: 900;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-}
+/*.switcher i {*/
+/*    font-weight: 900;*/
+/*    position: absolute;*/
+/*    left: 50%;*/
+/*    top: 50%;*/
+/*    -webkit-transform: translate(-50%, -50%);*/
+/*    transform: translate(-50%, -50%);*/
+/*}*/
 
 
 /* ------------------------------------------------------------------- */
@@ -4045,5 +4045,232 @@ input, select {
 .forum-img-wrap img {
     border-radius: 8px 0 0 8px;
     background: #eee;
+}
+
+/* ========================================================= */
+/* 進階：左側熱門討論區列表樣式 (修正版)                      */
+/* ========================================================= */
+
+/* 列表最外層容器的基礎設定 */
+.hot-forum-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* 縮小的間距 */
+}
+
+/* 每個討論區項目的樣式 */
+.hot-forum-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* 垂直置中內部所有元素 */
+    padding: 10px 15px; /* 微調內距 */
+    border-radius: 8px;
+    background-color: var(--theme-white);
+    border-left: 4px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+
+    /* 【關鍵修改點 1】設定最小高度，讓每一行都對齊 */
+    min-height: 64px;
+}
+
+/* Hover 特效 */
+.hot-forum-item:hover {
+    background-color: var(--bg-color);
+    transform: translateX(5px);
+    border-left-color: var(--green-color-hover);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+}
+
+/* Active 狀態 */
+.hot-forum-item.active {
+    background-color: var(--bg-icons);
+    border-left-color: var(--green-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transform: translateX(5px);
+}
+
+.hot-forum-item.active .forum-name {
+    font-weight: 700;
+    color: var(--link-color);
+}
+
+
+/* 【關鍵修改點 2】列表中的圖片樣式 */
+.forum-list-img {
+    /* 嚴格限制圖片的尺寸 */
+    width: 40px;
+    height: 40px;
+
+    border-radius: 8px;
+    object-fit: cover; /* 核心：讓圖片自動縮放填滿容器，多餘部分裁切，且不變形 */
+    margin-right: 12px;
+    flex-shrink: 0;
+    background-color: var(--bg-icons);
+}
+
+
+/* 其他內部元素樣式... */
+.hot-forum-item .forum-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.hot-forum-item .hot-score {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--theme);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: var(--bg-color);
+    padding: 4px 8px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+/* 滑鼠懸停 (Hover) 時的特效 */
+.hot-forum-item:hover {
+    background-color: var(--bg-color); /* 背景變色，使用主題變數確保日夜間模式都適用 */
+    transform: translateX(5px); /* 項目向右輕微移動 */
+    border-left-color: var(--green-color-hover); /* 左側邊框顯示主題色 */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); /* 加上細微的陰影，產生立體感 */
+}
+
+/* 當前被選中 (Active) 的項目樣式 */
+.hot-forum-item.active {
+    background-color: var(--bg-icons); /* 使用比 hover 更深一點的背景色 */
+    border-left-color: var(--green-color); /* 左側邊框保持高亮 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 一個較淺的陰影，表示被固定住 */
+    transform: translateX(5px);
+}
+
+.hot-forum-item.active .forum-name {
+    font-weight: 700; /* 加粗字體以示強調 */
+    color: var(--link-color); /* 使用連結顏色 */
+}
+
+/* 項目內文字與分數的樣式 */
+.hot-forum-item .forum-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+    transition: color 0.3s ease; /* 名稱顏色變化也加上過渡效果 */
+}
+
+.hot-forum-item:hover .forum-name {
+    color: var(--link-hover);
+}
+
+.hot-forum-item .hot-score {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--theme);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: var(--bg-color);
+    padding: 4px 8px;
+    border-radius: 20px; /* 分數藥丸形狀 */
+    transition: all 0.3s ease;
+}
+
+.hot-forum-item:hover .hot-score {
+    color: #fff;
+    background-color: var(--theme); /* hover 時分數背景變色 */
+}
+
+.hot-forum-item .hot-score .bi-fire {
+    font-size: 1rem;
+}
+
+/* 「顯示更多」按鈕的樣式 */
+#show-more-btn {
+    border-style: dashed; /* 改為虛線，視覺上更輕量 */
+    transition: all 0.3s ease;
+}
+
+#show-more-btn:hover {
+    border-style: solid;
+    background-color: var(--bg-icons);
+    letter-spacing: 1px; /* hover 時文字間距拉開一點點 */
+}
+
+
+/* ========================================================= */
+/* 頁籤與分類選單樣式 (Tabs & Category Select Styles)         */
+/* ========================================================= */
+
+/* 自訂頁籤按鈕樣式 */
+#forum-view-tabs .nav-link {
+    color: var(--text-muted);
+    font-weight: 600;
+    border-radius: 8px 8px 0 0;
+    border: 1px solid transparent;
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.2s ease-in-out;
+}
+
+/* 當頁籤被選中時 (Active) */
+#forum-view-tabs .nav-link.active {
+    color: var(--green-color);
+    background-color: var(--bg-color);
+    border-color: var(--border-color) var(--border-color) var(--bg-color);
+}
+
+/* 滑鼠懸停在未選中的頁籤上 */
+#forum-view-tabs .nav-link:not(.active):hover {
+    color: var(--link-hover);
+    border-bottom-color: var(--link-hover);
+}
+
+/* 分類下拉選單的樣式 */
+#category-selector {
+    font-weight: 500;
+}
+
+/* ========================================================= */
+/* 自訂 Bootstrap 分類下拉選單樣式                         */
+/* ========================================================= */
+
+#categoryDropdownButton {
+    font-weight: 500;
+    text-overflow: ellipsis; /* 當文字太長時顯示省略號 */
+    overflow: hidden;
+    white-space: nowrap;
+    display: flex; /* 使用 flex 來對齊文字和箭頭 */
+    justify-content: space-between; /* 讓文字和箭頭分開 */
+    align-items: center;
+}
+
+/* 下拉選單展開時的樣式 */
+#category-dropdown-menu {
+    max-height: 300px; /* 避免分類過多時列表太長 */
+    overflow-y: auto; /* 內容超出時顯示滾動條 */
+}
+
+/* 每個選項的樣式 */
+.category-item {
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.category-item:hover, .category-item:focus {
+    background-color: var(--green-color) !important;
+    color: var(--white) !important;
+}
+
+.category-item i {
+    color: var(--text-muted);
+    transition: color 0.2s ease-in-out;
+}
+
+.category-item:hover i, .category-item:focus i {
+    color: var(--white) !important;
 }
 

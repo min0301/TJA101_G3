@@ -23,6 +23,7 @@
         document.documentElement.setAttribute('data-theme', themeToSet)
     </script>
 
+
     <link rel="stylesheet" href="../assets/vendors/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/vendors/bootstrap-icons/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/vendors/simplebar/simplebar.min.css">
@@ -32,6 +33,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet">
+
 
 </head>
 
@@ -63,43 +65,40 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 pe-lg-3 border-end">
-                    <div class="vine-categories mb-4 pb-3">
-                        <ul class="navbar-nav flex-column">
-                            <li class="mb-3"><h5 data-aos="fade-up" data-aos-easing="linear">Categories</h5></li>
-                            <li class="nav-item" data-aos="fade-up" data-aos-easing="linear">
-                                <a class="nav-link" href="../index.html">
-                                    <span class="nav-icon-wrap"><img src="../assets/img/categories/10.jpg"
-                                                                     class="img-fluid rounded-2" alt="Category"></span>
-                                    <span class="nav-link-text">討論區1</span>
-                                </a>
+                    <div class="position-sticky" style="top: 100px;">
+
+                        <ul class="nav nav-tabs nav-fill mb-3" id="forum-view-tabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="hot-tab" data-bs-toggle="tab"
+                                        data-bs-target="#hot-tab-pane" type="button" role="tab"
+                                        aria-controls="hot-tab-pane" aria-selected="true">熱門排行
+                                </button>
                             </li>
-                            <li class="nav-item" data-aos="fade-up" data-aos-easing="linear">
-                                <a class="nav-link" href="/forum/index.html" style="cursor:pointer;">
-                                    <span class="nav-icon-wrap"><img src="../assets/img/categories/1.jpg"
-                                                                     class="img-fluid rounded-2" alt="Category"></span>
-                                    <span class="nav-link-text">討論區2</span>
-                                </a>
-                            </li>
-                            <li class="nav-item" data-aos="fade-up" data-aos-easing="linear">
-                                <a class="nav-link" href="../index.html">
-                                    <span class="nav-icon-wrap"><img src="../assets/img/categories/2.jpg"
-                                                                     class="img-fluid rounded-2" alt="Category"></span>
-                                    <span class="nav-link-text">討論區3</span>
-                                </a>
-                            </li>
-                            <li class="nav-item" data-aos="fade-up" data-aos-easing="linear">
-                                <a class="nav-link" href="../index.html">
-                                    <span class="nav-icon-wrap"><img src="../assets/img/categories/3.jpg"
-                                                                     class="img-fluid rounded-2" alt="Category"></span>
-                                    <span class="nav-link-text">討論區4</span>
-                                </a>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="category-tab" data-bs-toggle="tab"
+                                        data-bs-target="#category-tab-pane" type="button" role="tab"
+                                        aria-controls="category-tab-pane" aria-selected="false">按類別瀏覽
+                                </button>
                             </li>
                         </ul>
+
+                        <div id="category-select-container" class="mb-3" style="display: none;">
+                        </div>
+
+                        <div id="forum-list-container">
+                        </div>
+
+                        <div id="show-more-container" class="mt-3"></div>
                     </div>
                 </div>
+
                 <div class="col-lg-9 ps-lg-5">
-                    <div id="dynamic-content-container" style="display:none;"></div>
-                    <div class="original-content">
+                    <div id="dynamic-content-container">
+                        <div class="original-content text-center p-5 bg-light rounded">
+                            <i class="bi bi-arrow-left-circle-fill fs-1 text-muted"></i>
+                            <h4 class="mt-3">請從左側選擇一個討論區</h4>
+                            <p class="text-muted">點擊後，文章列表將會顯示在此處。</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -117,6 +116,7 @@
 <script src="../assets/vendors/aos/aos.js"></script>
 <script src="../assets/js/main.js"></script>
 <script src="../assets/js/global-loader.js"></script>
+<script src="../front-end/forumsys/forumListManager.js"></script>
 <script src="../front-end/forumsys/allForum.js"></script>
 <script>
     // 當頁面載入後，自動執行顯示討論區列表的邏輯

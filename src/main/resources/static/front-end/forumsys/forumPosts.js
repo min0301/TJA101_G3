@@ -59,45 +59,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
         postsContainer.innerHTML = '';
         posts.forEach(post => {
-            // 【重要修改】onerror 的備用圖片路徑也需要修正，回到根目錄再找 assets
             const fallbackImage = `../../assets/img/categories/1.jpg`;
-            const postImage = `/api/forumpost/image/${post.id}`; // API 路徑不變
+            const postImage = `/api/forumpost/image/${post.id}`;
 
+            // 【【此處為修改重點】】
             const postCard = `
-                <div class="post-box d-flex mb-3" data-aos="fade-up">
-                    <div class="card w-100">
-                        <div class="card-body">
-                           <div class="d-flex">
-                                <div class="flex-shrink-0 me-3">
-                                    <img src="${postImage}" 
-                                         alt="${post.postTitle}" 
-                                         style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;"
-                                         onerror="this.onerror=null;this.src='${fallbackImage}';">
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h4 class="card-title fw-bold">
-                                        <a href="#" class="text-decoration-none">${post.postTitle}</a>
-                                    </h4>
-                                    <p class="card-text text-muted">${(post.postCon || '').substring(0, 100)}...</p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">
-                                            作者：${post.memberName || '匿名'} | 發表於：${new Date(post.postCrdate).toLocaleString()}
-                                        </small>
-                                        <div>
-                                            <span class="me-3"><i class="bi bi-chat-dots"></i> ${post.mesNumbers || 0}</span>
-                                            <span><i class="bi bi-hand-thumbs-up"></i> ${post.postLikeCount || 0}</span>
-                                        </div>
+            <div class="post-box d-flex mb-3" data-aos="fade-up">
+                <div class="card w-100">
+                    <div class="card-body">
+                       <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                                <img src="${postImage}" 
+                                     alt="${post.postTitle}" 
+                                     style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;"
+                                     onerror="this.onerror=null;this.src='${fallbackImage}';">
+                            </div>
+                            <div class="flex-grow-1">
+                                <h4 class="card-title fw-bold">
+                                    <a href="#" class="text-decoration-none">${post.postTitle}</a>
+                                </h4>
+                                <p class="card-text text-muted">${(post.postCon || '').substring(0, 100)}...</p>
+                                
+                                {/* */}
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <small class="text-muted">
+                                        作者：${post.memberName || '匿名'} | 發表於：${new Date(post.postCrdate).toLocaleString()}
+                                    </small>
+                                    <div class="post-stats">
+                                        <span class="me-3" title="留言數">
+                                            <i class="bi bi-chat-dots-fill"></i> 
+                                            ${post.mesNumbers || 0}
+                                        </span>
+                                        <span class="me-3" title="喜歡">
+                                            <i class="bi bi-hand-thumbs-up-fill text-success"></i> 
+                                            ${post.postLikeCount || 0}
+                                        </span>
+                                        <span title="不喜歡">
+                                            <i class="bi bi-hand-thumbs-down-fill text-danger"></i> 
+                                            ${post.postLikeDlc || 0}
+                                        </span>
                                     </div>
                                 </div>
-                           </div>
-                        </div>
+                                {/* */}
+                                
+                            </div>
+                       </div>
                     </div>
                 </div>
-            `;
+            </div>
+        `;
             postsContainer.innerHTML += postCard;
         });
 
-        AOS.init({ once: true });
+        AOS.init({once: true});
     }
 
     function showError(message) {
