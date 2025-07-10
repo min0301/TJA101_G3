@@ -6,6 +6,7 @@ import java.util.Date;
 
 import org.springframework.stereotype.Component;
 
+import com.pixeltribe.membersys.administrator.model.Administrator;
 import com.pixeltribe.membersys.member.model.Member;
 
 import io.jsonwebtoken.JwtException;
@@ -15,9 +16,15 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JwtUtil {
 	private final String SECRET_KEY = "PPPPPIIIIIXXXXXEEEEELLLLL_TTTTTRRRRRIIIIIBBBBBEEEEE";
-
-	public String generateToken(Member member) {
-		return Jwts.builder().setSubject(member.getMemAccount()).claim("memId", member.getId()).claim("role", "MEMBER")
+	
+	public String generateAdminToken(Administrator administrator) {
+		return Jwts.builder().setSubject(administrator.getAdmAccount()).claim("admId", administrator.getId()).claim("role", "ROLE_ADMIN")
+				.setIssuedAt(new Date()).setExpiration(Date.from(Instant.now().plus(7, ChronoUnit.DAYS))) // 7天有效
+				.signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes()).compact();
+	}
+	
+	public String generateMemberToken(Member member) {
+		return Jwts.builder().setSubject(member.getMemAccount()).claim("memId", member.getId()).claim("role", "ROLE_MEMBER")
 				.setIssuedAt(new Date()).setExpiration(Date.from(Instant.now().plus(7, ChronoUnit.DAYS))) // 7天有效
 				.signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes()).compact();
 	}

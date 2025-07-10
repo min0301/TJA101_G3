@@ -31,7 +31,7 @@ public class MemLoginService {
 		if(!member.getMemPassword().equals(memPassword)) {
 			return new MemLoginReturn(false, "密碼錯誤");
 		}
-		String token = jwtUtil.generateToken(member);
+		String token = jwtUtil.generateMemberToken(member);
 		return new MemLoginReturn(true,"登入成功", token, memberInfo);
 	}
 }

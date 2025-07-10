@@ -9,7 +9,9 @@ public class MemberInfo {
 	private String memEmail;
 	
 	//Constructor
-	public MemberInfo() {}
+	public MemberInfo() {
+		
+	}
 	
 	public MemberInfo(Integer Id, String memAccount, String memNickName, String memName, String memEmail) {
 		this.Id = Id;
