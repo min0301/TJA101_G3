@@ -13,13 +13,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
+
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -70,7 +68,7 @@ public class Order {
      * fetch = LAZY: 需要時才載入OrderItem
      * orphanRemoval = true: 從集合移除時自動刪除OrderItem
      */
-    @OneToMany(mappedBy = "orderNo", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonManagedReference
     private List<OrderItem> orderItems = new ArrayList<>();
     
@@ -104,13 +102,13 @@ public class Order {
     		orderItems = new ArrayList<>();
     	}
     	orderItems.add(orderItem);   //加入Order的集合
-//    	orderItem.setOrder(this);   //設定OrderItem的反向關聯 <<orderItem.java完成後才會打開>>
+    	orderItem.setOrder(this);   //設定OrderItem的反向關聯 <<orderItem.java完成後才會打開>>
     }
    // ***** 處理移除 ***** // 
     public void removeOrderItem(OrderItem orderItem) {
     	if (orderItem != null) {
     		orderItems.remove(orderItem);          // 從Order的集合移除
-//    		orderItem.setOrderAmount(null);        // 清除OrderItem的反向關聯 <<orderItem.java完成後才會打開>>
+    		orderItem.setOrder(null);             // 清除OrderItem的反向關聯 <<orderItem.java完成後才會打開>>
     	}
     }
     
