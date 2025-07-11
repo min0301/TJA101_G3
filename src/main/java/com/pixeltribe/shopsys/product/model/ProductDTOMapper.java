@@ -49,6 +49,23 @@ public class ProductDTOMapper {
 		peDTO.setProIsmarket(product.getProIsmarket());
 		return peDTO;
 	}
+	public  ProductAddDTO toProductAddDTO(Product product) {
+		ProductAddDTO paDTO = new ProductAddDTO();
+		paDTO.setProName(product.getProName());
+		paDTO.setProPrice(product.getProPrice());
+		paDTO.setProStatus(product.getProStatus());
+		paDTO.setProVersion(product.getProVersion());
+		paDTO.setProDate(product.getProDate());
+		paDTO.setProCover(product.getProCover());
+		paDTO.setProDetails(product.getProDetails());
+		paDTO.setProInclude(product.getProInclude());
+		if (product.getMallTagNo() != null) {
+			paDTO.setMallTagNo(product.getMallTagNo().getId());
+	        }
+		paDTO.setProIsmarket(product.getProIsmarket());
+		return paDTO;
+	}
+	
 	
 	public List<ProductManageDTO> toProductManageDTOList(List<Product> products){
 		return products.stream()
@@ -56,7 +73,8 @@ public class ProductDTOMapper {
                 .collect(Collectors.toList());
 	}
 	
-	 public Product toProduct(ProductEditDTO peDTO) {
+	
+	 public Product peDTOToProduct(ProductEditDTO peDTO) {
 	        if (peDTO == null) return null;
 	        Product product = new Product();
 	        product.setId(peDTO.getId());
@@ -71,6 +89,23 @@ public class ProductDTOMapper {
 	        MallTag malltag = malltagRepository.findById(peDTO.getMallTagNo()).get();
 			product.setMallTagNo(malltag);
 			product.setProIsmarket(peDTO.getProIsmarket());
+			return product;
+
+	    }
+	 public Product paDTOToProduct(ProductAddDTO paDTO) {
+	        if (paDTO == null) return null;
+	        Product product = new Product();
+	        product.setProName(paDTO.getProName());
+	        product.setProPrice(paDTO.getProPrice());
+	        product.setProStatus(paDTO.getProStatus());
+	        product.setProVersion(paDTO.getProVersion());
+	        product.setProDate(paDTO.getProDate());
+	        product.setProCover(paDTO.getProCover());
+	        product.setProDetails(paDTO.getProDetails());
+	        product.setProInclude(paDTO.getProInclude());
+	        MallTag malltag = malltagRepository.findById(paDTO.getMallTagNo()).get();
+			product.setMallTagNo(malltag);
+			product.setProIsmarket(paDTO.getProIsmarket());
 			return product;
 
 	    }

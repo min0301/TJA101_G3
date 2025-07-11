@@ -1,10 +1,286 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新增商品</title>
+  <style>
+    /* 沿用與列表頁類似的風格，保持一致性 */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0 auto;
+      max-width: 800px; /* 編輯頁面寬度可以窄一些 */
+      padding: 20px;
+      background-color: #f4f7f6;
+      color: #333;
+    }
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .form-container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+    .form-group input[type="text"],
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box; /* 確保 padding 不會影響寬度 */
+      font-size: 16px;
+    }
+    .form-group textarea {
+      height: 120px;
+      resize: vertical;
+    }
+    .form-group .image-preview {
+      max-width: 200px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+    .button-group {
+      display: flex;
+      justify-content: flex-end; /* 按鈕靠右 */
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .btn {
+      display: inline-block;
+      text-decoration: none;
+      color: white;
+      padding: 12px 25px;
+      border-radius: 5px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.3s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-save { background-color: #3498db; }
+    .btn-cancel { background-color: #95a5a6; }
+    #error-message {
+      color: #e74c3c;
+      background-color: #fbecec;
+      border: 1px solid #e74c3c;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      display: none; /* 預設隱藏 */
+    }
+  </style>
 </head>
 <body>
+
+<h1>商品修改</h1>
+
+<div id="error-message"></div>
+
+<div class="form-container">
+  <form id="edit-form">
+
+    <div class="form-group">
+      <label for="product_name">商品名稱</label>
+      <input type="text" id="product_name" name="proName" required>
+    </div>
+
+    <div class="form-group">
+      <label for="product_price">價格</label>
+      <input id="product_price" name="proPrice" required>
+    </div>
+
+    <div class="form-group">
+      <label for="product_status">狀態</label>
+      <select id="product_status" name="proStatus" required>
+      	<option value="已發售">已發售</option>
+        <option value="預購中">預購中</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="product_version">版本</label>
+      <input type="text" id="product_version" name="proVersion" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="product_date">發售日</label>
+      <input type="date" id="product_date" name="proDate" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="product_image_upload">更新圖片（可選）</label>
+      <input type="file" id="product_image_upload" name="imageFile" accept="image/*">
+
+      <p style="margin-top: 10px; font-size: 14px; color: #555;">目前圖片預覽：</p>
+      <img id="image_preview" src="" alt="圖片預覽" class="image-preview" style="display: none;">
+    </div>
+    
+	<div class="form-group">
+      <label for="product_details">描述</label>
+      <textarea id="product_details" name="proDetails" required></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label for="product_include">內容物</label>
+      <textarea id="product_include" name="proInclude" required></textarea>
+    </div>
+	
+	<div class="form-group">
+      <label for="product_malltag">平台</label>
+      <select id="product_malltag" name="mallTag" required></select>
+    </div>
+     
+	<div class="form-group">
+      <label for="product_ismarket">上下架</label>
+      <select id="product_ismarket" name="proIsmarket" required>
+		<option value="0">上架</option>
+        <option value="1">下架</option>
+      </select>
+    </div>
+    
+    <div class="button-group">
+      <a href="listAllProduct.html" class="btn-cancel">返回列表</a> <button type="submit" class="btn btn-save">新增</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // 【可變】後端 API 的基礎路徑
+    const apiBaseUrl = 'http://localhost:8080/api';
+
+    // 獲取所有表單的 DOM 元素
+    const form = document.getElementById('edit-form');
+    const nameInput = document.getElementById('product_name');
+    const priceInput = document.getElementById('product_price');
+    const statusSelect = document.getElementById('product_status');
+    const versionSelect = document.getElementById('product_version');
+    const dateInput = document.getElementById('product_date');
+    const imageUploadInput = document.getElementById('product_image_upload');
+    const imagePreview = document.getElementById('image_preview');
+    const detailsTextarea = document.getElementById('product_details');
+    const includeTextarea = document.getElementById('product_include');
+    const malltagSelect = document.getElementById('product_malltag');
+    const ismarketSelect = document.getElementById('product_ismarket');
+    const errorMessageDiv = document.getElementById('error-message');
+    async function initializePage() {
+    try {
+        const malltagData = await fetch(`${apiBaseUrl}/malltag`).then(handleResponse);
+        // --- 填充下拉選單的邏輯 ---
+        malltagSelect.innerHTML = ''; // 清空現有選項
+
+        if (!Array.isArray(malltagData)) {
+            throw new Error("回傳的平台資料格式不正確，不是一個陣列。");
+        }
+
+        malltagData.forEach(malltag => {
+            const option = document.createElement('option');
+            option.value = malltag.id;
+            option.textContent = malltag.mallTagName;
+            malltagSelect.appendChild(option);
+        });
+	
+	    } catch (error) {
+	        showError(`載入平台資料失敗: ${error.message}`);
+   		}
+	}
+
+	function handleResponse(response) {
+	    if (!response.ok) {
+	        throw new Error(`HTTP 請求錯誤！ 狀態: ${response.status}`);
+	    }
+	    return response.json();
+	}
+  
+
+    // 監聽檔案上傳元件的變動，即時預覽新選擇的圖片
+    imageUploadInput.addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const localImageUrl = URL.createObjectURL(file);
+        imagePreview.src = localImageUrl;
+        imagePreview.style.display = 'block';
+      }
+    });
+
+// 監聽表單提交事件
+	form.addEventListener('submit', async function(event) {
+      event.preventDefault(); // 阻止瀏覽器預設的提交行為
+      // 1. 【修正】我們需要建立的是一個 FormData 物件，並用一個變數 (例如 formData) 來接住它。
+      const formData = new FormData();
+
+      // 2. 【修正】定義要轉換成 JSON 的純資料物件。
+      //    【建議】ID 由 URL 傳遞，body 中可以不必再放，讓後端以 URL 的 ID 為準。
+      const productAddDTO = {
+    	     proName : nameInput.value,
+    	     proPrice : priceInput.value,
+    	     proStatus : statusSelect.value,
+    	     proVersion : versionSelect.value,
+    	     proDate : dateInput.value,
+    	     proDetails : detailsTextarea.value,
+    	     proInclude :  includeTextarea.value,
+    	     mallTagNo : parseInt(malltagSelect.value),
+    	     proIsmarket : ismarketSelect.value
+      };
+
+      // 3. 【修正】使用 formData 變數來 .append() 資料。
+      //    將 forumDto 物件打包成 JSON 字串，並命名為 'forumDTO'。
+      formData.append('ProductAddDTO', new Blob([JSON.stringify(productAddDTO)], { type: 'application/json' }));
+
+      // 4. 【修正】同樣使用 formData 變數來 .append() 檔案。
+      const imageFile = imageUploadInput.files[0];
+      if (imageFile) {
+    	  formData.append('imageFile', imageFile);
+    	} else {
+    	  formData.append('imageFile', new File([], '', { type: 'image/gif' }));
+    	}
+
+      try {
+        // 5. 【修正】發送請求時，body 應該是我們建立和填充好的 formData 物件。
+        const response = await fetch(`${apiBaseUrl}/product/addproduct`, {
+          method: 'POST',
+          body: formData, // 👈 這裡放的是 formData
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: '新增失敗，且無法解析錯誤訊息。' }));
+          throw new Error(errorData.message || '新增失敗');
+        }
+
+        alert('新增成功！');
+        window.location.href = 'listAllProduct.html';
+
+      } catch(error) {
+        showError(`儲存失敗: ${error.message}`);
+      }
+    });
+
+    // 顯示錯誤訊息的輔助函式
+    function showError(message) {
+      errorMessageDiv.style.display = 'block';
+      errorMessageDiv.textContent = message;
+      console.error(message); // 在主控台也印出錯誤，方便開發者查看
+    }
+ 
+    // 執行初始化函式，啟動整個頁面
+    initializePage();
+  });
+</script>
 
 </body>
 </html>

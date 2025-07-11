@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>產品序號批次上傳</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .btn{ 
+        	display: inline-block;
+		    text-decoration: none;
+		    color: white;
+		    padding: 8px 15px;
+		    border-radius: 5px;
+		    font-weight: bold;
+		    transition: opacity 0.3s;
+		    text-align: center;
+        }
+        
+        .btn-home{ background-color: #95a5a6; }
+        .btn-product{ background-color: lightblue}
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            font-weight: 300;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        select, input[type="file"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        select:focus, input[type="file"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .file-upload-container {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .file-upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .file-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666;
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(86, 171, 47, 0.3);
+        }
+
+        .upload-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result.success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result.error {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .format-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .format-info h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .format-info p {
+            color: #0d47a1;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .statistics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* 選擇器載入狀態 */
+        .select-loading {
+            position: relative;
+        }
+
+        .select-loading::after {
+            content: '';
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* 產品選項樣式 */
+        .product-option {
+            padding: 5px 0;
+        }
+
+        /* 錯誤提示 */
+        .error-message {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* 成功提示 */
+        .success-message {
+            color: #28a745;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+	
+    <div class="container">
+    	<a href="/" class="btn btn-home">回到首頁</a>
+    	<a href="/back-end/shopsys/product/listAllProduct.html" class="btn btn-product">回到商品管理</a>
+    	<h1></h1>
+        <h1>產品序號批次上傳</h1>
+
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="productSelect">選擇產品 *</label>
+                <select id="productSelect" name="proNo" required>
+                    <option value="">載入中...</option>
+                </select>
+                <div class="error-message" id="productError"></div>
+                <div class="success-message" id="productSuccess"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="fileInput">上傳序號檔案 *</label>
+                <div class="file-upload-container">
+                    <button type="button" class="file-upload-btn" onclick="document.getElementById('fileInput').click()">
+                        <span>📁</span>
+                        選擇檔案
+                    </button>
+                    <input type="file" id="fileInput" name="file" accept=".txt,.csv" style="display: none;" required>
+                </div>
+                <div class="file-info" id="fileInfo"></div>
+            </div>
+
+            <button type="submit" class="upload-btn" id="uploadBtn">
+                上傳序號檔案
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>正在上傳檔案，請稍候...</p>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <div class="format-info">
+            <h3>📋 檔案格式說明</h3>
+            <p>
+                <strong>支援格式：</strong> .txt, .csv<br>
+                <strong>最大檔案大小：</strong> 10MB<br><br>
+                <strong>範例格式：</strong><br>
+                • TXT檔：每行一個序號<br>
+                • CSV檔：可用逗號分隔或每行一個序號
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let products = [];
+
+        // 頁面載入時取得產品列表
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+        });
+
+        // 載入產品列表
+        async function loadProducts() {
+            const productSelect = document.getElementById('productSelect');
+            const productError = document.getElementById('productError');
+            const productSuccess = document.getElementById('productSuccess');
+            
+            try {
+                // 顯示載入狀態
+                productSelect.className = 'select-loading';
+                productSelect.innerHTML = '<option value="">載入中...</option>';
+                productError.style.display = 'none';
+                productSuccess.style.display = 'none';
+
+                // 模擬 API 請求 - 請替換為您的實際 API 端點
+                const response = await fetch('/api/product', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // 如果需要認證，加入 Authorization header
+                        // 'Authorization': 'Bearer your-token-here'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                
+                // 處理 API 回應格式
+                products = Array.isArray(data) ? data : data.products || data.data || [];
+                
+                // 清空選擇器
+                productSelect.innerHTML = '<option value="">請選擇產品...</option>';
+                
+                // 檢查是否有商品資料
+                if (products.length === 0) {
+                    productSelect.innerHTML = '<option value="">沒有可用的產品</option>';
+                    productError.textContent = '沒有找到任何產品資料';
+                    productError.style.display = 'block';
+                    return;
+                }
+
+                // 添加產品選項
+                products.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.id;
+                    option.textContent = product.proName;
+                    option.className = 'product-option';
+                    productSelect.appendChild(option);
+                });
+
+                // 顯示成功訊息
+                productSuccess.textContent = `成功載入 ${products.length} 個產品`;
+                productSuccess.style.display = 'block';
+                
+                // 3秒後隱藏成功訊息
+                setTimeout(() => {
+                    productSuccess.style.display = 'none';
+                }, 3000);
+
+            } catch (error) {
+                console.error('載入產品列表錯誤:', error);
+                
+                // 顯示錯誤訊息
+                productSelect.innerHTML = '<option value="">載入失敗，請重新整理頁面</option>';
+                productError.textContent = `載入產品列表失敗: ${error.message}`;
+                productError.style.display = 'block';
+                
+                // 提供重試按鈕
+                const retryBtn = document.createElement('button');
+                retryBtn.textContent = '重試';
+                retryBtn.type = 'button';
+                retryBtn.onclick = loadProducts;
+                retryBtn.style.cssText = 'margin-left: 10px; padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;';
+                productError.appendChild(retryBtn);
+                
+            } finally {
+                // 移除載入狀態
+                productSelect.className = '';
+            }
+        }
+
+        // 檔案選擇處理
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            selectedFile = e.target.files[0];
+            const fileInfo = document.getElementById('fileInfo');
+            
+            if (selectedFile) {
+                const fileSize = (selectedFile.size / 1024 / 1024).toFixed(2);
+                const fileName = selectedFile.name;
+                const fileType = selectedFile.type || '未知類型';
+                
+                fileInfo.innerHTML = `
+                    <strong>檔案資訊：</strong><br>
+                    名稱：${fileName}<br>
+                    大小：${fileSize} MB<br>
+                    類型：${fileType}
+                `;
+                fileInfo.style.display = 'block';
+                
+                // 更新按鈕文字
+                document.querySelector('.file-upload-btn').innerHTML = `
+                    <span>✅</span>
+                    ${fileName}
+                `;
+            } else {
+                fileInfo.style.display = 'none';
+                document.querySelector('.file-upload-btn').innerHTML = `
+                    <span>📁</span>
+                    選擇檔案
+                `;
+            }
+        });
+
+        // 表單提交處理
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const productSelect = document.getElementById('productSelect');
+            const proNo = productSelect.value;
+            
+            if (!proNo) {
+                showResult('請選擇產品', 'error');
+                return;
+            }
+            
+            if (!selectedFile) {
+                showResult('請選擇要上傳的檔案', 'error');
+                return;
+            }
+            
+            // 檔案大小檢查
+            if (selectedFile.size > 10 * 1024 * 1024) {
+                showResult('檔案大小不能超過 10MB', 'error');
+                return;
+            }
+            
+            // 檔案格式檢查
+            const fileName = selectedFile.name.toLowerCase();
+            if (!fileName.endsWith('.txt') && !fileName.endsWith('.csv')) {
+                showResult('僅支援 .txt 和 .csv 檔案格式', 'error');
+                return;
+            }
+            
+            await uploadFile(proNo, selectedFile);
+        });
+
+        // 上傳檔案
+        async function uploadFile(proNo, file) {
+            const uploadBtn = document.getElementById('uploadBtn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            
+            try {
+                // 顯示載入狀態
+                uploadBtn.disabled = true;
+                loading.style.display = 'block';
+                result.style.display = 'none';
+                
+                // 準備 FormData
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('proNo', proNo);
+                
+                // 發送請求
+                const response = await fetch('/api/productSN/addmultiple', {
+                    method: 'POST',
+                    body: formData,
+                    // 如果需要認證，加入 headers
+                    // headers: {
+                    //     'Authorization': 'Bearer your-token-here'
+                    // }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showSuccessResult(data);
+                } else {
+                    showResult(data.message || '上傳失敗', 'error');
+                }
+                
+            } catch (error) {
+                console.error('上傳錯誤:', error);
+                showResult('上傳過程中發生錯誤：' + error.message, 'error');
+            } finally {
+                // 隱藏載入狀態
+                uploadBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        // 顯示成功結果
+        function showSuccessResult(data) {
+            const result = document.getElementById('result');
+            
+            let statisticsHtml = '';
+            if (data.statistics) {
+                statisticsHtml = `
+                    <div class="statistics">
+                        <div class="stat-item">
+                            <div class="stat-number">${data.statistics.newCount || 0}</div>
+                            <div class="stat-label">新增</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${data.statistics.updateCount || 0}</div>
+                            <div class="stat-label">更新</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${data.statistics.totalCount || 0}</div>
+                            <div class="stat-label">總計</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            result.innerHTML = `
+                <h3>✅ 上傳成功！</h3>
+                <p><strong>處理結果：</strong>${data.result}</p>
+                <p><strong>檔案名稱：</strong>${data.fileName}</p>
+                <p><strong>檔案大小：</strong>${(data.fileSize / 1024).toFixed(2)} KB</p>
+                <p><strong>產品編號：</strong>${data.proNo}</p>
+                ${statisticsHtml}
+            `;
+            result.className = 'result success';
+            result.style.display = 'block';
+        }
+
+        // 顯示結果訊息
+        function showResult(message, type) {
+            const result = document.getElementById('result');
+            const icon = type === 'success' ? '✅' : '❌';
+            
+            result.innerHTML = `
+                <h3>${icon} ${type === 'success' ? '成功' : '錯誤'}</h3>
+                <p>${message}</p>
+            `;
+            result.className = `result ${type}`;
+            result.style.display = 'block';
+        }
+
+        // 重置表單
+        function resetForm() {
+            document.getElementById('uploadForm').reset();
+            selectedFile = null;
+            document.getElementById('fileInfo').style.display = 'none';
+            document.querySelector('.file-upload-btn').innerHTML = `
+                <span>📁</span>
+                選擇檔案
+            `;
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('productSelect').value = '';
+        }
+
+        // 手動重新載入產品列表的函數
+        function refreshProducts() {
+            loadProducts();
+        }
+    </script>
+</body>
+</html>

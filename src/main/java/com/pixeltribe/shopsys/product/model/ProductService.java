@@ -29,12 +29,6 @@ public class ProductService {
 	@Autowired
 	MallTagRepository mallTagRepository;
 	
-	@Autowired
-	public ProductService(ProductRepository productRepository,MallTagRepository mallTagRepository){
-		this.productRepository = productRepository;
-		this.mallTagRepository = mallTagRepository;
-	}
-	
 	public Product add(Product product) {
 		return productRepository.save(product);
     }
@@ -55,8 +49,15 @@ public class ProductService {
     public List<ProductManageDTO> getAllProducts() {
     	 List<Product> products = productRepository.findAll();
          return productDTOMapper.toProductManageDTOList(products);
-
+    }
+    
+    public boolean updateMarketStatus(Integer proNo, Character proIsMarket) {
+            Integer updatedRows = productRepository.updateMarketStatus(proNo, proIsMarket);
+            return updatedRows > 0;
     }
    
+    public List<ProductSearchDTO> findByMallTagWithMarket(Integer mallTagNo, Character proIsMarket){
+    	return productRepository.findByMallTagWithMarket(mallTagNo, proIsMarket);
+    }
 	
 }

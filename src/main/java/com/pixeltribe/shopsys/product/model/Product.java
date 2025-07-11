@@ -24,6 +24,7 @@ import com.pixeltribe.shopsys.productImage.model.ProductImage;
 @Table(name = "product")
 public class Product {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PRO_NO", nullable = false)
     private Integer id;
 
