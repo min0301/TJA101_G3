@@ -87,7 +87,7 @@ function createForumElement(forum, rank) {
 
     // 【【修改點 4】】: 不再建立 'col-lg-6' 外層，直接建立卡片本身
     const cardLink = document.createElement('a');
-    cardLink.href = `/forum/forumindex.html?forumId=${forumId}`;
+    cardLink.href = `/front-end/forumsys/forumindex.html?forumId=${forumId}`;
     cardLink.className = 'hot-item-card d-flex align-items-center text-decoration-none';
     cardLink.innerHTML = `
         <span class="hot-item-rank">${rank}</span>
