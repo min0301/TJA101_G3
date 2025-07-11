@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>像素部落商城後台 - Pixel Tribe Shop Admin</title>
+    <meta name="description" content="像素部落商城後台管理系統">
+    <meta name="keywords" content="遊戲商城, 後台管理, 虛擬商品, 遊戲道具, 像素風格">
+    <meta name="robots" content="noindex,nofollow">
+
+    <script>
+        //Check local storage
+        let localS = localStorage.getItem('theme')
+        themeToSet = localS
+
+        // If local storage is not set, we check the OS preference	
+        if (!localS) {
+            themeToSet = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+
+        //Set the correct theme
+        document.documentElement.setAttribute('data-theme', themeToSet)
+    </script>
+
+    <!-- ==============================================
+     CSS Styles
+    =============================================== -->
+    
+
+    <!-- ==============================================
+ 	Custom Admin Styles - 奶茶色系風格
+	=============================================== -->
+	<style>
+	    /* 奶茶色系變數 */
+	    :root {
+	        --milktea-bg: #f7f4ed;
+	        --card-bg: #fff;
+	        --milktea-yellow: #fff7db;
+	        --milktea-border: #e8dec7;
+	        --milktea-brown: #70513b;
+	        --milktea-main: #ab8556;
+	        --milktea-hover: #fae7c2;
+	    }
+	
+	    /* 基礎樣式 */
+	    html, body {
+	        margin: 0;
+	        padding: 0;
+	        height: 100%;
+	        min-height: 100vh;
+	        background: var(--milktea-bg);
+	        font-family: '微軟正黑體', Arial, sans-serif;
+	        box-sizing: border-box;
+	        color: var(--milktea-brown);
+	    }
+	
+	    body {
+	        width: 100vw;
+	        height: 100vh;
+	        overflow-x: hidden;
+	    }
+	
+	    /* 主要容器 */
+	    .admin-container {
+	        display: flex;
+	        min-height: calc(100vh - 70px);
+	        background: var(--milktea-bg);
+	        margin-top: 70px;
+	    }
+	
+	    /* 頂部導航欄 - 使用奶茶風格 */
+	    .admin-navbar {
+	        position: fixed;
+	        top: 0;
+	        left: 0;
+	        right: 0;
+	        height: 70px;
+	        background: var(--card-bg);
+	        display: flex;
+	        align-items: center;
+	        justify-content: space-between;
+	        box-shadow: 0 1.5px 8px #e2dbc53f;
+	        padding: 0 20px;
+	        z-index: 1000;
+	        box-sizing: border-box;
+	    }
+	
+	    .nav-left {
+	        display: flex;
+	        align-items: center;
+	    }
+	
+	    .home-btn {
+	        background: var(--milktea-yellow);
+	        color: var(--milktea-brown);
+	        border: 2px solid var(--milktea-border);
+	        padding: 8px 16px;
+	        text-decoration: none;
+	        border-radius: 10px;
+	        font-weight: 500;
+	        font-size: 13px;
+	        transition: all 0.15s ease;
+	        margin-right: 20px;
+	        box-shadow: 0 2px 0 #e2dbc5;
+	    }
+	
+	    .home-btn:hover {
+	        background: var(--milktea-hover);
+	        border-color: var(--milktea-main);
+	        color: var(--milktea-brown);
+	    }
+	
+	    .nav-title {
+	        font-family: 'Press Start 2P', Arial, sans-serif;
+	        font-size: 18px;
+	        color: var(--milktea-main);
+	        letter-spacing: 1.2px;
+	    }
+	
+	    .nav-right {
+	        display: flex;
+	        align-items: center;
+	    }
+	
+	    .admin-info {
+	        color: var(--milktea-brown);
+	        margin-right: 20px;
+	        font-size: 14px;
+	        opacity: 0.8;
+	    }
+	
+	    .logout-btn {
+	        background: var(--milktea-yellow);
+	        color: var(--milktea-brown);
+	        border: 2px solid var(--milktea-border);
+	        border-radius: 10px;
+	        padding: 10px 20px;
+	        font-size: 13px;
+	        font-weight: 500;
+	        text-decoration: none;
+	        transition: background 0.15s, border 0.2s;
+	        box-shadow: 0 2px 0 #e2dbc5;
+	    }
+	
+	    .logout-btn:hover {
+	        background: var(--milktea-hover);
+	        border-color: var(--milktea-main);
+	        color: var(--milktea-brown);
+	    }
+	
+	    /* 左側功能選單 - 奶茶風格 */
+	    .admin-sidebar {
+	        width: 300px;
+	        background: var(--card-bg);
+	        border-radius: 0 24px 24px 0;
+	        box-shadow: 6px 0 18px -8px #e2dbc577;
+	        padding: 36px 0;
+	        display: flex;
+	        flex-direction: column;
+	        align-items: center;
+	        height: calc(100vh - 70px);
+	        overflow-y: auto;
+	    }
+	
+	    .function-menu {
+	        width: 100%;
+	        padding: 0 20px;
+	    }
+	
+	    .menu-item {
+	        width: 100%;
+	        margin-bottom: 16px;
+	    }
+	
+	    .menu-button {
+	        display: flex;
+	        align-items: center;
+	        justify-content: space-between;
+	        width: 93%;
+	        margin: 0 auto;
+	        padding: 16px 26px;
+	        font-size: 18px;
+	        color: var(--milktea-brown);
+	        background: none;
+	        border: none;
+	        border-radius: 13px;
+	        font-family: inherit;
+	        cursor: pointer;
+	        transition: background 0.15s, color 0.15s;
+	        outline: none;
+	        font-weight: 500;
+	        letter-spacing: 0.2px;
+	    }
+	
+	    .menu-button:hover,
+	    .menu-button.active {
+	        background: var(--milktea-yellow);
+	        color: var(--milktea-main);
+	    }
+	
+	    .menu-button .icon {
+	        margin-right: 18px;
+	        font-size: 20px;
+	    }
+	
+	    .menu-button .arrow {
+	        font-size: 14px;
+	        transition: transform 0.3s ease;
+	    }
+	
+	    .menu-item:hover .arrow,
+	    .menu-item.active .arrow {
+	        transform: rotate(180deg);
+	    }
+	
+	    /* 子選單 - 奶茶風格 */
+	    .submenu {
+	        width: 93%;
+	        margin: 2px auto 0;
+	        background: #fff9f0;
+	        border-radius: 0 0 13px 13px;
+	        box-shadow: 0 1.5px 9px #f4ead860;
+	        max-height: 0;
+	        overflow: hidden;
+	        transition: all 0.4s ease;
+	        opacity: 0;
+	    }
+	
+	    .menu-item:hover .submenu,
+	    .menu-item.active .submenu {
+	        max-height: 300px;
+	        opacity: 1;
+	    }
+	
+	    .submenu-item {
+	        padding: 11px 18px 11px 38px;
+	        border-bottom: 1px solid #f4ead8;
+	        transition: all 0.13s ease;
+	        cursor: pointer;
+	        background: transparent;
+	        position: relative;
+	        font-size: 15px;
+	        color: var(--milktea-brown);
+	        font-weight: 500;
+	    }
+	
+	    .submenu-item:last-child {
+	        border-bottom: none;
+	    }
+	
+	    .submenu-item:hover {
+	        background: var(--milktea-hover);
+	        color: var(--milktea-main);
+	        box-shadow: 0 4px 14px #f7ebc9b2;
+	    }
+	
+	    .submenu-item a {
+	        color: inherit;
+	        text-decoration: none;
+	        display: block;
+	    }
+	
+	    .submenu-item .item-icon {
+	        position: absolute;
+	        left: 14px;
+	        font-size: 16px;
+	        color: var(--milktea-main);
+	    }
+	
+	    /* 主要內容區域 */
+	    .admin-main {
+	        flex: 1;
+	        background: var(--card-bg);
+	        border-radius: 24px 0 0 24px;
+	        box-shadow: 0 2px 18px #e2dbc577;
+	        min-width: 0;
+	        min-height: calc(100vh - 70px);
+	        padding: 40px 60px;
+	        display: flex;
+	        flex-direction: column;
+	        align-items: center;
+	        justify-content: flex-start;
+	        overflow-y: auto;
+	    }
+	
+	    /* 儀表板內容 */
+	    .dashboard-content {
+	        width: 100%;
+	        max-width: 1000px;
+	        margin: 0 auto;
+	    }
+	
+	    /* 歡迎區域 */
+	    .welcome-section {
+	        width: 100%;
+	        margin-bottom: 50px;
+	        text-align: center;
+	    }
+	
+	    .welcome-title {
+	        font-family: 'Press Start 2P', Arial, sans-serif;
+	        font-size: 28px;
+	        color: var(--milktea-main);
+	        font-weight: bold;
+	        letter-spacing: 1px;
+	        display: inline-flex;
+	        align-items: center;
+	        gap: 15px;
+	        margin-bottom: 20px;
+	        padding: 15px 25px;
+	        background: #fff7dbc2;
+	        border-left: 5px solid var(--milktea-main);
+	        border-radius: 12px;
+	        box-shadow: 0 3px 15px #e9dec5a1;
+	    }
+	
+	    .welcome-title .icon {
+	        font-size: 28px;
+	    }
+	
+	    .welcome-subtitle {
+	        font-size: 18px;
+	        color: var(--milktea-brown);
+	        margin: 0 auto;
+	        opacity: 0.8;
+	        max-width: 600px;
+	    }
+	
+	    /* 統計卡片 */
+	    .stats-grid {
+	        display: grid;
+	        grid-template-columns: repeat(2, 1fr);
+	        gap: 25px;
+	        width: 100%;
+	        margin-bottom: 40px;
+	        max-width: 800px;
+	    }
+	
+	    .stat-card {
+	        background: #fff9f0;
+	        border-radius: 16px;
+	        padding: 35px 25px;
+	        text-align: center;
+	        transition: all 0.13s ease;
+	        box-shadow: 0 2px 15px #f4ead860;
+	        border: 1px solid var(--milktea-border);
+	        min-height: 160px;
+	        display: flex;
+	        flex-direction: column;
+	        justify-content: center;
+	        align-items: center;
+	    }
+	
+	    .stat-card:hover {
+	        background: var(--milktea-hover);
+	        box-shadow: 0 6px 20px #f7ebc9b2;
+	        transform: translateY(-3px);
+	    }
+	
+	    .stat-icon {
+	        font-size: 48px;
+	        margin-bottom: 20px;
+	        opacity: 0.9;
+	        display: block;
+	    }
+	
+	    .stat-number {
+	        font-size: 36px;
+	        font-weight: 700;
+	        color: var(--milktea-main);
+	        margin-bottom: 12px;
+	        line-height: 1;
+	    }
+	
+	    .stat-label {
+	        color: var(--milktea-brown);
+	        font-size: 16px;
+	        font-weight: 500;
+	        opacity: 0.8;
+	        line-height: 1.2;
+	    }
+	
+	    /* 指引文字 */
+	    .guide-text {
+	        width: 100%;
+	        background: #fff9f0;
+	        border: 1px solid var(--milktea-border);
+	        border-radius: 12px;
+	        padding: 30px;
+	        margin-top: 20px;
+	        box-shadow: 0 1.5px 9px #f4ead860;
+	    }
+	
+	    .guide-text h3 {
+	        font-family: 'Press Start 2P', Arial, sans-serif;
+	        color: var(--milktea-main);
+	        margin-bottom: 15px;
+	        font-size: 16px;
+	        letter-spacing: 0.5px;
+	    }
+	
+	    .guide-text p {
+	        color: var(--milktea-brown);
+	        font-size: 15px;
+	        line-height: 1.6;
+	        margin: 0;
+	        opacity: 0.9;
+	    }
+	
+	    /* 響應式設計 */
+	    @media (max-width: 1100px) {
+	        .admin-container {
+	            flex-direction: column;
+	            margin-top: 70px;
+	        }
+	        
+	        .admin-sidebar, .admin-main {
+	            border-radius: 0 0 24px 24px;
+	            width: 98vw;
+	        }
+	        
+	        .admin-main {
+	            padding: 30px 4vw;
+	            min-height: auto;
+	        }
+	
+	        .admin-sidebar {
+	            height: auto;
+	            padding: 20px 0;
+	        }
+	    }
+	
+	    @media (max-width: 650px) {
+	        .admin-container {
+	            flex-direction: column;
+	        }
+	        
+	        .admin-sidebar, .admin-main {
+	            border-radius: 0 0 16px 16px;
+	            width: 100vw;
+	        }
+	        
+	        .admin-main {
+	            padding: 16px 3vw;
+	        }
+	        
+	        .admin-navbar {
+	            padding: 0 3vw;
+	        }
+	        
+	        .nav-title {
+	            font-size: 13px;
+	        }
+	        
+	        .welcome-title {
+	            font-size: 15px;
+	            padding: 6px 10px;
+	        }
+	        
+	        .stats-grid {
+	            grid-template-columns: 1fr 1fr;
+	            gap: 20px;
+	            max-width: none;
+	        }
+	
+	        .stat-card {
+	            min-height: 140px;
+	            padding: 25px 15px;
+	        }
+	
+	        .stat-icon {
+	            font-size: 40px;
+	            margin-bottom: 15px;
+	        }
+	
+	        .stat-number {
+	            font-size: 28px;
+	        }
+	
+	        .stat-label {
+	            font-size: 14px;
+	        }
+	
+	        .admin-info {
+	            display: none;
+	        }
+	    }
+	
+	    /* 主題切換器 */
+	    .switcher {
+	        position: fixed;
+	        bottom: 20px;
+	        right: 20px;
+	        width: 50px;
+	        height: 50px;
+	        background: var(--card-bg);
+	        border: 2px solid var(--milktea-border);
+	        border-radius: 50%;
+	        display: flex;
+	        align-items: center;
+	        justify-content: center;
+	        cursor: pointer;
+	        transition: all 0.3s ease;
+	        z-index: 1000;
+	        box-shadow: 0 2px 10px #e2dbc53f;
+	    }
+	
+	    .switcher:hover {
+	        background: var(--milktea-hover);
+	        border-color: var(--milktea-main);
+	        transform: scale(1.1);
+	    }
+	
+	    .switcher i {
+	        color: var(--milktea-main);
+	        font-size: 18px;
+	    }
+	
+	    /* 載入動畫 */
+	    @keyframes fadeInUp {
+	        0% { 
+	            opacity: 0; 
+	            transform: translateY(20px); 
+	        }
+	        100% { 
+	            opacity: 1; 
+	            transform: translateY(0); 
+	        }
+	    }
+	
+	    .fade-in {
+	        animation: fadeInUp 0.6s ease-out;
+	    }
+	
+	    /* 深色主題支援（保留奶茶色調） */
+	    [data-theme="dark"] {
+	        --milktea-bg: #2d2520;
+	        --card-bg: #3a2f28;
+	        --milktea-yellow: #4a3d33;
+	        --milktea-border: #5a4a3d;
+	        --milktea-brown: #d4b896;
+	        --milktea-main: #e6c79a;
+	        --milktea-hover: #4f423a;
+	    }
+	</style>
+
+    <!-- ==============================================
+     Fonts
+    =============================================== -->
+    <link rel="stylesheet" href="../assets/vendors/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/vendors/simplebar/simplebar.min.css">
+    <link rel="stylesheet" href="../assets/vendors/aos/aos.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+
+
+<!-- 頂部導航欄 -->
+<div class="admin-navbar">
+    <div class="nav-left">
+        <a href="/back-end/adm/AdmHomePage.html" class="home-btn">
+            <i class="bi bi-house-fill"></i> 回後台首頁
+        </a>
+        <div class="nav-title">🛍️ 像素部落商城後台</div>
+    </div>
+    <div class="nav-right">
+        <div class="admin-info">
+            <i class="bi bi-person-circle"></i> 管理員已登入
+        </div>
+        <a href="/back-end/adm/Admlogin.html" class="logout-btn" onclick="return confirm('確定要登出嗎？')">
+            <i class="bi bi-box-arrow-right"></i> 登出
+        </a>
+    </div>
+</div>
+
+<div class="admin-container">
+    <!-- 左側功能選單 -->
+    <div class="admin-sidebar">
+        <div class="function-menu">
+            <!-- 產品管理 -->
+            <div class="menu-item">
+                <button class="menu-button">
+                    <span>
+                        <i class="bi bi-box-seam icon"></i>
+                        產品管理
+                    </span>
+                    <i class="bi bi-chevron-down arrow"></i>
+                </button>
+                <div class="submenu">
+                    <div class="submenu-item">
+                        <a href="products/toggle.html">產品上下架</a>  <!-- 路徑未來要改 -->
+                    </div>
+                    <div class="submenu-item">
+                        <a href="products/categories.html">產品分類</a>  <!-- 路徑未來要改 -->
+                    </div>
+                    <div class="submenu-item">
+                        <a href="products/edit.html">編輯產品資訊</a>   <!-- 路徑未來要改 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 訂單管理 -->
+            <div class="menu-item">
+                <button class="menu-button">
+                    <span>
+                        <i class="bi bi-cart-check icon"></i>
+                        訂單管理
+                    </span>
+                    <i class="bi bi-chevron-down arrow"></i>
+                </button>
+                <div class="submenu">
+                    <div class="submenu-item">
+                        <a href="orders/manage.html">訂單管理</a>   <!-- 路徑未來要改 -->
+                    </div>
+                    <div class="submenu-item">
+                        <a href="orders/cart.html">購物車管理</a>    <!-- 路徑未來要改 -->
+                    </div>
+                    <div class="submenu-item">
+                        <a href="orders/delivery.html">產品發貨管理</a>   <!-- 路徑未來要改 -->
+                    </div>
+                    <div class="submenu-item">
+                        <a href="orders/reviews.html">訂單評論管理</a>   <!-- 路徑未來要改 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 優惠券管理 -->
+            <div class="menu-item">
+                <button class="menu-button">
+                    <span>
+                        <i class="bi bi-ticket-perforated icon"></i>
+                        優惠券管理
+                    </span>
+                    <i class="bi bi-chevron-down arrow"></i>
+                </button>
+                <div class="submenu">
+                    <div class="submenu-item">
+                        <a href="coupons/edit.html">優惠券編輯</a>     <!-- 路徑未來要改 -->
+                    </div>
+                    <div class="submenu-item">
+                        <a href="coupons/toggle.html">優惠券上下架</a>   <!-- 路徑未來要改 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要內容區域 -->
+    <div class="admin-main">
+        <!-- 儀表板內容 -->
+        <div class="dashboard-content">
+            <!-- 歡迎區域 -->
+            <div class="welcome-section fade-in">
+                <h1 class="welcome-title">商城管理中心</h1>
+                <p class="welcome-subtitle">商城後台管理系統</p>
+            </div>
+
+            <!-- 統計卡片 -->    <!-- (功能未開，先把它寫死，未來有時間再改) -->
+            <div class="stats-grid fade-in">
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-number">156</div>
+                    <div class="stat-label">商品總數</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🛒</div>
+                    <div class="stat-number">89</div>
+                    <div class="stat-label">待處理訂單</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🎫</div>
+                    <div class="stat-number">23</div>
+                    <div class="stat-label">活躍優惠券</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-number">$52,680</div>
+                    <div class="stat-label">本月營收</div>
+                </div>
+            </div>
+
+            <!-- 使用指引 -->
+            <div class="guide-text fade-in">
+                <h3>📋 使用說明</h3>
+                <p>請使用左側選單進行各項管理操作：<br>
+                • <strong>產品管理</strong>：管理商品上下架、產品分類和產品資訊編輯<br>
+                • <strong>訂單管理</strong>：訂單管理、購物車管理、出貨管理和評論審核<br>
+                • <strong>優惠券管理</strong>：建立和管理各種優惠券活動</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer - 您的 footer.html 會在這裡載入 -->
+<div id="footer-placeholder"></div>
+
+<!-- Switcher Icon -->
+<div class="switcher switcher-show" id="theme-switcher">
+    <i id="switcher-icon" class="bi bi-moon"></i>
+</div>
+
+<!-- ==============================================
+Scripts
+=============================================== -->
+
+<script src="../assets/vendors/jquery/jquery.min.js"></script>   V
+<script src="../assets/vendors/bootstrap/bootstrap.bundle.js"></script>  V
+<script src="../assets/vendors/popper/popper.min.js"></script>  V
+<script src="../assets/vendors/simplebar/simplebar.min.js"></script>  V
+<script src="../assets/vendors/aos/aos.js"></script>  V
+<script src="../assets/js/main.js"></script>  V
+<script src="../assets/js/global-loader.js"></script>  V
+<script src="../front-end/forumsys/forumListManager.js"></script>
+<script src="../front-end/forumsys/allForum.js"></script>
+
+
+
+<script>
+    // 載入 Header 和 Footer
+    $(document).ready(function(){
+        $("#header-placeholder").load("resources/static/_header.html");
+        $("#footer-placeholder").load("resources/static/_footer.html");
+    });
+
+    // 主題切換功能
+    document.addEventListener('DOMContentLoaded', function() {
+        const themeSwitcher = document.getElementById('theme-switcher');
+        const switcherIcon = document.getElementById('switcher-icon');
+        
+        function updateIcon() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            switcherIcon.className = currentTheme === 'dark' ? 'bi bi-sun' : 'bi bi-moon';
+        }
+        
+        updateIcon();
+        
+        themeSwitcher.addEventListener('click', function() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcon();
+        });
+    });
+
+    // 統計數據動畫更新
+    function animateStats() {
+        const statNumbers = document.querySelectorAll('.stat-number');
+        statNumbers.forEach(stat => {
+            stat.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                stat.style.transform = 'scale(1)';
+            }, 300);
+        });
+    }
+
+    // 每1小時更新統計數據 (60分鐘 × 60秒 × 1000毫秒)
+    setInterval(animateStats, 3600000);
+
+    // 手機版和桌面版子選單切換
+    document.querySelectorAll('.menu-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const menuItem = this.parentNode;
+            
+            // 關閉其他選單
+            document.querySelectorAll('.menu-item').forEach(item => {
+                if (item !== menuItem) {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // 切換當前選單
+            menuItem.classList.toggle('active');
+        });
+    });
+
+    // 點擊子選單項目時的處理
+    document.querySelectorAll('.submenu-item a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            // 這裡可以添加頁面跳轉邏輯
+            console.log('跳轉到:', this.getAttribute('href'));
+        });
+    });
+
+    // 初始化動畫
+    AOS.init({
+        duration: 1000,
+        once: true
+    });
+</script>
+
+</body>
+</html>

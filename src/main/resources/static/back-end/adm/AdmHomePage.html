@@ -240,7 +240,7 @@
         <!-- Sidebar -->
         <nav class="sidebar-card">
             <ul class="sidebar-menu">
-                <li><button id="btn-store" class="sidebar-btn active" onclick="renderPage('store')"><span class="icon">🛒</span>商城系統</button></li>
+                <li><button id="btn-store" class="sidebar-btn active" onclick="goToShopAdmin()"><span class="icon">🛒</span>商城系統</button></li>
                 <li><button id="btn-news" class="sidebar-btn" onclick="renderPage('news')"><span class="icon">📰</span>新聞系統</button></li>
                 <li><button id="btn-forum" class="sidebar-btn" onclick="renderPage('forum')"><span class="icon">💬</span>論壇系統</button></li>
                 <li><button id="btn-member" class="sidebar-btn" onclick="renderPage('member')"><span class="icon">👤</span>會員系統</button></li>
@@ -328,6 +328,13 @@
                 </div>
             `;
         }
+        
+        function goToShopAdmin() {
+            // 跳轉到商城後台首頁
+            window.location.href = '/shop/admin-shop-index.html';
+        }
+
+       
         function handleLogout() {
             window.location.href = '/back-end/adm/AdmLogin.html';
         }
