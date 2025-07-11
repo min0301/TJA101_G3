@@ -1,254 +1,221 @@
 package com.pixeltribe.forumsys.forumpost.controller;
 
-import com.pixeltribe.forumsys.forumpost.model.ForumPost;
+import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
+import com.pixeltribe.forumsys.forumpost.model.ForumPostDTO;
 import com.pixeltribe.forumsys.forumpost.model.ForumPostService;
-import com.pixeltribe.forumsys.forumpost.model.ForumPostDTO; // **確保導入**
-
-// **注意：以下 Service 如果在 Controller 的其他方法中沒有被直接使用，可以移除注入**
-// 但為了 insert 方法，它們的注入通常是必要的。
-import com.pixeltribe.forumsys.forum.model.ForumService;
-//import com.pixeltribe.forumsys.forumtag.model.ForumTagService;
-//import com.pixeltribe.membersys.service.MemberService;
-
+import com.pixeltribe.forumsys.forumpost.model.ForumPostUpdateDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:8080"}, allowedHeaders = "*") // 如果有 CORS 需求，解除註釋
+@CrossOrigin(origins = {"http://localhost:8080"}, allowedHeaders = "*")
 public class ForumPostController {
 
     private final ForumPostService forumPostSvc;
-    private final ForumService forumService;
-    //private final ForumTagService forumTagService;
-    //private final MemberService memberService;
 
-    // **建構子注入**
     @Autowired
-    public ForumPostController(ForumPostService forumPostSvc, ForumService forumService) {
+    public ForumPostController(ForumPostService forumPostSvc) {
         this.forumPostSvc = forumPostSvc;
-        this.forumService = forumService;
     }
-//    ForumTagService forumTagService,
-//    MemberService memberService
-//     this.forumTagService = forumTagService;
-//     this.memberService = memberService;
 
-    // --- API 端點 ---
+    /**
+     * 獲取單篇文章詳情
+     * @param id 文章編號
+     * @return 文章詳情 DTO
+     */
+    @GetMapping("/forumpost/{id}")
+    @Operation(summary = "查單一文章", description = "根據文章ID查詢單篇文章詳細資訊")
+    public ResponseEntity<ForumPostDTO> getForumPostById(
+            @Parameter(description = "文章編號", example = "1")
+            @PathVariable("id") Integer id) {
+        return forumPostSvc.getForumPostDTOById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
-    // 1. 查詢所有文章 (返回 DTO 列表)
-    // URL: /api/forumpost/allForumPost
-    @GetMapping("/forumpost/allForumPost")
-    public ResponseEntity<List<ForumPostDTO>> listAllForumPosts() { // 返回 List<ForumPostDTO>
+    /**
+     * 獲取所有文章列表 (供一般會員查看，包含討論區與會員資訊)
+     * @return 所有文章的 DTO 列表
+     */
+    @GetMapping("/forumposts/all")
+    @Operation(summary = "查所有文章 (含討論區與會員資訊)", description = "獲取所有文章的列表，包含其所屬討論區和發文會員資訊")
+    public ResponseEntity<List<ForumPostDTO>> listAllForumPosts() {
         List<ForumPostDTO> forumPosts = forumPostSvc.getAllForumPost();
         return ResponseEntity.ok(forumPosts);
     }
 
-    // 2. 查詢特定討論區的文章列表 (顯示所有欄位，返回 DTO 列表)
-    // URL: /api/forum/{forNo}/posts
+    /**
+     * 獲取特定討論區下的文章列表
+     * @param forNo 討論區編號
+     * @return 特定討論區的文章 DTO 列表
+     */
     @GetMapping("/forum/{forNo}/posts")
-    public ResponseEntity<List<ForumPostDTO>> findByForum(@PathVariable("forNo") Integer forNo) { // 返回 List<ForumPostDTO>
+    @Operation(summary = "查討論區下的文章", description = "根據討論區ID查詢該討論區下的所有文章列表")
+    public ResponseEntity<List<ForumPostDTO>> findPostsByForum(
+            @Parameter(description = "討論區編號", example = "1")
+            @PathVariable("forNo") Integer forNo) {
         List<ForumPostDTO> posts = forumPostSvc.getPostsByForumId(forNo);
+        if (posts.isEmpty()) {
+            return ResponseEntity.ok(posts);
+        }
         return ResponseEntity.ok(posts);
     }
 
-    // 3. 查詢特定討論區的文章數量
-    // URL: /api/forum/{forNo}/posts/count
-//    @GetMapping("/forum/{forNo}/posts/count")
-//    public ResponseEntity<Long> countPostsByForum(@PathVariable("forNo") Integer forNo) {
-//        long count = forumPostSvc.countPostsByForumId(forNo);
-//        return ResponseEntity.ok(count);
-//    }
-
-    // 4. 查詢特定討論區下的特定文章 (根據文章 ID 和討論區 ID，返回 ForumPostDTO)
-    // URL: /api/forum/{forNo}/posts/{postId}
+//    /**
+//     * 獲取特定討論區下的單篇文章
+//     * @param forNo 討論區編號
+//     * @param postId 文章編號
+//     * @return 文章 DTO
+//     */
 //    @GetMapping("/forum/{forNo}/posts/{postId}")
-//    public ResponseEntity<ForumPostDTO> getPostInForum(@PathVariable("forNo") Integer forNo,
-//                                                       @PathVariable("postId") Integer postId) {
-//        Optional<ForumPostDTO> postOptional = forumPostSvc.getPostByIdAndForumId(postId, forNo);
-//        if (postOptional.isPresent()) {
-//            return ResponseEntity.ok(postOptional.get());
-//        } else {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
+//    @Operation(summary = "查討論區下的單一文章", description = "根據文章ID和討論區ID查詢特定討論區下的單篇文章")
+//    public ResponseEntity<ForumPostDTO> getPostInForum(
+//            @Parameter(description = "討論區編號", example = "1")
+//            @PathVariable("forNo") Integer forNo,
+//            @Parameter(description = "文章編號", example = "1")
+//            @PathVariable("postId") Integer postId) {
+//        return forumPostSvc.getPostByIdAndForNoId(postId, forNo) // 使用正確的Service方法
+//                .map(ResponseEntity::ok)
+//                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 //    }
 
-    // 5. 新增文章 (保持現有邏輯)
+    /**
+     * 新增文章
+     * @param forumPostUpdateDTO 新增文章的 DTO
+     * @param imageFile 封面圖片檔案 (可選)
+     * @param result 驗證結果
+     * @return 新增後的文章 DTO 或錯誤訊息
+     */
     @PostMapping(value = "/forumpost/insert", consumes = {"multipart/form-data"})
-    public ResponseEntity<Map<String, Object>> insert(
-            @RequestParam(name = "forNoId") @NotNull(message = "討論區編號: 請選擇一個討論區編號") Integer forNoId,
-            @RequestParam(name = "ftagNoId") @NotNull(message = "類別編號: 請選擇您的類別") Integer ftagNoId,
-            @RequestParam(name = "postTitle") @NotEmpty(message = "文章標題: 請勿空白") @Size(max = 50, message = "文章標題長度不能超過50") String postTitle,
-            @RequestParam(name = "postCon") @NotEmpty(message = "文章內容: 請勿空白(最少十個字) ") @Size(min = 10, max = 5000, message = "文章內容長度必需在10到5000之間") String postCon,
-            @RequestParam(name = "postPin", required = false) Character postPin,
-            @RequestParam(name = "postStatus", required = false) Character postStatus,
-            @RequestParam(name = "mesNumbers", required = false) Integer mesNumbers,
-            @RequestParam(name = "postLikeCount", required = false) Integer postLikeCount,
-            @RequestParam(name = "postLikeDlc", required = false) Integer postLikeDlc,
-            @RequestParam(name = "postCoverImageFile", required = false) Optional<MultipartFile> postCoverImageFile
-    ) throws IOException {
-        Integer memNoId = 1; // **臨時設置為1，請替換為實際登入會員的ID獲取邏輯**
+    @Operation(summary = "新增文章", description = "會員新增文章，可包含封面圖片")
+    public ResponseEntity<Map<String, Object>> insertForumPost(
+            @RequestPart("forumPostUpdate") @Valid ForumPostUpdateDTO forumPostUpdateDTO,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+            BindingResult result) {
 
-        Map<String, Object> errors = new HashMap<>();
-        if (postTitle == null || postTitle.isEmpty() || postTitle.length() > 50) {
-            errors.put("postTitle", "文章標題: 請勿空白且長度不能超過50");
-        }
-        if (postCon == null || postCon.isEmpty() || postCon.length() < 10 || postCon.length() > 5000) {
-            errors.put("postCon", "文章內容: 請勿空白(最少十個字) ");
-        }
-        if (forNoId == null) {
-            errors.put("forNoId", "討論區編號: 請選擇一個討論區編號");
-        }
-        if (ftagNoId == null) {
-            errors.put("ftagNoId", "類別編號: 請選擇您的類別");
-        }
-
-        if (!errors.isEmpty()) {
+        if (result.hasErrors()) {
+            Map<String, Object> errors = result.getFieldErrors().stream()
+                    .collect(Collectors.toMap(
+                            fieldError -> fieldError.getField(),
+                            fieldError -> fieldError.getDefaultMessage()
+                    ));
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
-        ForumPost forumPost = new ForumPost();
-        forumPost.setPostTitle(postTitle);
-        forumPost.setPostCon(postCon);
-        forumPost.setPostCrdate(Instant.now());
-        forumPost.setPostUpdate(Instant.now());
-        forumPost.setPostPin(postPin != null ? postPin : '0');
-        forumPost.setPostStatus(postStatus != null ? postStatus : '0');
-        forumPost.setMesNumbers(mesNumbers != null ? mesNumbers : 0);
-        forumPost.setPostLikeCount(postLikeCount != null ? postLikeCount : 0);
-        forumPost.setPostLikeDlc(postLikeDlc != null ? postLikeDlc : 0);
+        try {
+            ForumPostDTO savedForumPostDTO = forumPostSvc.addForumPost(forumPostUpdateDTO, imageFile);
 
-//        Forum selectedForum = forumService.getForumById(forNoId)
-//                .orElseThrow(() -> new IllegalArgumentException("無效的討論區編號: " + forNoId));
-//        forumPost.setForNo(selectedForum);
-//        ForumTag retrievedForumTag = forumTagService.getForumTagById(ftagNoId)
-//                .orElseThrow(() -> new IllegalArgumentException("無效的文章類別編號: " + ftagNoId));
-//        forumPost.setFtagNo(retrievedForumTag);
-//        Member currentMember = memberService.getMemberById(memNoId)
-//                .orElseThrow(() -> new IllegalArgumentException("會員不存在或未登入"));
-//        forumPost.setMemNo(currentMember);
-//        try {
-//            if (postCoverImageFile.isPresent() && !postCoverImageFile.get().isEmpty()) {
-//                forumPost.setPostCoverImage(postCoverImageFile.get().getBytes());
-//            } else {
-//                byte[] commonDefaultImageBytes = loadCommonDefaultImage();
-//                forumPost.setPostCoverImage(commonDefaultImageBytes);
-//            }
-//        } catch (IOException e) {
-//            Map<String, String> errorResponse = new HashMap<>();
-//            errorResponse.put("imageError", "圖片處理失敗或預設圖片載入失敗: " + e.getMessage());
-//            e.printStackTrace();
-//            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
+            Map<String, Object> successResponse = new HashMap<>();
+            successResponse.put("message", "文章新增成功");
+            successResponse.put("forumPostId", savedForumPostDTO.getId());
+            successResponse.put("forumPost", savedForumPostDTO);
+            return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
 
-        ForumPost savedForumPost = forumPostSvc.add(forumPost);
-
-        Map<String, Object> successResponse = new HashMap<>();
-        successResponse.put("message", "文章新增成功");
-        successResponse.put("forumPostId", savedForumPost.getId());
-        successResponse.put("forumPost", savedForumPost);
-        return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
-    }
-
-    // 6. 獲取當前登入會員的所有文章
-//    @GetMapping("/member/me/posts")
-//    public ResponseEntity<Map<String, Object>> getMyPosts() {
-//        Map<String, Object> response = new HashMap<>();
-//        try {
-//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//            if (authentication == null || !authentication.isAuthenticated()) {
-//                response.put("message", "用戶未登入或認證失敗");
-//                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-//            }
-//            String username = authentication.getName();
-//            Member currentMember = memberService.getMemberByAccount(username)
-//                    .orElseThrow(() -> new IllegalArgumentException("無法找到對應的會員資訊"));
-//
-//            List<ForumPostDTO> myPosts = forumPostSvc.getMyPosts(currentMember.getId()); // 返回 DTO 列表
-//            response.put("message", "成功獲取我的文章列表");
-//            response.put("myPosts", myPosts);
-//            return new ResponseEntity<>(response, HttpStatus.OK);
-//
-//        } catch (IllegalArgumentException e) {
-//            response.put("message", e.getMessage());
-//            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-//        } catch (Exception e) {
-//            response.put("message", "獲取文章列表失敗: " + e.getMessage());
-//            e.printStackTrace();
-//            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
-//    // 7. 獲取文章封面圖片的 API
-//    @GetMapping("/forumpost/image/{id}")
-//    public ResponseEntity<byte[]> getForumPostImage(@PathVariable Integer id) {
-//        Optional<ForumPost> forumPostOptional = forumPostSvc.getOneForumpost(id);
-//
-//        if (forumPostOptional.isPresent() && forumPostOptional.get().getPostCoverImage() != null) {
-//            byte[] imageBytes = forumPostOptional.get().getPostCoverImage();
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.setContentType(MediaType.IMAGE_PNG);
-//            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-//        } else {
-//            try {
-//                byte[] commonDefaultImageBytes = loadCommonDefaultImage();
-//                HttpHeaders headers = new HttpHeaders();
-//                headers.setContentType(MediaType.IMAGE_PNG);
-//                return new ResponseEntity<>(commonDefaultImageBytes, headers, HttpStatus.OK);
-//            } catch (IOException e) {
-//                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//            }
-//        }
-//    }
-//
-//    // 8. 獲取 ForumTag 預設圖片的 API
-//    @GetMapping("/forumtag/default-image/{tagId}")
-//    public ResponseEntity<byte[]> getForumTagDefaultImage(@PathVariable Integer tagId) {
-//        Optional<ForumTag> forumTagOptional = forumTagService.getForumTagById(tagId);
-//
-//        if (forumTagOptional.isPresent() && forumTagOptional.get().getDefaultImageBlob() != null) {
-//            byte[] imageBytes = forumTagOptional.get().getDefaultImageBlob();
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.setContentType(MediaType.IMAGE_PNG);
-//            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-//        } else {
-//            try {
-//                byte[] commonDefaultImageBytes = loadCommonDefaultImage();
-//                HttpHeaders headers = new HttpHeaders();
-//                headers.setContentType(MediaType.IMAGE_PNG);
-//                return new ResponseEntity<>(commonDefaultImageBytes, headers, HttpStatus.OK);
-//            } catch (IOException e) {
-//                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//            }
-//        }
-//    }
-
-    // 輔助方法：載入通用預設圖片的位元組陣列
-    private static final String COMMON_DEFAULT_IMAGE_PATH = "static/images/common_default_cover.png";
-
-    private byte[] loadCommonDefaultImage() throws IOException {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(COMMON_DEFAULT_IMAGE_PATH)) {
-            if (is == null) {
-                throw new IOException("通用預設封面圖片未找到: " + COMMON_DEFAULT_IMAGE_PATH + ". 請確認圖片存在於 src/main/resources/static/images/");
-            }
-            return is.readAllBytes();
+        } catch (ResourceNotFoundException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("details", "關聯的資料未找到 (例如討論區、文章類別或會員不存在)。");
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Internal Server Error");
+            errorResponse.put("details", "系統發生未預期的錯誤，請聯繫管理員: " + e.getMessage());
+            e.printStackTrace();
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    /**
+     * 更新文章
+     * @param forNo 討論區編號
+     * @param postId 文章編號
+     * @param forumPostUpdateDTO 更新文章的 DTO
+     * @param imageFile 封面圖片檔案 (可選)
+     * @param result 驗證結果
+     * @return 更新後的文章 DTO 或錯誤訊息
+     */
+    @PutMapping(value = "/forum/{forNo}/posts/{postId}", consumes = {"multipart/form-data"}) // 修改路徑，同時包含 forNo 和 postId
+    @Operation(summary = "修改文章", description = "會員修改指定討論區下的文章，可更新封面圖片")
+    public ResponseEntity<Map<String, Object>> updateForumPost(
+            @Parameter(description = "討論區編號", example = "1")
+            @PathVariable Integer forNo, // 新增 forNo 參數
+            @Parameter(description = "文章編號", example = "1")
+            @PathVariable Integer postId,
+            @RequestPart("forumPostUpdate") @Valid ForumPostUpdateDTO forumPostUpdateDTO,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+            BindingResult result) {
 
+        if (result.hasErrors()) {
+            Map<String, Object> errors = result.getFieldErrors().stream()
+                    .collect(Collectors.toMap(
+                            fieldError -> fieldError.getField(),
+                            fieldError -> fieldError.getDefaultMessage()
+                    ));
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            // Service 方法需要增加 forNo 參數進行額外驗證
+            ForumPostDTO updatedPostDTO = forumPostSvc.updateForumPost(postId, forNo, forumPostUpdateDTO, imageFile); // 修改調用 Service 方法
+            Map<String, Object> successResponse = new HashMap<>();
+            successResponse.put("message", "文章更新成功");
+            successResponse.put("forumPost", updatedPostDTO);
+            return ResponseEntity.ok(successResponse);
+
+        } catch (ResourceNotFoundException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Internal Server Error");
+            errorResponse.put("details", "系統發生未預期的錯誤，請聯繫管理員: " + e.getMessage());
+            e.printStackTrace();
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 刪除文章
+     * @param forNo 討論區編號
+     * @param postId 文章編號
+     * @return 成功訊息
+     */
+//    @DeleteMapping("/forum/{forNo}/posts/{postId}") // 修改路徑，同時包含 forNo 和 postId
+//    @Operation(summary = "刪除文章", description = "會員刪除指定討論區下的文章")
+//    public ResponseEntity<Map<String, Object>> deleteForumPost(
+//            @Parameter(description = "討論區編號", example = "1")
+//            @PathVariable Integer forNo, // 新增 forNo 參數
+//            @Parameter(description = "文章編號", example = "1")
+//            @PathVariable Integer postId) {
+//        try {
+//            // Service 方法需要增加 forNo 參數進行額外驗證
+//            forumPostSvc.deleteForumPost(forNo, postId); // 修改調用 Service 方法
+//            Map<String, Object> response = new HashMap<>();
+//            response.put("message", "文章刪除成功，ID: " + postId + "，所屬討論區 ID: " + forNo);
+//            return ResponseEntity.ok(response);
+//        } catch (ResourceNotFoundException e) {
+//            Map<String, Object> errorResponse = new HashMap<>();
+//            errorResponse.put("message", e.getMessage());
+//            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+//        } catch (Exception e) {
+//            Map<String, Object> errorResponse = new HashMap<>();
+//            errorResponse.put("message", "Internal Server Error");
+//            errorResponse.put("details", "刪除文章時發生錯誤: " + e.getMessage());
+//            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }
