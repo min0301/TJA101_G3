@@ -1,5 +1,6 @@
 package com.pixeltribe.newssys.newscomreport.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pixeltribe.forumsys.reporttype.model.ReportType;
 import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.newssys.newscomment.model.NewsComment;
@@ -17,12 +18,14 @@ import java.time.Instant;
 @Table(name = "news_com_report")
 public class NewsComReport {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "NEWS_COM_REPORT_NO", nullable = false)
     private Integer id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "REPORTER", nullable = false)
+    @JsonIgnore
     private Member reporter;
 
     @NotNull
@@ -38,11 +41,12 @@ public class NewsComReport {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "NCOM_NO", nullable = false)
+    @JsonIgnore
     private NewsComment ncomNo;
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "CREATE_TIME", nullable = false)
+    @Column(name = "CREATE_TIME", nullable = false, updatable = false)
     private Instant createTime;
 
     @Column(name = "FINISH_TIME")
