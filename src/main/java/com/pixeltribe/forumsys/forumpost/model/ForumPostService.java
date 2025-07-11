@@ -1,33 +1,29 @@
 package com.pixeltribe.forumsys.forumpost.model;
 
+import com.pixeltribe.forumsys.exception.FileStorageException;
+import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
+import com.pixeltribe.forumsys.forum.model.Forum;
+import com.pixeltribe.forumsys.forum.model.ForumRepository;
+import com.pixeltribe.forumsys.forumtag.model.ForumTag;
+import com.pixeltribe.forumsys.forumtag.model.ForumTagRepository;
+import com.pixeltribe.membersys.member.model.MemRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.Instant; // 確保 Instant 導入
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import com.pixeltribe.forumsys.exception.FileStorageException; // 引入自定義異常
-import com.pixeltribe.forumsys.exception.ResourceNotFoundException; // 引入自定義異常
-import com.pixeltribe.forumsys.forum.model.Forum;
-import com.pixeltribe.forumsys.forum.model.ForumRepository;
-import com.pixeltribe.forumsys.forumtag.model.ForumTag;
-import com.pixeltribe.forumsys.forumtag.model.ForumTagRepository;
-import com.pixeltribe.membersys.member.model.Member;
-import com.pixeltribe.membersys.member.model.MemRepository;
-
-import jakarta.persistence.EntityNotFoundException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value; // 引入 @Value
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile; // 引入 MultipartFile
 
 @Service("forumPostService") // 方法名稱 `forumPostService` 可變，但通常會與類名保持一致
 public class ForumPostService {
@@ -60,8 +56,9 @@ public class ForumPostService {
     /**
      * 新增文章。
      * 接收 ForumPostUpdateDTO 和 MultipartFile，處理圖片儲存並保存文章。
+     *
      * @param forumPostDTO 包含文章文字資訊的 DTO。
-     * @param imageFile 文章封面圖片檔案 (可選)。
+     * @param imageFile    文章封面圖片檔案 (可選)。
      * @return 新增後的 ForumPostDTO。
      */
     @Transactional // 交易註解，確保方法內的資料庫操作是原子性的
@@ -113,13 +110,14 @@ public class ForumPostService {
 
     /**
      * 更新文章。
-     * @param postId 文章 ID。
+     *
+     * @param postId       文章 ID。
      * @param forumPostDTO 包含更新文章文字資訊的 DTO。
-     * @param imageFile 文章封面圖片檔案 (可選)。
+     * @param imageFile    文章封面圖片檔案 (可選)。
      * @return 更新後的 ForumPostDTO。
      */
     @Transactional
-    public ForumPostDTO updateForumPost(Integer postId, Integer forNo, ForumPostUpdateDTO forumPostDTO , MultipartFile imageFile) {
+    public ForumPostDTO updateForumPost(Integer postId, Integer forNo, ForumPostUpdateDTO forumPostDTO, MultipartFile imageFile) {
         ForumPost existingPost = forumPostRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到文章 ID: " + postId));
 
@@ -158,6 +156,7 @@ public class ForumPostService {
 
     /**
      * 刪除文章。
+     *
      * @param forumPostId 文章 ID。
      */
     @Transactional
@@ -170,6 +169,7 @@ public class ForumPostService {
 
     /**
      * 根據 ID 獲取單篇文章的 DTO。
+     *
      * @param forumPostId 文章 ID。
      * @return 包含 ForumPostDTO 的 Optional。
      */
@@ -182,6 +182,7 @@ public class ForumPostService {
 
     /**
      * 獲取所有文章列表 (返回 DTO 列表)。
+     *
      * @return 所有文章的 ForumPostDTO 列表。
      */
     @Transactional(readOnly = true)
@@ -194,6 +195,7 @@ public class ForumPostService {
 
     /**
      * 獲取特定討論區的文章列表 (返回 DTO 列表)。
+     *
      * @param forumId 討論區 ID。
      * @return 特定討論區的文章 ForumPostDTO 列表。
      */
@@ -208,7 +210,8 @@ public class ForumPostService {
 
     /**
      * 根據文章 ID 和討論區 ID 查詢單篇文章 (返回 Optional<ForumPostDTO>)。
-     * @param postId 文章 ID。
+     *
+     * @param postId  文章 ID。
      * @param forumId 討論區 ID。
      * @return 包含 ForumPostDTO 的 Optional。
      */
@@ -220,7 +223,8 @@ public class ForumPostService {
 
     /**
      * 內部方法：處理圖片檔案的儲存。
-     * @param imageFile 上傳的圖片檔案。
+     *
+     * @param imageFile    上傳的圖片檔案。
      * @param subDirectory 儲存圖片的子目錄 (例如 "forumsys/forumpost")。
      * @return 儲存後的圖片 URL，如果沒有上傳檔案則返回 null。
      */

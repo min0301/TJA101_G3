@@ -1,13 +1,8 @@
 package com.pixeltribe.forumsys.forumpost.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference; // 確保導入
-import com.fasterxml.jackson.annotation.JsonProperty; // 確保導入
-import com.pixeltribe.forumsys.entity.*;
-import com.pixeltribe.forumsys.forumtag.model.ForumTag;
-//import com.pixeltribe.forumsys.articlereport.model.ArticleReport;
-import com.pixeltribe.forumsys.forumtag.model.ForumTag;
-import org.hibernate.annotations.ColumnDefault;
-import com.fasterxml.jackson.annotation.JsonIgnore; // 保留，用於忽略 OneToMany 關係
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pixeltribe.forumsys.entity.PostCollect;
+import com.pixeltribe.forumsys.entity.PostLike;
 import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.forumsys.forumimage.model.ForumImage;
 import com.pixeltribe.forumsys.forumtag.model.ForumTag;
