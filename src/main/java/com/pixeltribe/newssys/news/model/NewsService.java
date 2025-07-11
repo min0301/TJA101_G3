@@ -21,14 +21,21 @@ import java.util.List;
 @Service
 @Transactional
 public class NewsService {
-    @Autowired
-    NewsRepository newsRepository;
-    @Autowired
-    AdmRepository admRepository;
-    @Autowired
-    NewsCategoryRepository newsCategoryRepository;
-    @Autowired
-    NewsContentClassificationRepository newsContentClassificationRepository;
+
+    private final NewsRepository newsRepository;
+
+    private final AdmRepository admRepository;
+
+    private final NewsCategoryRepository newsCategoryRepository;
+
+    private final NewsContentClassificationRepository newsContentClassificationRepository;
+
+    public NewsService(NewsRepository newsRepository, AdmRepository admRepository, NewsCategoryRepository newsCategoryRepository, NewsContentClassificationRepository newsContentClassificationRepository) {
+        this.newsRepository = newsRepository;
+        this.admRepository = admRepository;
+        this.newsCategoryRepository = newsCategoryRepository;
+        this.newsContentClassificationRepository = newsContentClassificationRepository;
+    }
 
     @Transactional(readOnly = true)
     public NewsDTO getOneNews(Integer id) {
