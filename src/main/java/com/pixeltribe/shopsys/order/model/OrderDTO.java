@@ -45,11 +45,13 @@ public class OrderDTO {
 	public OrderStatusInfo getOrderStatusInfo() {
 		switch (orderStatus) {
 			case "PENDING":
-				return new OrderStatusInfo("等待付款", 25);
+				return new OrderStatusInfo("等待付款", 20);
+			case "PAYING":              
+	            return new OrderStatusInfo("付款處理中", 40);
 			case "PROCESSING":
-				return new OrderStatusInfo("處理中", 50);
+				return new OrderStatusInfo("處理中", 60);
 			case "SHIPPED":
-				return new OrderStatusInfo("已出貨", 75);
+				return new OrderStatusInfo("已出貨", 80);
 			case "COMPLETED":
 				return new OrderStatusInfo("已完成", 100);
 			case "FAILED":
@@ -86,10 +88,12 @@ public class OrderDTO {
                 return "success";   // 綠色 - 已完成
             } else if (progressPercentage == 0) {
                 return "danger";    // 紅色 - 失敗/取消
-            } else if (progressPercentage >= 75) {
+            } else if (progressPercentage >= 80) {
                 return "warning";   // 橙色 - 處理中/已出貨
+            } else if (progressPercentage >= 40) {  // 🆕 新增這個範圍給 PAYING
+                return "primary";   // 藍色 - 付款處理中
             } else {
-                return "info";      // 藍色 - 等待付款
+                return "info";      // 淺藍色 - 等待付款
             }
         }
         
@@ -98,6 +102,30 @@ public class OrderDTO {
             return progressPercentage == 100;
         }
         
+	}
+	
+	
+	// ========= 訂單狀態的檢查方法 ========= //
+	
+	// ***** 檢查是否正在付款 ***** //
+	public boolean isPaying() {
+		return "PAYING".equals(orderStatus);
+	}
+	
+	// ***** 檢查是否可以取消 (付款終究不能取消了! 只有等待付款時可以取消) ***** //
+	public boolean canBeCancelled() {
+		return "PENDING".equals(orderStatus);
+	}
+	
+	// ***** 檢查是否可以重新付款 (避免用戶有信用卡結帳問題、網路問題、操作問題等狀況發生)***** //
+	public boolean canRetryPayment() {
+		return "FAILED".equals(orderStatus) || "PENDING".equals(orderStatus);
+	}
+	
+	// ***** 檢查訂單是否處於最終狀態 ***** //
+	public boolean isFinalStatus() {
+		return "COMPLETED".equals(orderStatus) || 
+		       "CANCELLED".equals(orderStatus);
 	}
 	
 }
