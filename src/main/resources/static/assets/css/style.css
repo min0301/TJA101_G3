@@ -1883,6 +1883,61 @@ input, select {
 .new-discussions p {
     line-height: 4px;
 }
+/* == 新聞輪播：版型、比例、圓角、箭頭、標題條 ====================== */
+
+/* 1. 16:9 比例 ------------------------------------------------------- */
+.news-carousel .carousel-inner{
+    aspect-ratio:16/9;          /* 固定 16:9 */
+}
+.news-carousel .carousel-item{
+    height:100%;                /* 跟外層同高，才能真正 16:9 */
+}
+
+/* 2. 圖片填滿並裁切 --------------------------------------------------- */
+.news-carousel .carousel-inner img,
+.news-carousel img{             /* 保險起見再指定一次 */
+    width:100%;
+    height:100%;
+    object-fit:cover;           /* 不變形、超出裁切 */
+}
+
+/* 3. 圓角 & 裁切 ------------------------------------------------------ */
+.news-carousel #newsCarousel,
+.news-carousel #newsCarousel .carousel-inner,
+.news-carousel #newsCarousel .carousel-item,
+.news-carousel #newsCarousel img{
+    border-radius:1rem;         /* 16px 圓角，按需調整 */
+}
+.news-carousel #newsCarousel{
+    overflow:hidden;            /* 裁掉超出圓角的內容 */
+}
+
+/* 4. 左右箭頭縮窄 ----------------------------------------------------- */
+.news-carousel .carousel-control-prev,
+.news-carousel .carousel-control-next{
+    width:3rem;                 /* Bootstrap 預設 15%，這裡縮窄 */
+}
+.news-carousel .carousel-control-prev-icon,
+.news-carousel .carousel-control-next-icon{
+    background-size:2rem 2rem;  /* 縮小 icon */
+    filter:drop-shadow(0 0 2px rgba(0,0,0,.6)); /* 陰影 */
+}
+
+/* 5. 底部標題條 ------------------------------------------------------- */
+.news-carousel .carousel-caption{
+    bottom:0;
+    left:0;
+    right:0;
+    background:rgba(0,0,0,.75);
+    padding:.75rem 1rem;
+    font-size:1.1rem;
+    font-weight:600;
+    z-index:2;                  /* 確保覆蓋在圖片上方 */
+}
+.news-carousel .carousel-caption a{
+    color:#fff;
+    text-decoration:none;
+}
 
 /* Ad Sec */
 .ad-sec {
