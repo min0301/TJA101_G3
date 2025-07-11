@@ -41,7 +41,7 @@ public class ForumPostDTO {
         this.postLikeDlc = forumPost.getPostLikeDlc();
         // 假設 ForumPost Entity 中存在 getPostCoverImageUrl() 方法來獲取圖片 URL
         // 如果您原本是 byte[]，需要將其轉換為 URL 儲存後才能使用此欄位
-        // this.postCoverImageUrl = forumPost.getPostCoverImageUrl(); // 請根據實際圖片儲存方式調整
+         this.postCoverImageUrl = forumPost.getPostImageUrl(); // 請根據實際圖片儲存方式調整
 
         // 處理關聯實體，避免 N+1 問題及 LazyInitializationException
         if (forumPost.getForNo() != null) {

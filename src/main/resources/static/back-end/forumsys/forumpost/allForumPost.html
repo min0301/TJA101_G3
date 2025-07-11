@@ -336,7 +336,8 @@
 
         .modal-form-group input[type="text"],
         .modal-form-group textarea,
-        .modal-form-group select {
+        .modal-form-group select,
+        .modal-form-group input[type="file"] { /* 新增 file 類型樣式 */
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -451,6 +452,7 @@
 
         <form id="editForumPostModalForm">
             <input type="hidden" id="modalPostId" name="id">
+            <input type="hidden" id="modalHiddenForNoId" name="forNoIdHidden">
 
             <div class="modal-form-group">
                 <label for="modalPostTitle">文章標題:</label>
@@ -476,6 +478,13 @@
                 <select id="modalFtagNoId" name="ftagNoId" required>
                 </select>
                 <span class="modal-error-feedback" id="modalFtagNoIdError"></span>
+            </div>
+
+            <div class="modal-form-group">
+                <label for="modalPostCoverImage">文章封面圖片:</label>
+                <input type="file" id="modalPostCoverImage" name="imageFile" accept="image/*">
+                <span class="modal-error-feedback" id="modalPostCoverImageError"></span>
+                <img id="currentPostCoverImage" src="" alt="當前封面圖片" style="max-width: 150px; margin-top: 10px; display: none;">
             </div>
 
             <div class="modal-form-group">
@@ -520,28 +529,27 @@
             return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
         }
 
-        const forumId = getUrlParameter('forNo');
+        const forumIdFromUrl = getUrlParameter('forNo'); // 從 URL 獲取的 forumId
 
         // --- API URL 常量定義 ---
-        // 請確保這些 URL 與後端 ForumPostController 中實際定義的路徑完全一致
-        const API_BASE_URL = 'http://localhost:8080'; // 基礎 URL
-        const API_FORUM_POST_PREFIX = '/api/forumpost'; // 文章相關 API 的通用前綴
-        const API_FORUM_PREFIX = '/api/forum';       // 論壇相關 API 的通用前綴
-        const API_FORUM_TAG_PREFIX = '/api/forumtag'; // 文章類別相關 API 的通用前綴
+        const API_BASE_URL = 'http://localhost:8080';
+        // Controller 的 @RequestMapping("/api") 已經是根路徑，所以這裡的變數只需要包含後面的部分
+        const API_FORUM_POST_SEGMENT = '/forumpost';
+        const API_FORUM_POSTS_SEGMENT = '/forumposts';
+        const API_FORUM_SEGMENT = '/forum';
+        const API_FORUM_TAG_SEGMENT = '/forumtag';
 
         // 載入所有文章列表或特定論壇的文章列表
         async function initialize() {
             try {
                 let apiUrl = '';
-                if (forumId) {
-                    // 【確認點: 根據論壇 ID 獲取文章列表的路徑】
-                    // 後端 @GetMapping("/api/forum/{forumId}/posts")
-                    apiUrl = `${API_BASE_URL}${API_FORUM_PREFIX}/${forumId}/posts`;
-                    console.log(`正在獲取論壇 ID ${forumId} 的文章... URL: ${apiUrl}`);
+                if (forumIdFromUrl) {
+                    // 後端 @GetMapping("/forum/{forNo}/posts")
+                    apiUrl = `${API_BASE_URL}/api${API_FORUM_SEGMENT}/${forumIdFromUrl}/posts`; // 修改後的路徑
+                    console.log(`正在獲取論壇 ID ${forumIdFromUrl} 的文章... URL: ${apiUrl}`);
                 } else {
-                    // 【確認點: 獲取所有文章的路徑】
-                    // 後端 @GetMapping("/api/forumpost/allForumPost")
-                    apiUrl = `${API_BASE_URL}${API_FORUM_POST_PREFIX}/allForumPost`;
+                    // 後端 @GetMapping("/forumposts/all")
+                    apiUrl = `${API_BASE_URL}/api${API_FORUM_POSTS_SEGMENT}/all`; // 修改後的路徑
                     console.log('正在獲取所有論壇文章... URL: ' + apiUrl);
                 }
 
@@ -581,6 +589,11 @@
                     hour12: false
                 }) : '無日期';
 
+                // 判斷是否有圖片URL，如果有則顯示縮圖
+                const postImageHtml = post.postCoverImageUrl ?
+                    `<a href="${post.postCoverImageUrl}" target="_blank"><img src="${post.postCoverImageUrl}" alt="封面" class="forum-thumbnail"></a>` :
+                    '無圖片';
+
                 row.innerHTML = `
                     <td>${post.id}</td>
                     <td>${post.postTitle || '無標題'}</td>
@@ -591,7 +604,7 @@
                     <td>${post.postLikeCount || 0}</td>
                     <td>${post.postLikeDlc || 0}</td>
                     <td>
-                        <button class="btn btn-edit" data-post-id="${post.id}">編輯</button>
+                        <button class="btn btn-edit" data-post-id="${post.id}" data-for-no-id="${post.forumId}">編輯</button>
                         </td>
                 `;
                 tableBody.appendChild(row);
@@ -601,7 +614,8 @@
             document.querySelectorAll('.btn-edit').forEach(button => {
                 button.addEventListener('click', function () {
                     const postId = this.dataset.postId;
-                    openEditModal(postId); // 開啟編輯模態框
+                    const forNoId = this.dataset.forNoId; // 獲取 forNoId
+                    openEditModal(postId, forNoId); // 傳遞 postId 和 forNoId
                 });
             });
         }
@@ -672,19 +686,23 @@
         const closeModalButton = document.getElementById('closeModalButton');
         const modalCloseButtonTop = document.querySelector('.modal .close-button'); // 頂部的 X 按鈕
         const modalPostIdInput = document.getElementById('modalPostId');
+        const modalHiddenForNoId = document.getElementById('modalHiddenForNoId'); // 新增的 hidden input
         const modalPostTitleInput = document.getElementById('modalPostTitle');
         const modalPostConTextarea = document.getElementById('modalPostCon');
         const modalForNoIdSelect = document.getElementById('modalForNoId');
         const modalFtagNoIdSelect = document.getElementById('modalFtagNoId');
         const modalPostPinCheckbox = document.getElementById('modalPostPin');
         const modalPostStatusCheckbox = document.getElementById('modalPostStatus');
+        const modalPostCoverImageInput = document.getElementById('modalPostCoverImage'); // 圖片上傳 input
+        const currentPostCoverImage = document.getElementById('currentPostCoverImage'); // 當前圖片顯示
         const editForumPostModalForm = document.getElementById('editForumPostModalForm');
         const modalErrorMessagesDiv = document.getElementById('modal-error-messages');
 
         // 開啟編輯模態框
-        async function openEditModal(postId) {
+        async function openEditModal(postId, forNoId) {
             clearModalErrors(); // 打開前先清除錯誤
             editModal.style.display = 'flex'; // 顯示模態框
+            modalHiddenForNoId.value = forNoId; // 設定隱藏的 forNoId
 
             await loadModalSelectOptions(); // 載入下拉選單選項
             await loadPostDataToModal(postId); // 載入文章資料到模態框
@@ -695,6 +713,8 @@
             editModal.style.display = 'none';
             editForumPostModalForm.reset(); // 重置表單
             clearModalErrors(); // 清除錯誤訊息
+            currentPostCoverImage.style.display = 'none'; // 隱藏圖片
+            currentPostCoverImage.src = ''; // 清空圖片源
         }
 
         // 處理模態框錯誤訊息
@@ -730,8 +750,7 @@
         async function loadModalSelectOptions() {
             try {
                 // 載入討論區
-                // 後端 @GetMapping("/api/forum/all")
-                const forumResponse = await fetch(`${API_BASE_URL}${API_FORUM_PREFIX}/all`);
+                const forumResponse = await fetch(`${API_BASE_URL}/api${API_FORUM_SEGMENT}/all`); // 修改後的路徑
                 if (!forumResponse.ok) throw new Error(`載入討論區失敗: ${forumResponse.statusText}`);
                 const forums = await forumResponse.json();
                 modalForNoIdSelect.innerHTML = '<option value="">請選擇討論區</option>';
@@ -743,15 +762,14 @@
                 });
 
                 // 載入文章類別
-                // 後端 @GetMapping("/api/forumtag/all")
-                const ftagResponse = await fetch(`${API_BASE_URL}${API_FORUM_TAG_PREFIX}/all`);
+                const ftagResponse = await fetch(`${API_BASE_URL}/api${API_FORUM_TAG_SEGMENT}/all`); // 修改後的路徑
                 if (!ftagResponse.ok) throw new Error(`載入文章類別失敗: ${ftagResponse.statusText}`);
                 const forumTags = await ftagResponse.json();
                 modalFtagNoIdSelect.innerHTML = '<option value="">請選擇文章類別</option>';
                 forumTags.forEach(tag => {
                     const option = document.createElement('option');
                     option.value = tag.id;
-                    option.textContent = tag.ftagName;
+                    option.textContent = tag.ftagName; // 假設 ForumTag 有 ftagName 屬性
                     modalFtagNoIdSelect.appendChild(option);
                 });
 
@@ -764,12 +782,8 @@
         // 載入文章資料並填充模態框表單
         async function loadPostDataToModal(postId) {
             try {
-                // 【已修正】載入單一文章資料的路徑 (用於編輯模態框)
-                // 後端您給的範例是 `@GetMapping("/forumpost/{id}")`，但您的 HTML 內寫的是 `forpost/{id}`。
-                // 這裡假設您的 Controller 有類似 `ForumPostController.getForumPostById(@PathVariable("id") Integer id)` 的方法，
-                // 並且對應的 URL 是 `/api/forumpost/{id}`。
-                // 如果您的 Controller 實際的單一查詢路徑是 `/api/forumpost/forpost/{id}`，此行不需要更改。
-                const response = await fetch(`${API_BASE_URL}${API_FORUM_POST_PREFIX}/${postId}`); // 假設路徑是 /api/forumpost/{id}
+                // 後端 @GetMapping("/forumpost/{id}")
+                const response = await fetch(`${API_BASE_URL}/api${API_FORUM_POST_SEGMENT}/${postId}`); // 修改後的路徑
                 if (!response.ok) {
                     const errorText = await response.text();
                     throw new Error(`獲取文章資料失敗！狀態: ${response.status}, 訊息: ${errorText}`);
@@ -777,26 +791,27 @@
                 const post = await response.json();
 
                 modalPostIdInput.value = post.id;
+                modalHiddenForNoId.value = post.forumId; // 設置隱藏的 forNoId
                 modalPostTitleInput.value = post.postTitle;
                 modalPostConTextarea.value = post.postCon;
 
-                // 因為後端 ForumPostDTO 中 ForNo 和 FtagNo 可能直接返回 ID，
-                // 或者返回完整的物件，這裡假設直接返回 ID。
-                // 如果是完整的物件，例如 post.forum.id，則需要調整。
-                if (post.forumNoId) { // 假設DTO裡面的屬性名是forumNoId
-                    modalForNoIdSelect.value = post.forumNoId;
-                } else if (post.forumNo && typeof post.forumNo === 'number') { // 兼容直接返回ID的情況
-                    modalForNoIdSelect.value = post.forumNo;
-                }
-                if (post.ftagNoId) { // 假設DTO裡面的屬性名是ftagNoId
-                    modalFtagNoIdSelect.value = post.ftagNoId;
-                } else if (post.ftagNo && typeof post.ftagNo === 'number') { // 兼容直接返回ID的情況
-                    modalFtagNoIdSelect.value = post.ftagNo;
-                }
+                // 選擇下拉選單的正確值
+                modalForNoIdSelect.value = post.forumId || ''; // 使用 forumId
+                modalFtagNoIdSelect.value = post.forumTagId || ''; // 使用 forumTagId
 
                 // 處理 Character 類型的布林值，確保它們能正確轉換為 JS 的 true/false
+                // 後端 DTO 中 postPin 和 postStatus 是 Character，這裡判斷 '1' 或 true
                 modalPostPinCheckbox.checked = (post.postPin === '1' || post.postPin === true);
                 modalPostStatusCheckbox.checked = (post.postStatus === '1' || post.postStatus === true);
+
+                // 顯示當前封面圖片
+                if (post.postCoverImageUrl) {
+                    currentPostCoverImage.src = post.postCoverImageUrl;
+                    currentPostCoverImage.style.display = 'block';
+                } else {
+                    currentPostCoverImage.style.display = 'none';
+                    currentPostCoverImage.src = '';
+                }
 
             } catch (error) {
                 showModalError(`載入文章資料失敗: ${error.message}`);
@@ -809,28 +824,43 @@
             event.preventDefault();
             clearModalErrors();
 
-            const formData = new FormData(editForumPostModalForm);
-            // 注意：這裡假設後端接收的 DTO 屬性名稱是 `forNoId` 和 `ftagNoId`
-            const data = {
-                id: parseInt(formData.get('id')),
-                postTitle: formData.get('postTitle'),
-                postCon: formData.get('postCon'),
-                forNoId: parseInt(formData.get('forNoId')), // 確保與後端 DTO 屬性名一致
-                ftagNoId: parseInt(formData.get('ftagNoId')), // 確保與後端 DTO 屬性名一致
-                postPin: formData.get('postPin') ? '1' : '0', // 轉換為 Character '1' 或 '0'
-                postStatus: formData.get('postStatus') ? '1' : '0' // 轉換為 Character '1' 或 '0'
+            const postId = modalPostIdInput.value;
+            const forNoId = modalHiddenForNoId.value; // 從隱藏欄位獲取 forNoId
+
+            // 構建 FormData 以處理文件上傳和 JSON 數據
+            const formData = new FormData();
+
+            // 創建一個包含 ForumPostUpdateDTO 數據的物件
+            const forumPostUpdateDTO = {
+                forNoId: parseInt(modalForNoIdSelect.value),
+                ftagNoId: parseInt(modalFtagNoIdSelect.value),
+                postTitle: modalPostTitleInput.value,
+                postCon: modalPostConTextarea.value,
+                postPin: modalPostPinCheckbox.checked ? '1' : '0', // 轉換為 Character '1' 或 '0'
+                postStatus: modalPostStatusCheckbox.checked ? '1' : '0' // 轉換為 Character '1' 或 '0'
             };
-            console.log("提交的數據:", data);
+
+            // 將 DTO 物件轉換為 JSON 字串並作為 Blob 添加到 FormData
+            formData.append('forumPostUpdate', new Blob([JSON.stringify(forumPostUpdateDTO)], { type: 'application/json' }));
+
+            // 添加圖片檔案
+            if (modalPostCoverImageInput.files.length > 0) {
+                formData.append('imageFile', modalPostCoverImageInput.files[0]);
+            } else {
+                // 如果沒有選擇新圖片，但原本有圖片，可以考慮傳遞一個標識，告訴後端不要修改圖片
+                // 或者後端如果 imageFile 是 required = false，不傳就不會更新。
+                // 這裡的後端 `required = false`，所以不傳就不處理圖片更新。
+            }
+
+            console.log("提交的 FormData:", forumPostUpdateDTO); // 打印 DTO 內容，FormData 無法直接打印
 
             try {
-                // 【已修正】提交更新文章資料的路徑
-                // 後端 @PutMapping("/api/forumpost/update")
-                const response = await fetch(`${API_BASE_URL}${API_FORUM_POST_PREFIX}/update`, {
+                // 後端 @PutMapping("/forum/{forNo}/posts/{postId}")
+                const response = await fetch(`${API_BASE_URL}/api${API_FORUM_SEGMENT}/${forNoId}/posts/${postId}`, { // 修改後的路徑
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
+                    // 當使用 FormData 時，fetch 會自動設置 Content-Type 為 multipart/form-data
+                    // 所以不需要手動設置 'Content-Type': 'application/json'
+                    body: formData
                 });
 
                 if (response.ok) {
@@ -838,14 +868,14 @@
                     closeEditModal(); // 關閉模態框
                     initialize(); // 重新載入文章列表以顯示更新後的數據
                 } else {
-                    const errorData = await response.json().catch(() => ({})); // 嘗試解析JSON錯誤，如果失敗則返回空對象
+                    const errorData = await response.json().catch(() => ({ message: '未知錯誤', details: response.statusText }));
                     console.error('後端返回錯誤:', errorData);
                     if (response.status === 400) { // Bad Request, 通常是驗證錯誤
-                        // 假設後端返回的驗證錯誤是 { "fieldName": "ErrorMessage" } 形式
-                        showModalError('資料驗證失敗，請檢查輸入。', errorData);
+                        showModalError('資料驗證失敗，請檢查輸入。', errorData); // errorData 可能直接是 fieldErrors map
+                    } else if (response.status === 404) { // Not Found
+                        showModalError(`更新失敗！ ${errorData.message || '找不到資源'}`, errorData.details);
                     } else {
-                        // 處理其他非400的錯誤狀態
-                        showModalError(`更新失敗！ 狀態: ${response.status}, 訊息: ${errorData.message || response.statusText || '未知錯誤'}`);
+                        showModalError(`更新失敗！ 狀態: ${response.status}, 訊息: ${errorData.message || errorData.details || response.statusText || '未知錯誤'}`);
                     }
                 }
             } catch (error) {
@@ -873,14 +903,14 @@
     // 刪除文章功能 (如果你決定啟用它)
     // ===========================================
     /*
-    window.deleteForumPost = async function(postId) {
+    window.deleteForumPost = async function(postId, forNoId) { // 新增 forNoId 參數
         if (!confirm(`確定要刪除文章 ID: ${postId} 嗎？此操作不可逆！`)) {
             return;
         }
 
         try {
-            // 請確認您的 Controller 中 delete 方法對應的路徑
-            const deleteApiUrl = `${API_BASE_URL}${API_FORUM_POST_PREFIX}/${postId}`;
+            // 後端 @DeleteMapping("/forum/{forNo}/posts/{postId}")
+            const deleteApiUrl = `${API_BASE_URL}/api${API_FORUM_SEGMENT}/${forNoId}/posts/${postId}`; // 修改後的路徑
             const response = await fetch(deleteApiUrl, {
                 method: 'DELETE'
             });
@@ -900,7 +930,7 @@
     };
     */
     // 如果你啟用刪除按鈕，請在 renderTable 中將 `<td><button class="btn btn-edit" ...`
-    // 改為 `<td><button class="btn btn-edit" data-post-id="${post.id}">編輯</button><button class="btn btn-delete" onclick="deleteForumPost(${post.id})">刪除</button></td>`
+    // 改為 `<td><button class="btn btn-edit" data-post-id="${post.id}" data-for-no-id="${post.forumId}">編輯</button><button class="btn btn-delete" onclick="deleteForumPost(${post.id}, ${post.forumId})">刪除</button></td>`
 </script>
 </body>
 </html>
