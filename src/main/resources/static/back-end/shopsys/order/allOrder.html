@@ -352,6 +352,7 @@
                     <select id="statusFilter" class="filter-select" onchange="filterOrders()">
                         <option value="">全部狀態</option>
                         <option value="等待付款">等待付款</option>
+                        <option value="付款處理中">付款處理中</option>
                         <option value="處理中">處理中</option>
                         <option value="已出貨">已出貨</option>
                         <option value="已完成">已完成</option>
@@ -513,6 +514,7 @@
         function getStatusClass(status) {
             switch(status) {
             	case '等待付款': return 'status-pending';
+            	case '付款處理中': return 'status-paying';
                 case '處理中': return 'status-processing';
                 case '已出貨': return 'status-shipped';
                 case '已完成': return 'status-completed';
