@@ -109,6 +109,15 @@
             color: #721c24;
             background-color: #f8d7da;
         }
+
+        /* 預設圖片預覽樣式 */
+        #defaultImagePreview {
+            max-width: 150px;
+            max-height: 150px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            display: none; /* 預設隱藏 */
+        }
     </style>
 </head>
 <body>
@@ -141,6 +150,21 @@
             </select>
         </div>
 
+        <div class="form-group">
+            <label>文章封面圖片</label>
+            <div>
+                <input type="radio" id="useDefaultImage" name="imageSource" value="default" checked>
+                <label for="useDefaultImage">使用預設圖片</label>
+            </div>
+            <div>
+                <input type="radio" id="uploadCustomImage" name="imageSource" value="custom">
+                <label for="uploadCustomImage">上傳自訂圖片</label>
+            </div>
+
+            <img id="defaultImagePreview" src="" alt="預設圖片預覽" style="display: none;">
+            <input type="file" id="postCoverImageFile" name="imageFile" accept="image/*" style="display: none;">
+        </div>
+
         <div class="form-actions">
             <a href="/back-end/forumsys/forumpost/allForumPost.html" class="btn btn-back">返回列表</a>
             <button type="submit" id="submit-button" class="btn btn-submit">確認新增</button>
@@ -151,175 +175,226 @@
 <div id="message-area"></div>
 
 <script>
-    // 當 DOM (Document Object Model) 內容完全載入並解析完成後執行此函數
     document.addEventListener('DOMContentLoaded', function () {
-        // --- 獲取頁面上的 DOM 元素 ---
-        const postTitleInput = document.getElementById('postTitle'); // 文章標題輸入框
-        const postConTextarea = document.getElementById('postCon'); // 文章內容文本框
-        const forNoSelect = document.getElementById('forNoId');     // 所屬討論區下拉選單
-        const ftagNoSelect = document.getElementById('ftagNoId');   // 文章類別下拉選單
-        // const postPinSelect = document.getElementById('postPin');   // 置頂狀態下拉選單
-        // const postStatusSelect = document.getElementById('postStatus'); // 文章狀態下拉選單
-        // const postCoverImageFileInput = document.getElementById('postCoverImageFile'); // 圖片上傳輸入框 (如果啟用)
+        const postTitleInput = document.getElementById('postTitle');
+        const postConTextarea = document.getElementById('postCon');
+        const forNoSelect = document.getElementById('forNoId');
+        const ftagNoSelect = document.getElementById('ftagNoId');
 
-        const form = document.getElementById('add-forumpost-form'); // 表單元素 (注意 ID 已修正為 add-forumpost-form)
-        const submitButton = document.getElementById('submit-button'); // 提交按鈕
-        const messageArea = document.getElementById('message-area'); // 訊息顯示區
+        const useDefaultImageRadio = document.getElementById('useDefaultImage');
+        const uploadCustomImageRadio = document.getElementById('uploadCustomImage');
+        const defaultImagePreview = document.getElementById('defaultImagePreview');
+        const postCoverImageFileInput = document.getElementById('postCoverImageFile');
 
-        // --- 後端 API URLs (統一管理，便於修改) ---
-        const API_ADD_POST_URL = 'http://localhost:8080/api/forumpost/insert'; // 新增文章 API 端點
-        const API_FORUMS_URL = 'http://localhost:8080/api/forums';             // 獲取所有討論區 API 端點 (假設返回 ForumDTO，包含 id 和 forName)
-        const API_FORUM_TAGS_URL = 'http://localhost:8080/api/forumtags';     // 獲取所有文章類別 API 端點 (假設返回 ForumTagDTO，包含 id 和 ftagName)
+        const form = document.getElementById('add-forumpost-form');
+        const submitButton = document.getElementById('submit-button');
+        const messageArea = document.getElementById('message-area');
 
-        // --- 輔助函數：顯示/隱藏訊息區塊 ---
-        /**
-         * 顯示訊息
-         * @param {string} message 要顯示的訊息文本
-         * @param {string} type 訊息類型 ('success' 或 'error')，用於應用 CSS 樣式
-         */
+        const API_ADD_POST_URL = 'http://localhost:8080/api/forumpost/insert';
+        const API_FORUMS_URL = 'http://localhost:8080/api/forums';
+        const API_FORUM_TAGS_URL = 'http://localhost:8080/api/forumtag';
+
+        // 定義預設圖片的映射關係
+        // 假設您的圖片都放在 /resources/imgseed/forumposttag_img/
+        // 並以文章類別 ID 作為檔案名 (例如 1.jpg, 2.jpg 等)
+        const DEFAULT_IMAGE_BASE_PATH = '/resources/imgseed/forumposttag_img/';
+        const DEFAULT_IMAGE_MAP = {
+            // 範例：映射類別 ID 到圖片名稱
+            // 這些 ID 和圖片名稱需要根據您的實際情況進行配置
+            1: '01.jpg',
+            2: '02.jpg',
+            3: '03.jpg',
+            4: '04.jpg',
+            5: '05.jpg',
+            6: '06.jpg',
+            7: '07.jpg',
+            8: '08.jpg',
+            9: '09.jpg',
+            10: '10.jpg',
+            11: '11.jpg',
+            // ... 可以繼續添加更多映射
+        };
+
+        let selectedDefaultImageUrl = ''; // 用於儲存當前選定的預設圖片 URL
+
         function showMessage(message, type) {
-            messageArea.innerHTML = message; // 設定訊息文本，支援 HTML (如 <br>)
-            messageArea.className = type;   // 應用訊息類型對應的 CSS class
-            messageArea.style.display = 'block'; // 顯示訊息區塊
+            messageArea.innerHTML = message;
+            messageArea.className = type;
+            messageArea.style.display = 'block';
         }
 
-        /**
-         * 隱藏訊息區塊
-         */
         function hideMessage() {
-            messageArea.style.display = 'none'; // 隱藏訊息區塊
-            messageArea.textContent = '';       // 清空訊息文本
+            messageArea.style.display = 'none';
+            messageArea.textContent = '';
         }
 
-        // --- 動態載入討論區 (Forum) 下拉選單選項 ---
         async function loadForums() {
             try {
-                const response = await fetch(API_FORUMS_URL); // 發送請求獲取討論區列表
-                if (!response.ok) { // 檢查 HTTP 響應狀態碼
+                const response = await fetch(API_FORUMS_URL);
+                if (!response.ok) {
                     throw new Error(`無法載入討論區資料，狀態碼: ${response.status}`);
                 }
-                const forums = await response.json(); // 解析 JSON 響應 (預期返回 ForumDTO 列表)
+                const forums = await response.json();
 
-                // 清空並添加預設選項
                 forNoSelect.innerHTML = '<option value="" disabled selected>--請選擇討論區--</option>';
-
-                // 遍歷論壇數據，為每個論壇創建 <option> 元素
                 forums.forEach(forum => {
                     const option = document.createElement('option');
-                    option.value = forum.id;     // <option> 的值為討論區 ID (對應 ForumDTO.id)
-                    option.textContent = forum.forName; // <option> 的顯示文本為討論區名稱 (對應 ForumDTO.forName)
-                    forNoSelect.appendChild(option); // 添加到下拉選單
+                    option.value = forum.id;
+                    option.textContent = forum.forName;
+                    forNoSelect.appendChild(option);
                 });
             } catch (error) {
-                console.error('載入討論區失敗:', error); // 錯誤輸出到控制台
-                forNoSelect.innerHTML = '<option value="" disabled>討論區載入失敗</option>'; // 顯示載入失敗提示
-                showMessage(`載入討論區失敗: ${error.message}`, 'error'); // 頁面顯示錯誤訊息
+                console.error('載入討論區失敗:', error);
+                forNoSelect.innerHTML = '<option value="" disabled>討論區載入失敗</option>';
+                showMessage(`載入討論區失敗: ${error.message}`, 'error');
             }
         }
 
-        // --- 動態載入文章類別 (ForumTag) 下拉選單選項 ---
         async function loadForumTags() {
             try {
-                const response = await fetch(API_FORUM_TAGS_URL); // 發送請求獲取文章類別列表
-                if (!response.ok) { // 檢查 HTTP 響應狀態碼
+                const response = await fetch(API_FORUM_TAGS_URL);
+                if (!response.ok) {
                     throw new Error(`無法載入文章類別資料，狀態碼: ${response.status}`);
                 }
-                const tags = await response.json(); // 解析 JSON 響應 (預期返回 ForumTagDTO 列表)
+                const tags = await response.json();
 
-                // 清空並添加預設選項
                 ftagNoSelect.innerHTML = '<option value="" disabled selected>--請選擇文章類別--</option>';
-
-                // 遍歷文章類別數據，為每個類別創建 <option> 元素
                 tags.forEach(tag => {
                     const option = document.createElement('option');
-                    option.value = tag.id;     // <option> 的值為類別 ID (對應 ForumTagDTO.id)
-                    option.textContent = tag.ftagName; // <option> 的顯示文本為類別名稱 (對應 ForumTagDTO.ftagName)
-                    ftagNoSelect.appendChild(option); // 添加到下拉選單
+                    option.value = tag.id;
+                    option.textContent = tag.ftagName;
+                    option.dataset.defaultImage = DEFAULT_IMAGE_MAP[tag.id] || ''; // 將預設圖片名存儲在 dataset
+                    ftagNoSelect.appendChild(option);
                 });
+                // 載入完畢後，如果已經有選定的文章類別，觸發一次預覽更新
+                updateDefaultImagePreview();
+
             } catch (error) {
-                console.error('載入文章類別失敗:', error); // 錯誤輸出到控制台
-                ftagNoSelect.innerHTML = '<option value="" disabled>文章類別載入失敗</option>'; // 顯示載入失敗提示
-                showMessage(`載入文章類別失敗: ${error.message}`, 'error'); // 頁面顯示錯誤訊息
+                console.error('載入文章類別失敗:', error);
+                ftagNoSelect.innerHTML = '<option value="" disabled>文章類別載入失敗</option>';
+                showMessage(`載入文章類別失敗: ${error.message}`, 'error');
             }
         }
 
-        // --- 表單提交事件處理 ---
+        // --- 處理圖片來源選擇 (預設圖片 vs. 自訂上傳) ---
+        function handleImageSourceChange() {
+            if (useDefaultImageRadio.checked) {
+                postCoverImageFileInput.style.display = 'none';
+                postCoverImageFileInput.value = ''; // 清空已選擇的自訂檔案
+                updateDefaultImagePreview(); // 顯示預設圖片預覽
+            } else { // uploadCustomImageRadio.checked
+                defaultImagePreview.style.display = 'none';
+                defaultImagePreview.src = ''; // 清空預覽圖片
+                postCoverImageFileInput.style.display = 'block';
+            }
+        }
+
+        // --- 根據選定的文章類別更新預設圖片預覽 ---
+        function updateDefaultImagePreview() {
+            const selectedOption = ftagNoSelect.options[ftagNoSelect.selectedIndex];
+            const defaultImageName = selectedOption ? selectedOption.dataset.defaultImage : '';
+
+            if (useDefaultImageRadio.checked && defaultImageName) {
+                selectedDefaultImageUrl = DEFAULT_IMAGE_BASE_PATH + defaultImageName;
+                defaultImagePreview.src = selectedDefaultImageUrl;
+                defaultImagePreview.style.display = 'block';
+            } else {
+                selectedDefaultImageUrl = '';
+                defaultImagePreview.src = '';
+                defaultImagePreview.style.display = 'none';
+            }
+        }
+
+        // --- 事件監聽器 ---
+        ftagNoSelect.addEventListener('change', updateDefaultImagePreview); // 文章類別改變時更新預覽
+        useDefaultImageRadio.addEventListener('change', handleImageSourceChange);
+        uploadCustomImageRadio.addEventListener('change', handleImageSourceChange);
+
+
         form.addEventListener('submit', async function (event) {
-            event.preventDefault(); // 阻止表單的預設提交行為 (防止頁面刷新)
-            hideMessage(); // 提交前隱藏任何之前的訊息
+            event.preventDefault();
+            hideMessage();
 
-            submitButton.disabled = true; // 禁用提交按鈕，避免用戶重複點擊導致多次提交
-            submitButton.textContent = '新增中...'; // 更改按鈕文本，提供視覺反饋
+            submitButton.disabled = true;
+            submitButton.textContent = '新增中...';
 
-            // --- 準備 FormData (用於發送 multipart/form-data 請求) ---
-            // FormData 是一個 JavaScript 內置物件，用於構建表單數據，特別適合上傳文件和發送複雜的表單數據。
             const formData = new FormData();
 
-            // 將所有表單欄位的值添加到 FormData 中。
-            // 這些 'name' 必須與後端 ForumPostController 中 insert 方法的 @RequestParam 參數名完全一致。
-            formData.append('postTitle', postTitleInput.value.trim());     // 文章標題，移除前後空白
-            formData.append('postCon', postConTextarea.value.trim());     // 文章內容，移除前後空白
-            formData.append('forNoId', forNoSelect.value);                 // 所屬討論區 ID (從選中 <option> 的 value 獲取)
-            formData.append('ftagNoId', ftagNoSelect.value);               // 文章類別 ID (從選中 <option> 的 value 獲取)
-            // formData.append('postPin', postPinSelect.value);               // 是否置頂 (0 或 1，將 Character 類型轉為字串傳遞)
-            // formData.append('postStatus', postStatusSelect.value);         // 文章狀態 (0, 1, 2，將 Character 類型轉為字串傳遞)
+            // 構建 ForumPostUpdateDTO 對象（用於後端接收 JSON 數據）
+            const forumPostUpdateDTO = {
+                forNoId: parseInt(forNoSelect.value),
+                ftagNoId: parseInt(ftagNoSelect.value),
+                postTitle: postTitleInput.value.trim(),
+                postCon: postConTextarea.value.trim(),
+                postPin: '0', // 預設為 '0' (不置頂)
+                postStatus: '1' // 預設為 '1' (公開)
+            };
 
-            // 如果有圖片上傳功能，解除註釋以下代碼，並確保 postCoverImageFileInput 元素已獲取
-            // if (postCoverImageFileInput.files.length > 0) {
-            //     formData.append('postCoverImageFile', postCoverImageFileInput.files[0]); // 添加文件對象
-            // }
+            // 將 DTO 物件轉換為 JSON 字串並作為 Blob 添加到 FormData 中
+            // 這裡的 'forumPostUpdate' 必須與後端 Controller @RequestPart("forumPostUpdate") 的名稱匹配
+            formData.append('forumPostUpdate', new Blob([JSON.stringify(forumPostUpdateDTO)], {type: 'application/json'}));
 
-            // 預設設定留言數、讚數、倒讚數為 0。
-            // 即使後端 @RequestParam 設定 required = false，前端發送明確的 '0' 更好。
-            formData.append('mesNumbers', '0');
-            formData.append('postLikeCount', '0');
-            formData.append('postLikeDlc', '0');
+            // 處理圖片上傳或預設圖片 URL
+            if (uploadCustomImageRadio.checked && postCoverImageFileInput.files.length > 0) {
+                // 用戶選擇了上傳自訂圖片
+                formData.append('imageFile', postCoverImageFileInput.files[0]);
+            } else if (useDefaultImageRadio.checked && selectedDefaultImageUrl) {
+                // 用戶選擇使用預設圖片，並且有選定的預設圖片 URL
+                // 後端需要一個新的 RequestPart 參數來接收這個 URL
+                // 或者 Service 層自行根據 ftagNoId 判斷並設定圖片
+                // 這裡的實現將預設圖片URL作為一個額外的 RequestPart 傳遞
+                formData.append('defaultImageUrl', selectedDefaultImageUrl);
+            }
+            // 如果都沒有選擇，則不傳遞圖片相關參數
+
+            console.log("提交的 FormData (DTO部分):", forumPostUpdateDTO);
+            if (uploadCustomImageRadio.checked) {
+                console.log("提交的 FormData (自訂圖片):", postCoverImageFileInput.files[0]);
+            } else if (useDefaultImageRadio.checked) {
+                console.log("提交的 FormData (預設圖片URL):", selectedDefaultImageUrl);
+            }
 
 
-            // --- 發送 POST 請求到後端 API ---
             try {
                 const response = await fetch(API_ADD_POST_URL, {
-                    method: 'POST', // 指定 HTTP 方法為 POST
-                    // 當 body 是 FormData 物件時，fetch API 會自動設定正確的 'Content-Type': 'multipart/form-data'
-                    // 因此，我們不需要手動設定 headers: { 'Content-Type': '...' }
-                    body: formData // 將構建好的 FormData 作為請求體發送
+                    method: 'POST',
+                    body: formData
                 });
 
-                // 處理後端響應
-                if (!response.ok) { // 如果 HTTP 狀態碼不是 2xx (表示請求失敗)
-                    // 嘗試解析錯誤響應 (假設後端返回 JSON 格式的錯誤訊息 Map)
+                if (!response.ok) {
                     const errorResponse = await response.json().catch(() => ({message: `發生錯誤，狀態碼: ${response.status}`}));
-                    // 從錯誤響應中提取訊息，並扁平化為單一字串顯示
-                    // `Object.values(errorResponse)` 獲取 Map 的所有值 (可能是字串或陣列)
-                    // `.flat()` 處理如果值本身是錯誤訊息陣列的情況
-                    // `.join('<br>')` 將多個錯誤訊息用換行符連接
                     const errorMessage = Object.values(errorResponse).flat().join('<br>');
-                    throw new Error(errorMessage || `發生錯誤，狀態碼: ${response.status}`); // 拋出錯誤
+                    throw new Error(errorMessage || `發生錯誤，狀態碼: ${response.status}`);
                 }
 
-                // 新增成功處理
                 showMessage('文章新增成功！2秒後將返回文章列表頁。', 'success');
-                form.reset(); // 提交成功後，重置表單所有欄位為預設值或空值
+                form.reset();
+                defaultImagePreview.style.display = 'none'; // 重置時隱藏圖片
+                selectedDefaultImageUrl = ''; // 清空預設圖片URL
+                // 確保電台按鈕和文件輸入狀態正確重置
+                useDefaultImageRadio.checked = true;
+                postCoverImageFileInput.style.display = 'none';
 
-                // 延遲一段時間後跳轉頁面
+
                 setTimeout(() => {
-                    window.location.href = '/back-end/forumsys/forumpost/allForumPost.html'; // 跳轉到文章列表頁
+                    window.location.href = '/back-end/forumsys/forumpost/allForumPost.html';
                 }, 2000);
 
             } catch (error) {
-                // 捕獲並處理任何在 fetch 請求或響應處理中發生的錯誤
-                showMessage(`新增失敗: ${error.message}`, 'error'); // 頁面顯示錯誤訊息
-                console.error('新增文章失敗:', error); // 錯誤輸出到瀏覽器控制台
+                showMessage(`新增失敗: ${error.message}`, 'error');
+                console.error('新增文章失敗:', error);
             } finally {
-                // 無論請求成功或失敗，最終都重新啟用提交按鈕並恢復文本
                 submitButton.disabled = false;
                 submitButton.textContent = '確認新增';
             }
         });
 
-        // --- 頁面初始化：載入下拉選單數據 ---
-        loadForums();    // 頁面載入時立即呼叫，以填充討論區下拉選單
-        loadForumTags(); // 頁面載入時立即呼叫，以填充文章類別下拉選單
+        // 頁面初始化
+        loadForums();
+        loadForumTags().then(() => {
+            // 在載入文章類別後，確保預設圖片選項的初始化狀態
+            handleImageSourceChange();
+        });
     });
 </script>
 </body>

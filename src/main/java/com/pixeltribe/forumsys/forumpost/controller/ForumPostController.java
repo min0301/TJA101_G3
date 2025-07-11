@@ -98,12 +98,14 @@ public class ForumPostController {
      * @param imageFile 封面圖片檔案 (可選)
      * @param result 驗證結果
      * @return 新增後的文章 DTO 或錯誤訊息
+     * @param defaultImageUrl 預設圖片的 URL
      */
     @PostMapping(value = "/forumpost/insert", consumes = {"multipart/form-data"})
     @Operation(summary = "新增文章", description = "會員新增文章，可包含封面圖片")
     public ResponseEntity<Map<String, Object>> insertForumPost(
             @RequestPart("forumPostUpdate") @Valid ForumPostUpdateDTO forumPostUpdateDTO,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+            @RequestPart(value = "defaultImageUrl", required = false) String defaultImageUrl,
             BindingResult result) {
 
         if (result.hasErrors()) {
