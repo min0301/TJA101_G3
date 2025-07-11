@@ -391,6 +391,103 @@
             margin-top: 5px;
             display: block;
         }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto; /* 自動外邊距實現居中 */
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%; /* 模態框寬度 */
+            max-width: 600px; /* 最大寬度 */
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative; /* 為了關閉按鈕定位 */
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-form-group {
+            margin-bottom: 15px;
+        }
+
+        .modal-form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .modal-form-group input[type="text"],
+        .modal-form-group textarea,
+        .modal-form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+
+        .modal-form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .modal-button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-btn-primary {
+            background-color: #28a745; /* 綠色 */
+            color: white;
+        }
+
+        .modal-btn-primary:hover {
+            background-color: #218838;
+        }
+
+        .modal-btn-cancel {
+            background-color: #6c757d; /* 灰色 */
+            color: white;
+        }
+
+        .modal-btn-cancel:hover {
+            background-color: #5a6268;
+        }
+
+        .modal-error-feedback {
+            color: #e74c3c;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -504,6 +601,58 @@
         </form>
     </div>
 </div>
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>編輯文章</h2>
+        <div id="modal-error-messages" style="color: #e74c3c; display: none; margin-bottom: 15px;"></div>
+
+        <form id="editForumPostModalForm">
+            <input type="hidden" id="modalPostId" name="id">
+
+            <div class="modal-form-group">
+                <label for="modalPostTitle">文章標題:</label>
+                <input type="text" id="modalPostTitle" name="postTitle" required maxlength="50">
+                <span class="modal-error-feedback" id="modalPostTitleError"></span>
+            </div>
+
+            <div class="modal-form-group">
+                <label for="modalPostCon">文章內容:</label>
+                <textarea id="modalPostCon" name="postCon" rows="8" required minlength="10" maxlength="5000"></textarea>
+                <span class="modal-error-feedback" id="modalPostConError"></span>
+            </div>
+
+            <div class="modal-form-group">
+                <label for="modalForNoId">所屬討論區:</label>
+                <select id="modalForNoId" name="forNoId" required>
+                </select>
+                <span class="modal-error-feedback" id="modalForNoIdError"></span>
+            </div>
+
+            <div class="modal-form-group">
+                <label for="modalFtagNoId">文章類別:</label>
+                <select id="modalFtagNoId" name="ftagNoId" required>
+                </select>
+                <span class="modal-error-feedback" id="modalFtagNoIdError"></span>
+            </div>
+
+            <div class="modal-form-group">
+                <input type="checkbox" id="modalPostPin" name="postPin" value="1">
+                <label for="modalPostPin">置頂文章</label>
+            </div>
+
+            <div class="modal-form-group">
+                <input type="checkbox" id="modalPostStatus" name="postStatus" value="1">
+                <label for="modalPostStatus">文章狀態 (公開/隱藏)</label>
+            </div>
+
+            <div class="modal-button-group">
+                <button type="submit" class="modal-btn modal-btn-primary">儲存修改</button>
+                <button type="button" class="modal-btn modal-btn-cancel" id="closeModalButton">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
@@ -530,6 +679,7 @@
         }
 
         const forumIdFromUrl = getUrlParameter('forNo'); // 從 URL 獲取的 forumId
+        const forumId = getUrlParameter('forNo');
 
         // --- API URL 常量定義 ---
         const API_BASE_URL = 'http://localhost:8080';
@@ -540,6 +690,14 @@
         const API_FORUM_TAG_SEGMENT = '/forumtag';
 
         // 載入所有文章列表或特定論壇的文章列表
+        // --- API URL 常量定義 ---
+        // 請確保這些 URL 與後端 ForumPostController 中實際定義的路徑完全一致
+        const API_BASE_URL = 'http://localhost:8080'; // 基礎 URL
+        const API_FORUM_POST_PREFIX = '/api/forumpost'; // 文章相關 API 的通用前綴
+        const API_FORUM_PREFIX = '/api/forum';       // 論壇相關 API 的通用前綴
+        const API_FORUM_TAG_PREFIX = '/api/forumtag'; // 文章類別相關 API 的通用前綴
+
+        // 載入所有文章列表或特定論壇的文章列表
         async function initialize() {
             try {
                 let apiUrl = '';
@@ -547,9 +705,18 @@
                     // 後端 @GetMapping("/forum/{forNo}/posts")
                     apiUrl = `${API_BASE_URL}/api${API_FORUM_SEGMENT}/${forumIdFromUrl}/posts`; // 修改後的路徑
                     console.log(`正在獲取論壇 ID ${forumIdFromUrl} 的文章... URL: ${apiUrl}`);
+                if (forumId) {
+                    // 【修改點 1: 根據論壇 ID 獲取文章列表的路徑】
+                    // 後端 @GetMapping("/api/forum/{forumId}/posts")
+                    apiUrl = `${API_BASE_URL}${API_FORUM_PREFIX}/${forumId}/posts`;
+                    console.log(`正在獲取論壇 ID ${forumId} 的文章... URL: ${apiUrl}`);
                 } else {
                     // 後端 @GetMapping("/forumposts/all")
                     apiUrl = `${API_BASE_URL}/api${API_FORUM_POSTS_SEGMENT}/all`; // 修改後的路徑
+                    console.log('正在獲取所有論壇文章... URL: ' + apiUrl);
+                    // 【確認點: 獲取所有文章的路徑】
+                    // 後端 @GetMapping("/api/forumpost/allForumPost")
+                    apiUrl = `${API_BASE_URL}${API_FORUM_POST_PREFIX}/allForumPost`;
                     console.log('正在獲取所有論壇文章... URL: ' + apiUrl);
                 }
 
@@ -606,7 +773,28 @@
                     <td>
                         <button class="btn btn-edit" data-post-id="${post.id}" data-for-no-id="${post.forumId}">編輯</button>
                         </td>
+                    <td>${post.id}</td>
+                    <td>${post.postTitle || '無標題'}</td>
+                    <td>${post.memberName || '匿名'}</td>
+                    <td>${post.forumName || '未知討論區'}</td>
+                    <td>${postCrdateFormatted}</td>
+                    <td>${post.mesNumbers || 0}</td>
+                    <td>${post.postLikeCount || 0}</td>
+                    <td>${post.postLikeDlc || 0}</td>
+                    <td>
+                        <button class="btn btn-edit" data-post-id="${post.id}">編輯</button>
+                        </td>
                 `;
+                tableBody.appendChild(row);
+            });
+
+            // 為所有「編輯」按鈕添加事件監聽器
+            document.querySelectorAll('.btn-edit').forEach(button => {
+                button.addEventListener('click', function () {
+                    const postId = this.dataset.postId;
+                    openEditModal(postId); // 開啟編輯模態框
+                });
+            });
                 tableBody.appendChild(row);
             });
 
@@ -897,6 +1085,185 @@
         // 頁面初始化函數調用
         initialize();
     });
+        const editModal = document.getElementById('editModal');
+        const closeModalButton = document.getElementById('closeModalButton');
+        const modalCloseButtonTop = document.querySelector('.modal .close-button'); // 頂部的 X 按鈕
+        const modalPostIdInput = document.getElementById('modalPostId');
+        const modalPostTitleInput = document.getElementById('modalPostTitle');
+        const modalPostConTextarea = document.getElementById('modalPostCon');
+        const modalForNoIdSelect = document.getElementById('modalForNoId');
+        const modalFtagNoIdSelect = document.getElementById('modalFtagNoId');
+        const modalPostPinCheckbox = document.getElementById('modalPostPin');
+        const modalPostStatusCheckbox = document.getElementById('modalPostStatus');
+        const editForumPostModalForm = document.getElementById('editForumPostModalForm');
+        const modalErrorMessagesDiv = document.getElementById('modal-error-messages');
+
+        // 開啟編輯模態框
+        async function openEditModal(postId) {
+            clearModalErrors(); // 打開前先清除錯誤
+            editModal.style.display = 'flex'; // 顯示模態框
+
+            await loadModalSelectOptions(); // 載入下拉選單選項
+            await loadPostDataToModal(postId); // 載入文章資料到模態框
+        }
+
+        // 關閉編輯模態框
+        function closeEditModal() {
+            editModal.style.display = 'none';
+            editForumPostModalForm.reset(); // 重置表單
+            clearModalErrors(); // 清除錯誤訊息
+        }
+
+        // 處理模態框錯誤訊息
+        function showModalError(message, errors = {}) {
+            modalErrorMessagesDiv.innerHTML = `<strong>錯誤:</strong> ${message}<br>`;
+            for (const key in errors) {
+                modalErrorMessagesDiv.innerHTML += `<li>${key}: ${errors[key]}</li>`; // 使用列表顯示多個錯誤
+                const errorElement = document.getElementById(`modal${key.charAt(0).toUpperCase() + key.slice(1)}Error`); // 構建錯誤元素ID
+                if (errorElement) {
+                    errorElement.textContent = errors[key];
+                    errorElement.style.display = 'block';
+                }
+            }
+            modalErrorMessagesDiv.style.display = 'block';
+        }
+
+        // 清除模態框錯誤訊息
+        function clearModalErrors() {
+            modalErrorMessagesDiv.style.display = 'none';
+            modalErrorMessagesDiv.innerHTML = '';
+            document.querySelectorAll('.modal-error-feedback').forEach(el => {
+                el.textContent = '';
+                el.style.display = 'none';
+            });
+        }
+
+        // 載入討論區和文章類別到模態框的下拉選單
+        async function loadModalSelectOptions() {
+            try {
+                // 載入討論區
+                // 後端 @GetMapping("/api/forum/all")
+                const forumResponse = await fetch(`${API_BASE_URL}${API_FORUM_PREFIX}/all`);
+                if (!forumResponse.ok) throw new Error(`載入討論區失敗: ${forumResponse.statusText}`);
+                const forums = await forumResponse.json();
+                modalForNoIdSelect.innerHTML = '<option value="">請選擇討論區</option>';
+                forums.forEach(forum => {
+                    const option = document.createElement('option');
+                    option.value = forum.id;
+                    option.textContent = forum.forName;
+                    modalForNoIdSelect.appendChild(option);
+                });
+
+                // 載入文章類別
+                // 後端 @GetMapping("/api/forumtag/all")
+                const ftagResponse = await fetch(`${API_BASE_URL}${API_FORUM_TAG_PREFIX}/all`);
+                if (!ftagResponse.ok) throw new Error(`載入文章類別失敗: ${ftagResponse.statusText}`);
+                const forumTags = await ftagResponse.json();
+                modalFtagNoIdSelect.innerHTML = '<option value="">請選擇文章類別</option>';
+                forumTags.forEach(tag => {
+                    const option = document.createElement('option');
+                    option.value = tag.id;
+                    option.textContent = tag.ftagName;
+                    modalFtagNoIdSelect.appendChild(option);
+                });
+
+            } catch (error) {
+                showModalError(`載入選單選項失敗: ${error.message}`);
+                console.error('載入選單選項時發生錯誤:', error);
+            }
+        }
+
+        // 載入文章資料並填充模態框表單
+        async function loadPostDataToModal(postId) {
+            try {
+                // 【修改點 2: 載入單一文章資料的路徑 (用於編輯模態框)】
+                // 後端 @GetMapping("/api/forumpost/forpost/{id}")
+                const response = await fetch(`${API_BASE_URL}${API_FORUM_POST_PREFIX}/forpost/${postId}`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`獲取文章資料失敗！狀態: ${response.status}, 訊息: ${errorText}`);
+                }
+                const post = await response.json();
+
+                modalPostIdInput.value = post.id;
+                modalPostTitleInput.value = post.postTitle;
+                modalPostConTextarea.value = post.postCon;
+
+                if (post.forumNo) {
+                    modalForNoIdSelect.value = post.forumNo;
+                }
+                if (post.ftagNo) { // Make sure ForumPostDTO has ftagNo property
+                    modalFtagNoIdSelect.value = post.ftagNo;
+                }
+
+                // 處理 Character 類型的布林值
+                modalPostPinCheckbox.checked = (post.postPin === '1' || post.postPin === true);
+                modalPostStatusCheckbox.checked = (post.postStatus === '1' || post.postStatus === true);
+
+            } catch (error) {
+                showModalError(`載入文章資料失敗: ${error.message}`);
+                console.error('載入文章資料到模態框時發生錯誤:', error);
+            }
+        }
+
+        // 模態框表單提交事件
+        editForumPostModalForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            clearModalErrors();
+
+            const formData = new FormData(editForumPostModalForm);
+            const data = {
+                id: parseInt(formData.get('id')),
+                postTitle: formData.get('postTitle'),
+                postCon: formData.get('postCon'),
+                forNoId: parseInt(formData.get('forNoId')),
+                ftagNoId: parseInt(formData.get('ftagNoId')),
+                postPin: formData.get('postPin') ? '1' : '0',
+                postStatus: formData.get('postStatus') ? '1' : '0'
+            };
+
+            try {
+                // 【修改點 3: 提交更新文章資料的路徑】
+                // 後端 @PutMapping("/api/forumpost/update")
+                const response = await fetch(`${API_BASE_URL}${API_FORUM_POST_PREFIX}/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('文章更新成功！');
+                    closeEditModal(); // 關閉模態框
+                    initialize(); // 重新載入文章列表以顯示更新後的數據
+                } else {
+                    const errorData = await response.json().catch(() => ({message: '伺服器返回非JSON格式錯誤'}));
+                    if (response.status === 400 && errorData) {
+                        showModalError('資料驗證失敗，請檢查輸入。', errorData);
+                    } else {
+                        showModalError(`更新失敗！ 狀態: ${response.status}, 訊息: ${errorData.message || response.statusText || '未知錯誤'}`);
+                    }
+                }
+            } catch (error) {
+                showModalError(`連線錯誤或後端服務異常: ${error.message}`);
+                console.error('更新文章時發生錯誤:', error);
+            }
+        });
+
+        // 關閉模態框事件監聽器
+        closeModalButton.addEventListener('click', closeEditModal); // 取消按鈕
+        modalCloseButtonTop.addEventListener('click', closeEditModal); // 頂部 X 按鈕
+        // 點擊模態框背景關閉
+        editModal.addEventListener('click', function (event) {
+            if (event.target === editModal) {
+                closeEditModal();
+            }
+        });
+
+        // 頁面初始化函數調用
+        initialize();
+    });
 
 
     // ===========================================
@@ -911,6 +1278,20 @@
         try {
             // 後端 @DeleteMapping("/forum/{forNo}/posts/{postId}")
             const deleteApiUrl = `${API_BASE_URL}/api${API_FORUM_SEGMENT}/${forNoId}/posts/${postId}`; // 修改後的路徑
+            const response = await fetch(deleteApiUrl, {
+                method: 'DELETE'
+            });
+    // ===========================================
+    // 刪除文章功能 (如果你決定啟用它)
+    // ===========================================
+    /*
+    window.deleteForumPost = async function(postId) {
+        if (!confirm(`確定要刪除文章 ID: ${postId} 嗎？此操作不可逆！`)) {
+            return;
+        }
+
+        try {
+            const deleteApiUrl = `${API_BASE_URL}${API_FORUM_POST_PREFIX}/${postId}`; // 修改刪除 API 路徑
             const response = await fetch(deleteApiUrl, {
                 method: 'DELETE'
             });
@@ -931,6 +1312,10 @@
     */
     // 如果你啟用刪除按鈕，請在 renderTable 中將 `<td><button class="btn btn-edit" ...`
     // 改為 `<td><button class="btn btn-edit" data-post-id="${post.id}" data-for-no-id="${post.forumId}">編輯</button><button class="btn btn-delete" onclick="deleteForumPost(${post.id}, ${post.forumId})">刪除</button></td>`
+    };
+    */
+    // 如果你啟用刪除按鈕，請在 renderTable 中將 ``
+    // 改為 `<button class="btn btn-delete" onclick="deleteForumPost(${post.id})">刪除</button>`
 </script>
 </body>
 </html>
