@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController; // 確保有這�
 import java.util.List;
 
 @RestController // 標註這是一個 RESTful API 控制器，會自動將方法返回值序列化為 JSON/XML
-@RequestMapping("/api/forumtags") // 【重要】這裡的基礎路徑要與前端請求的 `/api/forumtags` 相符
+@RequestMapping("/api/forumtag") // 【重要】這裡的基礎路徑要與前端請求的 `/api/forumtags` 相符
 public class ForumTagController {
 
     private final ForumTagService forumTagService; // 【私有 final 屬性】用於依賴注入

@@ -481,10 +481,10 @@
             </div>
 
             <div class="modal-form-group">
-                <label for="modalPostCoverImage">文章封面圖片:</label>
-                <input type="file" id="modalPostCoverImage" name="imageFile" accept="image/*">
-                <span class="modal-error-feedback" id="modalPostCoverImageError"></span>
-                <img id="currentPostCoverImage" src="" alt="當前封面圖片" style="max-width: 150px; margin-top: 10px; display: none;">
+                <label for="modalPostImage">文章封面圖片:</label>
+                <input type="file" id="modalPostImage" name="imageFile" accept="image/*">
+                <span class="modal-error-feedback" id="modalPostImageError"></span>
+                <img id="currentPostImage" src="" alt="當前封面圖片" style="max-width: 150px; margin-top: 10px; display: none;">
             </div>
 
             <div class="modal-form-group">
@@ -590,8 +590,8 @@
                 }) : '無日期';
 
                 // 判斷是否有圖片URL，如果有則顯示縮圖
-                const postImageHtml = post.postCoverImageUrl ?
-                    `<a href="${post.postCoverImageUrl}" target="_blank"><img src="${post.postCoverImageUrl}" alt="封面" class="forum-thumbnail"></a>` :
+                const postImageHtml = post.postImageUrl ?
+                    `<a href="${post.postImageUrl}" target="_blank"><img src="${post.postImageUrl}" alt="封面" class="forum-thumbnail"></a>` :
                     '無圖片';
 
                 row.innerHTML = `
@@ -693,8 +693,8 @@
         const modalFtagNoIdSelect = document.getElementById('modalFtagNoId');
         const modalPostPinCheckbox = document.getElementById('modalPostPin');
         const modalPostStatusCheckbox = document.getElementById('modalPostStatus');
-        const modalPostCoverImageInput = document.getElementById('modalPostCoverImage'); // 圖片上傳 input
-        const currentPostCoverImage = document.getElementById('currentPostCoverImage'); // 當前圖片顯示
+        const modalPostImageInput = document.getElementById('modalPostImage'); // 圖片上傳 input
+        const currentPostImage = document.getElementById('currentPostImage'); // 當前圖片顯示
         const editForumPostModalForm = document.getElementById('editForumPostModalForm');
         const modalErrorMessagesDiv = document.getElementById('modal-error-messages');
 
@@ -713,8 +713,8 @@
             editModal.style.display = 'none';
             editForumPostModalForm.reset(); // 重置表單
             clearModalErrors(); // 清除錯誤訊息
-            currentPostCoverImage.style.display = 'none'; // 隱藏圖片
-            currentPostCoverImage.src = ''; // 清空圖片源
+            currentPostImage.style.display = 'none'; // 隱藏圖片
+            currentPostImage.src = ''; // 清空圖片源
         }
 
         // 處理模態框錯誤訊息
@@ -750,29 +750,35 @@
         async function loadModalSelectOptions() {
             try {
                 // 載入討論區
-                const forumResponse = await fetch(`${API_BASE_URL}/api${API_FORUM_SEGMENT}/all`); // 修改後的路徑
-                if (!forumResponse.ok) throw new Error(`載入討論區失敗: ${forumResponse.statusText}`);
+                const forumResponse = await fetch(`${API_BASE_URL}/api/forums`);
+                if (!forumResponse.ok) {
+                    throw new Error(`載入討論區失敗: ${forumResponse.statusText} (HTTP ${forumResponse.status})`);
+                }
                 const forums = await forumResponse.json();
                 modalForNoIdSelect.innerHTML = '<option value="">請選擇討論區</option>';
                 forums.forEach(forum => {
                     const option = document.createElement('option');
-                    option.value = forum.id;
-                    option.textContent = forum.forName;
+                    // 確保這裡的屬性名與 ForumDetailDTO.java 中的屬性名一致
+                    option.value = forum.id; // ForumDetailDTO 中的 ID 屬性是 'id'
+                    option.textContent = forum.forName; // ForumDetailDTO 中的名稱屬性是 'forName'
                     modalForNoIdSelect.appendChild(option);
                 });
 
                 // 載入文章類別
-                const ftagResponse = await fetch(`${API_BASE_URL}/api${API_FORUM_TAG_SEGMENT}/all`); // 修改後的路徑
-                if (!ftagResponse.ok) throw new Error(`載入文章類別失敗: ${ftagResponse.statusText}`);
+                // 根據您的 ForumTagController.java，獲取所有文章類別的 API 是 /api/forumtag
+                const ftagResponse = await fetch(`${API_BASE_URL}/api/forumtag`);
+                if (!ftagResponse.ok) {
+                    throw new Error(`載入文章類別失敗: ${ftagResponse.statusText} (HTTP ${ftagResponse.status})`);
+                }
                 const forumTags = await ftagResponse.json();
                 modalFtagNoIdSelect.innerHTML = '<option value="">請選擇文章類別</option>';
                 forumTags.forEach(tag => {
                     const option = document.createElement('option');
-                    option.value = tag.id;
-                    option.textContent = tag.ftagName; // 假設 ForumTag 有 ftagName 屬性
+                    // 確保這裡的屬性名與 ForumTagDTO.java 中的屬性名一致
+                    option.value = tag.id; // ForumTagDTO 中的 ID 屬性是 'id'
+                    option.textContent = tag.ftagName; // ForumTagDTO 中的名稱屬性是 'ftagName'
                     modalFtagNoIdSelect.appendChild(option);
                 });
-
             } catch (error) {
                 showModalError(`載入選單選項失敗: ${error.message}`);
                 console.error('載入選單選項時發生錯誤:', error);
@@ -805,12 +811,12 @@
                 modalPostStatusCheckbox.checked = (post.postStatus === '1' || post.postStatus === true);
 
                 // 顯示當前封面圖片
-                if (post.postCoverImageUrl) {
-                    currentPostCoverImage.src = post.postCoverImageUrl;
-                    currentPostCoverImage.style.display = 'block';
+                if (post.postImageUrl) {
+                    currentPostImage.src = post.postImageUrl;
+                    currentPostImage.style.display = 'block';
                 } else {
-                    currentPostCoverImage.style.display = 'none';
-                    currentPostCoverImage.src = '';
+                    currentPostImage.style.display = 'none';
+                    currentPostImage.src = '';
                 }
 
             } catch (error) {
@@ -844,8 +850,8 @@
             formData.append('forumPostUpdate', new Blob([JSON.stringify(forumPostUpdateDTO)], { type: 'application/json' }));
 
             // 添加圖片檔案
-            if (modalPostCoverImageInput.files.length > 0) {
-                formData.append('imageFile', modalPostCoverImageInput.files[0]);
+            if (modalPostImageInput.files.length > 0) {
+                formData.append('imageFile', modalPostImageInput.files[0]);
             } else {
                 // 如果沒有選擇新圖片，但原本有圖片，可以考慮傳遞一個標識，告訴後端不要修改圖片
                 // 或者後端如果 imageFile 是 required = false，不傳就不會更新。

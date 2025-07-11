@@ -52,9 +52,9 @@ public class ForumPostDTO {
         }
         if (forumPost.getFtagNo() != null) {
             this.forumTagId = forumPost.getFtagNo().getId();
-            // 假設 ForumTag 有 getTagName() 方法
-            // this.forumTagName = forumPost.getFtagNo().getTagName();
-            // 請根據 ForumTag 實際的名稱欄位調整
+//             假設 ForumTag 有 getTagName() 方法
+//             this.forumTagName = forumPost.getFtagNo().getTagName();
+//             請根據 ForumTag 實際的名稱欄位調整
         }
     }
 }
