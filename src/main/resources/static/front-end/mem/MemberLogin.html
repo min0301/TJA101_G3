@@ -3,22 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <title>會員登入 - Pixel Tribe</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<!-- 統一像素風字體 (中英文都支援) -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-    --main-bg: #fff;
+    --main-bg: #f7f4ed;
     --main-brown: #3b3327;
-    --light-yellow: #fdf7d0;
+    --light-yellow: #fffbe7;
     --deep-yellow: #ffe98a;
     --input-bg: #f8f7e7;
-    --input-border: #bfbfbf;
+    --input-border: #d88e24;
     --box-shadow: 0 6px 32px #0003;
-    --pixel-font: 'Press Start 2P', cursive;
-    --main-font: 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', Arial, sans-serif;
+    --pixel-font: 'Noto Sans Mono', Arial, 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+    --main-font: 'Noto Sans Mono', Arial, 'Microsoft JhengHei', 'PingFang TC', sans-serif;
 }
-
 body {
     background: var(--main-bg);
     margin: 0;
@@ -26,7 +24,6 @@ body {
     font-family: var(--main-font);
     color: var(--main-brown);
 }
-
 .banner {
     width: 100%;
     height: 140px;
@@ -42,7 +39,6 @@ body {
     border-radius: 8px;
     box-shadow: 0 4px 16px #0002;
 }
-
 .login-container {
     background: #fff;
     width: 350px;
@@ -52,38 +48,35 @@ body {
     padding: 32px 32px 24px 32px;
     text-align: center;
 }
-
 .pixel-title,
 .modal-title {
-    font-family: var(--pixel-font), var(--main-font);
-    color: var(--main-brown);
+    font-family: var(--pixel-font);
+    color: #d88e24;
     font-size: 2rem;
     margin-bottom: 16px;
     letter-spacing: 2px;
-    text-shadow: 2px 2px 0 #efe7c7, 4px 4px 0 #a19e89;
+    text-shadow: 1px 1px 0 #efe7c7, 2px 2px 0 #a19e89;
+    font-weight: 700;
 }
 .modal-title {
     font-size: 1.18rem;
     margin-bottom: 12px;
 }
-
 .login-label {
-    font-size: 1.2rem;
+    font-size: 1.07rem;
     margin-bottom: 24px;
-    display: block;
     color: var(--main-brown);
     letter-spacing: 1px;
     font-family: var(--main-font);
+    font-weight: 700;
 }
-
 .input-area {
     margin-bottom: 12px;
 }
-
 .login-input {
     width: 90%;
     padding: 10px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     border: 1.5px solid var(--input-border);
     border-radius: 6px;
     margin-bottom: 10px;
@@ -94,25 +87,46 @@ body {
 .login-input::placeholder {
     color: #dddcc6;
     font-family: var(--main-font);
+    font-size: 1rem;
 }
-
 #loginBtn {
     width: 90%;
     padding: 10px 0;
     background: var(--light-yellow);
-    color: #2c2722;
-    font-family: var(--main-font);
-    font-size: 1.15rem;
-    border: 1.5px solid #a9a27e;
+    color: #d88e24;
+    font-family: var(--pixel-font);
+    font-size: 1.05rem;
+    border: 1.5px solid #d88e24;
     border-radius: 6px;
     margin-top: 10px;
     cursor: pointer;
-    transition: background .2s;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: background .2s, color .2s;
 }
 #loginBtn:hover {
     background: var(--deep-yellow);
+    color: #a5731d;
 }
-
+#backHomeBtn {
+    width: 90%;
+    padding: 10px 0;
+    background: #fff;
+    color: #d88e24;
+    font-family: var(--pixel-font);
+    font-size: 1.05rem;
+    border: 1.5px solid #d88e24;
+    border-radius: 6px;
+    margin-top: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: background .2s, color .2s;
+}
+#backHomeBtn:hover {
+    background: #fffbe7;
+    color: #c17a1f;
+}
 #result {
     display: block;
     margin-top: 12px;
@@ -120,8 +134,8 @@ body {
     font-size: 1rem;
     min-height: 1.3em;
     font-family: var(--main-font);
+    font-weight: 700;
 }
-
 /* ==== 忘記密碼 Modal ==== */
 .modal {
     display: none;
@@ -168,16 +182,19 @@ body {
     width: 100%;
     padding: 9px 0;
     background: var(--light-yellow);
-    color: #2c2722;
-    font-family: var(--main-font);
-    font-size: 1.07rem;
-    border: 1.5px solid #a9a27e;
+    color: #d88e24;
+    font-family: var(--pixel-font);
+    font-size: 1.05rem;
+    border: 1.5px solid #d88e24;
     border-radius: 6px;
     cursor: pointer;
-    transition: background .2s;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: background .2s, color .2s;
 }
 .modal-btn:hover {
     background: var(--deep-yellow);
+    color: #a5731d;
 }
 #modalResult {
     margin-top: 10px;
@@ -185,6 +202,7 @@ body {
     font-size: 0.96rem;
     min-height: 1.2em;
     font-family: var(--main-font);
+    font-weight: 700;
 }
 /* ===== Loading Spinner for 寄送認證信 ===== */
 #loadingBox {
@@ -216,14 +234,16 @@ body {
 .forgot-row { text-align: right; }
 .forgot-link {
     color: #b89b61;
-    text-decoration: underline;
+    text-decoration: none;
     font-size: 0.99rem;
-    font-family: var(--main-font);
+    font-family: var(--pixel-font);
     cursor: pointer;
     transition: color .18s;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding-right: 2px;
 }
 .forgot-link:hover { color: #ce871a; }
-
 /* 強制 modal 裡全部元素都用主字型 */
 .modal * {
     font-family: var(--main-font) !important;
@@ -231,15 +251,14 @@ body {
 .modal-title {
     font-family: var(--pixel-font), var(--main-font) !important;
 }
-
 </style>
 </head>
 <body>
-    <!-- Banner 區 -->
-    <div class="banner">
-        <img src="your-banner.png" alt="PIXEL-TRIBE Banner">
-        <!-- 請將 your-banner.png 換成你的像素風 banner 圖片路徑 -->
-    </div>
+<!--     Banner 區 -->
+<!--     <div class="banner"> -->
+<!--         <img src="your-banner.png" alt="PIXEL-TRIBE Banner"> -->
+<!--         請將 your-banner.png 換成你的像素風 banner 圖片路徑 -->
+<!--     </div> -->
     <!-- 登入表單區 -->
     <div class="login-container">
         <div class="pixel-title">PIXEL TRIBE</div>
@@ -257,6 +276,7 @@ body {
                 <a href="javascript:void(0)" class="forgot-link" id="forgotLink">忘記密碼？</a>
             </div>
             <button type="submit" id="loginBtn">登入</button>
+            <button type="button" id="backHomeBtn" onclick="window.location.href='/indexstatic.html'">返回首頁</button>
             <span id="result"></span>
         </form>
     </div>
@@ -269,7 +289,6 @@ body {
                 placeholder="請輸入Email" required>
             <button id="sendMailBtn" class="modal-btn">寄送認證碼並前往驗證</button>
             <div id="modalResult"></div>
-            <!-- loadingBox: 寄信時顯示等待 -->
             <div id="loadingBox">
                 <div class="spinner"></div>
                 <div class="loading-text">正在寄出驗證信，請稍後...</div>
@@ -314,7 +333,6 @@ body {
     // =============== 忘記密碼 Modal 開關 ===============
     document.getElementById('forgotLink').onclick = function() {
         document.getElementById('forgotModal').style.display = 'flex';
-        // 重設欄位/訊息
         document.getElementById('modalResult').textContent = '';
         document.getElementById('modalResult').style.color = '#b94040';
         document.getElementById('loadingBox').style.display = 'none';
@@ -326,7 +344,6 @@ body {
         document.getElementById('loadingBox').style.display = 'none';
         document.getElementById('forgotEmail').value = '';
     };
-    // 點背景也可關閉
     document.getElementById('forgotModal').onclick = function(e) {
         if(e.target === this) {
             this.style.display = 'none';
@@ -342,16 +359,13 @@ body {
         const result = document.getElementById('modalResult');
         const loadingBox = document.getElementById('loadingBox');
         result.textContent = "";
-        result.style.color = ""; // 清除前次訊息顏色
-
+        result.style.color = "";
         if(!email) {
             result.textContent = '請輸入Email';
             result.style.color = "#b94040";
             return;
         }
-        // 顯示 loading 動畫
         loadingBox.style.display = 'block';
-
         fetch('/api/members/forgot-password', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -363,9 +377,7 @@ body {
             if(data.success) {
                 result.style.color = "#25a45a";
                 result.textContent = data.message || '認證信已寄出，請至信箱查收！';
-                // 暫存 email 給重設密碼頁用
                 localStorage.setItem('emailForReset', email);
-                // 1.5 秒後導向重設密碼頁
                 setTimeout(() => {
                     window.location.href = "/front-end/mem/PasswordResetWithVcode.html";
                 }, 1500);

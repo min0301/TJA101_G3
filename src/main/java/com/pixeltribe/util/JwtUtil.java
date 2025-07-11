@@ -18,13 +18,13 @@ public class JwtUtil {
 	private final String SECRET_KEY = "PPPPPIIIIIXXXXXEEEEELLLLL_TTTTTRRRRRIIIIIBBBBBEEEEE";
 	
 	public String generateAdminToken(Administrator administrator) {
-		return Jwts.builder().setSubject(administrator.getAdmAccount()).claim("admId", administrator.getId()).claim("role", "ROLE_ADMIN")
+		return Jwts.builder().setSubject(administrator.getAdmAccount()).claim("admId", administrator.getId()).claim("role", administrator.getRole())
 				.setIssuedAt(new Date()).setExpiration(Date.from(Instant.now().plus(7, ChronoUnit.DAYS))) // 7天有效
 				.signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes()).compact();
 	}
 	
 	public String generateMemberToken(Member member) {
-		return Jwts.builder().setSubject(member.getMemAccount()).claim("memId", member.getId()).claim("role", "ROLE_MEMBER")
+		return Jwts.builder().setSubject(member.getMemAccount()).claim("memId", member.getId()).claim("role", member.getRole())
 				.setIssuedAt(new Date()).setExpiration(Date.from(Instant.now().plus(7, ChronoUnit.DAYS))) // 7天有效
 				.signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes()).compact();
 	}
