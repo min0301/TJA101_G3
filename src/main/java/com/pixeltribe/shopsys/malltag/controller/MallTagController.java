@@ -42,7 +42,7 @@ public class MallTagController {
 		List<MallTag> list = mallTagService.getAllMallTags();
 		return "success"; 
 	}
-	
+	@Transactional
 	@PutMapping("/malltag/update/{mallTagNO}")
 	public ResponseEntity<?> updateMallTag(
 	    @PathVariable("mallTagNO") Integer mallTagNO,

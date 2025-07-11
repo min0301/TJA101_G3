@@ -15,6 +15,7 @@ import lombok.Setter;
 public class ProSerialNumber {
     @Id
     @Column(name = "PRODUCT_SN_NO", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Size(max = 100)
