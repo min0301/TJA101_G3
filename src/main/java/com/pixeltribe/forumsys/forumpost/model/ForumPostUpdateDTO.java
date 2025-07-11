@@ -15,10 +15,6 @@ public class ForumPostUpdateDTO {
     @NotNull(message = "類別編號: 請選擇您的類別")
     private Integer ftagNoId;
 
-    // TODO: 會員ID 通常會從認證資訊中取得，而不是由前端傳入，這裡暫時保留以符合您原始的邏輯
-    @NotNull(message = "會員ID: 無法取得會員資訊")
-    private Integer memId;
-
     @NotEmpty(message = "文章標題: 請勿空白")
     @Size(max = 50, message = "文章標題長度不能超過50")
     private String postTitle;

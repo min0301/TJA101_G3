@@ -79,9 +79,9 @@ public class ForumPostService {
         forumPost.setPostUpdate(Instant.now()); // 設定更新時間
 
         // 查找並設定關聯實體
-        Member member = memRepository.findById(forumPostDTO.getMemId())
-                .orElseThrow(() -> new ResourceNotFoundException("找不到會員 ID: " + forumPostDTO.getMemId()));
-        forumPost.setMemNo(member);
+//        Member member = memRepository.findById(forumPostDTO.getMemId())
+//                .orElseThrow(() -> new ResourceNotFoundException("找不到會員 ID: " + forumPostDTO.getMemId()));
+//        forumPost.setMemNo(member);
 
         Forum forum = forumRepository.findById(forumPostDTO.getForNoId())
                 .orElseThrow(() -> new ResourceNotFoundException("找不到討論區 ID: " + forumPostDTO.getForNoId()));
@@ -90,10 +90,22 @@ public class ForumPostService {
         ForumTag forumTag = forumTagRepository.findById(forumPostDTO.getFtagNoId())
                 .orElseThrow(() -> new ResourceNotFoundException("找不到文章類別 ID: " + forumPostDTO.getFtagNoId()));
         forumPost.setFtagNo(forumTag);
+        //判斷使用者是否有使用上船的圖片檔案
+//        if(imageFile != null && !imageFile.isEmpty()) {
+//            String imageUrl = processImageFile(imageFile, subDirectory: "forumsys/forumpost");
+//            forumPost.setPostCoverImageUrl(imageUrl);
+//        }
+        //依據選擇的文章類別預設圖
+//        if(selectedCategoryId != null){
+//            String defaultImageUrl = getCategorDefaultImageUrl(selectedCategoryId);
+//            forumPost.setPostCoverImageUrl(defaultImageUrl);
+//        }
+        forumPost.setPostImageUrl("/images/forumposttag_img/09.jpg"); // 設定一個通用的預設封面
+
 
         // 處理圖片儲存
         String imageUrl = processImageFile(imageFile, "forumsys/forumpost"); // 變數名稱 `imageUrl` 可變
-        forumPost.setPostCoverImageUrl(imageUrl);
+        forumPost.setPostImageUrl(imageUrl);
 
         ForumPost savedForumPost = forumPostRepository.save(forumPost);
         return new ForumPostDTO(savedForumPost); // 返回 DTO
@@ -107,7 +119,7 @@ public class ForumPostService {
      * @return 更新後的 ForumPostDTO。
      */
     @Transactional
-    public ForumPostDTO updateForumPost(Integer postId, ForumPostUpdateDTO forumPostDTO, MultipartFile imageFile) {
+    public ForumPostDTO updateForumPost(Integer postId, Integer forNo, ForumPostUpdateDTO forumPostDTO , MultipartFile imageFile) {
         ForumPost existingPost = forumPostRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到文章 ID: " + postId));
 
@@ -118,11 +130,11 @@ public class ForumPostService {
         existingPost.setPostUpdate(Instant.now()); // 更新時間
 
         // 查找並設定關聯實體 (如果 DTO 中提供了新的 ID)
-        if (!existingPost.getMemNo().getId().equals(forumPostDTO.getMemId())) { // 檢查是否需要更新會員
-            Member member = memRepository.findById(forumPostDTO.getMemId())
-                    .orElseThrow(() -> new ResourceNotFoundException("找不到會員 ID: " + forumPostDTO.getMemId()));
-            existingPost.setMemNo(member);
-        }
+//        if (!existingPost.getMemNo().getId().equals(forumPostDTO.getMemId())) { // 檢查是否需要更新會員
+//            Member member = memRepository.findById(forumPostDTO.getMemId())
+//                    .orElseThrow(() -> new ResourceNotFoundException("找不到會員 ID: " + forumPostDTO.getMemId()));
+//            existingPost.setMemNo(member);
+//        }
         if (!existingPost.getForNo().getId().equals(forumPostDTO.getForNoId())) { // 檢查是否需要更新討論區
             Forum forum = forumRepository.findById(forumPostDTO.getForNoId())
                     .orElseThrow(() -> new ResourceNotFoundException("找不到討論區 ID: " + forumPostDTO.getForNoId()));
@@ -137,7 +149,7 @@ public class ForumPostService {
         // 處理圖片更新
         String imageUrl = processImageFile(imageFile, "forumsys/forumpost");
         if (imageUrl != null) { // 如果有新圖片上傳，則更新 URL
-            existingPost.setPostCoverImageUrl(imageUrl);
+            existingPost.setPostImageUrl(imageUrl);
         }
 
         ForumPost updatedPost = forumPostRepository.save(existingPost);

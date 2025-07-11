@@ -8,26 +8,17 @@ import com.pixeltribe.forumsys.articlereport.model.ArticleReport;
 import org.hibernate.annotations.ColumnDefault;
 import com.fasterxml.jackson.annotation.JsonIgnore; // 保留，用於忽略 OneToMany 關係
 import com.pixeltribe.forumsys.forum.model.Forum;
-import com.pixeltribe.membersys.member.model.Member;
+import com.pixeltribe.forumsys.forumimage.model.ForumImage;
+import com.pixeltribe.forumsys.forumtag.model.ForumTag;
 import com.pixeltribe.forumsys.message.model.ForumMes;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotEmpty; // 這些驗證註解通常用於 DTO，但保留在 Entity 也可以作為資料庫層的基礎約束
+import com.pixeltribe.membersys.member.model.Member;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
@@ -96,12 +87,12 @@ public class ForumPost {
     private Integer postLikeDlc;
 
     // 將 byte[] 替換為 String，用於儲存圖片 URL
-    @Column(name = "IMG_DATA") //與資料庫名稱相同
-    private String postCoverImageUrl; // 新增圖片 URL 欄位，變數名稱 `postCoverImageUrl` 可變，但建議與資料庫欄位名一致
+    @Column(name = "POSTIMAGE_URL") //與資料庫名稱相同
+    private String postImageUrl; // 新增圖片 URL 欄位，變數名稱 `postCoverImageUrl` 可變，但建議與資料庫欄位名一致
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "postNo")
-    private Set<ArticleReport> articleReports = new LinkedHashSet<>(); // 變數名稱 `articleReports` 可變
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "postNo")
+//    private Set<ArticleReport> articleReports = new LinkedHashSet<>(); // 變數名稱 `articleReports` 可變
 
     @JsonIgnore
     @OneToMany(mappedBy = "postNo")
