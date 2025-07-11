@@ -5,101 +5,184 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>論壇管理後台</title>
     <style>
-        /* CSS 樣式區 */
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0 auto;
-            max-width: 1400px;
-            padding: 20px;
-            background-color: #f4f7f6;
-            color: #333;
+        /* --- 核心修改：樣式與 allOrder.html 及主模板同步 --- */
+        .forum-management-container {
+            width: 100%;
+            max-width: 1400px; /* 關鍵：讓內容有最大寬度限制 */
+            margin: 0 auto;    /* 關鍵：讓容器水平置中 */
         }
 
-        .header-container {
+        /* 頁面標題，與 allOrder.html 對齊 */
+        .page-title-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 20px; /* 標題和首頁按鈕的間距 */
-        }
-
-        h1 {
-            color: #2c3e50;
+        .page-title-header h2 {
+            font-family: 'Karla', sans-serif; /* 使用主模板字體 */
+            font-size: 24px;
+            color: var(--text-color);
+            font-weight: 700;
             margin: 0;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px 15px;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        thead {
-            background-color: #3498db;
-            color: #ffffff;
-        }
-
-        tbody tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        tbody tr:hover {
-            background-color: #e8f4fd;
-        }
-
-        .pagination-container {
+        /* 控制列，與 allOrder.html 對齊 */
+        .control-bar {
+            background: var(--component-bg);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 25px;
             flex-wrap: wrap;
+            gap: 15px;
         }
 
-        .pagination-controls button {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            color: #3498db;
+        .filter-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .filter-select {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             padding: 8px 12px;
-            margin: 0 2px;
+            background: var(--primary-bg);
+            color: var(--text-color);
+            transition: border-color 0.2s;
+        }
+        .filter-select:focus {
+            border-color: var(--brand-green); /* 使用主模板主題色 */
+            outline: none;
+        }
+
+        /* 表格容器，與 allOrder.html 對齊 */
+        .table-container {
+            background: var(--component-bg);
+            border-radius: 12px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        .table thead {
+            background: var(--brand-green-light); /* 使用主模板主題色 */
+        }
+
+        .table th {
+            color: var(--brand-green); /* 使用主模板主題色 */
+            font-weight: 700;
+            text-align: center;
+            vertical-align: middle;
+            padding: 15px;
+            border: none;
+        }
+
+        .table td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 12px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        /* 狀態標籤 (維持原樣，因為這是論壇本身的狀態，顏色有語意) */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .status-normal { background-color: #d4edda; color: #155724; }
+        .status-disabled { background-color: #f8d7da; color: #721c24; }
+
+        /* 操作按鈕，與 allOrder.html 對齊 */
+        .action-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: 6px;
             cursor: pointer;
-            border-radius: 4px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
         }
 
-        .pagination-controls button:hover:not(:disabled) {
-            background-color: #e8f4fd;
+        .action-btn:hover {
+            background: var(--brand-green-light);
+            color: var(--brand-green);
+            border-color: var(--brand-green);
         }
 
-        .pagination-controls button.active {
-            background-color: #3498db;
+        /* 新增按鈕，使用主模板主題色 */
+        .action-btn.btn-add {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
             color: white;
-            border-color: #3498db;
+            font-weight: bold;
+        }
+        .action-btn.btn-add:hover {
+            background-color: var(--brand-green-hover);
+            border-color: var(--brand-green-hover);
         }
 
-        .pagination-controls button:disabled {
-            color: #ccc;
-            cursor: not-allowed;
+        /* 分頁控制項，與 allOrder.html 對齊 */
+        .pagination-controls {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 20px 0;
+        }
+        .pagination {
+            display: flex;
+            padding-left: 0;
+            list-style: none;
+            margin: 0;
+        }
+        .pagination-controls .page-item .page-link {
+            color: var(--brand-green);
+            background-color: var(--component-bg);
+            border: 1px solid var(--border-color);
+            margin: 0 3px;
+            padding: 8px 14px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: block;
+        }
+        .pagination-controls .page-item.active .page-link {
+            z-index: 1;
+            color: #fff;
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+        }
+        .pagination-controls .page-item.disabled .page-link {
+            color: #6c757d;
+            pointer-events: none;
+            background-color: #e9ecef;
+            border-color: var(--border-color);
+        }
+        .pagination-controls .page-item .page-link:hover:not(.active) {
+            background-color: var(--brand-green-light);
+            border-color: var(--brand-green);
         }
 
-        .items-per-page-selector, .pagination-info {
-            font-size: 14px;
-            color: #555;
-        }
-
+        /* 錯誤訊息 (維持不變) */
         #error-message {
             color: #e74c3c;
             background-color: #fbecec;
@@ -110,33 +193,7 @@
             display: none;
         }
 
-        .btn {
-            display: inline-block;
-            text-decoration: none;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: opacity 0.3s;
-            text-align: center;
-        }
-
-        .btn:hover {
-            opacity: 0.85;
-        }
-
-        .btn-home {
-            background-color: #95a5a6;
-        }
-
-        .btn-add {
-            background-color: #2ecc71;
-        }
-
-        .btn-edit {
-            background-color: #f39c12;
-        }
-
+        /* 圖片與燈箱 (維持不變，這是論壇頁獨有功能) */
         .forum-thumbnail {
             width: 100px;
             height: 75px;
@@ -146,277 +203,283 @@
             transition: transform 0.2s ease-in-out;
             cursor: pointer;
         }
-
-        td a:has(.forum-thumbnail) {
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        td a:has(.forum-thumbnail):hover .forum-thumbnail {
-            transform: scale(1.1);
-            opacity: 0.9;
-        }
-
-        /* --- 燈箱樣式 --- */
-        .lightbox {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s;
-        }
-
-        .lightbox-content {
-            max-width: 85%;
-            max-height: 85%;
-            border-radius: 5px;
-        }
-
-        .lightbox-close {
-            position: absolute;
-            top: 20px;
-            right: 35px;
-            color: #fff;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        .lightbox-close:hover {
-            color: #bbb;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* --- 在你的 <style> 區塊中加入以下程式碼 --- */
-
-        /* targeting the table header */
-        thead th:nth-child(1) {
-            width: 20px;
-        }
-
-        /* 第 1 欄 (ID) */
-        thead th:nth-child(2) {
-            width: 150px;
-        }
-
-        /* 第 2 欄 (論壇名稱) */
-        thead th:nth-child(3) {
-            width: 80px;
-        }
-
-        /* 第 3 欄 (分類) */
-        thead th:nth-child(4) {
-            width: 120px;
-        }
-
-        /* 第 4 欄 (圖片) */
-        thead th:nth-child(5) {
-            width: 250px;
-        }
-
-        /* 第 5 欄 (描述) */
-        /*thead th:nth-child(8) { width: 60px; }  !* 第 8 欄 (狀態) *!*/
-        /*thead th:nth-child(9) { width: 100px; } !* 第 9 欄 (操作) *!*/
-
+        td a:has(.forum-thumbnail) { text-decoration: none; display: inline-block; }
+        td a:has(.forum-thumbnail):hover .forum-thumbnail { transform: scale(1.1); }
+        .lightbox { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); justify-content: center; align-items: center; }
+        .lightbox-content { max-width: 85%; max-height: 85%; border-radius: 5px; }
+        .lightbox-close { position: absolute; top: 20px; right: 35px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; transition: color 0.3s; }
+        .lightbox-close:hover { color: #bbb; }
     </style>
 </head>
 <body>
-<div class="header-container">
-    <div class="header-left">
-        <h1>論壇管理</h1>
-        <a href="/" class="btn btn-home">回到首頁</a>
+
+<div class="forum-management-container">
+    <div class="page-title-header">
+        <h2><i class="bi bi-card-list item-icon"></i>論壇管理</h2>
     </div>
-    <div class="header-right">
-        <a href="addForum.html" class="btn btn-add">＋ 新增討論區</a>
+
+    <div class="control-bar">
+        <div>
+            <a href="addForum.html" class="action-btn btn-add">＋ 新增討論區</a>
+        </div>
+        <div class="filter-group">
+            <div>
+                <label for="itemsPerPageFilter">每頁顯示：</label>
+                <select id="itemsPerPageFilter" class="filter-select" onchange="changeItemsPerPage()">
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                </select>
+            </div>
+            <div>
+                <label for="statusFilter">篩選狀態：</label>
+                <select id="statusFilter" class="filter-select" onchange="filterByStatus()">
+                    <option value="">全部狀態</option>
+                    <option value="0">正常</option>
+                    <option value="1">停用</option>
+                </select>
+            </div>
+        </div>
     </div>
-</div>
 
-<div id="error-message"></div>
+    <div id="error-message"></div>
 
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>論壇名稱</th>
-        <th>分類</th>
-        <th>圖片</th>
-        <th>描述</th>
-        <th>創建時間</th>
-        <th>更新時間</th>
-        <th>狀態</th>
-        <th>操作</th>
-    </tr>
-    </thead>
-    <tbody id="forum-data-body">
-    <!--  nick new-->
-    <tr>
-        <td colspan="9" class="text-center text-muted">載入中...</td>
-    </tr>
-    <!--  nick new-->
-    </tbody>
-</table>
-
-<div class="pagination-container">
-    <div class="items-per-page-selector">
-        <label for="items-per-page">每頁顯示：</label>
-        <select id="items-per-page">
-            <option value="3">3 筆</option>
-            <option value="5">5 筆</option>
-            <option value="10" selected>10 筆</option>
-            <option value="20">20 筆</option>
-        </select>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>論壇名稱</th>
+                <th>分類</th>
+                <th>圖片</th>
+                <th>描述</th>
+                <th>創建時間</th>
+                <th>更新時間</th>
+                <th>狀態</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="forumTableBody">
+            <tr>
+                <td colspan="9" style="text-align:center; padding: 40px;">載入中...</td>
+            </tr>
+            </tbody>
+        </table>
     </div>
-    <div id="pagination-info" class="pagination-info"></div>
-    <div id="pagination-controls" class="pagination-controls"></div>
-</div>
 
-<div id="lightbox" class="lightbox">
-    <span id="lightbox-close" class="lightbox-close">&times;</span>
-    <img id="lightbox-img" class="lightbox-content">
+    <nav id="paginationContainer" class="pagination-controls"></nav>
+
+    <div id="lightbox" class="lightbox">
+        <span id="lightbox-close" class="lightbox-close">&times;</span>
+        <img id="lightbox-img" class="lightbox-content">
+    </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const apiUrl = 'http://localhost:8080/api/forums';
+    // 使用 IIFE (Immediately Invoked Function Expression) 避免污染全域範疇
+    (function() {
+        // --- 變數定義區 ---
+        const apiUrl = 'http://localhost:8080/api/forums'; // 不可變：後端 API 端點
 
-        const tableBody = document.getElementById('forum-data-body');
+        // 可變：這些是 DOM 元素的引用，名稱可依個人習慣修改，但要與 HTML 的 id 對應
+        const tableBody = document.getElementById('forumTableBody');
         const errorMessageDiv = document.getElementById('error-message');
-        const itemsPerPageSelect = document.getElementById('items-per-page');
-        const paginationControls = document.getElementById('pagination-controls');
-        const paginationInfo = document.getElementById('pagination-info');
+        const paginationContainer = document.getElementById('paginationContainer');
+        const itemsPerPageFilter = document.getElementById('itemsPerPageFilter');
+        const statusFilter = document.getElementById('statusFilter');
 
-        let allForumsData = [];
+        // 可變：應用程式狀態變數
+        let allForumsData = []; // 存放從 API 獲取的原始論壇資料
         let currentPage = 1;
-        let itemsPerPage = parseInt(itemsPerPageSelect.value);
+        let itemsPerPage = 10;
 
-        async function initialize() {
+        // --- 核心功能函式 ---
+
+        /**
+         * @description 初始化函式，從 API 獲取資料
+         */
+        async function loadForums() {
             try {
                 const response = await fetch(apiUrl);
-                if (!response.ok) throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
+                }
                 allForumsData = await response.json();
+                itemsPerPage = parseInt(itemsPerPageFilter.value) || 10;
                 currentPage = 1;
-                renderPage();
+                updateDisplay();
             } catch (error) {
                 showError(error);
             }
         }
 
-        function renderPage() {
-            renderTable();
-            renderPagination();
-        }
+        /**
+         * @description 更新頁面顯示，包含表格和分頁
+         */
+        function updateDisplay() {
+            const currentStatusFilter = statusFilter.value;
+            // 根據狀態篩選資料
+            const filteredData = currentStatusFilter
+                ? allForumsData.filter(forum => forum.forStatus === currentStatusFilter)
+                : [...allForumsData];
 
-        function renderTable() {
-            tableBody.innerHTML = '';
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
-            const itemsToShow = allForumsData.slice(startIndex, endIndex);
-            //nick new 如果沒有論壇資料，顯示提示訊息
-            if (itemsToShow.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="9" class="text-center">目前沒有此論壇資訊。</td></tr>`;
-                return itemsToShow;
+            const paginatedData = filteredData.slice(startIndex, endIndex);
+
+            renderTableBody(paginatedData);
+            renderPaginationControls(filteredData.length);
+        }
+
+        /**
+         * @description 渲染表格內容
+         * @param {Array} forums - 要顯示在當前頁面的論壇資料
+         */
+        function renderTableBody(forums) {
+            // 清空表格
+            tableBody.innerHTML = '';
+
+            // 常見錯誤：若傳入的 forums 是空的，沒有做處理會顯示空白畫面。
+            // 解法：判斷陣列長度，若為 0 則顯示提示訊息。
+            if (!forums || forums.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 40px;">找不到符合條件的論壇</td></tr>`;
+                return;
             }
-            //nick new 如果沒有論壇資料，顯示提示訊息
-            itemsToShow.forEach(forum => {
-                const row = document.createElement('tr');
+
+            // 此處的 forum 是迴圈中的區域變數，代表單筆論壇資料
+            forums.forEach(forum => {
+                const row = document.createElement('tr'); // row 是區域變數
                 row.innerHTML = `
-            <td>${forum.id}</td>
-            <td> <a href="/back-end/forumsys/forumpost/allForumPost.html?forNo=${forum.id}">
-                ${forum.forName || '無名稱'} </a></td>
-<!--            <td>${forum.categoryName}</td>-->
-            <td>
-                <a href="findByCatNoForum.html?catId=${forum.categoryId}">
-                    ${forum.categoryName}
-                </a>
-            </td>
-            <td>
-              ${forum.forImgUrl ?
+                    <td>${forum.id}</td>
+                    <td>
+                        <a href="/back-end/forumsys/forumpost/allForumPost.html?forNo=${forum.id}">
+                            ${forum.forName || '無名稱'}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="findByCatNoForum.html?catId=${forum.categoryId}">
+                            ${forum.categoryName || '未分類'}
+                        </a>
+                    </td>
+                    <td>
+                      ${forum.forImgUrl ?
                     `<a href="${forum.forImgUrl}">
-                   <img src="${forum.forImgUrl}" alt="${forum.forName} 的縮圖" class="forum-thumbnail">
-                 </a>` :
+                           <img src="${forum.forImgUrl}" alt="${forum.forName} 的縮圖" class="forum-thumbnail">
+                         </a>` :
                     '無圖片'
                 }
-            </td>
-            <td>${forum.forDes}</td>
-            <td>${new Date(forum.forDate).toLocaleString()}</td>
-            <td>${new Date(forum.forUpdate).toLocaleString()}</td>
-            <td>${forum.forStatus === '0' ? '正常' : '停用'}</td>
-            <td>
-                <a href="forum.html?id=${forum.id}" class="btn btn-edit">修改</a>
-            </td>
-        `;
+                    </td>
+                    <td>${forum.forDes || '無描述'}</td>
+                    <td>${formatDateTime(forum.forDate)}</td>
+                    <td>${formatDateTime(forum.forUpdate)}</td>
+                    <td>
+                        <span class="status-badge ${getStatusClass(forum.forStatus)}">
+                            ${forum.forStatus === '0' ? '正常' : '停用'}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="forum.html?id=${forum.id}" class="action-btn">修改</a>
+                    </td>
+                `;
                 tableBody.appendChild(row);
             });
         }
 
-        function renderPagination() {
-            paginationControls.innerHTML = '';
-            const totalItems = allForumsData.length;
+        /**
+         * @description 渲染分頁控制項
+         * @param {number} totalItems - 篩選後的總資料筆數
+         */
+        function renderPaginationControls(totalItems) {
             const totalPages = Math.ceil(totalItems / itemsPerPage);
+
             if (totalPages <= 1) {
-                paginationInfo.textContent = `共 ${totalItems} 筆資料`;
+                paginationContainer.innerHTML = '';
                 return;
             }
-            const startItem = (currentPage - 1) * itemsPerPage + 1;
-            const endItem = Math.min(currentPage * itemsPerPage, totalItems);
-            paginationInfo.textContent = `顯示 ${startItem} - ${endItem} 筆，共 ${totalItems} 筆`;
-            paginationControls.appendChild(
-                createPaginationButton('« 上一頁', () => changePage(currentPage - 1), currentPage === 1)
-            );
+
+            let paginationHTML = '<ul class="pagination">';
+
+            // 上一頁按鈕
+            paginationHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="event.preventDefault(); changePage(${currentPage - 1})">上一頁</a>
+                </li>`;
+
+            // 頁碼按鈕
             for (let i = 1; i <= totalPages; i++) {
-                const pageButton = createPaginationButton(i, () => changePage(i));
-                if (i === currentPage) pageButton.classList.add('active');
-                paginationControls.appendChild(pageButton);
+                paginationHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="event.preventDefault(); changePage(${i})">${i}</a>
+                    </li>`;
             }
-            paginationControls.appendChild(
-                createPaginationButton('下一頁 »', () => changePage(currentPage + 1), currentPage === totalPages)
-            );
+
+            // 下一頁按鈕
+            paginationHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="event.preventDefault(); changePage(${currentPage + 1})">下一頁</a>
+                </li>`;
+
+            paginationHTML += '</ul>';
+            paginationContainer.innerHTML = paginationHTML;
         }
 
-        function createPaginationButton(text, clickHandler, disabled = false) {
-            const button = document.createElement('button');
-            button.textContent = text;
-            button.disabled = disabled;
-            button.addEventListener('click', clickHandler);
-            return button;
+        // --- 事件處理函式 ---
+        // 不可變：以下函式名稱需與 HTML 中的 onchange, onclick 對應，所以名稱是固定的
+        window.filterByStatus = function() {
+            currentPage = 1;
+            updateDisplay();
         }
 
-        function changePage(newPage) {
-            const totalPages = Math.ceil(allForumsData.length / itemsPerPage);
-            if (newPage >= 1 && newPage <= totalPages) {
-                currentPage = newPage;
-                renderPage();
+        window.changeItemsPerPage = function() {
+            itemsPerPage = parseInt(itemsPerPageFilter.value);
+            currentPage = 1;
+            updateDisplay();
+        }
+
+        window.changePage = function(page) {
+            const currentStatusFilter = statusFilter.value;
+            const filteredData = currentStatusFilter
+                ? allForumsData.filter(forum => forum.forStatus === currentStatusFilter)
+                : allForumsData;
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+            // 邊界檢查，避免跳轉到不存在的頁面
+            if (page < 1 || page > totalPages) {
+                return;
             }
+
+            currentPage = page;
+            updateDisplay();
         }
 
+        // --- 輔助函式 ---
         function showError(error) {
             console.error('無法獲取論壇資料:', error);
             errorMessageDiv.style.display = 'block';
             errorMessageDiv.innerHTML = `<strong>資料載入失敗！</strong> 請檢查後端服務是否啟動及 CORS 設定。<br>詳細錯誤: ${error.message}`;
         }
 
-        itemsPerPageSelect.addEventListener('change', (event) => {
-            itemsPerPage = parseInt(event.target.value);
-            currentPage = 1;
-            renderPage();
-        });
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return '-';
+            try {
+                // toLocaleString() 是個方便的工具，可以格式化為本地時間格式
+                return new Date(dateTimeStr).toLocaleString('zh-TW', { hour12: false });
+            } catch (e) {
+                return dateTimeStr; // 如果格式錯誤，返回原始字串
+            }
+        }
 
-        // --- 燈箱邏輯控制 ---
+        function getStatusClass(status) {
+            // 根據狀態回傳對應的 CSS class
+            switch(status) {
+                case '0': return 'status-normal';
+                case '1': return 'status-disabled';
+                default: return '';
+            }
+        }
+
+        // --- 燈箱邏輯 ---
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
         const lightboxClose = document.getElementById('lightbox-close');
@@ -429,34 +492,23 @@
                 openLightbox(imageUrl);
             }
         });
-
         function openLightbox(imageUrl) {
             lightboxImg.setAttribute('src', imageUrl);
             lightbox.style.display = 'flex';
-            document.addEventListener('keydown', handleEscKey);
         }
-
         function closeLightbox() {
             lightbox.style.display = 'none';
-            lightboxImg.setAttribute('src', '');
-            document.removeEventListener('keydown', handleEscKey);
         }
-
-        function handleEscKey(event) {
-            if (event.key === 'Escape') {
-                closeLightbox();
-            }
-        }
-
         lightboxClose.addEventListener('click', closeLightbox);
-        lightbox.addEventListener('click', function (event) {
-            if (event.target === lightbox) {
-                closeLightbox();
-            }
-        });
+        lightbox.addEventListener('click', e => (e.target === lightbox) && closeLightbox());
+        document.addEventListener('keydown', e => (e.key === 'Escape') && closeLightbox());
 
-        initialize();
-    });
+
+        // --- 初始化頁面 ---
+        loadForums();
+
+    })();
 </script>
+
 </body>
 </html>

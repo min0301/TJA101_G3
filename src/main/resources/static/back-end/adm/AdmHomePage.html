@@ -4,344 +4,539 @@
     <meta charset="UTF-8">
     <title>PixelTribe 管理員首頁</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Pixel 字體 -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+
     <style>
+        /* --- 核心變數: 全面替換為前台薄荷綠風格 --- */
         :root {
-            --milktea-bg: #f7f4ed;
-            --card-bg: #fff;
-            --milktea-yellow: #fff7db;
-            --milktea-border: #e8dec7;
-            --milktea-brown: #70513b;
-            --milktea-main: #ab8556;
-            --milktea-hover: #fae7c2;
+            --primary-bg: #f0f2f5;
+            --component-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --text-color: #5d5d66;
+            --text-muted: #6c757d;
+            --brand-green: #08beab;
+            --brand-green-hover: #07a897;
+            --brand-green-light: rgba(8, 190, 171, 0.1);
         }
+
+        /* --- 基礎樣式: 統一字體與背景 --- */
         html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            min-height: 100vh;
-            background: var(--milktea-bg);
-            font-family: '微軟正黑體', Arial, sans-serif;
+            margin: 0; padding: 0; height: 100%; min-height: 100vh;
+            background: var(--primary-bg);
+            font-family: 'Karla', '微軟正黑體', Arial, sans-serif;
             box-sizing: border-box;
+            color: var(--text-color);
         }
-        body {
-            width: 100vw;
-            height: 100vh;
-            overflow-x: hidden;
-        }
+        body { width: 100vw; height: 100vh; overflow-x: hidden; }
+
+        /* --- 頂部導覽列 --- */
         .topbar {
-            width: 100%;
-            height: 60px;
-            background: var(--card-bg);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 1.5px 8px #e2dbc53f;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 10;
-            padding: 0 16px;
-            box-sizing: border-box;
+            width: 100%; height: 60px; background: var(--component-bg);
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: fixed; top: 0; left: 0; z-index: 10;
+            padding: 0 24px; box-sizing: border-box;
+            border-bottom: 1px solid var(--border-color);
         }
-        .pixel-title {
-            font-family: 'Press Start 2P', Arial, sans-serif;
-            font-size: 20px;
-            color: var(--milktea-main);
-            letter-spacing: 1.6px;
+
+        .topbar-logo img {
+            height: 40px;
+            width: auto;
+            vertical-align: middle;
         }
+
         .logout-btn {
-            background: var(--milktea-yellow);
-            color: var(--milktea-brown);
-            border: 2px solid var(--milktea-border);
-            border-radius: 10px;
-            padding: 10px 32px;
-            font-family: 'Press Start 2P', Arial, sans-serif;
-            font-size: 13px;
-            cursor: pointer;
-            transition: background 0.15s, border 0.2s;
-            box-shadow: 0 2px 0 #e2dbc5;
+            background: var(--brand-green-light); color: var(--brand-green);
+            border: 2px solid var(--brand-green); border-radius: 8px;
+            padding: 8px 24px; font-family: 'Karla', sans-serif;
+            font-size: 14px; font-weight: 700; cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .logout-btn:hover {
-            background: var(--milktea-hover);
-            border-color: var(--milktea-main);
-        }
+        .logout-btn:hover { background: var(--brand-green); color: var(--component-bg); }
+
+        /* --- 主要佈局 --- */
         .main-wrap {
-            display: flex;
-            height: calc(100vh - 60px);
-            min-height: 540px;
-            margin-top: 60px;
+            display: flex; height: calc(100vh - 60px);
+            min-height: 540px; margin-top: 60px;
         }
+
+        /* --- 左側選單欄 --- */
         .sidebar-card {
-            width: 250px;
-            background: var(--card-bg);
-            border-radius: 0 24px 24px 0;
-            box-shadow: 6px 0 18px -8px #e2dbc577;
-            padding: 36px 0 36px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            width: 280px;
+            background: var(--component-bg); border-radius: 0;
+            padding: 24px 0;
+            display: flex; flex-direction: column; align-items: center;
             height: 100%;
-            min-height: 100%;
+            border-right: 1px solid var(--border-color);
         }
-        .sidebar-menu {
-            width: 100%;
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .sidebar-menu { width: 100%; list-style: none; padding: 0 12px; margin: 0; }
+        .menu-item { width: 100%; margin-bottom: 8px; }
+        .menu-button {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; margin: 0 auto; padding: 14px 20px; font-size: 16px;
+            color: var(--text-color); background: none; border: none;
+            border-radius: 8px; font-family: inherit; cursor: pointer;
+            transition: background 0.15s, color 0.15s; outline: none;
+            font-weight: 700; letter-spacing: 0.2px;
         }
-        .sidebar-menu li {
-            width: 100%;
+        .menu-button:hover {
+            background: var(--brand-green-light); color: var(--brand-green);
         }
-        .sidebar-btn {
-            display: flex;
-            align-items: center;
-            width: 93%;
-            margin: 0 auto 16px auto;
-            padding: 16px 26px;
-            font-size: 18px;
-            color: var(--milktea-brown);
-            background: none;
-            border: none;
-            border-radius: 13px;
-            font-family: inherit;
-            cursor: pointer;
-            transition: background 0.15s, color 0.15s;
-            outline: none;
-            font-weight: 500;
-            letter-spacing: 0.2px;
+        .menu-button.active {
+            background: var(--brand-green); color: var(--component-bg);
         }
-        .sidebar-btn.active, .sidebar-btn:hover {
-            background: var(--milktea-yellow);
-            color: var(--milktea-main);
+        .menu-button .icon {
+            margin-right: 16px; font-size: 18px;
+            vertical-align: -0.15em;
         }
-        .sidebar-btn .icon {
-            margin-right: 18px;
-            font-size: 20px;
+        .menu-button .arrow { font-size: 14px; transition: transform 0.3s ease; }
+        .menu-item.active .menu-button .arrow { transform: rotate(180deg); }
+
+        .submenu {
+            width: 93%; margin: 4px auto 0; background: var(--primary-bg);
+            border-radius: 8px;
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.4s ease-out; opacity: 0;
         }
+        .menu-item.active .submenu { max-height: 550px; opacity: 1; }
+        .submenu-item {
+            padding: 10px 18px 10px 48px;
+            transition: all 0.13s ease; cursor: pointer;
+            position: relative; font-size: 15px; color: var(--text-muted);
+            font-weight: 500; display: block; text-decoration: none;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .submenu-item:last-child { border-bottom: none; }
+        .submenu-item:hover {
+            background: var(--brand-green-light); color: var(--brand-green);
+        }
+        .submenu-item.active {
+            background: var(--brand-green-light); color: var(--brand-green); font-weight: 700;
+        }
+        .submenu-item .item-icon {
+            position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+            font-size: 16px; color: var(--brand-green);
+        }
+
+        /* --- 右側內容區 --- */
+        /* --- 右側內容區 --- */
         .content-card {
             flex: 1;
-            background: var(--card-bg);
-            border-radius: 24px 0 0 24px;
-            box-shadow: 0 2px 18px #e2dbc577;
+            /* 【核心修改】讓內容區本身變成白色卡片 */
+            background: var(--component-bg); /* 改成白色 */
+            border-radius: 12px; /* 給它一個圓角，更好看 */
+            margin: 24px; /* 用 margin 代替 padding，讓灰色背景露出來 */
+            padding: 24px; /* padding 用來約束內部元素，而不是製造外部間距 */
+
+            /* 以下不變 */
             min-width: 0;
-            min-height: 100%;
-            padding: 56px 68px 44px 68px;
+            min-height: calc(100% - 48px); /* 減去上下 margin */
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
+            /* 【核心修改】不再需要 justify-content，因為內容要填滿 */
+            /* justify-content: center; */
+            overflow-y: auto;
+            box-sizing: border-box; /* 確保 padding 和 border 不會撐大盒子 */
         }
-        /* 主副標 */
+        .content-card { border-radius: 0; box-shadow: none; }
+        .dashboard-content { width: 100%; max-width: 1100px; margin: 0 auto; }
+        .welcome-section { width: 100%; margin-bottom: 40px; text-align: left; }
+        .welcome-title {
+            font-family: 'Karla', sans-serif; font-size: 28px;
+            color: var(--text-color); font-weight: 700;
+            margin-bottom: 10px;
+            padding: 0; background: none; border-left: none; box-shadow: none;
+        }
+        .welcome-subtitle {
+            font-size: 16px; color: var(--text-muted);
+            margin: 0; max-width: none; text-align: left;
+        }
+
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px; width: 100%; margin-bottom: 40px;
+        }
+        .stat-card {
+            background: var(--component-bg); border-radius: 12px;
+            padding: 25px; text-align: center;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+            min-height: 160px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .stat-icon { font-size: 40px; margin-bottom: 15px; color: var(--brand-green); }
+        .stat-number { font-size: 36px; font-weight: 700; color: var(--text-color); margin-bottom: 8px; }
+        .stat-label { font-size: 15px; font-weight: 500; color: var(--text-muted); }
+        .guide-text {
+            width: 100%; background: var(--component-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 30px; margin-top: 20px;
+        }
+        .guide-text h3 {
+            font-family: 'Karla', sans-serif; color: var(--text-color);
+            font-weight: 700; margin-bottom: 15px; font-size: 18px; letter-spacing: 0;
+        }
+        .guide-text p { font-size: 15px; line-height: 1.7; margin: 0; color: var(--text-muted); }
+        .sys-block { width: 100%; }
         .sys-subtitle {
-            font-family: 'Press Start 2P', Arial, sans-serif;
-            font-size: 22px;
-            color: var(--milktea-main);
-            font-weight: bold;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-            padding: 8px 18px;
-            background: #fff7dbc2;
-            border-left: 5px solid var(--milktea-main);
-            border-radius: 10px 0 0 10px;
-            box-shadow: 0 2px 10px #e9dec5a1;
+            font-family: 'Karla', sans-serif; font-size: 24px; color: var(--text-color);
+            font-weight: 700; margin-bottom: 30px; letter-spacing: 0;
+            padding: 0; background: none; border-left: none; box-shadow: none; display: block;
         }
-        .sys-subtitle .icon {
-            font-size: 22px;
-        }
-        /* 項目列表 */
-        .sys-block ul {
-            padding: 0;
-            margin: 0;
-            list-style: none;
-            width: 100%;
-        }
+        .sys-block ul { padding: 0; margin: 0; list-style: none; width: 100%; }
         .sys-block li {
-            margin-bottom: 14px;
-            font-size: 17px;
-            color: var(--milktea-brown);
-            font-family: '微軟正黑體', Arial, sans-serif;
-            padding: 11px 18px 11px 38px;
-            border-radius: 9px;
-            background: #fff9f0;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 1.5px 9px #f4ead860;
-            position: relative;
-            transition: background 0.13s, color 0.13s, box-shadow 0.14s;
+            margin-bottom: 14px; font-size: 16px; padding: 15px 20px 15px 50px;
+            border-radius: 8px; background: var(--component-bg); font-weight: 500;
+            border: 1px solid var(--border-color);
+            display: flex; align-items: center; position: relative;
+            transition: all 0.2s ease;
         }
-        .sys-block li:last-child {
-            margin-bottom: 0;
-        }
-        .sys-block li:hover {
-            background: #fae7c2;
-            color: var(--milktea-main);
-            box-shadow: 0 4px 14px #f7ebc9b2;
-        }
+        .sys-block li:hover { border-color: var(--brand-green); background: var(--brand-green-light); }
         .sys-block li .item-icon {
-            position: absolute;
-            left: 14px;
-            font-size: 18px;
-            margin-right: 15px;
-            color: var(--milktea-main);
+            position: absolute; left: 20px; font-size: 18px; color: var(--brand-green);
         }
+
+        /* --- 響應式設計 --- */
         @media (max-width: 1100px) {
-            .main-wrap {
-                flex-direction: column;
-            }
-            .sidebar-card, .content-card {
-                border-radius: 0 0 24px 24px;
-                width: 98vw;
-            }
-            .content-card {
-                padding: 30px 4vw;
-            }
+            .main-wrap { flex-direction: column; }
+            .sidebar-card, .content-card { border-radius: 0; width: 100%; border-right: none; }
+            .content-card { padding: 30px 4vw; border-top: 1px solid var(--border-color); }
+            .sidebar-card { padding: 12px 0; height: auto;}
         }
         @media (max-width: 650px) {
-            .main-wrap {
-                flex-direction: column;
-            }
-            .sidebar-card, .content-card {
-                border-radius: 0 0 16px 16px;
-                width: 100vw;
-            }
-            .content-card {
-                padding: 16px 3vw;
-            }
-            .topbar {
-                padding: 0 3vw;
-            }
-            .pixel-title {
-                font-size: 13px;
-            }
-            .sys-subtitle {
-                font-size: 15px;
-                padding: 6px 10px;
-            }
-            .sys-block li {
-                font-size: 15px;
-                padding: 9px 12px 9px 32px;
-            }
+            .content-card { padding: 20px; }
+            .topbar-logo img { height: 35px; }
+            .logout-btn { padding: 6px 16px; font-size: 13px; }
+            .stats-grid { grid-template-columns: 1fr; gap: 15px; }
         }
     </style>
 </head>
 <body>
-    <!-- Topbar -->
-    <div class="topbar">
-        <span class="pixel-title">PIXEL TRIBE 管理員首頁</span>
-        <button class="logout-btn" onclick="handleLogout()">登出</button>
-    </div>
-    <div class="main-wrap">
-        <!-- Sidebar -->
-        <nav class="sidebar-card">
-            <ul class="sidebar-menu">
-                <li><button id="btn-store" class="sidebar-btn active" onclick="goToShopAdmin()"><span class="icon">🛒</span>商城系統</button></li>
-                <li><button id="btn-news" class="sidebar-btn" onclick="renderPage('news')"><span class="icon">📰</span>新聞系統</button></li>
-                <li><button id="btn-forum" class="sidebar-btn" onclick="renderPage('forum')"><span class="icon">💬</span>論壇系統</button></li>
-                <li><button id="btn-member" class="sidebar-btn" onclick="renderPage('member')"><span class="icon">👤</span>會員系統</button></li>
-            </ul>
-        </nav>
-        <!-- Content -->
-        <main class="content-card" id="content-area">
-            <!-- 初始渲染內容 -->
-        </main>
-    </div>
-    <script>
-        const pages = {
-            store: {
-                icon: '🛒',
-                title: '商城系統',
-                items: [
-                    '商品上/下架',
-                    '商品分類',
-                    '編輯商品資訊',
-                    '訂單管理',
-                    '優惠券管理'
-                ]
-            },
-            news: {
-                icon: '📰',
-                title: '新聞系統',
-                items: [
-                    '新聞編輯',
-                    '審核檢舉',
-                    '新聞評論管理',
-                    '黑名單管理'
-                ]
-            },
-            forum: {
-                icon: '💬',
-                title: '論壇系統',
-                items: [
-                    '討論區管理',
-                    '文章管理',
-                    '發布官方文章',
-                    '審核檢舉'
-                ]
-            },
-            member: {
-                icon: '👤',
-                title: '會員系統',
-                items: [
-                    '會員資料查詢',
-                    '會員停權'
-                ]
-            }
-        };
-
-        const itemIcons = {
-            '商品上/下架': '🛍️',
-            '商品分類': '🏷️',
-            '編輯商品資訊': '✏️',
-            '訂單管理': '⭐',
-            '優惠券管理': '🎫',
-
-            '新聞編輯': '📰',
-            '審核檢舉': '🔍',
-            '新聞評論管理': '💬',
-            '黑名單管理': '⛔',
-
-            '討論區管理': '📚',
-            '文章管理': '📝',
-            '發布官方文章': '📢',
-            '會員資料查詢': '👤',
-            '會員停權': '🚫'
-        };
-
-        function renderPage(pageKey) {
-            document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn-' + pageKey).classList.add('active');
-            const page = pages[pageKey];
-            document.getElementById('content-area').innerHTML = `
-                <div class="sys-block">
-                    <div class="sys-subtitle"><span class="icon">${page.icon}</span>${page.title}</div>
-                    <ul>
-                        ${page.items.map(item =>
-                            `<li><span class="item-icon">${itemIcons[item] || '•'}</span>${item}</li>`
-                        ).join('')}
-                    </ul>
+<div class="topbar">
+    <a href="#" class="topbar-logo" onclick="loadMainDashboard(event)">
+        <img src="../../../images/logo.png" alt="Pixel Tribe Logo">
+    </a>
+    <button class="logout-btn" onclick="handleLogout()">登出</button>
+</div>
+<div class="main-wrap">
+    <nav class="sidebar-card">
+        <ul class="sidebar-menu">
+            <li class="menu-item" id="menu-store">
+                <button class="menu-button" onclick="toggleMenu('store')">
+                    <span><i class="bi bi-shop-window icon"></i>商城系統</span>
+                    <i class="bi bi-chevron-down arrow"></i>
+                </button>
+                <div class="submenu">
+                    <a href="#" class="submenu-item" onclick="renderContent('store', 'dashboard', event)">
+                        <i class="bi bi-pie-chart-fill item-icon"></i>儀表板
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('store', 'toggle', event)">
+                        <i class="bi bi-box-seam item-icon"></i>產品上下架
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('store', 'categories', event)">
+                        <i class="bi bi-tags-fill item-icon"></i>產品分類
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('store', 'edit', event)">
+                        <i class="bi bi-pencil-square item-icon"></i>編輯產品資訊
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('store', 'orders', event)">
+                        <i class="bi bi-receipt-cutoff item-icon"></i>訂單管理
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('store', 'shipping', event)">
+                        <i class="bi bi-truck item-icon"></i>產品發貨管理
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('store', 'reviews', event)">
+                        <i class="bi bi-chat-square-text-fill item-icon"></i>訂單評論管理
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('store', 'coupons', event)">
+                        <i class="bi bi-ticket-perforated-fill item-icon"></i>優惠券管理
+                    </a>
                 </div>
-            `;
-        }
-        
-        function goToShopAdmin() {
-            // 跳轉到商城後台首頁
-            window.location.href = '/back-end/shopsys/admin-shop-index.html';
-        }
+            </li>
+            <li class="menu-item" id="menu-news">
+                <button class="menu-button" onclick="toggleMenu('news')">
+                    <span><i class="bi bi-newspaper icon"></i>新聞系統</span>
+                    <i class="bi bi-chevron-down arrow"></i>
+                </button>
+                <div class="submenu">
+                    <a href="#" class="submenu-item" onclick="renderContent('news', 'dashboard', event)">
+                        <i class="bi bi-pie-chart-fill item-icon"></i>儀表板
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('news', 'edit', event)">
+                        <i class="bi bi-pencil-fill item-icon"></i>新聞編輯
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('news', 'comments', event)">
+                        <i class="bi bi-chat-dots-fill item-icon"></i>新聞評論管理
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('news', 'reports', event)">
+                        <i class="bi bi-shield-check item-icon"></i>審核檢舉
+                    </a>
+                </div>
+            </li>
+            <li class="menu-item" id="menu-forum">
+                <button class="menu-button" onclick="toggleMenu('forum')">
+                    <span><i class="bi bi-chat-square-dots-fill icon"></i>論壇系統</span>
+                    <i class="bi bi-chevron-down arrow"></i>
+                </button>
+                <div class="submenu">
+                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'dashboard', event)">
+                        <i class="bi bi-pie-chart-fill item-icon"></i>儀表板
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'management', event)">
+                        <i class="bi bi-card-list item-icon"></i>討論區管理
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'posts', event)">
+                        <i class="bi bi-file-text-fill item-icon"></i>文章管理
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'comments', event)">
+                        <i class="bi bi-chat-left-text-fill item-icon"></i>留言管理
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'official', event)">
+                        <i class="bi bi-megaphone-fill item-icon"></i>發布官方文章
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'reports', event)">
+                        <i class="bi bi-shield-check item-icon"></i>審核檢舉
+                    </a>
+                </div>
+            </li>
+            <li class="menu-item" id="menu-member">
+                <button class="menu-button" onclick="toggleMenu('member')">
+                    <span><i class="bi bi-people-fill icon"></i>會員系統</span>
+                    <i class="bi bi-chevron-down arrow"></i>
+                </button>
+                <div class="submenu">
+                    <a href="#" class="submenu-item" onclick="renderContent('member', 'dashboard', event)">
+                        <i class="bi bi-pie-chart-fill item-icon"></i>儀表板
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('member', 'query', event)">
+                        <i class="bi bi-person-lines-fill item-icon"></i>會員資料查詢
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('member', 'suspend', event)">
+                        <i class="bi bi-person-slash item-icon"></i>會員停權
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+    <main class="content-card" id="content-area">
+    </main>
+</div>
+<script>
+    // 【常數】將內容區域的 DOM 物件提出來，避免重複選取
+    const contentArea = document.getElementById('content-area');
 
-       
-        function handleLogout() {
-            window.location.href = '/back-end/adm/AdmLogin.html';
+    // =================================================================================
+    // 【核心修改】頁面路由設定：未來新增頁面，只需在此處增加一行對應
+    // 格式：'主選單Key-子選單Key': '對應的 HTML 檔案路徑'
+    // =================================================================================
+    const pageMappings = {
+        'store-orders': '../shopsys/order/allOrder.html',
+        'forum-management': '../forumsys/forum/allForum.html',
+
+        // 在此處繼續添加其他頁面...
+        // 'member-query': '../membersys/query/allMember.html',
+    };
+
+
+    function toggleMenu(menuKey) {
+        const menuItem = document.getElementById('menu-' + menuKey);
+        if (!menuItem) return;
+
+        if (!menuItem.classList.contains('active')) {
+            document.querySelectorAll('.menu-item.active').forEach(item => {
+                item.classList.remove('active');
+            });
         }
-        // 頁面預設
-        window.onload = function() {
-            renderPage('store');
+        menuItem.classList.toggle('active');
+    }
+
+    /**
+     * 【核心修改】根據 key 決定渲染內部 HTML 還是載入外部頁面
+     * @param {string} pageKey - 主選單 key (例如 'store')
+     * @param {string} subKey - 子選單 key (例如 'orders')
+     * @param {Event} event - 點擊事件物件
+     */
+    function renderContent(pageKey, subKey, event) {
+        event.preventDefault();
+
+        document.querySelectorAll('.submenu-item.active').forEach(item => item.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        // [不可變] 組合 key，用於查詢 pageMappings
+        const mappingKey = `${pageKey}-${subKey}`;
+        const targetPath = pageMappings[mappingKey];
+
+        // 如果在 pageMappings 中找到對應路徑，則載入外部檔案
+        if (targetPath) {
+            loadExternalPage(targetPath);
+        } else if (pageKey === 'store' && subKey === 'dashboard') {
+            // 對於原本內建的儀表板，保留原邏輯
+            contentArea.innerHTML = getShopDashboardHTML();
+        } else {
+            // 其他所有未設定的頁面，顯示佔位內容
+            contentArea.innerHTML = getPlaceholderHTML(pageKey, subKey);
         }
-    </script>
+    }
+
+    /**
+     * 【全新函式】通用外部頁面載入器 (最重要的新增部分)
+     * @param {string} url - 要載入的 HTML 檔案路徑
+     */
+    async function loadExternalPage(url) {
+        // [不可變] 這是函式核心邏輯
+        try {
+            // 步驟 1: 顯示載入中動畫
+            contentArea.innerHTML = `<div class="sys-block" style="text-align: center; font-size: 20px;">載入中...</div>`;
+
+            // 步驟 2: 使用 fetch 取得遠端 HTML 檔案內容
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`無法載入頁面: ${response.status} ${response.statusText}`);
+            }
+            const pageText = await response.text();
+
+            // 步驟 3: 使用 DOMParser 將文字解析成一個獨立的 HTML document
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(pageText, 'text/html');
+
+            // 步驟 4: 抽取出 <style>, <body> 內容, 和 <script>
+            const styles = doc.querySelectorAll('style');
+            const scripts = doc.querySelectorAll('script');
+
+            // 找到第一個 class 為 container 的元素作為內容主體
+            // [提醒] 這是為了讓 allOrder.html 能順利顯示。
+            // 建議未來所有子頁面都用一個固定的 ID (如 <div id="page-content">) 包裹內容，會更穩定。
+            const pageContent = doc.querySelector('[class$="-management-container"]') || doc.body;
+
+            // 步驟 5: 清空目前內容，並注入新的 HTML
+            contentArea.innerHTML = '';
+            contentArea.appendChild(pageContent);
+
+            // 步驟 6: 動態載入 CSS 樣式
+            styles.forEach(style => {
+                document.head.appendChild(style);
+            });
+
+            // 步驟 7: 動態執行 JavaScript
+            // 必須重新建立 script 標籤才能觸發執行
+            scripts.forEach(script => {
+                const newScript = document.createElement('script');
+                // 如果 script 有 src 屬性 (外部腳本)，就設定 src
+                if (script.src) {
+                    newScript.src = script.src;
+                    newScript.async = false; // 確保腳本按順序執行
+                } else {
+                    // 否則就直接放入 inline 腳本
+                    newScript.textContent = script.textContent;
+                }
+                document.body.appendChild(newScript);
+            });
+
+        } catch (error) {
+            console.error('頁面載入失敗:', error);
+            contentArea.innerHTML = `<div class="sys-block" style="color: red;">頁面載入失敗: ${error.message}</div>`;
+        }
+    }
+
+    // 【新增】主儀表板 (首頁) 的 HTML 產生函式
+    function getMainDashboardHTML() {
+        return `
+            <div class="dashboard-content">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">歡迎來到 PixelTribe 管理後台</h1>
+                    <p class="welcome-subtitle">請從左側選單選擇您要管理的系統。</p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card"><i class="bi bi-people-fill stat-icon"></i><div class="stat-number">1,204</div><div class="stat-label">總會員數</div></div>
+                    <div class="stat-card"><i class="bi bi-newspaper stat-icon"></i><div class="stat-number">38</div><div class="stat-label">新聞總數</div></div>
+                    <div class="stat-card"><i class="bi bi-chat-square-dots-fill stat-icon"></i><div class="stat-number">512</div><div class="stat-label">論壇文章數</div></div>
+                    <div class="stat-card"><i class="bi bi-shop-window stat-icon"></i><div class="stat-number">156</div><div class="stat-label">上架商品數</div></div>
+                </div>
+                <div class="guide-text">
+                    <h3>🚀 快速開始</h3>
+                    <p>此管理後台整合了多個核心系統，您可以：<br>
+                        • <strong>商城系統</strong>：管理商品、訂單、優惠券等電商功能。<br>
+                        • <strong>新聞系統</strong>：發布最新公告、管理使用者評論與檢舉。<br>
+                        • <strong>論壇系統</strong>：維護討論區秩序、管理文章與官方公告。<br>
+                        • <strong>會員系統</strong>：查詢會員資料並執行管理操作。
+                    </p>
+                </div>
+            </div>
+        `;
+    }
+
+    // 商城儀表板的 HTML
+    function getShopDashboardHTML() {
+        // ... 此函式內容不變 ...
+        return `
+            <div class="dashboard-content">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">商城管理中心</h1>
+                    <p class="welcome-subtitle">這裡是商城系統的數據總覽儀表板。</p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card"><i class="bi bi-box-seam stat-icon"></i><div class="stat-number">156</div><div class="stat-label">商品總數</div></div>
+                    <div class="stat-card"><i class="bi bi-cart-check stat-icon"></i><div class="stat-number">89</div><div class="stat-label">待處理訂單</div></div>
+                    <div class="stat-card"><i class="bi bi-ticket-perforated stat-icon"></i><div class="stat-number">23</div><div class="stat-label">活躍優惠券</div></div>
+                    <div class="stat-card"><i class="bi bi-cash-stack stat-icon"></i><div class="stat-number">$52,680</div><div class="stat-label">本月營收</div></div>
+                </div>
+                <div class="guide-text">
+                    <h3>📋 使用說明</h3>
+                    <p>請使用左側選單進行各項管理操作。<br>• <strong>產品管理</strong>：管理商品上下架、分類和資訊。<br>• <strong>訂單管理</strong>：處理訂單、出貨與評論。<br>• <strong>優惠券管理</strong>：建立和管理優惠活動。</p>
+                </div>
+            </div>
+        `;
+    }
+
+    // 佔位頁面的 HTML，用於顯示開發中的頁面
+    function getPlaceholderHTML(pageKey, subKey) {
+        // ... 此函式內容不變 ...
+        const pageTitles = {
+            store: '商城系統', news: '新聞系統', forum: '論壇系統', member: '會員系統'
+        };
+        const subTitles = {
+            'toggle': '產品上下架', 'categories': '產品分類', 'edit': '編輯產品資訊', 'orders': '訂單管理', 'shipping': '產品發貨管理', 'reviews': '訂單評論管理', 'coupons': '優惠券管理',
+            'dashboard': '儀表板', // 通用儀表板標題
+            'news-edit': '新聞編輯', 'comments': '新聞評論管理', 'reports': '審核檢舉',
+            'management': '討論區管理', 'posts': '文章管理', 'forum-comments': '留言管理', 'official': '發布官方文章',
+            'query': '會員資料查詢', 'suspend': '會員停權'
+        };
+
+        const title = pageTitles[pageKey] || '系統';
+        const subTitle = subTitles[subKey] || '功能頁面';
+        const fullTitle = (subKey === 'dashboard') ? `${title}儀表板` : subTitle;
+
+        return `
+            <div class="sys-block">
+                <h2 class="sys-subtitle">${fullTitle}</h2>
+                <ul>
+                    <li><i class="bi bi-tools item-icon"></i>此頁面為 <strong>${fullTitle}</strong> 的管理介面。</li>
+                    <li><i class="bi bi-gear-wide-connected item-icon"></i>後續請在此處開發對應功能。</li>
+                    <li><i class="bi bi-file-code item-icon"></i>你可以在這裡使用 fetch API 向後端請求資料，並動態渲染表格或表單。</li>
+                </ul>
+            </div>
+        `;
+    }
+
+    function handleLogout() {
+        // [提醒] 這裡的路徑是固定的，根據專案部署位置可能需要調整
+        window.location.href = '/back-end/adm/AdmLogin.html';
+    }
+
+    function loadMainDashboard(event) {
+        if (event) event.preventDefault();
+        document.querySelectorAll('.menu-item.active').forEach(item => item.classList.remove('active'));
+        document.querySelectorAll('.submenu-item.active').forEach(item => item.classList.remove('active'));
+        contentArea.innerHTML = getMainDashboardHTML();
+    }
+
+    window.onload = function() {
+        loadMainDashboard();
+    }
+</script>
 </body>
 </html>
