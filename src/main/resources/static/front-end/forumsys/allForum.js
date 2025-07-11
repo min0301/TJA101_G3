@@ -74,7 +74,7 @@ function renderPosts(container, posts) {
     }
 
     posts.forEach(post => {
-        const fallbackImageUrl = '../assets/img/categories/1.jpg';
+        const fallbackImageUrl = '../../assets/img/categories/1.jpg';
         const postImageUrl = `/api/forumpost/image/${post.id}`;
         const title = post.postTitle || "（無標題）";
         const content = post.postCon || "";
