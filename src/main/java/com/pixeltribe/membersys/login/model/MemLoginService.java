@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pixeltribe.membersys.login.dto.MemLoginReturn;
-import com.pixeltribe.membersys.login.dto.MemberInfo;
+import com.pixeltribe.membersys.member.dto.MemberBasicDto;
 import com.pixeltribe.membersys.member.model.MemRepository;
 import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.util.JwtUtil;
@@ -23,7 +23,7 @@ public class MemLoginService {
 	public MemLoginReturn login(String memAccount, String memPassword) {
 		
 		Member member = memRepository.findByMemAccount(memAccount);
-		MemberInfo memberInfo = new MemberInfo(member.getId(),member.getMemAccount(),member.getMemNickName(),member.getMemName(),member.getMemEmail());
+		MemberBasicDto memberInfo = new MemberBasicDto(member.getId(),member.getMemAccount(),member.getMemNickName(),member.getMemName(),member.getMemEmail());
 		
 		if (member == null) {
 			return new MemLoginReturn(false, "輸入的帳號不存在");

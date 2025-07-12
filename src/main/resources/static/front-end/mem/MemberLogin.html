@@ -323,7 +323,7 @@ body {
         	    alert('登入成功！');
         	    localStorage.setItem('jwt', data.token);
         	    localStorage.setItem('memberInfo', JSON.stringify(data.memberInfo));
-        	    window.location.href = "/indexstatic.html";
+        	    window.location.href = "/index.html";
         	} else {
         		result.textContent = data.message;
         	}

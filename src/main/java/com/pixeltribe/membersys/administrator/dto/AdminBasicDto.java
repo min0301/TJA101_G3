@@ -1,17 +1,17 @@
-package com.pixeltribe.membersys.login.dto;
+package com.pixeltribe.membersys.administrator.dto;
 
-public class AdminInfo {
+public class AdminBasicDto {
 	
 	private Integer Id;
 	private String admAccount;
 	private String admName;
 	
 	//Constructor
-	public AdminInfo() {
+	public AdminBasicDto() {
 		
 	}
 	
-	public AdminInfo(Integer Id, String admAccount, String admName) {
+	public AdminBasicDto(Integer Id, String admAccount, String admName) {
 		this.Id = Id;
 		this.admAccount = admAccount;
 		this.admName = admName;

@@ -1,11 +1,13 @@
 package com.pixeltribe.membersys.login.dto;
 
+import com.pixeltribe.membersys.member.dto.MemberBasicDto;
+
 public class MemLoginReturn {
 
     private boolean success;
     private String message; // "帳號不存在", "密碼錯誤", "登入成功"
     private String token;
-    private MemberInfo memberInfo;
+    private MemberBasicDto memberInfo;
     
     //Constructor
     
@@ -14,7 +16,7 @@ public class MemLoginReturn {
     	this.message = message;
     }
     
-    public MemLoginReturn(boolean success, String message, String token, MemberInfo memberInfo) {
+    public MemLoginReturn(boolean success, String message, String token, MemberBasicDto memberInfo) {
 		super();
 		this.success = success;
 		this.message = message;
@@ -48,11 +50,11 @@ public class MemLoginReturn {
 		this.token = token;
 	}
 
-	public MemberInfo getMemberInfo() {
+	public MemberBasicDto getMemberInfo() {
 		return memberInfo;
 	}
 
-	public void setMemberInfo(MemberInfo memberInfo) {
+	public void setMemberInfo(MemberBasicDto memberInfo) {
 		this.memberInfo = memberInfo;
 	}
     

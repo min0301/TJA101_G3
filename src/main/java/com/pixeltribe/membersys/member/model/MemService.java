@@ -1,14 +1,18 @@
 package com.pixeltribe.membersys.member.model;
 
-import com.pixeltribe.membersys.login.model.MemForgetPasswordService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pixeltribe.membersys.login.model.MemForgetPasswordService;
+import com.pixeltribe.membersys.member.dto.MemberProfileDto;
 
 @Service
 public class MemService {
@@ -59,7 +63,7 @@ public class MemService {
         return result;
     }
 
-    // 驗證碼重設密碼
+    // 忘記密碼用驗證碼重設密碼
     public Map<String, Object> resetPasswordByVcode(String email, String password, String passwordConfirm, String vcode) {
         Map<String, Object> result = new HashMap<>();
         if (email == null || password == null || passwordConfirm == null || vcode == null) {
@@ -99,10 +103,10 @@ public class MemService {
         return result;
     }
 
-    // 舊密碼重設密碼
-    public Map<String, Object> resetPassword(String oldPassword, String newPassword, String newPasswordConfirm) {
+    // 會員中心重設密碼
+    public Map<String, Object> resetPassword(String oldPassword, String newPassword, String newPasswordConfirm, String Id) {
         Map<String, Object> result = new HashMap<>();
-        Member member = memrepository.findByMemPassword(oldPassword);
+        Member member = memrepository.findById(Integer.parseInt(Id)).orElse(null);
         if (member == null) {
             result.put("success", false);
             result.put("message", "查無此會員");
@@ -126,7 +130,7 @@ public class MemService {
         return result;
     }
 
-    // 信箱是否存在
+    // 註冊時檢查信箱是否存在
     public Map<String, Object> checkEmail(String email) {
         Map<String, Object> result = new HashMap<>();
         boolean mailExist = memrepository.existsByMemEmail(email);
@@ -172,5 +176,23 @@ public class MemService {
             result.put("message", "註冊失敗: " + ex.getMessage());
         }
         return result;
+    }
+    
+    // 用id查會員並提取個人資料頁面所需資料
+    public MemberProfileDto getProfileDtoById(Integer id) {
+        Optional<Member> opt = memrepository.findById(id);
+        if (opt.isEmpty()) return null;
+        Member member = opt.get();
+
+        MemberProfileDto dto = new MemberProfileDto();
+        dto.setMemName(member.getMemName());
+        dto.setMemBirthday(member.getMemBirthday());
+        dto.setMemAccount(member.getMemAccount());
+        dto.setMemNickName(member.getMemNickName());
+        dto.setMemEmail(member.getMemEmail());
+        dto.setMemAddr(member.getMemAddr());
+        dto.setMemPhone(member.getMemPhone());
+
+        return dto;
     }
 }
