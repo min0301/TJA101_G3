@@ -1,398 +1,351 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<title>會員中心 - Pixel Tribe</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet"
-	href="/assets/vendors/bootstrap/bootstrap.min.css">
-<link rel="stylesheet"
-	href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">
-<link rel="stylesheet" href="/assets/css/style.css">
-<link rel="stylesheet" href="/assets/css/responsive.css">
-<style>
-body {
-	background: white;
-	padding-top: 100px;
-}
-
-.member-center-card {
-	max-width: 600px;
-	margin: auto;
-	border-radius: 16px;
-	box-shadow: 0 2px 12px #0001;
-}
-
-.avatar-lg {
-	width: 80px;
-	height: 80px;
-	border-radius: 50%;
-	object-fit: cover;
-}
-
-.profile-list dt {
-	color: #9e8969;
-	width: 84px;
-	float: left;
-	font-weight: 600;
-}
-
-.profile-list dd {
-	margin-left: 100px;
-	margin-bottom: 12px;
-}
-
-.profile-list {
-	overflow: hidden;
-	margin-bottom: 0;
-}
-
-.tab-btn {
-	border: none;
-	background: none;
-	color: #8a7b62;
-	font-weight: 500;
-	margin-right: 16px;
-	font-size: 1.06rem;
-}
-
-.tab-btn.active {
-	color: #25945a;
-	border-bottom: 2px solid #25945a;
-}
-
-.member-tabs {
-	border-bottom: 1px solid #eee;
-	margin-bottom: 22px;
-	padding-bottom: 10px;
-}
-
-.card-section-title {
-	font-size: 1.15rem;
-	color: #6c584c;
-	font-weight: 700;
-	margin-bottom: 12px;
-}
-
-#resetPwdForm .btn-dark {
-	color: #fff !important;
-}
-
-.vine-navbar.fixed-top {
-	background: #fff !important;
-	box-shadow: 0 2px 12px #0001 !important;
-	z-index: 1030;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>會員中心 - Pixel Tribe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bootstrap & icons -->
+  <link rel="stylesheet" href="/assets/vendors/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/responsive.css">
+  <style>
+    body {
+      background: white;
+      padding-top: 100px;
+    }
+    .member-center-card {
+      max-width: 600px;
+      margin: auto;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px #0001;
+    }
+    .avatar-lg {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .profile-list dt {
+      color: #9e8969;
+      width: 84px;
+      float: left;
+      font-weight: 600;
+    }
+    .profile-list dd {
+      margin-left: 100px;
+      margin-bottom: 12px;
+    }
+    .profile-list {
+      overflow: hidden;
+      margin-bottom: 0;
+    }
+    .tab-btn {
+      border: none;
+      background: none;
+      color: #8a7b62;
+      font-weight: 500;
+      margin-right: 16px;
+      font-size: 1.06rem;
+    }
+    .tab-btn.active {
+      color: #25945a;
+      border-bottom: 2px solid #25945a;
+    }
+    .member-tabs {
+      border-bottom: 1px solid #eee;
+      margin-bottom: 22px;
+      padding-bottom: 10px;
+    }
+    .card-section-title {
+      font-size: 1.15rem;
+      color: #6c584c;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    #resetPwdForm .btn-dark {
+      color: #fff !important;
+    }
+    .vine-navbar.fixed-top {
+      background: #fff !important;
+      box-shadow: 0 2px 12px #0001 !important;
+      z-index: 1030;
+    }
+  </style>
 </head>
 <body>
-	<!-- 動態載入 header -->
-	<div id="header-placeholder"></div>
+  <!-- 動態載入 header -->
+  <div id="header-placeholder"></div>
 
-	<div class="container" style="padding-bottom: 60px;">
-		<div
-			class="member-tabs d-flex justify-content-center mt-3 mb-4 d-none d-md-flex">
-			<button class="tab-btn active" data-tab="profile">
-				<i class="bi bi-person me-1"></i>個人資料
-			</button>
-			<button class="tab-btn" data-tab="orders">
-				<i class="bi bi-receipt me-1"></i>過去訂單
-			</button>
-			<button class="tab-btn" data-tab="coupons">
-				<i class="bi bi-ticket me-1"></i>優惠券
-			</button>
-			<button class="tab-btn" data-tab="collections">
-				<i class="bi bi-bookmarks me-1"></i>收藏文章
-			</button>
-		</div>
-		<div id="memberMainArea"></div>
-	</div>
+  <!-- 上方按鈕連結至會員中心各區塊 -->
+  <div class="container" style="padding-bottom: 60px;">
+    <div class="member-tabs d-flex justify-content-center mt-3 mb-4 d-none d-md-flex">
+      <button class="tab-btn active" data-tab="profile">
+        <i class="bi bi-person me-1"></i>個人資料
+      </button>
+      <button class="tab-btn" data-tab="orders">
+        <i class="bi bi-receipt me-1"></i>過去訂單
+      </button>
+      <button class="tab-btn" data-tab="coupons">
+        <i class="bi bi-ticket me-1"></i>優惠券
+      </button>
+      <button class="tab-btn" data-tab="collections">
+        <i class="bi bi-bookmarks me-1"></i>收藏文章
+      </button>
+    </div>
+    <div id="memberMainArea"></div>
+  </div>
 
-	<!-- 動態載入 footer -->
-	<div id="footer-placeholder"></div>
+  <!-- 動態載入 footer -->
+  <div id="footer-placeholder"></div>
+  <!-- 載入 global-loader.js -->
+  <script src="/assets/js/global-loader.js"></script>
+  <script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+  <script>
+    // 會員中心 SPA 主流程
+    document.addEventListener('DOMContentLoaded', async function () {
+      // 驗證登入狀態
+      const jwt = localStorage.getItem('jwt');
+      const memberInfoRaw = localStorage.getItem('memberInfo');
+      let memberInfo = null;
+      let memberId = null;
 
-	<!-- 載入 global-loader.js -->
-	<script src="/assets/js/global-loader.js"></script>
-	<!-- Bootstrap JS（順序不能跑到global-loader前面！） -->
-	<script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
-	<!-- 會員中心 SPA JS -->
-	<script>
-  // ---- 動態渲染會員資料 ----
-  document.addEventListener('DOMContentLoaded', function () {
-	  
-  // 1. 檢查jwt和memberInfo是否存在localstorage
-  const jwt = localStorage.getItem('jwt');
-  const memberInfo = localStorage.getItem('memberInfo');
-  function isJwtExpired(jwt) {
-	  try {
-	    const payload = JSON.parse(atob(jwt.split('.')[1]));
-	    if (!payload.exp) return false;
-	    const now = Math.floor(Date.now() / 1000);
-	    return payload.exp < now;
-	  } catch (e) {
-	    return true;
-	  }
-	}
-  if (isJwtExpired(jwt) || !memberInfo) {
-    alert('請先登入會員');
-    window.location.href = '/front-end/mem/MemberLogin.html';
-    return;
-  }
-  // 2. 預設先用 localStorage 的資料渲染（避免延遲）
-  const member = JSON.parse(memberInfo);
-  window.memberInfo = member;
-
-//   // 3. 嘗試去 API 拿最新資料
-//   fetch('/api/member/profile', {
-//     headers: {
-//       'Authorization': 'Bearer ' + jwt
-//     }
-//   })
-//   .then(res => {
-//     if (res.ok) return res.json();
-//     // token 過期等錯誤處理
-//     throw new Error('驗證失敗，請重新登入');
-//   })
-//   .then(data => {
-//     // 新資料同步到 localStorage
-//     window.memberInfo = data;
-//     localStorage.setItem('memberInfo', JSON.stringify(data));
-//     // 重新渲染當前分頁
-//     renderTab(currentTab());
-//   })
-//   .catch(err => {
-//     alert('登入已失效，請重新登入');
-//     localStorage.removeItem('jwt');
-//     localStorage.removeItem('memberInfo');
-//     window.location.href = '/front-end/mem/MemberLogin.html';
-//   });
-	// 4. 用jwt + memberId回頭請求敏感資料
-	function fetchPrivateProfile() {
-	  const jwt = localStorage.getItem('jwt');
-	  const memberInfo = JSON.parse(localStorage.getItem('memberInfo'));
-	  if (!jwt || !memberinfo) {
-	    // ... 未登入導向
-	    return;
-	  }
-	  fetch(`/api/member/private/${memberInfo.Id}`, {
-	    headers: { 'Authorization': 'Bearer ' + jwt }
-	  })
-	  .then(res => {
-	    if (!res.ok) throw new Error('權限不足或已登出');
-	    return res.json();
-	  })
-	  .then(privateData => {
-	    // 顯示私密資料
-	    console.log(privateData);
-	    // 動態填入 profile 區塊（同上 render profile）
-	  })
-	  .catch(err => {
-	    alert('請重新登入');
-	    // ...導向登入
-	  });
-	}
-
-	
-  // 渲染預設分頁
-  renderTab(currentTab());
-
-  // tab 切換事件
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => renderTab(btn.dataset.tab));
-  });
-
-  // header 下拉 tab 快速切
-  document.querySelectorAll('.user-tab-link').forEach(link => {
-    link.addEventListener('click', function(e) {
-      const href = link.getAttribute('href');
-      const tab = link.getAttribute('data-tab');
-      if (href === '#' && tab) {
-        e.preventDefault();
-        renderTab(tab);
+      function isJwtExpired(token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          if (!payload.exp) return false;
+          const now = Math.floor(Date.now() / 1000);
+          return payload.exp < now;
+        } catch (e) { return true; }
       }
-    });
-  });
-});
 
-function currentTab() {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('tab') || 'profile';
-}
+      if (!jwt || !memberInfoRaw || isJwtExpired(jwt)) {
+        alert('請先登入會員');
+        window.location.href = '/front-end/mem/MemberLogin.html';
+        return;
+      }
+      try {
+        memberInfo = JSON.parse(memberInfoRaw);
+        memberId = memberInfo.id;
+      } catch (e) {
+        alert('找不到會員資訊，請重新登入');
+        window.location.href = '/front-end/mem/MemberLogin.html';
+        return;
+      }
+      if (!memberId) {
+        alert('找不到會員資訊，請重新登入');
+        window.location.href = '/front-end/mem/MemberLogin.html';
+        return;
+      }
 
-	
-  // ---- SPA會員中心各區塊內容 ----
-const memberViews = {
-  profile: function(member) {
-    return `
-      <div class="member-center-card mb-4 bg-white">
-        <div class="card-body py-4 px-4">
-          <div class="d-flex align-items-center mb-3">
-            <img src="${member.avatar || '/assets/img/avatar/1.jpg'}" alt="會員頭像" class="avatar-lg me-3" id="member-avatar">
-          </div>
-          <dl class="profile-list">
-            <dt>姓名:</dt><dd>${member.memName}</dd>
-            <dt>生日:</dt><dd>${member.memBirthday}</dd>
-            <dt>帳號:</dt><dd>${member.memAccount}</dd>
-            <dt>暱稱:</dt><dd>${member.memNickName}</dd>
-            <dt>信箱:</dt><dd>${member.memEmail}</dd>
-            <dt>地址:</dt><dd>${member.memAddress}</dd>
-            <dt>手機:</dt><dd>${member.memPhone}</dd>
-          </dl>
-        </div>
-      </div>
-      <div class="member-center-card mb-4 bg-white">
-        <div class="card-body py-4 px-4">
-          <div class="card-section-title mb-2">密碼重設</div>
-          <form id="resetPwdForm" autocomplete="off">
-            <input type="password" id="oldPassword" class="form-control mb-2" placeholder="輸入原密碼" required>
-            <input type="password" id="newPassword" class="form-control mb-2" placeholder="輸入新密碼" required>
-            <input type="password" id="newPasswordConfirm" class="form-control mb-3" placeholder="再次輸入新密碼" required>
-            <div class="d-flex mb-2" style="gap:10px;">
-              <button type="submit" class="btn btn-outline-secondary flex-fill" >確認</button>
-              <button type="button" class="btn btn-outline-secondary flex-fill" onclick="document.getElementById('resetPwdForm').reset();">取消</button>
+      // 進入時 fetch DTO
+      let memberProfileDTO = null;
+      try {
+        const res = await fetch(`/api/members/profile/${memberId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + jwt
+          }
+        });
+        if (!res.ok) throw new Error('無權限或已登出');
+        memberProfileDTO = await res.json();
+      } catch (e) {
+        alert('登入已失效，請重新登入');
+        localStorage.removeItem('jwt');
+        localStorage.removeItem('memberInfo');
+        window.location.href = '/front-end/mem/MemberLogin.html';
+        return;
+      }
+
+      // **全局保存最新資料**
+      window.memberProfile = memberProfileDTO;
+
+      // SPA 會員中心各分頁模板
+      const memberViews = {
+        profile: function (member) {
+          const avatarSrc = `/images/memberAvatar/mem${memberInfo.id}.png`;
+          return `
+          <div class="member-center-card mb-4 bg-white">
+            <div class="card-body py-4 px-4">
+              <div class="d-flex align-items-center mb-3">
+                <img src="${avatarSrc}" alt="會員頭像" class="avatar-lg me-3" id="member-avatar">
+              </div>
+              <dl class="profile-list">
+                <dt>姓名:</dt><dd>${member.memName || '-'}</dd>
+                <dt>生日:</dt><dd>${member.memBirthday || '-'}</dd>
+                <dt>帳號:</dt><dd>${member.memAccount || '-'}</dd>
+                <dt>暱稱:</dt><dd>${member.memNickName || '-'}</dd>
+                <dt>信箱:</dt><dd>${member.memEmail || '-'}</dd>
+                <dt>地址:</dt><dd>${member.memAddr || '-'}</dd>
+                <dt>手機:</dt><dd>${member.memPhone || '-'}</dd>
+              </dl>
             </div>
-            <div id="resetPwdMsg" class="text-center mt-2"></div>
-          </form>
-        </div>
-      </div>
-    `;
-  },
-  orders: `
-    <div class="member-center-card mb-4 bg-white">
-      <div class="card-body py-4 px-4">
-        <div class="card-section-title">歷史訂單</div>
-        <div class="table-responsive">
-          <table class="table align-middle mb-0">
-            <thead>
-              <tr><th>訂單編號</th><th>訂購時間</th><th>訂單狀態</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>202504280001A</td>
-                <td>2025-04-28 19:31</td>
-                <td>已完成</td>
-              </tr>
-              <tr>
-                <td>202504220056B</td>
-                <td>2025-04-22 15:22</td>
-                <td>處理中</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  `,
-  coupons: `
-    <div class="member-center-card mb-4 bg-white">
-      <div class="card-body py-4 px-4">
-        <div class="card-section-title">我的優惠券</div>
-        <div class="table-responsive">
-          <table class="table align-middle mb-0">
-            <thead>
-              <tr><th>優惠券編號</th><th>適用範圍</th><th>到期日</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>202504280001C</td>
-                <td>youCard禮券</td>
-                <td>2025/08/15</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  `,
-  collections: `
-    <div class="member-center-card mb-4 bg-white">
-      <div class="card-body py-4 px-4">
-        <div class="card-section-title">我的收藏</div>
-        <div class="table-responsive">
-          <table class="table align-middle mb-0">
-            <thead>
-              <tr><th>文章標題</th><th>收藏日期</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>貓貓獵人心得攻略集</td>
-                <td>2025/07/10</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  `
-};
+          </div>
+          <div class="member-center-card mb-4 bg-white">
+            <div class="card-body py-4 px-4">
+              <div class="card-section-title mb-2">密碼重設</div>
+              <form id="resetPwdForm" autocomplete="off">
+                <input type="password" id="oldPassword" class="form-control mb-2" placeholder="輸入原密碼" required>
+                <input type="password" id="newPassword" class="form-control mb-2" placeholder="輸入新密碼" required>
+                <input type="password" id="newPasswordConfirm" class="form-control mb-3" placeholder="再次輸入新密碼" required>
+                <div class="d-flex mb-2" style="gap:10px;">
+                  <button type="submit" class="btn btn-dark flex-fill">重設密碼</button>
+                </div>
+                <div id="resetPwdMsg" class="text-center mt-2"></div>
+              </form>
+            </div>
+          </div>
+          `;
+        },
+        orders: `
+          <div class="member-center-card mb-4 bg-white">
+            <div class="card-body py-4 px-4">
+              <div class="card-section-title">歷史訂單</div>
+              <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                  <thead>
+                    <tr><th>訂單編號</th><th>訂購時間</th><th>訂單狀態</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>202504280001A</td>
+                      <td>2025-04-28 19:31</td>
+                      <td>已完成</td>
+                    </tr>
+                    <tr>
+                      <td>202504220056B</td>
+                      <td>2025-04-22 15:22</td>
+                      <td>處理中</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `,
+        coupons: `
+          <div class="member-center-card mb-4 bg-white">
+            <div class="card-body py-4 px-4">
+              <div class="card-section-title">我的優惠券</div>
+              <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                  <thead>
+                    <tr><th>優惠券編號</th><th>適用範圍</th><th>到期日</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>202504280001C</td>
+                      <td>youCard禮券</td>
+                      <td>2025/08/15</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `,
+        collections: `
+          <div class="member-center-card mb-4 bg-white">
+            <div class="card-body py-4 px-4">
+              <div class="card-section-title">我的收藏</div>
+              <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                  <thead>
+                    <tr><th>文章標題</th><th>收藏日期</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>貓貓獵人心得攻略集</td>
+                      <td>2025/07/10</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `
+      };
 
-// --------- SPA切換/事件 ---------
-function renderTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
-  if (tab === 'profile') {
-    document.getElementById('memberMainArea').innerHTML = memberViews.profile(window.memberInfo);
-    bindProfilePwdReset();
-  } else {
-    document.getElementById('memberMainArea').innerHTML = typeof memberViews[tab] === "function"
-      ? memberViews[tab](window.memberInfo)
-      : memberViews[tab] || '<div>找不到資料</div>';
-  }
-}
-
-function bindProfilePwdReset() {
-  const form = document.getElementById('resetPwdForm');
-  if (!form) return;
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    const oldPassword = document.getElementById('oldPassword').value.trim();
-    const newPassword = document.getElementById('newPassword').value.trim();
-    const newPasswordConfirm = document.getElementById('newPasswordConfirm').value.trim();
-    const msg = document.getElementById('resetPwdMsg');
-    if (!oldPassword || !newPassword || !newPasswordConfirm) {
-      msg.textContent = '請填寫所有欄位';
-      msg.style.color = '#b94040';
-      return;
-    }
-    if (newPassword !== newPasswordConfirm) {
-      msg.textContent = '兩次輸入的新密碼不一致';
-      msg.style.color = '#b94040';
-      return;
-    }
-    msg.style.color = '#25945a';
-    msg.textContent = '密碼已更新（範例）';
-    form.reset();
-  });
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-  // 左側 tabs
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => renderTab(btn.dataset.tab));
-  });
-
-  // 根據 URL ?tab= 設定預設分頁
-  const urlParams = new URLSearchParams(window.location.search);
-  const defaultTab = urlParams.get('tab') || 'profile';
-  renderTab(defaultTab);
-
-  // Header dropdown 內的 user-tab-link（只在本頁才會阻止跳轉）
-  document.querySelectorAll('.user-tab-link').forEach(link => {
-    link.addEventListener('click', function(e) {
-      // 如果 href 是 #（或 javascript:void(0) 之類）才攔截，直接切換分頁
-      const href = link.getAttribute('href');
-      const tab = link.getAttribute('data-tab');
-      if (href === '#' && tab) {
-        e.preventDefault();
-        renderTab(tab);
+      // SPA分頁渲染
+      function renderTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+        if (tab === 'profile') {
+          document.getElementById('memberMainArea').innerHTML = memberViews.profile(window.memberProfile);
+          memPasswordReset();
+        } else {
+          document.getElementById('memberMainArea').innerHTML = typeof memberViews[tab] === "function"
+            ? memberViews[tab](window.memberProfile)
+            : memberViews[tab] || '<div>找不到資料</div>';
+        }
       }
-      // 如果 href 指到 MemberCenter.html（本頁），就不攔截，預設讓瀏覽器導頁
-      // 這樣首頁等其他頁也不會亂跳
+
+      // 密碼重設功能
+      function memPasswordReset() {
+        const form = document.getElementById('resetPwdForm');
+        if (!form) return;
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          const oldPassword = document.getElementById('oldPassword').value.trim();
+          const newPassword = document.getElementById('newPassword').value.trim();
+          const newPasswordConfirm = document.getElementById('newPasswordConfirm').value.trim();
+          const msg = document.getElementById('resetPwdMsg');
+          if (!oldPassword || !newPassword || !newPasswordConfirm) {
+            msg.textContent = '請填寫所有欄位';
+            msg.style.color = '#b94040';
+            return;
+          }
+          if (newPassword !== newPasswordConfirm) {
+            msg.textContent = '兩次輸入的新密碼不一致';
+            msg.style.color = '#b94040';
+            return;
+          }
+          // id from DTO
+          const id = window.memberProfile.id;
+          if (!id) {
+            msg.textContent = '請重新登入以修改密碼';
+            msg.style.color = '#b94040';
+            return;
+          }
+          // 呼叫API
+          const jwt = localStorage.getItem('jwt');
+          fetch('/api/members/reset-password', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + jwt
+            },
+            body: JSON.stringify({
+              id: id,
+              oldPassword: oldPassword,
+              newPassword: newPassword,
+              newPasswordConfirm: newPasswordConfirm
+            })
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                alert('密碼已更新');
+                form.reset();
+              } else {
+                msg.style.color = '#b94040';
+                msg.textContent = data.message || '密碼重設失敗';
+              }
+            })
+            .catch(() => {
+              msg.style.color = '#b94040';
+              msg.textContent = '系統錯誤，請稍後再試';
+            });
+        });
+      }
+
+      // tab 切換
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => renderTab(btn.dataset.tab));
+      });
+
+      // 預設分頁
+      renderTab('profile');
     });
-  });
-});
-
-</script>
-
-
+  </script>
 </body>
 </html>

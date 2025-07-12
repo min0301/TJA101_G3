@@ -1,6 +1,6 @@
-package com.pixeltribe.membersys.login.dto;
+package com.pixeltribe.membersys.member.dto;
 
-public class MemberInfo {
+public class MemberBasicDto {
 	
 	private Integer Id;
 	private String memAccount;
@@ -9,11 +9,11 @@ public class MemberInfo {
 	private String memEmail;
 	
 	//Constructor
-	public MemberInfo() {
+	public MemberBasicDto() {
 		
 	}
 	
-	public MemberInfo(Integer Id, String memAccount, String memNickName, String memName, String memEmail) {
+	public MemberBasicDto(Integer Id, String memAccount, String memNickName, String memName, String memEmail) {
 		this.Id = Id;
 		this.memAccount = memAccount;
 		this.memNickName = memNickName;

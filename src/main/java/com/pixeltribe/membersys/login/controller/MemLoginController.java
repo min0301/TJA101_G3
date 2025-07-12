@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pixeltribe.membersys.login.dto.MemLoginReturn;
 import com.pixeltribe.membersys.login.model.MemLoginService;
-import com.pixeltribe.membersys.member.dto.MemberPrivateDTO;
+import com.pixeltribe.membersys.member.dto.MemberProfileDto;
 import com.pixeltribe.membersys.member.model.MemService;
 
 @RestController
@@ -31,11 +31,11 @@ public class MemLoginController {
 		return memLoginService.login(memAccount, memPassword);
 	}
 	
-	@GetMapping("/private/{id}")
-	public MemberPrivateDTO getPrivateProfile(@PathVariable Integer id, @AuthenticationPrincipal MemberPrincipal principal) {
-	    if (!id.equals(principal.getMemberId())) {
-	        throw new AccessDeniedException("禁止存取他人資料");
-	    }
-	    return MemService.getPrivateInfo(id);
-	}
+//	@GetMapping("/private/{id}")
+//	public MemberPrivateDTO getPrivateProfile(@PathVariable Integer id, @AuthenticationPrincipal MemberPrincipal principal) {
+//	    if (!id.equals(principal.getMemberId())) {
+//	        throw new AccessDeniedException("禁止存取他人資料");
+//	    }
+//	    return MemService.getPrivateInfo(id);
+//	}
 }
