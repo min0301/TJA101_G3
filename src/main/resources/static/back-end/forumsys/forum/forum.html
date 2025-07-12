@@ -5,219 +5,286 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>編輯討論區</title>
     <style>
-        /* 沿用與列表頁類似的風格，保持一致性 */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* * 沿用 addForum.html 的樣式，確保視覺風格一致。
+         * 這些樣式會被 AdmHomePage.html 的腳本動態載入到 <head> 中。
+         * 它們使用了 AdmHomePage.html 中定義的 CSS 變數 (例如 var(--border-color))。
+        */
+        .forum-management-container {
+            width: 100%;
+            max-width: 1400px;
             margin: 0 auto;
-            max-width: 800px; /* 編輯頁面寬度可以窄一些 */
-            padding: 20px;
-            background-color: #f4f7f6;
-            color: #333;
         }
 
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
+        .page-title-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .form-container {
-            background-color: #fff;
+        .page-title-header h2 {
+            font-family: 'Karla', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .page-title-header .item-icon {
+            margin-right: 10px;
+        }
+
+        .form-wrapper {
+            background: var(--component-bg);
             padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
             font-weight: bold;
-            color: #555;
-        }
-
-        .form-group input[type="text"],
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box; /* 確保 padding 不會影響寬度 */
+            margin-bottom: 10px;
+            color: #34495e;
             font-size: 16px;
         }
 
-        .form-group textarea {
-            height: 120px;
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+            background: var(--primary-bg);
+            color: var(--text-color);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--brand-green);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--brand-green-light);
+        }
+
+        textarea.form-control {
             resize: vertical;
+            min-height: 120px;
         }
 
-        .form-group .image-preview {
-            max-width: 200px;
-            margin-top: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
+        .image-preview-wrapper {
+            margin-top: 15px;
         }
 
-        .button-group {
+        .image-preview {
+            max-width: 250px;
+            max-height: 250px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            object-fit: cover;
+        }
+
+        .form-actions {
+            text-align: right;
+            margin-top: 40px;
             display: flex;
-            justify-content: flex-end; /* 按鈕靠右 */
+            justify-content: flex-end;
             gap: 15px;
-            margin-top: 30px;
         }
 
-        .btn {
+        .action-btn {
             display: inline-block;
             text-decoration: none;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 5px;
-            font-weight: bold;
-            border: none;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: opacity 0.3s;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            font-size: 16px;
         }
 
-        .btn:hover {
-            opacity: 0.85;
+        .action-btn.btn-save {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+            color: white;
         }
 
-        .btn-save {
-            background-color: #3498db;
+        .action-btn.btn-save:hover {
+            background-color: var(--brand-green-hover);
         }
 
-        .btn-cancel {
+        .action-btn.btn-save:disabled {
             background-color: #95a5a6;
+            border-color: #95a5a6;
+            cursor: not-allowed;
         }
 
-        #error-message {
-            color: #e74c3c;
-            background-color: #fbecec;
-            border: 1px solid #e74c3c;
+        #message-area {
             padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            display: none; /* 預設隱藏 */
+            margin-top: 20px;
+            border-radius: 6px;
+            display: none;
+            font-weight: bold;
+            border: 1px solid transparent;
+        }
+
+        #message-area.success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        #message-area.error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
         }
     </style>
 </head>
 <body>
 
-<h1>編輯討論區</h1>
+<div class="forum-management-container">
+    <div class="page-title-header">
+        <h2><i class="bi bi-pencil-square item-icon"></i>編輯討論區</h2>
+    </div>
 
-<div id="error-message"></div>
+    <div class="form-wrapper">
+        <form id="edit-forum-form">
+            <input type="hidden" id="forumId" name="id">
 
-<div class="form-container">
-    <form id="edit-form">
-        <input type="hidden" id="forumId">
+            <div class="form-group">
+                <label for="forName">論壇名稱</label>
+                <input type="text" id="forName" name="forName" class="form-control" required>
+            </div>
 
-        <div class="form-group">
-            <label for="forum-name">論壇名稱</label>
-            <input type="text" id="forum-name" name="forName" required>
-        </div>
+            <div class="form-group">
+                <label for="categoryId">分類</label>
+                <select id="categoryId" name="categoryId" class="form-control" required>
+                    <option value="">-- 載入中... --</option>
+                </select>
+            </div>
 
-        <div class="form-group">
-            <label for="forum-category">分類</label>
-            <select id="forum-category" name="categoryId" required>
-            </select>
-        </div>
+            <div class="form-group">
+                <label for="forDes">描述</label>
+                <textarea id="forDes" name="forDes" class="form-control" required></textarea>
+            </div>
 
-        <div class="form-group">
-            <label for="forum-description">描述</label>
-            <textarea id="forum-description" name="forDes" required></textarea>
-        </div>
+            <div class="form-group">
+                <label for="forStatus">狀態</label>
+                <select id="forStatus" name="forStatus" class="form-control" required>
+                    <option value="0">正常</option>
+                    <option value="1">停用</option>
+                </select>
+            </div>
 
-        <div class="form-group">
-            <label for="forum-image-upload">更新圖片（可選）</label>
-            <input type="file" id="forum-image-upload" name="imageFile" accept="image/*">
+            <div class="form-group">
+                <label for="imageFile">更新圖片 (可選，選擇新圖片將會覆蓋舊的)</label>
+                <input type="file" id="imageFile" name="imageFile" class="form-control" accept="image/*">
+                <div class="image-preview-wrapper">
+                    <p>目前圖片預覽：</p>
+                    <img id="image-preview" src="" alt="圖片預覽" class="image-preview" style="display: none;">
+                </div>
+            </div>
 
-            <p style="margin-top: 10px; font-size: 14px; color: #555;">目前圖片預覽：</p>
-            <img id="image-preview" src="" alt="圖片預覽" class="image-preview" style="display: none;">
-        </div>
+            <div class="form-actions">
+                <a href="#" onclick="event.preventDefault(); loadExternalPage('../forumsys/forum/allForum.html')"
+                   class="action-btn">返回列表</a>
+                <button type="submit" id="submit-button" class="action-btn btn-save">儲存修改</button>
+            </div>
+        </form>
+    </div>
 
-        <div class="form-group">
-            <label for="forum-status">狀態</label>
-            <select id="forum-status" name="forStatus" required>
-                <option value="0">正常</option>
-                <option value="1">停用</option>
-            </select>
-        </div>
-
-        <div class="button-group">
-            <a href="allForum.html" class="btn btn-cancel">返回列表</a>
-            <button type="submit" class="btn btn-save">儲存修改</button>
-        </div>
-    </form>
+    <div id="message-area"></div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // 【可變】後端 API 的基礎路徑
+    // 使用 IIFE (立即執行函式) 建立私有作用域，避免污染全域
+    (function () {
+        'use strict';
+
+        // --- DOM 元素定義 ---
+        // 【可變】這些是 DOM 元素的引用，若你修改 HTML 中的 id，這裡也要跟著改。
+        const form = document.getElementById('edit-forum-form');
+        const forumIdInput = document.getElementById('forumId');
+        const nameInput = document.getElementById('forName');
+        const categorySelect = document.getElementById('categoryId');
+        const descriptionTextarea = document.getElementById('forDes');
+        const statusSelect = document.getElementById('forStatus');
+        const imageFileInput = document.getElementById('imageFile');
+        const imagePreview = document.getElementById('image-preview');
+        const submitButton = document.getElementById('submit-button');
+        const messageArea = document.getElementById('message-area');
+
+        // --- API & 參數定義 ---
+        // 【可變】後端 API 的基礎路徑，依據你的環境修改
         const apiBaseUrl = 'http://localhost:8080/api';
 
-        // 獲取所有表單的 DOM 元素
-        const form = document.getElementById('edit-form');
-        const forumIdInput = document.getElementById('forumId');
-        const nameInput = document.getElementById('forum-name');
-        const categorySelect = document.getElementById('forum-category');
-        const descriptionTextarea = document.getElementById('forum-description');
-        const imageUploadInput = document.getElementById('forum-image-upload');
-        const imagePreview = document.getElementById('image-preview');
-        const statusSelect = document.getElementById('forum-status');
-        const errorMessageDiv = document.getElementById('error-message');
+        // 【不可變】從 URL 讀取要編輯的論壇 ID，這是此頁面的核心邏輯
+        const contentArea = document.getElementById('content-area'); // [可變] 變數名稱可改
+        const pageParamsString = contentArea ? contentArea.getAttribute('data-page-params') : ''; // [不可變] 讀取屬性的邏輯
+        const urlParams = new URLSearchParams(pageParamsString); // [不可變] 解析字串的邏輯
+        const forumId = urlParams.get('id'); // [不可變] 獲取 'id' 參數
 
-        // 從 URL 讀取要編輯的論壇 ID
-        const urlParams = new URLSearchParams(window.location.search);
-        const forumId = urlParams.get('id');
-
-        // 如果 URL 中沒有 ID，則顯示錯誤並停止執行
-        if (!forumId) {
-            showError("錯誤：URL 中缺少討論區 ID。");
-            return;
-        }
-
-        // 初始化頁面，獲取所有必要資料
+        /**
+         * @description 頁面初始化函式
+         */
         async function initializePage() {
+            // 如果 URL 中沒有 ID，這是嚴重錯誤，直接停止執行
+            if (!forumId) {
+                showMessage("錯誤：URL 中缺少討論區 ID。", 'error');
+                form.style.display = 'none'; // 隱藏表單
+                return;
+            }
+
             try {
-                // 使用 Promise.all 平行發送請求，提高效率
+                // 【核心】使用 Promise.all 平行發送請求，同時獲取 "分類列表" 和 "此論壇的資料"
+                // 這樣可以加速頁面載入，提升使用者體驗。
                 const [categories, forumData] = await Promise.all([
                     fetch(`${apiBaseUrl}/categorys`).then(handleResponse),
                     fetch(`${apiBaseUrl}/forum/${forumId}`).then(handleResponse)
                 ]);
 
-                // 填充表單內容
+                // 填充表單
                 populateCategories(categories, forumData.categoryId);
                 populateForm(forumData);
 
             } catch (error) {
-                showError(`資料載入失敗: ${error.message}`);
+                showMessage(`資料載入失敗: ${error.message}`, 'error');
             }
         }
 
-        // 統一處理 fetch 的回應
+        /**
+         * @description 統一處理 fetch 的回應
+         * @param {Response} response - fetch API 的回應物件
+         * @returns {Promise<any>} - 解析後的 JSON 資料
+         */
         function handleResponse(response) {
+            // 如果 HTTP 狀態碼不是 2xx (例如 404, 500)，拋出錯誤
             if (!response.ok) {
-                // 如果 HTTP 狀態碼不是 2xx，則拋出錯誤
-                throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
+                throw new Error(`請求失敗，狀態碼: ${response.status}`);
             }
             return response.json();
         }
 
-        // 填充分類下拉選單，並設置正確的預設選項
+        /**
+         * @description 填充分類下拉選單，並設定當前論壇的分類為預設選項
+         * @param {Array} categories - 所有分類的陣列
+         * @param {number} selectedCategoryId - 當前論壇所屬的分類 ID
+         */
         function populateCategories(categories, selectedCategoryId) {
-            categorySelect.innerHTML = ''; // 清空現有選項
-
+            categorySelect.innerHTML = '<option value="" disabled>--請選擇分類--</option>'; // 清空並加入預設提示
             categories.forEach(category => {
                 const option = document.createElement('option');
-
-                // 【修正】使用從 API 回傳的正確屬性名 'id'
                 option.value = category.id;
                 option.textContent = category.catName;
-
-                // 【修正】使用 'id' 進行比較，並確保類型一致來選中正確項目
+                // 【注意】將 API 回傳的 ID 和當前論壇的分類 ID 比較，相符的就設為選中
                 if (Number(category.id) === Number(selectedCategoryId)) {
                     option.selected = true;
                 }
@@ -225,7 +292,10 @@
             });
         }
 
-        // 將論壇資料填充到表單的各個欄位
+        /**
+         * @description 將獲取到的論壇資料填充到表單的各個欄位
+         * @param {object} data - 單筆論壇資料物件
+         */
         function populateForm(data) {
             forumIdInput.value = data.id;
             nameInput.value = data.forName;
@@ -236,78 +306,101 @@
             if (data.forImgUrl) {
                 imagePreview.src = data.forImgUrl;
                 imagePreview.style.display = 'block';
+            } else {
+                imagePreview.style.display = 'none';
             }
         }
 
         // 監聽檔案上傳元件的變動，即時預覽新選擇的圖片
-        imageUploadInput.addEventListener('change', function (event) {
+        imageFileInput.addEventListener('change', function (event) {
             const file = event.target.files[0];
             if (file) {
-                const localImageUrl = URL.createObjectURL(file);
-                imagePreview.src = localImageUrl;
+                // 使用 URL.createObjectURL 為本機檔案建立一個暫時的 URL 以供預覽
+                imagePreview.src = URL.createObjectURL(file);
                 imagePreview.style.display = 'block';
             }
         });
 
-        // 在 forum/forumindex.html 的 <script> 標籤內
-
-// 監聽表單提交事件
+        /**
+         * @description 監聽表單提交事件
+         */
         form.addEventListener('submit', async function (event) {
-            event.preventDefault(); // 阻止瀏覽器預設的提交行為
+            event.preventDefault(); // 阻止瀏覽器預設的表單提交行為
 
-            // 1. 【修正】我們需要建立的是一個 FormData 物件，並用一個變數 (例如 formData) 來接住它。
+            submitButton.disabled = true;
+            submitButton.textContent = '儲存中...';
+            hideMessage();
+
+            // 【核心】建立 FormData 物件，因為我們需要同時上傳 JSON 資料和檔案
             const formData = new FormData();
 
-            // 2. 【修正】定義要轉換成 JSON 的純資料物件。
-            //    【建議】ID 由 URL 傳遞，body 中可以不必再放，讓後端以 URL 的 ID 為準。
-            const forumDto = {
+            // 1. 建立一個純資料的 DTO (Data Transfer Object) 物件
+            // 【可變】此物件的屬性名稱 (forName, forDes...) 應與後端接收的 DTO 類別屬性一致
+            const forumUpdateDto = {
                 forName: nameInput.value,
                 forDes: descriptionTextarea.value,
                 forStatus: statusSelect.value,
-                categoryId: parseInt(categorySelect.value),
+                categoryId: parseInt(categorySelect.value, 10),
             };
 
-            // 3. 【修正】使用 formData 變數來 .append() 資料。
-            //    將 forumDto 物件打包成 JSON 字串，並命名為 'forumDTO'。
-            formData.append('forumDTO', new Blob([JSON.stringify(forumDto)], {type: 'application/json'}));
+            // 2. 將 DTO 物件轉為 JSON 字串，再包裝成 Blob 物件後，附加到 FormData 中
+            // 【不可變】第一個參數 'forumDTO' 是後端 Spring Boot @RequestPart("forumDTO") 中定義的名稱，必須一致
+            formData.append('forumDTO', new Blob([JSON.stringify(forumUpdateDto)], {
+                type: 'application/json'
+            }));
 
-            // 4. 【修正】同樣使用 formData 變數來 .append() 檔案。
-            const imageFile = imageUploadInput.files[0];
-            if (imageFile) {
-                formData.append('imageFile', imageFile);
+            // 3. 檢查是否有選擇新圖片檔案，如果有，才附加到 FormData
+            if (imageFileInput.files.length > 0) {
+                // 【不可變】第一個參數 'imageFile' 是後端 @RequestPart("imageFile") 中定義的名稱，必須一致
+                formData.append('imageFile', imageFileInput.files[0]);
             }
 
-
             try {
-                // 5. 【修正】發送請求時，body 應該是我們建立和填充好的 formData 物件。
+                // 【核心】發送 PUT 請求
+                // 【常見錯誤】使用 FormData 時，*不要* 手動設定 'Content-Type' 請求標頭。
+                // 瀏覽器會自動設定為 'multipart/form-data' 並附帶正確的 boundary。
                 const response = await fetch(`${apiBaseUrl}/admin/forum/${forumId}`, {
                     method: 'PUT',
-                    body: formData, // 👈 這裡放的是 formData
+                    body: formData,
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({message: '更新失敗，且無法解析錯誤訊息。'}));
-                    throw new Error(errorData.message || '更新失敗');
+                    const errorText = await response.text();
+                    throw new Error(errorText || `更新失敗，狀態碼: ${response.status}`);
                 }
 
-                alert('更新成功！');
-                window.location.href = 'allForum.html';
+                showMessage('更新成功！2秒後將返回列表頁。', 'success');
+                setTimeout(() => {
+                    // 【不可變】呼叫父頁面 (AdmHomePage) 提供的全域函式來切換頁面
+                    if (typeof window.parent.loadExternalPage === 'function') {
+                        window.parent.loadExternalPage('../forumsys/forum/allForum.html');
+                    } else if (typeof loadExternalPage === 'function') {
+                        loadExternalPage('../forumsys/forum/allForum.html');
+                    }
+                }, 2000);
 
             } catch (error) {
-                showError(`儲存失敗: ${error.message}`);
+                showMessage(`儲存失敗: ${error.message}`, 'error');
+                submitButton.disabled = false;
+                submitButton.textContent = '儲存修改';
             }
         });
 
-        // 顯示錯誤訊息的輔助函式
-        function showError(message) {
-            errorMessageDiv.style.display = 'block';
-            errorMessageDiv.textContent = message;
-            console.error(message); // 在主控台也印出錯誤，方便開發者查看
+        // --- 輔助函式 ---
+        function showMessage(message, type) {
+            messageArea.textContent = message;
+            messageArea.className = type; // 根據 success 或 error 切換樣式
+            messageArea.style.display = 'block';
         }
 
-        // 執行初始化函式，啟動整個頁面
+        function hideMessage() {
+            messageArea.style.display = 'none';
+        }
+
+        // --- 執行初始化 ---
         initializePage();
-    });
+
+    })();
 </script>
 
 </body>
