@@ -117,45 +117,146 @@ body {
 	<script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
 	<!-- 會員中心 SPA JS -->
 	<script>
+  // ---- 動態渲染會員資料 ----
+  document.addEventListener('DOMContentLoaded', function () {
+	  
+  // 1. 檢查jwt和memberInfo是否存在localstorage
+  const jwt = localStorage.getItem('jwt');
+  const memberInfo = localStorage.getItem('memberInfo');
+  function isJwtExpired(jwt) {
+	  try {
+	    const payload = JSON.parse(atob(jwt.split('.')[1]));
+	    if (!payload.exp) return false;
+	    const now = Math.floor(Date.now() / 1000);
+	    return payload.exp < now;
+	  } catch (e) {
+	    return true;
+	  }
+	}
+  if (isJwtExpired(jwt) || !memberInfo) {
+    alert('請先登入會員');
+    window.location.href = '/front-end/mem/MemberLogin.html';
+    return;
+  }
+  // 2. 預設先用 localStorage 的資料渲染（避免延遲）
+  const member = JSON.parse(memberInfo);
+  window.memberInfo = member;
+
+//   // 3. 嘗試去 API 拿最新資料
+//   fetch('/api/member/profile', {
+//     headers: {
+//       'Authorization': 'Bearer ' + jwt
+//     }
+//   })
+//   .then(res => {
+//     if (res.ok) return res.json();
+//     // token 過期等錯誤處理
+//     throw new Error('驗證失敗，請重新登入');
+//   })
+//   .then(data => {
+//     // 新資料同步到 localStorage
+//     window.memberInfo = data;
+//     localStorage.setItem('memberInfo', JSON.stringify(data));
+//     // 重新渲染當前分頁
+//     renderTab(currentTab());
+//   })
+//   .catch(err => {
+//     alert('登入已失效，請重新登入');
+//     localStorage.removeItem('jwt');
+//     localStorage.removeItem('memberInfo');
+//     window.location.href = '/front-end/mem/MemberLogin.html';
+//   });
+	// 4. 用jwt + memberId回頭請求敏感資料
+	function fetchPrivateProfile() {
+	  const jwt = localStorage.getItem('jwt');
+	  const memberInfo = JSON.parse(localStorage.getItem('memberInfo'));
+	  if (!jwt || !memberinfo) {
+	    // ... 未登入導向
+	    return;
+	  }
+	  fetch(`/api/member/private/${memberInfo.Id}`, {
+	    headers: { 'Authorization': 'Bearer ' + jwt }
+	  })
+	  .then(res => {
+	    if (!res.ok) throw new Error('權限不足或已登出');
+	    return res.json();
+	  })
+	  .then(privateData => {
+	    // 顯示私密資料
+	    console.log(privateData);
+	    // 動態填入 profile 區塊（同上 render profile）
+	  })
+	  .catch(err => {
+	    alert('請重新登入');
+	    // ...導向登入
+	  });
+	}
+
+	
+  // 渲染預設分頁
+  renderTab(currentTab());
+
+  // tab 切換事件
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => renderTab(btn.dataset.tab));
+  });
+
+  // header 下拉 tab 快速切
+  document.querySelectorAll('.user-tab-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      const href = link.getAttribute('href');
+      const tab = link.getAttribute('data-tab');
+      if (href === '#' && tab) {
+        e.preventDefault();
+        renderTab(tab);
+      }
+    });
+  });
+});
+
+function currentTab() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('tab') || 'profile';
+}
+
+	
   // ---- SPA會員中心各區塊內容 ----
 const memberViews = {
-  profile: `
-    <div class="member-center-card mb-4 bg-white">
-      <div class="card-body py-4 px-4">
-        <div class="d-flex align-items-center mb-3">
-          <img src="/assets/img/avatar/1.jpg" alt="會員頭像" class="avatar-lg me-3" id="member-avatar">
-          <div>
-            <div style="font-size:1.18rem;font-weight:600;">Abram Marvyn</div>
-            <div style="color:#aaa;font-size:0.99rem;">暱稱：PixelMaster</div>
+  profile: function(member) {
+    return `
+      <div class="member-center-card mb-4 bg-white">
+        <div class="card-body py-4 px-4">
+          <div class="d-flex align-items-center mb-3">
+            <img src="${member.avatar || '/assets/img/avatar/1.jpg'}" alt="會員頭像" class="avatar-lg me-3" id="member-avatar">
           </div>
+          <dl class="profile-list">
+            <dt>姓名:</dt><dd>${member.memName}</dd>
+            <dt>生日:</dt><dd>${member.memBirthday}</dd>
+            <dt>帳號:</dt><dd>${member.memAccount}</dd>
+            <dt>暱稱:</dt><dd>${member.memNickName}</dd>
+            <dt>信箱:</dt><dd>${member.memEmail}</dd>
+            <dt>地址:</dt><dd>${member.memAddress}</dd>
+            <dt>手機:</dt><dd>${member.memPhone}</dd>
+          </dl>
         </div>
-        <dl class="profile-list">
-          <dt>姓名</dt><dd>馬雲</dd>
-          <dt>生日</dt><dd>1992/02/08</dd>
-          <dt>帳號</dt><dd>abram_marvyn</dd>
-          <dt>暱稱</dt><dd>PixelMaster</dd>
-          <dt>信箱</dt><dd>abram@gmail.com</dd>
-          <dt>地址</dt><dd>台北市大安區XX路88號</dd>
-          <dt>手機</dt><dd>0912-345-678</dd>
-        </dl>
       </div>
-    </div>
-    <div class="member-center-card mb-4 bg-white">
-      <div class="card-body py-4 px-4">
-        <div class="card-section-title mb-2">密碼重設</div>
-        <form id="resetPwdForm" autocomplete="off">
-          <input type="password" id="oldPassword" class="form-control mb-2" placeholder="輸入原密碼" required>
-          <input type="password" id="newPassword" class="form-control mb-2" placeholder="輸入新密碼" required>
-          <input type="password" id="newPasswordConfirm" class="form-control mb-3" placeholder="再次輸入新密碼" required>
-          <div class="d-flex mb-2" style="gap:10px;">
-            <button type="submit" class="btn btn-dark flex-fill" style="color: #fff;">確認</button>
-            <button type="button" class="btn btn-outline-secondary flex-fill" onclick="document.getElementById('resetPwdForm').reset();">取消</button>
-          </div>
-          <div id="resetPwdMsg" class="text-center mt-2"></div>
-        </form>
+      <div class="member-center-card mb-4 bg-white">
+        <div class="card-body py-4 px-4">
+          <div class="card-section-title mb-2">密碼重設</div>
+          <form id="resetPwdForm" autocomplete="off">
+            <input type="password" id="oldPassword" class="form-control mb-2" placeholder="輸入原密碼" required>
+            <input type="password" id="newPassword" class="form-control mb-2" placeholder="輸入新密碼" required>
+            <input type="password" id="newPasswordConfirm" class="form-control mb-3" placeholder="再次輸入新密碼" required>
+            <div class="d-flex mb-2" style="gap:10px;">
+              <button type="submit" class="btn btn-outline-secondary flex-fill" >確認</button>
+              <button type="button" class="btn btn-outline-secondary flex-fill" onclick="document.getElementById('resetPwdForm').reset();">取消</button>
+            </div>
+            <div id="resetPwdMsg" class="text-center mt-2"></div>
+          </form>
+        </div>
       </div>
-    </div>
-  `,
+    `;
+  },
   orders: `
     <div class="member-center-card mb-4 bg-white">
       <div class="card-body py-4 px-4">
@@ -228,8 +329,14 @@ const memberViews = {
 // --------- SPA切換/事件 ---------
 function renderTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
-  document.getElementById('memberMainArea').innerHTML = memberViews[tab] || '<div>找不到資料</div>';
-  if (tab === 'profile') bindProfilePwdReset();
+  if (tab === 'profile') {
+    document.getElementById('memberMainArea').innerHTML = memberViews.profile(window.memberInfo);
+    bindProfilePwdReset();
+  } else {
+    document.getElementById('memberMainArea').innerHTML = typeof memberViews[tab] === "function"
+      ? memberViews[tab](window.memberInfo)
+      : memberViews[tab] || '<div>找不到資料</div>';
+  }
 }
 
 function bindProfilePwdReset() {
