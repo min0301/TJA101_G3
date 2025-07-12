@@ -195,4 +195,20 @@ public class MemService {
 
         return dto;
     }
+
+	public boolean updateProfile(Integer id, Map<String, String> payload) {
+		Optional<Member> opt = memrepository.findById(id);
+		if (opt.isEmpty()) return false;
+		Member member = opt.get();
+		
+		//更新欄位
+		member.setMemName(payload.get("memName"));
+		member.setMemNickName(payload.get("memNickName"));
+		member.setMemEmail(payload.get("memEmail"));
+		member.setMemAddr(payload.get("memAddr"));
+		member.setMemPhone(payload.get("memPhone"));
+		memrepository.save(member);
+		
+		return true;
+	}
 }
