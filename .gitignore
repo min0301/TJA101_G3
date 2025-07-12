@@ -38,3 +38,10 @@ build/
 
 ### 上傳圖片路徑 ###
 /uploads/
+
+
+# Log files
+*.log
+logs/
+log/
+*.log.*
