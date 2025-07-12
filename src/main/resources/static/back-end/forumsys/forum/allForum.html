@@ -9,7 +9,7 @@
         .forum-management-container {
             width: 100%;
             max-width: 1400px; /* 關鍵：讓內容有最大寬度限制 */
-            margin: 0 auto;    /* 關鍵：讓容器水平置中 */
+            margin: 0 auto; /* 關鍵：讓容器水平置中 */
         }
 
         /* 頁面標題，與 allOrder.html 對齊 */
@@ -59,6 +59,7 @@
             color: var(--text-color);
             transition: border-color 0.2s;
         }
+
         .filter-select:focus {
             border-color: var(--brand-green); /* 使用主模板主題色 */
             outline: none;
@@ -99,6 +100,11 @@
             color: var(--text-color);
         }
 
+        .table th:nth-child(3), .table td:nth-child(3),
+        .table th:nth-child(8), .table td:nth-child(8) {
+            white-space: nowrap;
+        }
+
         /* 狀態標籤 (維持原樣，因為這是論壇本身的狀態，顏色有語意) */
         .status-badge {
             padding: 5px 12px;
@@ -106,8 +112,16 @@
             font-size: 13px;
             font-weight: 500;
         }
-        .status-normal { background-color: #d4edda; color: #155724; }
-        .status-disabled { background-color: #f8d7da; color: #721c24; }
+
+        .status-normal {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-disabled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
 
         /* 操作按鈕，與 allOrder.html 對齊 */
         .action-btn {
@@ -136,6 +150,7 @@
             color: white;
             font-weight: bold;
         }
+
         .action-btn.btn-add:hover {
             background-color: var(--brand-green-hover);
             border-color: var(--brand-green-hover);
@@ -148,12 +163,14 @@
             align-items: center;
             padding: 20px 0;
         }
+
         .pagination {
             display: flex;
             padding-left: 0;
             list-style: none;
             margin: 0;
         }
+
         .pagination-controls .page-item .page-link {
             color: var(--brand-green);
             background-color: var(--component-bg);
@@ -165,18 +182,21 @@
             text-decoration: none;
             display: block;
         }
+
         .pagination-controls .page-item.active .page-link {
             z-index: 1;
             color: #fff;
             background-color: var(--brand-green);
             border-color: var(--brand-green);
         }
+
         .pagination-controls .page-item.disabled .page-link {
             color: #6c757d;
             pointer-events: none;
             background-color: #e9ecef;
             border-color: var(--border-color);
         }
+
         .pagination-controls .page-item .page-link:hover:not(.active) {
             background-color: var(--brand-green-light);
             border-color: var(--brand-green);
@@ -203,12 +223,49 @@
             transition: transform 0.2s ease-in-out;
             cursor: pointer;
         }
-        td a:has(.forum-thumbnail) { text-decoration: none; display: inline-block; }
-        td a:has(.forum-thumbnail):hover .forum-thumbnail { transform: scale(1.1); }
-        .lightbox { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); justify-content: center; align-items: center; }
-        .lightbox-content { max-width: 85%; max-height: 85%; border-radius: 5px; }
-        .lightbox-close { position: absolute; top: 20px; right: 35px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; transition: color 0.3s; }
-        .lightbox-close:hover { color: #bbb; }
+
+        td a:has(.forum-thumbnail) {
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        td a:has(.forum-thumbnail):hover .forum-thumbnail {
+            transform: scale(1.1);
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox-content {
+            max-width: 85%;
+            max-height: 85%;
+            border-radius: 5px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .lightbox-close:hover {
+            color: #bbb;
+        }
     </style>
 </head>
 <body>
@@ -220,7 +277,8 @@
 
     <div class="control-bar">
         <div>
-            <a href="addForum.html" class="action-btn btn-add">＋ 新增討論區</a>
+            <a href="#" onclick="event.preventDefault(); loadExternalPage('../forumsys/forum/addForum.html')"
+               class="action-btn btn-add">＋ 新增討論區</a>
         </div>
         <div class="filter-group">
             <div>
@@ -277,10 +335,9 @@
 </div>
 
 <script>
-    // 使用 IIFE (Immediately Invoked Function Expression) 避免污染全域範疇
-    (function() {
+    (function () {
         // --- 變數定義區 ---
-        const apiUrl = 'http://localhost:8080/api/forums'; // 不可變：後端 API 端點
+        const apiUrl = 'http://localhost:8080/api/admin/forums';
 
         // 可變：這些是 DOM 元素的引用，名稱可依個人習慣修改，但要與 HTML 的 id 對應
         const tableBody = document.getElementById('forumTableBody');
@@ -352,16 +409,8 @@
                 const row = document.createElement('tr'); // row 是區域變數
                 row.innerHTML = `
                     <td>${forum.id}</td>
-                    <td>
-                        <a href="/back-end/forumsys/forumpost/allForumPost.html?forNo=${forum.id}">
-                            ${forum.forName || '無名稱'}
-                        </a>
-                    </td>
-                    <td>
-                        <a href="findByCatNoForum.html?catId=${forum.categoryId}">
-                            ${forum.categoryName || '未分類'}
-                        </a>
-                    </td>
+                    <td>${forum.forName || '無名稱'}</td>
+                    <td>${forum.categoryName || '未分類'}</td>
                     <td>
                       ${forum.forImgUrl ?
                     `<a href="${forum.forImgUrl}">
@@ -379,7 +428,9 @@
                         </span>
                     </td>
                     <td>
-                        <a href="forum.html?id=${forum.id}" class="action-btn">修改</a>
+                        <a href="#"
+                           onclick="event.preventDefault(); loadExternalPage('../forumsys/forum/forum.html?id=${forum.id}')"
+                           class="action-btn">修改</a>
                     </td>
                 `;
                 tableBody.appendChild(row);
@@ -426,18 +477,18 @@
 
         // --- 事件處理函式 ---
         // 不可變：以下函式名稱需與 HTML 中的 onchange, onclick 對應，所以名稱是固定的
-        window.filterByStatus = function() {
+        window.filterByStatus = function () {
             currentPage = 1;
             updateDisplay();
         }
 
-        window.changeItemsPerPage = function() {
+        window.changeItemsPerPage = function () {
             itemsPerPage = parseInt(itemsPerPageFilter.value);
             currentPage = 1;
             updateDisplay();
         }
 
-        window.changePage = function(page) {
+        window.changePage = function (page) {
             const currentStatusFilter = statusFilter.value;
             const filteredData = currentStatusFilter
                 ? allForumsData.filter(forum => forum.forStatus === currentStatusFilter)
@@ -464,7 +515,7 @@
             if (!dateTimeStr) return '-';
             try {
                 // toLocaleString() 是個方便的工具，可以格式化為本地時間格式
-                return new Date(dateTimeStr).toLocaleString('zh-TW', { hour12: false });
+                return new Date(dateTimeStr).toLocaleString('zh-TW', {hour12: false});
             } catch (e) {
                 return dateTimeStr; // 如果格式錯誤，返回原始字串
             }
@@ -472,10 +523,13 @@
 
         function getStatusClass(status) {
             // 根據狀態回傳對應的 CSS class
-            switch(status) {
-                case '0': return 'status-normal';
-                case '1': return 'status-disabled';
-                default: return '';
+            switch (status) {
+                case '0':
+                    return 'status-normal';
+                case '1':
+                    return 'status-disabled';
+                default:
+                    return '';
             }
         }
 
@@ -492,13 +546,16 @@
                 openLightbox(imageUrl);
             }
         });
+
         function openLightbox(imageUrl) {
             lightboxImg.setAttribute('src', imageUrl);
             lightbox.style.display = 'flex';
         }
+
         function closeLightbox() {
             lightbox.style.display = 'none';
         }
+
         lightboxClose.addEventListener('click', closeLightbox);
         lightbox.addEventListener('click', e => (e.target === lightbox) && closeLightbox());
         document.addEventListener('keydown', e => (e.key === 'Escape') && closeLightbox());
