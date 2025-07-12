@@ -158,7 +158,7 @@ public class OrderService {
         try {
             log.debug("查詢會員訂單：memNo={}", memNo);
             
-            List<Order> orders = orderRepository.findByMemNo_MemNoOrderByOrderDatetimeDesc(memNo);
+            List<Order> orders = orderRepository.findByMemNoOrderByOrderDatetimeDesc(memNo);
             return orders.stream()
                         .map(order -> {
                             List<OrderItem> items = orderItemRepository.findByOrder_OrderNo(order.getOrderNo());
