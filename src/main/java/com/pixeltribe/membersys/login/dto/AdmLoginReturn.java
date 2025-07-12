@@ -7,8 +7,7 @@ public class AdmLoginReturn {
 	    private String token;
 	    private AdminInfo adminInfo;
 	    
-	    //Constructor
-	    
+	    // Constructor
 	    public AdmLoginReturn(boolean success, String message) {
 	        this.success = success;
 	        this.message = message;
