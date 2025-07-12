@@ -9,7 +9,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Component
 public class ProductEditDTO {
 	
 	private Integer id;

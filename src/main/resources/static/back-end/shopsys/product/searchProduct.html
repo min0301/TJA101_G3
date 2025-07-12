@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商城標籤商品搜尋</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .search-section {
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .market-select {
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .market-select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .search-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ddd;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .product-price {
+            font-size: 1.5em;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-results h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #7f8c8d;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 30px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .results-count {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 1.1em;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+
+        @media (max-width: 768px) {
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .search-input, .market-select, .search-btn {
+                width: 100%;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛍️ 商城商品搜尋</h1>
+            <p>選擇商城標籤，探索精選商品</p>
+        </div>
+
+        <div class="search-section">
+            <div class="search-box">
+                <select id="mallTagSelect" class="search-input">
+                    <option value="">請選擇商城標籤...</option>
+                </select>
+                
+                <select id="marketSelect" class="market-select">
+                    <option value="0">全部商品</option>
+                    <option value="1">市場商品</option>
+                </select>
+                
+                <button id="searchBtn" class="search-btn">🔍 搜尋商品</button>
+            </div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            正在搜尋商品...
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+        <div id="resultsCount" class="results-count" style="display: none;"></div>
+
+        <div id="productsContainer" class="products-grid"></div>
+
+        <div id="noResults" class="no-results" style="display: none;">
+            <h3>😅 沒有找到商品</h3>
+            <p>請試試其他的商城標籤或調整搜尋條件</p>
+        </div>
+    </div>
+
+    <script>
+        // API 基礎 URL - 請根據你的後端地址調整
+        const API_BASE_URL = 'http://localhost:8080/api'; // 修改為你的後端地址
+        
+        // DOM 元素
+        const mallTagSelect = document.getElementById('mallTagSelect');
+        const marketSelect = document.getElementById('marketSelect');
+        const searchBtn = document.getElementById('searchBtn');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultsCount = document.getElementById('resultsCount');
+        const productsContainer = document.getElementById('productsContainer');
+        const noResults = document.getElementById('noResults');
+
+        // 載入商城標籤
+        async function loadMallTags() {
+            try {
+                // 嘗試不同的 API 路徑
+                let response;
+                const path = `${API_BASE_URL}/malltag`;
+                
+                response = await fetch(path);
+                        
+                
+                if (!response || !response.ok) {
+                    throw new Error(`HTTP error! status: ${response?.status || 'Network Error'}`);
+                }
+
+                const mallTags = await response.json();
+                
+                // 清空現有選項（保留預設選項）
+                mallTagSelect.innerHTML = '<option value="">請選擇商城標籤...</option>';
+                
+                // 新增標籤選項
+                mallTags.forEach(tag => {
+                    const option = document.createElement('option');
+                    option.value = tag.id;
+                    option.textContent = tag.mallTagName;
+                    mallTagSelect.appendChild(option);
+                });
+                
+            } catch (error) {
+                console.error('載入商城標籤失敗:', error);
+                showError('載入商城標籤失敗，請檢查後端服務是否正常運行');
+            }
+        }
+
+        // 搜尋功能
+        async function searchProducts() {
+            const mallTagNo = mallTagSelect.value;
+            const proIsMarket = marketSelect.value;
+
+            // 驗證輸入
+            if (!mallTagNo) {
+                showError('請選擇商城標籤');
+                return;
+            }
+
+            // 顯示載入狀態
+            showLoading();
+
+            try {
+                // 嘗試不同的 API 路徑
+                let response;
+                const path = `${API_BASE_URL}/product/search/${mallTagNo}?proIsMarket=${proIsMarket}`;
+                
+                response = await fetch(path);
+                      
+                if (!response || !response.ok) {
+                    throw new Error(`HTTP error! status: ${response?.status || 'Network Error'}`);
+                }
+
+                const products = await response.json();
+                
+                // 顯示結果
+                displayProducts(products);
+                
+            } catch (error) {
+                console.error('搜尋失敗:', error);
+                showError('搜尋失敗，請檢查網路連接或後端服務是否正常運行。可能的原因：API 路徑不正確或後端服務未啟動');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 生成佔位圖片的 base64 數據
+        function generatePlaceholderImage() {
+            // 創建一個簡單的 SVG 佔位圖片
+            const svg = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="300" height="250" viewBox="0 0 300 250">
+                    <rect width="300" height="250" fill="#e0e0e0"/>
+                    <text x="150" y="125" text-anchor="middle" dy="0.3em" font-family="Arial, sans-serif" font-size="16" fill="#666666">
+                        圖片無法載入
+                    </text>
+                </svg>
+            `;
+            return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+        }
+
+        // 顯示商品
+        function displayProducts(products) {
+            hideAllMessages();
+
+            if (!products || products.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            }
+
+            // 顯示結果數量
+            resultsCount.textContent = `找到 ${products.length} 個商品`;
+            resultsCount.style.display = 'block';
+
+            // 生成商品卡片
+            productsContainer.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <img src="${API_BASE_URL}/product/cover/${product.id}" 
+                         alt="${product.proName}" 
+                         class="product-image"
+                         onerror="this.src='${generatePlaceholderImage()}'">
+                    <div class="product-info">
+                        <div class="product-name">${escapeHtml(product.proName)}</div>
+                        <div class="product-price">NT$ ${formatPrice(product.proPrice)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 顯示載入狀態
+        function showLoading() {
+            loading.style.display = 'block';
+            hideAllMessages();
+        }
+
+        // 隱藏載入狀態
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+
+        // 顯示錯誤訊息
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            hideAllMessages();
+        }
+
+        // 隱藏所有訊息
+        function hideAllMessages() {
+            errorMessage.style.display = 'none';
+            resultsCount.style.display = 'none';
+            noResults.style.display = 'none';
+            productsContainer.innerHTML = '';
+        }
+
+        // 格式化價格
+        function formatPrice(price) {
+            return new Intl.NumberFormat('zh-TW').format(price);
+        }
+
+        // HTML 轉義
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 事件監聽
+        searchBtn.addEventListener('click', searchProducts);
+
+        // 支援 Enter 鍵搜尋 - 改為監聽 select 的 keypress
+        mallTagSelect.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchProducts();
+            }
+        });
+
+        // 頁面載入時載入商城標籤並聚焦
+        window.addEventListener('load', () => {
+            loadMallTags();
+            mallTagSelect.focus();
+        });
+    </script>
+</body>
+</html>
