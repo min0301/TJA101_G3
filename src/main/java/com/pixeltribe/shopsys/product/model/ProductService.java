@@ -56,8 +56,14 @@ public class ProductService {
             return updatedRows > 0;
     }
    
-    public List<ProductSearchDTO> findByMallTagWithMarket(Integer mallTagNo, Character proIsMarket){
-    	return productRepository.findByMallTagWithMarket(mallTagNo, proIsMarket);
+    public List<ProductSearchDTO> findByMallTagAndMarket(Integer mallTagNo, Character proIsMarket){
+    		List<Product> products = productRepository.findByMallTagAndMarket(mallTagNo, proIsMarket);
+    	return productDTOMapper.toProductSearchDTOList(products);
+    }
+    
+    public List<ProductSearchDTO> findByMallTagAllMarket(Integer mallTagNo){
+    		List<Product> products = productRepository.findByMallTagAndMarket(mallTagNo,null);
+    	return productDTOMapper.toProductSearchDTOList(products);
     }
 	
 }

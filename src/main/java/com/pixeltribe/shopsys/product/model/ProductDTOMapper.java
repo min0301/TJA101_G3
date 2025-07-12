@@ -66,10 +66,26 @@ public class ProductDTOMapper {
 		return paDTO;
 	}
 	
+	public  ProductSearchDTO toProductSearchDTO(Product product) {
+		ProductSearchDTO psDTO = new ProductSearchDTO();
+		psDTO.setId(product.getId());
+		psDTO.setProName(product.getProName());
+		psDTO.setProPrice(product.getProPrice());
+		if (product.getMallTagNo() != null) {
+			psDTO.setMallTagNo(product.getMallTagNo().getId());
+	        }
+		psDTO.setProIsmarket(product.getProIsmarket());
+		return psDTO;
+	}
 	
 	public List<ProductManageDTO> toProductManageDTOList(List<Product> products){
 		return products.stream()
                 .map(this::toProductManageDTO)
+                .collect(Collectors.toList());
+	}
+	public List<ProductSearchDTO> toProductSearchDTOList(List<Product> products){
+		return products.stream()
+                .map(this::toProductSearchDTO)
                 .collect(Collectors.toList());
 	}
 	

@@ -13,12 +13,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +32,7 @@ import com.pixeltribe.shopsys.product.model.ProductDTOMapper;
 import com.pixeltribe.shopsys.product.model.ProductEditDTO;
 import com.pixeltribe.shopsys.product.model.ProductIsmarketDTO;
 import com.pixeltribe.shopsys.product.model.ProductManageDTO;
+import com.pixeltribe.shopsys.product.model.ProductSearchDTO;
 import com.pixeltribe.shopsys.product.model.ProductService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,14 +42,11 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "*")
 public class ProductController {
 	
 		@Autowired
 		ProductService productService;
-		@Autowired
-		ProductManageDTO productManageDTO;
-		@Autowired
-		ProductEditDTO productEditDTO;
 		@Autowired
 		ProductDTOMapper productDTOMapper;
 		
@@ -58,8 +58,9 @@ public class ProductController {
 		@PostMapping("/product/addproduct")
 		public ResponseEntity<?> addProduct(
 		            @RequestPart("ProductAddDTO") @Valid ProductAddDTO productAddDTO,
-		            @RequestPart(value = "imageFile", required = false) MultipartFile[] imageFile,
-		            BindingResult result) throws IOException{
+		            BindingResult result,
+		            @RequestPart(value = "imageFile", required = false) MultipartFile[] imageFile
+		            ) throws IOException{
 		    if (result.hasErrors()) {
 		        return ResponseEntity.badRequest().body("輸入資料有誤！");
 		    }
@@ -142,6 +143,7 @@ public class ProductController {
 			}
 			return result;
 		}
+		
 		@Transactional
 		@PutMapping("/product/{proNo}/market-status")
 	    public ResponseEntity<Map<String, Object>> updateMarketStatus(
@@ -171,6 +173,13 @@ public class ProductController {
 	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 	        }
 	    }
-		
+		@GetMapping("/product/search/{mallTagNo}")
+		public List<ProductSearchDTO> findByMallTagAndMarket(
+				@PathVariable Integer mallTagNo,
+	            @RequestParam(required = false, defaultValue = "0") Character proIsMarket) {
+
+				return productService.findByMallTagAndMarket(mallTagNo, proIsMarket);
+		        
+		}
 	        
 }
