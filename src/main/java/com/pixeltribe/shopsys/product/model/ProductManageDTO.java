@@ -13,7 +13,6 @@ import lombok.Value;
 
 @Getter
 @Setter
-@Component
 public class ProductManageDTO {
 	
 		private Integer id;
