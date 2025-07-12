@@ -27,6 +27,8 @@ public class OrderDTO {
 	private Integer discountAmount;    // OrderService計算後設定
 	private List<OrderItemDTO> orderItems;
 	
+	// 聯絡E-mail (
+	private String contactEmail;
 	
 	// 計算實際付款的金額  (在OrderService設定discountAmount)
 	public Integer getActualPayment() {

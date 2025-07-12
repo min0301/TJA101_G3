@@ -14,4 +14,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
 	//根據訂單編號查詢
 	@Query(value = "SELECT * FROM order_item WHERE order_no = :orderNo", nativeQuery = true)
     List<OrderItem> findByOrderNoNative(@Param("orderNo") Integer orderNo);
+	
+	// 根據關聯的 Order 物件的 orderNo 查詢
+    List<OrderItem> findByOrder_OrderNo(Integer orderNo);
 }
