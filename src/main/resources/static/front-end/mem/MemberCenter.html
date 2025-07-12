@@ -1,110 +1,224 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>會員中心 - Pixel Tribe</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Bootstrap & icons -->
-  <link rel="stylesheet" href="/assets/vendors/bootstrap/bootstrap.min.css">
-  <link rel="stylesheet" href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">
-  <link rel="stylesheet" href="/assets/css/style.css">
-  <link rel="stylesheet" href="/assets/css/responsive.css">
-  <style>
-    body {
-      background: white;
-      padding-top: 100px;
-    }
-    .member-center-card {
-      max-width: 600px;
-      margin: auto;
-      border-radius: 16px;
-      box-shadow: 0 2px 12px #0001;
-    }
-    .avatar-lg {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    .profile-list dt {
-      color: #9e8969;
-      width: 84px;
-      float: left;
-      font-weight: 600;
-    }
-    .profile-list dd {
-      margin-left: 100px;
-      margin-bottom: 12px;
-    }
-    .profile-list {
-      overflow: hidden;
-      margin-bottom: 0;
-    }
-    .tab-btn {
-      border: none;
-      background: none;
-      color: #8a7b62;
-      font-weight: 500;
-      margin-right: 16px;
-      font-size: 1.06rem;
-    }
-    .tab-btn.active {
-      color: #25945a;
-      border-bottom: 2px solid #25945a;
-    }
-    .member-tabs {
-      border-bottom: 1px solid #eee;
-      margin-bottom: 22px;
-      padding-bottom: 10px;
-    }
-    .card-section-title {
-      font-size: 1.15rem;
-      color: #6c584c;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-    #resetPwdForm .btn-dark {
-      color: #fff !important;
-    }
-    .vine-navbar.fixed-top {
-      background: #fff !important;
-      box-shadow: 0 2px 12px #0001 !important;
-      z-index: 1030;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>會員中心 - Pixel Tribe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Bootstrap & icons -->
+<link rel="stylesheet"
+	href="/assets/vendors/bootstrap/bootstrap.min.css">
+<link rel="stylesheet"
+	href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/responsive.css">
+<style>
+:root {
+	--main-green: #25945a;
+	--main-green-hover: #1e7b4c;
+	--profile-title: #9e8969;
+}
+
+body {
+	background: white;
+	padding-top: 100px;
+}
+
+.member-center-card {
+	max-width: 600px;
+	margin: auto;
+	border-radius: 16px;
+	box-shadow: 0 2px 12px #0001;
+}
+
+.avatar-lg {
+	width: 80px;
+	height: 80px;
+	border-radius: 50%;
+	object-fit: cover;
+	margin-left: 0;
+	margin-right: 24px;
+}
+
+.profile-list {
+	display: grid;
+	grid-template-columns: 92px 1fr;
+	gap: 16px 0;
+	align-items: center;
+	margin-bottom: 0;
+}
+
+.profile-list dt {
+	color: var(--profile-title);
+	font-weight: 600;
+	text-align: left;
+	font-size: 1.15rem;
+	padding: 0;
+	margin: 0;
+	line-height: 2.1;
+	grid-column: 1;
+	align-self: center;
+}
+
+.profile-list dd {
+	grid-column: 2;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	min-width: 0;
+	align-self: center;
+	display: flex;
+	align-items: center;
+}
+
+.profile-row {
+	display: flex;
+	align-items: flex-start;
+	margin-bottom: 16px;
+}
+
+.profile-row dt {
+	color: var(--profile-title);
+	width: 84px;
+	min-width: 84px;
+	font-weight: 600;
+	text-align: left;
+	padding-top: 10px;
+	flex-shrink: 0;
+}
+
+.profile-row dd {
+	flex: 1;
+	margin-left: 0;
+	display: flex;
+	align-items: center;
+}
+
+.profile-list input.edit-field {
+	width: 100%;
+	min-width: 80px;
+	margin: 0;
+	font-size: 1.1rem;
+	padding: 8px 12px;
+	border-radius: 8px;
+	border: 1px solid #dee2e6;
+	background: #fff;
+	box-shadow: none;
+	line-height: 1.45;
+}
+
+.tab-btn {
+	border: none;
+	background: none;
+	color: #8a7b62;
+	font-weight: 500;
+	margin-right: 16px;
+	font-size: 1.06rem;
+}
+
+.tab-btn.active {
+	color: var(--main-green);
+	border-bottom: 2px solid var(--main-green);
+}
+
+.member-tabs {
+	border-bottom: 1px solid #eee;
+	margin-bottom: 22px;
+	padding-bottom: 10px;
+}
+
+.card-section-title {
+	font-size: 1.15rem;
+	color: #6c584c;
+	font-weight: 700;
+	margin-bottom: 12px;
+}
+/* 主色按鈕 */
+.btn-main {
+	color: #fff !important;
+	background: var(--main-green) !important;
+	border: none !important;
+}
+
+.btn-main:focus, .btn-main:hover, .btn-main:active, .btn-main:disabled {
+	background: var(--main-green-hover) !important;
+	color: #fff !important;
+	border: none !important;
+}
+
+.profile-edit-btns .btn {
+	min-width: 90px;
+	margin-left: 8px;
+}
+
+.profile-edit-btns .btn:first-child {
+	margin-left: 0;
+}
+
+.profile-edit-btns {
+	text-align: right;
+}
+/* RWD */
+@media ( max-width : 600px) {
+	.profile-list {
+		grid-template-columns: 1fr;
+	}
+	.profile-list dt, .profile-list dd {
+		grid-column: 1;
+	}
+	.profile-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.profile-row dt {
+		padding-top: 0;
+		margin-bottom: 6px;
+	}
+	.profile-row dd {
+		width: 100%;
+	}
+}
+
+#resetPwdForm .btn-main {
+	color: #fff !important;
+}
+
+.vine-navbar.fixed-top {
+	background: #fff !important;
+	box-shadow: 0 2px 12px #0001 !important;
+	z-index: 1030;
+}
+</style>
 </head>
 <body>
-  <!-- 動態載入 header -->
-  <div id="header-placeholder"></div>
+	<!-- 動態載入 header -->
+	<div id="header-placeholder"></div>
 
-  <!-- 上方按鈕連結至會員中心各區塊 -->
-  <div class="container" style="padding-bottom: 60px;">
-    <div class="member-tabs d-flex justify-content-center mt-3 mb-4 d-none d-md-flex">
-      <button class="tab-btn active" data-tab="profile">
-        <i class="bi bi-person me-1"></i>個人資料
-      </button>
-      <button class="tab-btn" data-tab="orders">
-        <i class="bi bi-receipt me-1"></i>過去訂單
-      </button>
-      <button class="tab-btn" data-tab="coupons">
-        <i class="bi bi-ticket me-1"></i>優惠券
-      </button>
-      <button class="tab-btn" data-tab="collections">
-        <i class="bi bi-bookmarks me-1"></i>收藏文章
-      </button>
-    </div>
-    <div id="memberMainArea"></div>
-  </div>
+	<!-- 上方按鈕連結至會員中心各區塊 -->
+	<div class="container" style="padding-bottom: 60px;">
+		<div
+			class="member-tabs d-flex justify-content-center mt-3 mb-4 d-none d-md-flex">
+			<button class="tab-btn active" data-tab="profile">
+				<i class="bi bi-person me-1"></i>個人資料
+			</button>
+			<button class="tab-btn" data-tab="orders">
+				<i class="bi bi-receipt me-1"></i>過去訂單
+			</button>
+			<button class="tab-btn" data-tab="coupons">
+				<i class="bi bi-ticket me-1"></i>優惠券
+			</button>
+			<button class="tab-btn" data-tab="collections">
+				<i class="bi bi-bookmarks me-1"></i>收藏文章
+			</button>
+		</div>
+		<div id="memberMainArea"></div>
+	</div>
 
-  <!-- 動態載入 footer -->
-  <div id="footer-placeholder"></div>
-  <!-- 載入 global-loader.js -->
-  <script src="/assets/js/global-loader.js"></script>
-  <script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
-  <script>
-    // 會員中心 SPA 主流程
+	<!-- 動態載入 footer -->
+	<div id="footer-placeholder"></div>
+	<script src="/assets/js/global-loader.js"></script>
+	<script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+	<script>
     document.addEventListener('DOMContentLoaded', async function () {
-      // 驗證登入狀態
       const jwt = localStorage.getItem('jwt');
       const memberInfoRaw = localStorage.getItem('memberInfo');
       let memberInfo = null;
@@ -138,14 +252,11 @@
         return;
       }
 
-      // 進入時 fetch DTO
       let memberProfileDTO = null;
       try {
         const res = await fetch(`/api/members/profile/${memberId}`, {
           method: 'GET',
-          headers: {
-            'Authorization': 'Bearer ' + jwt
-          }
+          headers: { 'Authorization': 'Bearer ' + jwt }
         });
         if (!res.ok) throw new Error('無權限或已登出');
         memberProfileDTO = await res.json();
@@ -157,45 +268,91 @@
         return;
       }
 
-      // **全局保存最新資料**
       window.memberProfile = memberProfileDTO;
 
-      // SPA 會員中心各分頁模板
+      // ==== SPA 各分頁模板 ====
       const memberViews = {
-        profile: function (member) {
+        profile: function (member, editMode = false) {
           const avatarSrc = `/images/memberAvatar/mem${memberInfo.id}.png`;
-          return `
-          <div class="member-center-card mb-4 bg-white">
-            <div class="card-body py-4 px-4">
-              <div class="d-flex align-items-center mb-3">
-                <img src="${avatarSrc}" alt="會員頭像" class="avatar-lg me-3" id="member-avatar">
-              </div>
-              <dl class="profile-list">
-                <dt>姓名:</dt><dd>${member.memName || '-'}</dd>
-                <dt>生日:</dt><dd>${member.memBirthday || '-'}</dd>
-                <dt>帳號:</dt><dd>${member.memAccount || '-'}</dd>
-                <dt>暱稱:</dt><dd>${member.memNickName || '-'}</dd>
-                <dt>信箱:</dt><dd>${member.memEmail || '-'}</dd>
-                <dt>地址:</dt><dd>${member.memAddr || '-'}</dd>
-                <dt>手機:</dt><dd>${member.memPhone || '-'}</dd>
-              </dl>
-            </div>
-          </div>
-          <div class="member-center-card mb-4 bg-white">
-            <div class="card-body py-4 px-4">
-              <div class="card-section-title mb-2">密碼重設</div>
-              <form id="resetPwdForm" autocomplete="off">
-                <input type="password" id="oldPassword" class="form-control mb-2" placeholder="輸入原密碼" required>
-                <input type="password" id="newPassword" class="form-control mb-2" placeholder="輸入新密碼" required>
-                <input type="password" id="newPasswordConfirm" class="form-control mb-3" placeholder="再次輸入新密碼" required>
-                <div class="d-flex mb-2" style="gap:10px;">
-                  <button type="submit" class="btn btn-dark flex-fill">重設密碼</button>
+          if (!editMode) {
+            // 查看模式
+            return `
+            <div class="member-center-card mb-4 bg-white">
+              <div class="card-body py-4 px-4">
+                <div class="d-flex align-items-center mb-3">
+                  <img src="${avatarSrc}" alt="會員頭像" class="avatar-lg me-3" id="member-avatar">
                 </div>
-                <div id="resetPwdMsg" class="text-center mt-2"></div>
-              </form>
+                <dl class="profile-list">
+                  <dt>姓名:</dt><dd>${member.memName || '-'}</dd>
+                  <dt>生日:</dt><dd>${member.memBirthday || '-'}</dd>
+                  <dt>帳號:</dt><dd>${member.memAccount || '-'}</dd>
+                  <dt>暱稱:</dt><dd>${member.memNickName || '-'}</dd>
+                  <dt>信箱:</dt><dd>${member.memEmail || '-'}</dd>
+                  <dt>地址:</dt><dd>${member.memAddr || '-'}</dd>
+                  <dt>手機:</dt><dd>${member.memPhone || '-'}</dd>
+                </dl>
+                <div class="profile-edit-btns mt-3">
+                  <button class="btn btn-main" id="editProfileBtn"><i class="bi bi-pencil"></i> 修改</button>
+                </div>
+              </div>
             </div>
-          </div>
-          `;
+            <div class="member-center-card mb-4 bg-white">
+              <div class="card-body py-4 px-4">
+                <div class="card-section-title mb-2">密碼重設</div>
+                <form id="resetPwdForm" autocomplete="off">
+                  <input type="password" id="oldPassword" class="form-control mb-2" placeholder="輸入原密碼" required>
+                  <input type="password" id="newPassword" class="form-control mb-2" placeholder="輸入新密碼" required>
+                  <input type="password" id="newPasswordConfirm" class="form-control mb-3" placeholder="再次輸入新密碼" required>
+                  <div class="d-flex mb-2" style="gap:10px;">
+                    <button type="submit" class="btn btn-main flex-fill">重設密碼</button>
+                  </div>
+                  <div id="resetPwdMsg" class="text-center mt-2"></div>
+                </form>
+              </div>
+            </div>
+            `;
+          } else {
+            // 編輯模式
+            return `
+            <div class="member-center-card mb-4 bg-white">
+              <div class="card-body py-4 px-4">
+                <div class="d-flex align-items-center mb-3">
+                  <img src="${avatarSrc}" alt="會員頭像" class="avatar-lg me-3" id="member-avatar">
+                </div>
+                <form id="editProfileForm" autocomplete="off">
+                  <dl class="profile-list">
+                      <dt>姓名:</dt><dd><input class="form-control edit-field" name="memName" value="${member.memName || ''}" required></dd>
+                      <dt>生日:</dt><dd>${member.memBirthday || '-'}</dd>
+                      <dt>帳號:</dt><dd>${member.memAccount || '-'}</dd>
+                      <dt>暱稱:</dt><dd><input class="form-control edit-field" name="memNickName" value="${member.memNickName || ''}"></dd>
+                      <dt>信箱:</dt><dd><input class="form-control edit-field" name="memEmail" type="email" value="${member.memEmail || ''}" required></dd>
+                      <dt>地址:</dt><dd><input class="form-control edit-field" name="memAddr" value="${member.memAddr || ''}"></dd>
+                      <dt>手機:</dt><dd><input class="form-control edit-field" name="memPhone" value="${member.memPhone || ''}"></dd>
+                  </dl>
+                  <div id="editProfileMsg" class="text-center mt-2"></div>
+                  <div class="profile-edit-btns mt-3">
+                    <button type="submit" class="btn btn-main"><i class="bi bi-check-lg"></i> 儲存</button>
+                    <button type="button" class="btn btn-outline-secondary" id="cancelEditBtn"><i class="bi bi-x-lg"></i> 取消</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="member-center-card mb-4 bg-white">
+              <div class="card-body py-4 px-4">
+                <div class="card-section-title mb-2">密碼重設</div>
+                <form id="resetPwdForm" autocomplete="off">
+                  <input type="password" id="oldPassword" class="form-control mb-2" placeholder="輸入原密碼" required>
+                  <input type="password" id="newPassword" class="form-control mb-2" placeholder="輸入新密碼" required>
+                  <input type="password" id="newPasswordConfirm" class="form-control mb-3" placeholder="再次輸入新密碼" required>
+                  <div class="d-flex mb-2" style="gap:10px;">
+                    <button type="submit" class="btn btn-main flex-fill">重設密碼</button>
+                  </div>
+                  <div id="resetPwdMsg" class="text-center mt-2"></div>
+                </form>
+              </div>
+            </div>
+            `;
+          }
         },
         orders: `
           <div class="member-center-card mb-4 bg-white">
@@ -267,10 +424,12 @@
       };
 
       // SPA分頁渲染
-      function renderTab(tab) {
+      function renderTab(tab, editMode = false) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
         if (tab === 'profile') {
-          document.getElementById('memberMainArea').innerHTML = memberViews.profile(window.memberProfile);
+          document.getElementById('memberMainArea').innerHTML = memberViews.profile(window.memberProfile, editMode);
+          if (editMode) profileEditHandler();
+          else          profileViewHandler();
           memPasswordReset();
         } else {
           document.getElementById('memberMainArea').innerHTML = typeof memberViews[tab] === "function"
@@ -279,7 +438,66 @@
         }
       }
 
-      // 密碼重設功能
+      // 進入編輯模式
+      function profileViewHandler() {
+        const editBtn = document.getElementById('editProfileBtn');
+        if (editBtn) {
+          editBtn.addEventListener('click', () => renderTab('profile', true));
+        }
+      }
+      // 編輯表單行為
+      function profileEditHandler() {
+        document.getElementById('cancelEditBtn').addEventListener('click', () => renderTab('profile', false));
+        const form = document.getElementById('editProfileForm');
+        if (!form) return;
+        
+        form.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          
+          const msg = document.getElementById('editProfileMsg');
+          msg.textContent = '';
+          
+          // 取值
+          const formData = new FormData(form);
+          const payload = {};
+          ['memName','memNickName','memEmail','memAddr','memPhone'].forEach(key => {
+            payload[key] = formData.get(key) ? formData.get(key).trim() : '';
+          });
+          // 前端簡易驗證
+          if (!payload.memName || !payload.memEmail) {
+            msg.style.color = '#b94040'; msg.textContent = '請填寫必填欄位';
+            return;
+          }
+          msg.textContent = '儲存中...'; msg.style.color = '#555';
+          // 呼叫API
+          try {
+            const res = await fetch(`/api/members/editProfile/${memberId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + jwt
+              },
+              body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            if (!res.ok || !result.success) {
+              msg.style.color = '#b94040';
+              msg.textContent = result.message || '更新失敗，請稍後再試';
+              return;
+            }
+            // 更新全局資料，切回檢視模式
+            Object.assign(window.memberProfile, payload);
+            msg.style.color = '#25945a';
+            msg.textContent = '更新成功';
+            setTimeout(() => renderTab('profile', false), 700);
+          } catch (e) {
+            msg.style.color = '#b94040';
+            msg.textContent = '更新失敗，請稍後再試';
+          }
+        });
+      }
+
+      // 密碼重設
       function memPasswordReset() {
         const form = document.getElementById('resetPwdForm');
         if (!form) return;
@@ -307,7 +525,6 @@
             return;
           }
           // 呼叫API
-          const jwt = localStorage.getItem('jwt');
           fetch('/api/members/reset-password', {
             method: 'POST',
             headers: {
@@ -344,7 +561,8 @@
       });
 
       // 預設分頁
-      renderTab('profile');
+      renderTab('profile', false);
+
     });
   </script>
 </body>
