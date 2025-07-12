@@ -3,55 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>商品管理後台</title>
+  <title>像素部落商城 - 商品管理後台</title>
   <style>
-    /* CSS 樣式區 */
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0 auto;
-      max-width: 1400px;
-      padding: 20px;
-      background-color: #f4f7f6;
-      color: #333;
+    /* 奶茶色系變數 */
+    :root {
+      --milktea-bg: #f7f4ed;
+      --card-bg: #fff;
+      --milktea-yellow: #fff7db;
+      --milktea-border: #e8dec7;
+      --milktea-brown: #70513b;
+      --milktea-main: #ab8556;
+      --milktea-hover: #fae7c2;
+      --milktea-light: #f4ead8;
+      --milktea-accent: #d4b896;
     }
 
+    /* 基礎樣式 */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: '微軟正黑體', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: var(--milktea-bg);
+      color: var(--milktea-brown);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* 頂部標題區域 */
     .header-container {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
       flex-wrap: wrap;
-      padding: 20px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 25px 30px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(139, 117, 85, 0.1);
+      border: 1px solid var(--milktea-border);
     }
 
     .header-left {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 25px;
     }
 
     .header-right {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
 
     h1 {
-      color: #2c3e50;
+      color: var(--milktea-main);
       margin: 0;
-      font-size: 2rem;
-      font-weight: 600;
+      font-size: 2.2rem;
+      font-weight: 700;
+      font-family: 'Press Start 2P', Arial, sans-serif;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(139, 117, 85, 0.1);
     }
 
     /* 表格容器 */
     .table-container {
-      background: white;
-      border-radius: 10px;
+      background: var(--card-bg);
+      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+      box-shadow: 0 6px 24px rgba(139, 117, 85, 0.12);
+      border: 1px solid var(--milktea-border);
     }
 
     table {
@@ -60,14 +88,14 @@
     }
 
     th, td {
-      padding: 12px 15px;
+      padding: 14px 16px;
       text-align: center;
       vertical-align: middle;
-      border-bottom: 1px solid #e1e5e9;
+      border-bottom: 1px solid var(--milktea-light);
     }
 
     thead {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--milktea-main) 0%, var(--milktea-brown) 100%);
       color: white;
     }
 
@@ -75,24 +103,27 @@
       font-weight: 600;
       letter-spacing: 0.5px;
       border: none;
+      font-size: 14px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
 
     tbody tr:nth-child(even) { 
-      background-color: #f8f9fa; 
+      background-color: #fffcf5;
     }
 
     tbody tr:hover { 
-      background-color: #e8f4fd;
+      background: var(--milktea-hover);
       transform: translateY(-1px);
       transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(139, 117, 85, 0.1);
     }
 
     /* 列寬設定 */
     thead th:nth-child(1) { width: 50px; }   /* ID */
     thead th:nth-child(2) { width: 180px; }  /* 商品名稱 */
     thead th:nth-child(3) { width: 80px; }   /* 價格 */
-    thead th:nth-child(4) { width: 60px; }   /* 狀態 */
-    thead th:nth-child(5) { width: 60px; }   /* 版本 */
+    thead th:nth-child(4) { width: 70px; }   /* 狀態 */
+    thead th:nth-child(5) { width: 70px; }   /* 版本 */
     thead th:nth-child(6) { width: 90px; }   /* 發售日 */
     thead th:nth-child(7) { width: 80px; }   /* 圖片 */
     thead th:nth-child(8) { width: 150px; }  /* 內容物 */
@@ -107,67 +138,83 @@
       justify-content: space-between;
       align-items: center;
       margin-top: 25px;
-      padding: 20px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 20px 25px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(139, 117, 85, 0.1);
+      border: 1px solid var(--milktea-border);
       flex-wrap: wrap;
+      gap: 15px;
     }
 
     .pagination-controls button {
-      background-color: #fff;
-      border: 2px solid #e1e5e9;
-      color: #667eea;
-      padding: 10px 15px;
+      background: var(--card-bg);
+      border: 2px solid var(--milktea-border);
+      color: var(--milktea-main);
+      padding: 10px 16px;
       margin: 0 3px;
       cursor: pointer;
-      border-radius: 8px;
+      border-radius: 10px;
       font-weight: 500;
       transition: all 0.3s ease;
+      font-size: 14px;
     }
 
     .pagination-controls button:hover:not(:disabled) { 
-      background-color: #667eea;
-      color: white;
+      background: var(--milktea-yellow);
+      border-color: var(--milktea-main);
+      color: var(--milktea-brown);
       transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 117, 85, 0.2);
     }
 
     .pagination-controls button.active {
-      background-color: #667eea;
+      background: var(--milktea-main);
       color: white;
-      border-color: #667eea;
+      border-color: var(--milktea-main);
+      box-shadow: 0 2px 8px rgba(139, 117, 85, 0.3);
     }
 
     .pagination-controls button:disabled { 
       color: #ccc; 
       cursor: not-allowed; 
-      border-color: #f1f1f1;
+      border-color: var(--milktea-light);
+      background: #f9f9f9;
     }
 
     .items-per-page-selector, .pagination-info { 
       font-size: 14px; 
-      color: #555; 
+      color: var(--milktea-brown);
       font-weight: 500;
     }
 
     .items-per-page-selector select {
       padding: 8px 12px;
-      border: 2px solid #e1e5e9;
-      border-radius: 6px;
+      border: 2px solid var(--milktea-border);
+      border-radius: 8px;
       margin-left: 8px;
-      background: white;
+      background: var(--card-bg);
+      color: var(--milktea-brown);
+      font-weight: 500;
+    }
+
+    .items-per-page-selector select:focus {
+      outline: none;
+      border-color: var(--milktea-main);
+      box-shadow: 0 0 0 3px rgba(171, 133, 86, 0.1);
     }
 
     /* 錯誤訊息 */
     #error-message {
-      color: #e74c3c;
-      background: linear-gradient(135deg, #fbecec 0%, #f8d7da 100%);
-      border: 1px solid #e74c3c;
+      color: #8b4513;
+      background: linear-gradient(135deg, #fdf5e6 0%, #f4e4bc 100%);
+      border: 2px solid #deb887;
       padding: 20px;
-      margin-top: 20px;
-      border-radius: 10px;
+      margin-bottom: 20px;
+      border-radius: 12px;
       display: none;
       font-weight: 500;
+      box-shadow: 0 2px 8px rgba(139, 117, 85, 0.1);
     }
 
     /* 按鈕樣式 */
@@ -175,88 +222,100 @@
       display: inline-block;
       text-decoration: none;
       color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
+      padding: 12px 24px;
+      border-radius: 10px;
       font-weight: 600;
       transition: all 0.3s ease;
       text-align: center;
       border: none;
       cursor: pointer;
+      font-size: 14px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .btn:hover { 
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
     }
 
     .btn-home { 
-      background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+      background: linear-gradient(135deg, var(--milktea-accent) 0%, var(--milktea-brown) 100%);
     }
 
     .btn-add { 
-      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+      background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
     }
 
     .btn-addproductsn { 
-      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      background: linear-gradient(135deg, #58d68d 0%, #2ecc71 100%);
     }
 
     .btn-edit {
       cursor: pointer;
       display: block;
       margin: 6px auto;
-      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+      background: linear-gradient(135deg, var(--milktea-main) 0%, var(--milktea-brown) 100%);
       color: white;
       border: none;
-      border-radius: 6px;
-      font-size: 14px;
+      border-radius: 8px;
+      font-size: 12px;
       padding: 8px 16px;
       font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .btn-edit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(139, 117, 85, 0.3);
     }
 
     .btn-online {
       cursor: pointer;
       display: inline-block;
       margin: 2px;
-      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+      background: linear-gradient(135deg, #58d68d 0%, #2ecc71 100%);
       color: white;
       border: none;
-      border-radius: 4px;
-      font-size: 12px;
-      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      padding: 6px 12px;
       font-weight: 500;
-      min-width: 45px;
+      min-width: 50px;
+      transition: all 0.2s ease;
     }
 
     .btn-offline {
       cursor: pointer;
       display: inline-block;
       margin: 2px;
-      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      background: linear-gradient(135deg, #ec7063 0%, #e74c3c 100%);
       color: white;
       border: none;
-      border-radius: 4px;
-      font-size: 12px;
-      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      padding: 6px 12px;
       font-weight: 500;
-      min-width: 45px;
+      min-width: 50px;
+      transition: all 0.2s ease;
     }
 
     .btn-online:disabled,
     .btn-offline:disabled {
-      background: #bdc3c7;
+      background: var(--milktea-light);
+      color: var(--milktea-brown);
       cursor: not-allowed;
       opacity: 0.6;
+      box-shadow: none;
     }
 
     .btn-online:not(:disabled):hover {
       transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+      box-shadow: 0 3px 8px rgba(46, 204, 113, 0.3);
     }
 
     .btn-offline:not(:disabled):hover {
       transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+      box-shadow: 0 3px 8px rgba(231, 76, 60, 0.3);
     }
 
     /* 商品圖片 */
@@ -264,11 +323,11 @@
       width: 60px;
       height: 45px;
       object-fit: cover;
-      border-radius: 6px;
+      border-radius: 8px;
       vertical-align: middle;
       transition: transform 0.2s ease-in-out;
       cursor: pointer;
-      border: 2px solid #e1e5e9;
+      border: 2px solid var(--milktea-border);
     }
 
     td a:has(.forum-thumbnail) {
@@ -278,50 +337,63 @@
 
     td a:has(.forum-thumbnail):hover .forum-thumbnail {
       transform: scale(1.1);
-      opacity: 0.9;
+      border-color: var(--milktea-main);
+      box-shadow: 0 4px 8px rgba(139, 117, 85, 0.2);
     }
 
     /* 庫存數量樣式 */
     .stock-count {
       font-weight: 600;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 14px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .stock-count:hover {
+      transform: scale(1.05);
     }
 
     .stock-high {
-      background-color: #d4edda;
-      color: #155724;
+      background: linear-gradient(135deg, #d5f4e6 0%, #b8e6cc 100%);
+      color: #1e6b3a;
+      border: 1px solid #a3d9c2;
     }
 
     .stock-medium {
-      background-color: #fff3cd;
-      color: #856404;
+      background: linear-gradient(135deg, #fff8dc 0%, #f4e99b 100%);
+      color: #8b6914;
+      border: 1px solid #e6d690;
     }
 
     .stock-low {
-      background-color: #f8d7da;
+      background: linear-gradient(135deg, #f8d7da 0%, #f1c2c7 100%);
       color: #721c24;
+      border: 1px solid #e3a8af;
     }
 
     .stock-zero {
-      background-color: #f5c6cb;
+      background: linear-gradient(135deg, #f5c6cb 0%, #eb9ca6 100%);
       color: #721c24;
       font-weight: bold;
+      border: 1px solid #e08691;
     }
 
     .stock-loading {
-      background-color: #f0f0f0;
-      color: #666;
+      background: var(--milktea-light);
+      color: var(--milktea-brown);
       font-style: italic;
+      border: 1px solid var(--milktea-border);
     }
 
     /* 載入動畫 */
     .loading {
       text-align: center;
       padding: 40px;
-      color: #666;
+      color: var(--milktea-brown);
       font-style: italic;
+      font-size: 16px;
     }
 
     .loading::after {
@@ -329,8 +401,8 @@
       display: inline-block;
       width: 20px;
       height: 20px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #667eea;
+      border: 3px solid var(--milktea-light);
+      border-top: 3px solid var(--milktea-main);
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin-left: 10px;
@@ -350,7 +422,7 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.85);
+      background-color: rgba(112, 81, 59, 0.85);
       justify-content: center;
       align-items: center;
       animation: fadeIn 0.3s;
@@ -359,23 +431,26 @@
     .lightbox-content {
       max-width: 85%;
       max-height: 85%;
-      border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border-radius: 12px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+      border: 3px solid var(--milktea-yellow);
     }
 
     .lightbox-close {
       position: absolute;
       top: 20px;
       right: 35px;
-      color: #fff;
+      color: var(--milktea-yellow);
       font-size: 40px;
       font-weight: bold;
       cursor: pointer;
       transition: color 0.3s;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
 
     .lightbox-close:hover {
-      color: #bbb;
+      color: var(--card-bg);
+      transform: scale(1.1);
     }
 
     @keyframes fadeIn {
@@ -383,11 +458,33 @@
       to { opacity: 1; }
     }
 
+    /* 特殊樣式 */
+    .price-cell {
+      font-weight: 700;
+      color: var(--milktea-main);
+      font-size: 15px;
+    }
+
+    .product-name {
+      text-align: left !important;
+      font-weight: 600;
+      color: var(--milktea-brown);
+    }
+
+    .content-cell {
+      text-align: center;
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     /* 響應式設計 */
-    @media (max-width: 768px) {
+    @media (max-width: 1200px) {
       .header-container {
         flex-direction: column;
-        gap: 15px;
+        gap: 20px;
+        text-align: center;
       }
 
       .header-right {
@@ -400,66 +497,131 @@
       }
 
       th, td {
+        padding: 10px 8px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+
+      .header-container {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .header-right {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      table {
+        font-size: 11px;
+      }
+
+      th, td {
         padding: 8px 6px;
       }
 
       .pagination-container {
         flex-direction: column;
         gap: 15px;
+        text-align: center;
+      }
+
+      .forum-thumbnail {
+        width: 45px;
+        height: 35px;
+      }
+
+      .btn {
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+    }
+
+    /* 深色主題支援 */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --milktea-bg: #2d2520;
+        --card-bg: #3a2f28;
+        --milktea-yellow: #4a3d33;
+        --milktea-border: #5a4a3d;
+        --milktea-brown: #d4b896;
+        --milktea-main: #e6c79a;
+        --milktea-hover: #4f423a;
+        --milktea-light: #4a3d33;
+        --milktea-accent: #b8956f;
       }
     }
   </style>
 </head>
 <body>
-<div class="header-container">
-  <div class="header-left">
-    <h1>商品管理</h1>
-    <a href="/" class="btn btn-home">回到首頁</a>
+<div class="container">
+  <div class="header-container">
+    <div class="header-left">
+      <h1>🛍️ 商品管理</h1>
+      <a href="/back-end/adm/AdmHomePage.html" class="btn btn-home">
+        <i style="margin-right: 8px;">🏠</i>回後台首頁
+      </a>
+    </div>
+    <div class="header-right">
+      <a href="addProduct.html" class="btn btn-add">
+        <i style="margin-right: 8px;">➕</i>新增商品
+      </a>
+      <a href="/back-end/shopsys/productsn/addProductsn.html" class="btn btn-addproductsn">
+        <i style="margin-right: 8px;">🔢</i>新增商品序號
+      </a>
+    </div>
   </div>
-  <div class="header-right">
-    <a href="addProduct.html" class="btn btn-add">＋ 新增商品</a>
-    <a href="/back-end/shopsys/productsn/addProductsn.html" class="btn btn-addproductsn">＋ 新增商品序號</a>
+
+  <div id="error-message"></div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>商品名稱</th>
+        <th>價格</th>
+        <th>狀態</th>
+        <th>版本</th>
+        <th>發售日</th>
+        <th>圖片</th>
+        <th>內容物</th>
+        <th>平台</th>
+        <th>庫存</th>
+        <th>上下架</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody id="product-data-body">
+        <tr><td colspan="12" class="loading">載入中</td></tr>
+      </tbody>
+    </table>
   </div>
-</div>
 
-<div id="error-message"></div>
-
-<div class="table-container">
-  <table>
-    <thead>
-    <tr>
-      <th>ID</th>
-      <th>商品名稱</th>
-      <th>價格</th>
-      <th>狀態</th>
-      <th>版本</th>
-      <th>發售日</th>
-      <th>圖片</th>
-      <th>內容物</th>
-      <th>平台</th>
-      <th>庫存</th>
-      <th>上下架</th>
-      <th>操作</th>
-    </tr>
-    </thead>
-    <tbody id="product-data-body">
-      <tr><td colspan="12" class="loading">載入中</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<div class="pagination-container">
-  <div class="items-per-page-selector">
-    <label for="items-per-page">每頁顯示：</label>
-    <select id="items-per-page">
-      <option value="3">3 筆</option>
-      <option value="5">5 筆</option>
-      <option value="10" selected>10 筆</option>
-      <option value="20">20 筆</option>
-    </select>
+  <div class="pagination-container">
+    <div class="items-per-page-selector">
+      <label for="items-per-page">每頁顯示：</label>
+      <select id="items-per-page">
+        <option value="3">3 筆</option>
+        <option value="5">5 筆</option>
+        <option value="10" selected>10 筆</option>
+        <option value="20">20 筆</option>
+      </select>
+    </div>
+    <div id="pagination-info" class="pagination-info"></div>
+    <div id="pagination-controls" class="pagination-controls"></div>
   </div>
-  <div id="pagination-info" class="pagination-info"></div>
-  <div id="pagination-controls" class="pagination-controls"></div>
 </div>
 
 <div id="lightbox" class="lightbox">
@@ -470,7 +632,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const apiUrl = 'http://localhost:8080/api/product';
-    const stockApiUrl = 'http://localhost:8080/api/productsn/allstock'; // 更新為你的庫存 API
+    const stockApiUrl = 'http://localhost:8080/api/productsn/allstock';
 
     const tableBody = document.getElementById('product-data-body');
     const errorMessageDiv = document.getElementById('error-message');
@@ -479,7 +641,7 @@
     const paginationInfo = document.getElementById('pagination-info');
 
     let allProductsData = [];
-    let stockData = new Map(); // 用於存儲庫存資料
+    let stockData = new Map();
     let currentPage = 1;
     let itemsPerPage = parseInt(itemsPerPageSelect.value);
 
@@ -487,7 +649,6 @@
       try {
         showLoading();
         
-        // 先獲取商品資料
         const productsResponse = await fetch(apiUrl);
         if (!productsResponse.ok) {
           throw new Error(`無法獲取商品資料: ${productsResponse.status}`);
@@ -495,10 +656,7 @@
         
         allProductsData = await productsResponse.json();
         
-        // 取得所有商品ID用於批量查詢庫存
         const productIds = allProductsData.map(product => product.id);
-        
-        // 批量查詢庫存
         await fetchStockData(productIds);
         
         currentPage = 1;
@@ -508,10 +666,9 @@
       }
     }
 
-    // 批量查詢庫存資料
     async function fetchStockData(productIds) {
       try {
-        console.log('發送庫存查詢請求:', productIds); // 調試用
+        console.log('發送庫存查詢請求:', productIds);
         
         const response = await fetch(stockApiUrl, {
           method: 'POST',
@@ -523,7 +680,6 @@
 
         if (response.ok) {
           const stockMap = await response.json();
-          // 將回傳的庫存資料存入 Map
           Object.entries(stockMap).forEach(([productId, stockCount]) => {
             stockData.set(parseInt(productId), stockCount);
           });
@@ -534,35 +690,12 @@
         }
       } catch (error) {
         console.error('批量庫存查詢失敗:', error);
-        // 如果批量查詢失敗，將所有商品庫存設為 "查詢失敗"
         productIds.forEach(id => {
           stockData.set(id, '查詢失敗');
         });
       }
     }
 
-    // 個別查詢庫存資料（備用方案）
-    async function fetchIndividualStockData(productIds) {
-      const promises = productIds.map(async (productId) => {
-        try {
-          const response = await fetch(`${stockApiUrl}/${productId}`);
-          if (response.ok) {
-            const stockCount = await response.json();
-            stockData.set(productId, stockCount);
-          } else {
-            // 如果個別查詢也失敗，設為 0
-            stockData.set(productId, 0);
-          }
-        } catch (error) {
-          console.warn(`查詢商品 ${productId} 庫存失敗:`, error);
-          stockData.set(productId, 0);
-        }
-      });
-
-      await Promise.all(promises);
-    }
-
-    // 更新單個商品的庫存
     async function updateSingleProductStock(productId) {
       try {
         const singleStockUrl = `http://localhost:8080/api/productsn/stock/${productId}`;
@@ -571,7 +704,6 @@
           const stockCount = await response.json();
           stockData.set(productId, stockCount);
           
-          // 更新表格中對應的庫存顯示
           const stockCell = document.querySelector(`tr[data-product-id="${productId}"] .stock-count`);
           if (stockCell) {
             stockCell.textContent = stockCount;
@@ -581,7 +713,6 @@
           }
         } else {
           const errorText = await response.text();
-          // 顯示錯誤狀態
           const stockCell = document.querySelector(`tr[data-product-id="${productId}"] .stock-count`);
           if (stockCell) {
             stockCell.textContent = '錯誤';
@@ -591,7 +722,6 @@
       } catch (error) {
         alert("更新商品庫存失敗");
         
-        // 顯示錯誤狀態
         const stockCell = document.querySelector(`tr[data-product-id="${productId}"] .stock-count`);
         if (stockCell) {
           stockCell.textContent = '錯誤';
@@ -616,7 +746,7 @@
       const itemsToShow = allProductsData.slice(startIndex, endIndex);
 
       if (itemsToShow.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="12" class="text-center">目前沒有商品資料。</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 40px; color: var(--milktea-brown);">目前沒有商品資料。</td></tr>`;
         return;
       }
 
@@ -626,11 +756,11 @@
         const stockDisplay = stock !== undefined ? stock : '載入中...';
         
         const row = document.createElement('tr');
-        row.setAttribute('data-product-id', product.id); // 添加產品ID屬性
+        row.setAttribute('data-product-id', product.id);
         row.innerHTML = `
           <td>${product.id}</td>
-          <td style="text-align: left; font-weight: 500;">${product.proName}</td>
-          <td style="font-weight: 600; color: #e67e22;">${Number(product.proPrice).toLocaleString()}</td>
+          <td class="product-name">${product.proName}</td>
+          <td class="price-cell">$${Number(product.proPrice).toLocaleString()}</td>
           <td>${product.proStatus}</td>
           <td>${product.proVersion}</td>
           <td>${formatDate(product.proDate)}</td>
@@ -639,10 +769,10 @@
               <img src="/api/product/cover/${product.id}" class="forum-thumbnail" alt="商品圖片"/>
             </a>
           </td>
-          <td style="text-align: left; max-width: 150px; overflow: hidden; text-overflow: ellipsis;" title="${product.proInclude}">${product.proInclude}</td>
+          <td class="content-cell" title="${product.proInclude}">${product.proInclude}</td>
           <td>${product.mallTagName}</td>
           <td>
-            <span class="stock-count ${stockClass}" title="商品ID: ${product.id}, 點擊刷新庫存" style="cursor: pointer;" onclick="refreshStock(${product.id})">${stockDisplay}</span>
+            <span class="stock-count ${stockClass}" title="商品ID: ${product.id}, 點擊刷新庫存" onclick="refreshStock(${product.id})">${stockDisplay}</span>
           </td>
           <td>
             <button class="btn-online" data-id="${product.id}" data-action="online" ${product.proIsmarket == '0' ? 'disabled' : ''}>上架</button>
@@ -655,11 +785,9 @@
         tableBody.appendChild(row);
       });
 
-      // 綁定上下架按鈕事件
       bindMarketButtons();
     }
 
-    // 刷新單個商品庫存的全域函數
     window.refreshStock = async function(productId) {
       const stockElement = document.querySelector(`tr[data-product-id="${productId}"] .stock-count`);
       if (stockElement) {
@@ -686,7 +814,6 @@
       const onlineButtons = tableBody.querySelectorAll('.btn-online');
       const offlineButtons = tableBody.querySelectorAll('.btn-offline');
       
-      // 綁定上架按鈕事件
       onlineButtons.forEach(button => {
         button.addEventListener('click', async function() {
           if (this.disabled) return;
@@ -695,7 +822,6 @@
           const productRow = this.closest('tr');
           const productName = productRow.querySelector('td:nth-child(2)').textContent;
           
-          // 確認操作
           const confirmMessage = `確定要將商品「${productName}」上架嗎？`;
           if (!confirm(confirmMessage)) {
             return;
@@ -705,7 +831,6 @@
         });
       });
       
-      // 綁定下架按鈕事件
       offlineButtons.forEach(button => {
         button.addEventListener('click', async function() {
           if (this.disabled) return;
@@ -714,7 +839,6 @@
           const productRow = this.closest('tr');
           const productName = productRow.querySelector('td:nth-child(2)').textContent;
           
-          // 確認操作
           const confirmMessage = `確定要將商品「${productName}」下架嗎？`;
           if (!confirm(confirmMessage)) {
             return;
@@ -725,14 +849,12 @@
       });
     }
 
-    // 統一的狀態更新函數
     async function updateProductStatus(productId, proIsMarket, action, buttonElement) {
       const originalText = buttonElement.textContent;
       const productRow = buttonElement.closest('tr');
       const onlineBtn = productRow.querySelector('.btn-online');
       const offlineBtn = productRow.querySelector('.btn-offline');
       
-      // 設置載入狀態
       buttonElement.disabled = true;
       buttonElement.textContent = '處理中...';
       
@@ -749,22 +871,19 @@
           const result = await response.json();
           
           if (result.success) {
-            // 更新本地資料
             const product = allProductsData.find(p => p.id == productId);
             if (product) {
               product.proIsmarket = proIsMarket;
             }
             
-            // 更新按鈕狀態
-            if (proIsMarket === '0') { // 上架狀態
+            if (proIsMarket === '0') {
               onlineBtn.disabled = true;
               offlineBtn.disabled = false;
-            } else { // 下架狀態
+            } else {
               onlineBtn.disabled = false;
               offlineBtn.disabled = true;
             }
             
-            // 顯示成功訊息
             alert(`修改成功`);
           } else {
             throw new Error(result.message || '更新失敗');
@@ -775,7 +894,6 @@
       } catch (error) {
         alert('更新狀態失敗，請稍後再試');
       } finally {
-        // 恢復按鈕文字
         buttonElement.textContent = originalText;
       }
     }
@@ -794,12 +912,10 @@
       const endItem = Math.min(currentPage * itemsPerPage, totalItems);
       paginationInfo.textContent = `顯示 ${startItem} - ${endItem} 筆，共 ${totalItems} 筆`;
 
-      // 上一頁按鈕
       paginationControls.appendChild(
         createPaginationButton('« 上一頁', () => changePage(currentPage - 1), currentPage === 1)
       );
 
-      // 頁碼按鈕（智能顯示）
       const maxVisiblePages = 5;
       let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
       let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
@@ -814,6 +930,7 @@
           const ellipsis = document.createElement('span');
           ellipsis.textContent = '...';
           ellipsis.style.padding = '8px';
+          ellipsis.style.color = 'var(--milktea-brown)';
           paginationControls.appendChild(ellipsis);
         }
       }
@@ -829,12 +946,12 @@
           const ellipsis = document.createElement('span');
           ellipsis.textContent = '...';
           ellipsis.style.padding = '8px';
+          ellipsis.style.color = 'var(--milktea-brown)';
           paginationControls.appendChild(ellipsis);
         }
         paginationControls.appendChild(createPaginationButton(totalPages, () => changePage(totalPages)));
       }
 
-      // 下一頁按鈕
       paginationControls.appendChild(
         createPaginationButton('下一頁 »', () => changePage(currentPage + 1), currentPage === totalPages)
       );
@@ -853,7 +970,6 @@
       if (newPage >= 1 && newPage <= totalPages) {
         currentPage = newPage;
         renderPage();
-        // 滾動到表格頂部
         document.querySelector('.table-container').scrollIntoView({ 
           behavior: 'smooth', 
           block: 'start' 
@@ -865,15 +981,14 @@
       console.error('無法獲取資料:', error);
       errorMessageDiv.style.display = 'block';
       errorMessageDiv.innerHTML = `
-        <strong>資料載入失敗！</strong> 
+        <strong>⚠️ 資料載入失敗！</strong> 
         請檢查後端服務是否啟動及 CORS 設定。<br>
         <small>詳細錯誤: ${error.message}</small>
-        <button onclick="window.location.reload()" style="margin-left: 10px; padding: 5px 10px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer;">重新載入</button>
+        <button onclick="window.location.reload()" style="margin-left: 10px; padding: 8px 15px; background: var(--milktea-main); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">🔄 重新載入</button>
       `;
-      tableBody.innerHTML = '<tr><td colspan="12" class="text-center" style="color: #e74c3c;">載入失敗，請重新整理頁面</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="12" style="text-align: center; color: var(--milktea-brown); padding: 40px;">載入失敗，請重新整理頁面</td></tr>';
     }
 
-    // 每頁顯示數量變更事件
     itemsPerPageSelect.addEventListener('change', (event) => {
       itemsPerPage = parseInt(event.target.value);
       currentPage = 1;
@@ -918,6 +1033,16 @@
         closeLightbox();
       }
     });
+
+    // 初始化頁面載入動畫
+    document.body.style.opacity = '0';
+    document.body.style.transform = 'translateY(20px)';
+    document.body.style.transition = 'all 0.6s ease';
+    
+    setTimeout(() => {
+      document.body.style.opacity = '1';
+      document.body.style.transform = 'translateY(0)';
+    }, 100);
 
     // 初始化
     initialize();

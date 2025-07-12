@@ -1,298 +1,834 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<title>商城標籤</title>
-	<style>
-		h1{
-			text-align: center;
-		}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>像素部落商城 - 商城標籤管理</title>
+    <style>
+        /* 奶茶色系變數 */
+        :root {
+            --milktea-bg: #f7f4ed;
+            --card-bg: #fff;
+            --milktea-yellow: #fff7db;
+            --milktea-border: #e8dec7;
+            --milktea-brown: #70513b;
+            --milktea-main: #ab8556;
+            --milktea-hover: #fae7c2;
+            --milktea-light: #f4ead8;
+            --milktea-accent: #d4b896;
+            --milktea-error: #8b4513;
+            --milktea-error-bg: #fdf5e6;
+            --milktea-success: #2d5a3d;
+            --milktea-success-bg: #f0f8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: '微軟正黑體', 'Microsoft JhengHei', Arial, sans-serif;
+            background: var(--milktea-bg);
+            color: var(--milktea-brown);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        /* 容器 */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* 回首頁按鈕 */
+        .btn-home {
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--milktea-accent) 0%, #9b8b7a 100%);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(139, 117, 85, 0.2);
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 117, 85, 0.25);
+        }
+
+        /* 頁面標題 */
+        h1 {
+            text-align: center;
+            color: var(--milktea-main);
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'Press Start 2P', Arial, sans-serif;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(139, 117, 85, 0.1);
+            background: linear-gradient(135deg, var(--milktea-yellow) 0%, var(--card-bg) 100%);
+            padding: 20px;
+            border-radius: 16px;
+            border: 2px solid var(--milktea-border);
+            box-shadow: 0 4px 20px rgba(139, 117, 85, 0.1);
+        }
+
+        h1::before {
+            content: '🏷️';
+            margin-right: 15px;
+            font-size: 2rem;
+        }
+
+        /* 新增按鈕 */
+        .btn_add {
+            cursor: pointer;
+            display: block;
+            margin: 25px auto;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--milktea-main) 0%, var(--milktea-brown) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 117, 85, 0.2);
+        }
+
+        .btn_add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 117, 85, 0.3);
+            background: linear-gradient(135deg, var(--milktea-brown) 0%, var(--milktea-main) 100%);
+        }
+
+        .btn_add::before {
+            content: '➕ ';
+            margin-right: 8px;
+        }
+
+        /* 表格樣式 */
         table {
-            width: 30%;
+            width: 80%;
+            max-width: 800px;
             border-collapse: collapse;
-            margin: auto;
+            margin: 0 auto 30px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 6px 24px rgba(139, 117, 85, 0.12);
+            border: 1px solid var(--milktea-border);
         }
+
         th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            padding: 16px 20px;
             text-align: center;
+            border-bottom: 1px solid var(--milktea-light);
         }
+
         th {
-            background-color: #f2f2f2;
+            background: linear-gradient(135deg, var(--milktea-main) 0%, var(--milktea-brown) 100%);
+            color: white;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            border: none;
         }
-		button{
-		 	cursor: pointer;
-		}
-		.btn_add {
-		    cursor: pointer;
-		    display: block;
-		    margin: 25px auto; /* 關鍵：左右自動居中 */
-		    padding: 12px 16px;
-		    background-color: #007bff;
-		    color: white;
-		    border: none;
-		    border-radius: 6px;
-		    font-size: 16px;
-		}
-		.btn_update{
-			cursor: pointer;
-		    display: block;
-		    margin: 10px auto;
-		    background-color: green;
-		    color: white;
-		    border: none;
-		    border-radius: 6px;
-		    font-size: 16px;
-		}
-		#lightbox_add ,#lightbox_update{
-		/*   border: 1px solid red; */
-		  position: fixed;
-		  top: 0;
-		  left: 0;
-		  width: 100%;
-		  height: 100vh;
-		  background-color: hsla(0, 0%, 0%, .5);
-		  
-		  display: none;
-		  text-align: center;
-		}
-		
-		/* 元素 article 置中及基本樣式 */
-		#lightbox_add > article {
-		  background-color: white;
-		  width: 25%;
-		  height: 25%;
-		  max-width: 800px;
-		  border-radius: 10px;
-		  box-shadow: 0 0 10px #ddd;
-		  padding: 10px;
-		  position: absolute;
-		  top: 30%;
-		  left: 50%;
-		  transform: translate(-50%, -50%);
-		}
-		#lightbox_update > article{
-		  background-color: white;
-		  width: 30%;
-		  height: 40%;
-		  max-width: 800px;
-		  border-radius: 10px;
-		  box-shadow: 0 0 10px #ddd;
-		  padding: 10px;
-		  position: absolute;
-		  top: 30%;
-		  left: 50%;
-		  transform: translate(-50%, -50%);
-		}
-		 .btn_add_close , .btn_update_close{
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
+
+        tbody tr:nth-child(even) {
+            background-color: #fffcf5;
         }
-        
-        #lightbox_update >article>table{
-          	width: 30%;
-            border-collapse: collapse;
-            margin:auto;
+
+        tbody tr:hover {
+            background: var(--milktea-hover);
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(139, 117, 85, 0.1);
+        }
+
+        /* 修改按鈕 */
+        .btn_update {
+            cursor: pointer;
+            display: inline-block;
+            margin: 5px auto;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #2d5a3d 0%, #4a7c5a 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(45, 90, 61, 0.2);
+        }
+
+        .btn_update:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(45, 90, 61, 0.3);
+            background: linear-gradient(135deg, #4a7c5a 0%, #2d5a3d 100%);
+        }
+
+        .btn_update::before {
+            content: '✏️ ';
+            margin-right: 5px;
+        }
+
+        /* 燈箱基本樣式 */
+        #lightbox_add, #lightbox_update {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(112, 81, 59, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
             text-align: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
         }
-        
-        #lightbox_update >article>table td{
-        	border: none;
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 燈箱內容區域 */
+        #lightbox_add > article {
+            background: var(--card-bg);
+            width: 90%;
+            max-width: 500px;
+            min-height: 300px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(139, 117, 85, 0.3);
+            border: 2px solid var(--milktea-border);
+            padding: 30px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: slideIn 0.3s ease;
+        }
+
+        #lightbox_update > article {
+            background: var(--card-bg);
+            width: 90%;
+            max-width: 600px;
+            min-height: 400px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(139, 117, 85, 0.3);
+            border: 2px solid var(--milktea-border);
+            padding: 30px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0.9); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1); 
+            }
+        }
+
+        /* 燈箱標題 */
+        #lightbox_add h1, #lightbox_update h1 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: none;
+            border: none;
+            box-shadow: none;
+            border-bottom: 3px solid var(--milktea-main);
+        }
+
+        /* 輸入框樣式 */
+        .add_name, .update_name {
+            width: 100%;
+            max-width: 350px;
+            padding: 14px 16px;
+            border: 2px solid var(--milktea-border);
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            color: var(--milktea-brown);
+            background: var(--card-bg);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .add_name:focus, .update_name:focus {
+            outline: none;
+            border-color: var(--milktea-main);
+            box-shadow: 0 0 0 4px rgba(171, 133, 86, 0.1);
+            background: var(--milktea-yellow);
+        }
+
+        /* 燈箱按鈕樣式 */
+        .btn_add_submit, .btn_update_submit {
+            background: linear-gradient(135deg, var(--milktea-main) 0%, var(--milktea-brown) 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 3px 10px rgba(139, 117, 85, 0.2);
+        }
+
+        .btn_add_submit:hover, .btn_update_submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(139, 117, 85, 0.3);
+            background: linear-gradient(135deg, var(--milktea-brown) 0%, var(--milktea-main) 100%);
+        }
+
+        .btn_add_close, .btn_update_close {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--milktea-accent) 0%, #9b8b7a 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn_add_close:hover, .btn_update_close:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(155, 139, 122, 0.3);
+        }
+
+        /* 更新表格樣式 */
+        #lightbox_update > article > table {
+            width: 100%;
+            max-width: 400px;
+            border-collapse: collapse;
+            margin: 20px auto;
+            background: none;
+            box-shadow: none;
+            border: none;
+        }
+
+        #lightbox_update > article > table td {
+            border: none;
+            padding: 12px;
+            background: none;
+        }
+
+        #lightbox_update > article > table tr:first-child td {
+            font-weight: 600;
+            color: var(--milktea-main);
+        }
+
+        #update_id_field {
+            color: var(--milktea-brown);
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        /* 載入狀態 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--milktea-brown);
+            font-style: italic;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--milktea-light);
+            border-top: 3px solid var(--milktea-main);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2rem;
+                padding: 15px;
+            }
+
+            h1::before {
+                font-size: 1.6rem;
+                margin-right: 10px;
+            }
+
+            table {
+                width: 100%;
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 12px 10px;
+            }
+
+            #lightbox_add > article,
+            #lightbox_update > article {
+                width: 95%;
+                margin: 0;
+                padding: 20px;
+            }
+
+            .add_name, .update_name {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.6rem;
+                letter-spacing: 0.5px;
+            }
+
+            .btn_add {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+
+            .btn_update {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            #lightbox_add > article,
+            #lightbox_update > article {
+                padding: 15px;
+            }
+        }
+
+        /* 深色主題支援 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --milktea-bg: #2d2520;
+                --card-bg: #3a2f28;
+                --milktea-yellow: #4a3d33;
+                --milktea-border: #5a4a3d;
+                --milktea-brown: #d4b896;
+                --milktea-main: #e6c79a;
+                --milktea-hover: #4f423a;
+                --milktea-light: #4a3d33;
+                --milktea-accent: #b8956f;
+                --milktea-error: #d4b896;
+                --milktea-error-bg: #3a2f28;
+                --milktea-success: #9db8a3;
+                --milktea-success-bg: #3a2f28;
+            }
+        }
+
+        /* 載入頁面動畫 */
+        @keyframes pageLoad {
+            0% { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .container {
+            animation: pageLoad 0.6s ease-out;
         }
     </style>
 </head>
 <body>
-	<a href="/" class="btn btn-home">回到首頁</a>
-	<h1>商品標籤列表</h1>
-	<button type="button" class="btn_add">新增商城標籤</button>
-	<div id="lightbox_add">
-	  <article>
-	    <h1>新增商城標籤</h1>
-	    	<input type = "text" class="add_name" id="add_name"/>
-	    	<button type ="button" class="btn_add_submit">新增</button>
-	    <button type="button" class="btn_add_close">關閉</button>
-	  </article>
-	  </div>
-	  <div id="lightbox_update">
-	  <article>
-	    <h1>更新商城標籤</h1>
-	    <table>
-		    <tr>
-		    	<td>商城標籤編號：</td><td><p id="update_id_field"></p></td>
-		    </tr>
-		    <tr>
-		    	<td colspan=2>
-		    	<input type = "text" class="update_name" id="update_name" placeholder="請輸入新的標籤名稱"/>
-		    	</td>
-		    </tr>
-		    <tr>
-		    	<td colspan=2>
-		    	<button type ="button" class="btn_update_submit">修改</button>
-		    	</td>
-		    </tr>
-	    </table>
-	    <button type="button" class="btn_update_close">關閉</button>
-	  </article>
-	</div>
-    <table id="mallTagsTable">
-        <thead>
-            <tr>
-                <th>商城標籤編號</th>
-                <th>商城標籤名稱</th>
-                <th>操作</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div class="container">
+        <a href="/back-end/adm/AdmHomePage.html" class="btn-home">
+            <span>🏠</span> 回後台首頁
+        </a>
+        
+        <h1>商城標籤管理</h1>
+        
+        <button type="button" class="btn_add">新增商城標籤</button>
+        
+        <!-- 新增標籤燈箱 -->
+        <div id="lightbox_add">
+            <article>
+                <h1>✨ 新增商城標籤</h1>
+                <input type="text" class="add_name" id="add_name" placeholder="請輸入標籤名稱"/>
+                <br>
+                <button type="button" class="btn_add_submit">
+                    <span>💾</span> 新增
+                </button>
+                <button type="button" class="btn_add_close">
+                    <span>✖️</span> 關閉
+                </button>
+            </article>
+        </div>
+        
+        <!-- 更新標籤燈箱 -->
+        <div id="lightbox_update">
+            <article>
+                <h1>✏️ 更新商城標籤</h1>
+                <table>
+                    <tr>
+                        <td>🏷️ 商城標籤編號：</td>
+                        <td><p id="update_id_field"></p></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="text" class="update_name" id="update_name" placeholder="請輸入新的標籤名稱"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button type="button" class="btn_update_submit">
+                                <span>💾</span> 修改
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                <button type="button" class="btn_update_close">
+                    <span>✖️</span> 關閉
+                </button>
+            </article>
+        </div>
+        
+        <!-- 標籤列表表格 -->
+        <table id="mallTagsTable">
+            <thead>
+                <tr>
+                    <th>🆔 商城標籤編號</th>
+                    <th>🏷️ 商城標籤名稱</th>
+                    <th>⚙️ 操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="3" class="loading">載入中</td>
+                </tr>
             </tbody>
-    </table>
-     <script src ="/js/jquery-1.11.3.min.js"></script>
-     <script>
-     	function init(){
+        </table>
+    </div>
+
+    <script>
+        // 初始化頁面
+        function init() {
+            const tableBody = document.querySelector('#mallTagsTable tbody');
+            tableBody.innerHTML = '<tr><td colspan="3" class="loading">載入中</td></tr>';
+            
             fetch('/api/malltag', { 
                 method: 'GET', 
                 headers: {
                     'Content-Type': 'application/json'
                 }
-            }).then(res => res.json()).then(data =>{
-            	const tableBody = document.querySelector('#mallTagsTable tbody');
-                tableBody.innerHTML = '';
-            	let list_html="";
-                $.each(data, function(index,item){
-                     list_html += `
-                     	<tr>
-	                    	 <td>${item.id}</td>
-	                         <td>${item.mallTagName}</td>
-	                         <td><button type="button" class="btn_update"
-	                         			 data-id="${item.id}"
-                                         data-name="${item.mallTagName}">修改</button></td>
-                        </tr>
-                    `;
-                    
-                });
-                tableBody.innerHTML = list_html;
-            });
-     	}
-     	
-        init();
-        
-        $("button.btn_add").on("click", function(){
-        	$("#lightbox_add").fadeIn(1000);
-        });
-        
-    	$("button.btn_add_close").on("click", function(){
-      	  $("#lightbox_add").fadeOut(1000);
-      	});
-
-      	$("#lightbox_add > article").on("click", function(e){
-      	  e.stopPropagation();
-      	});
-      	
-        $("button.btn_add_submit").on("click",function(){
-        	let r =confirm("確認新增？")
-			if(r){
-	        	let input_malltagName =( $("input.add_name").val()).trim();
-	        	let form_data = new FormData();
-	            form_data.append("mallTagName",input_malltagName);
-	            fetch("/api/malltag/add",{
-	            	method:"POST",
-	                body: form_data
-		            }).then(response => {
-		            	if (!response.ok) {
-		                    throw new Error('Network response was not ok');
-		            }
-		                return response.text();
-		            }).then(message => {
-		                if(message =="success"){
-		                	alert("新增成功");
-			               	$("#lightbox_add").fadeOut(500);
-			                $("input.input_name").val("");
-			                init();
-		                }
-		            });
-	                	
-				}
-        	});
-        	
-        $(document).on("click", "button.btn_update", function(){
-            let malltagId = $(this).data("id");
-            let malltagName = $(this).data("name"); 
-            $("#update_id_field").val(malltagId); 
-            $("#update_id_field").text(malltagId);
-            $("#update_name").val(malltagName);
-
-            $("#lightbox_update").fadeIn(1000);
-        });
-
-        $(document).on("click", "button.btn_update_close", function(){
-            $("#lightbox_update").fadeOut(1000);
-            $("#update_id_field").val("");
-            $("#update_name").val("");
-        });
-
-        $("#lightbox_update").on("click", function(e){
-            if (e.target.id === "lightbox_update") {
-                $("#lightbox_update").fadeOut(1000);
-                $("#update_id_field").val("");
-                $("#update_name").val("");
-            }
-        });
-
-        $(document).on("click", "button.btn_update_submit", function() {
-            let update_malltagId = parseInt($("#update_id_field").text());
-            let update_malltagName = ($("#update_name").val()).trim();
-
-            if (isNaN(update_malltagId) || update_malltagName === "") {
-                alert("請確認所有欄位都已填寫或取得有效ID。");
-                return;
-            }
-            
-            console.log("準備更新的資料:", {
-                id: update_malltagId,
-                mallTagName: update_malltagName
-            });
-
-            
-            const updateData = {
-                id: update_malltagId,
-                mallTagName: update_malltagName
-            };
-
-            fetch(`/api/malltag/update/${update_malltagId}`, {
-                method: "PUT",
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(updateData)
             })
-            .then(response => {
-                console.log("回應狀態:", response.status);
-                if (!response.ok) {
-                    return response.text().then(errorText => {
-                        throw new Error(`HTTP ${response.status}: ${errorText}`);
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                tableBody.innerHTML = '';
+                let listHtml = "";
+                
+                if (data.length === 0) {
+                    listHtml = '<tr><td colspan="3" style="color: var(--milktea-brown); padding: 40px;">目前沒有標籤資料</td></tr>';
+                } else {
+                    data.forEach(function(item) {
+                        listHtml += `
+                            <tr>
+                                <td>${item.id}</td>
+                                <td style="font-weight: 500;">${item.mallTagName}</td>
+                                <td>
+                                    <button type="button" class="btn_update"
+                                            data-id="${item.id}"
+                                            data-name="${item.mallTagName}">修改</button>
+                                </td>
+                            </tr>
+                        `;
                     });
                 }
-                return response.json();
-            })
-            .then(result => {
-                console.log("更新成功結果:", result);
-                if (result && result.id && result.mallTagName) {
-                    alert("更新成功！新標籤名稱: " + result.mallTagName);
-                    $("#lightbox_update").fadeOut(500);
-                    $("#update_id_field").text("");
-                    $("#update_name").val("");
-                    init();
-                } else {
-                    alert("更新失敗：回應格式不正確");
-                }
+                tableBody.innerHTML = listHtml;
             })
             .catch(error => {
-                console.error("更新請求錯誤:", error);
-                alert("更新請求發生錯誤: " + error.message);
+                console.error('載入標籤失敗:', error);
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="3" style="color: var(--milktea-error); padding: 40px;">
+                            ❌ 載入失敗: ${error.message}
+                            <br><br>
+                            <button onclick="init()" style="background: var(--milktea-main); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">重新載入</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        
+        // 顯示燈箱動畫
+        function showLightbox(lightboxId) {
+            const lightbox = document.getElementById(lightboxId);
+            lightbox.style.display = 'block';
+            setTimeout(() => {
+                lightbox.style.opacity = '1';
+            }, 10);
+        }
+        
+        // 隱藏燈箱動畫
+        function hideLightbox(lightboxId) {
+            const lightbox = document.getElementById(lightboxId);
+            lightbox.style.opacity = '0';
+            setTimeout(() => {
+                lightbox.style.display = 'none';
+            }, 300);
+        }
+        
+        // 頁面載入完成後執行
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+            
+            // 頁面載入動畫
+            document.body.style.opacity = '0';
+            document.body.style.transform = 'translateY(20px)';
+            document.body.style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+                document.body.style.transform = 'translateY(0)';
+            }, 100);
+            
+            // 新增標籤按鈕點擊事件
+            document.querySelector('.btn_add').addEventListener('click', function() {
+                showLightbox('lightbox_add');
+            });
+            
+            // 新增標籤關閉按鈕
+            document.querySelector('.btn_add_close').addEventListener('click', function() {
+                hideLightbox('lightbox_add');
+                document.getElementById('add_name').value = '';
+            });
+            
+            // 點擊燈箱背景關閉
+            document.getElementById('lightbox_add').addEventListener('click', function(e) {
+                if (e.target.id === 'lightbox_add') {
+                    hideLightbox('lightbox_add');
+                    document.getElementById('add_name').value = '';
+                }
+            });
+            
+            // 阻止點擊內容區域時關閉燈箱
+            document.querySelector('#lightbox_add > article').addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            // 新增標籤提交事件
+            document.querySelector('.btn_add_submit').addEventListener('click', function() {
+                const inputMalltagName = document.getElementById('add_name').value.trim();
+                
+                if (!inputMalltagName) {
+                    alert('❌ 請輸入標籤名稱');
+                    return;
+                }
+                
+                const confirmation = confirm('🤔 確認新增標籤？');
+                if (confirmation) {
+                    const formData = new FormData();
+                    formData.append("mallTagName", inputMalltagName);
+                    
+                    // 顯示載入狀態
+                    const submitBtn = document.querySelector('.btn_add_submit');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<span>⏳</span> 處理中...';
+                    submitBtn.disabled = true;
+                    
+                    fetch("/api/malltag/add", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: 新增失敗`);
+                        }
+                        return response.text();
+                    })
+                    .then(message => {
+                        if (message === "success") {
+                            alert("✅ 新增成功！");
+                            hideLightbox('lightbox_add');
+                            document.getElementById('add_name').value = '';
+                            init();
+                        } else {
+                            throw new Error('服務器回應異常');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('新增標籤錯誤:', error);
+                        alert('❌ 新增失敗: ' + error.message);
+                    })
+                    .finally(() => {
+                        // 恢復按鈕狀態
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    });
+                }
+            });
+            
+            // 修改標籤按鈕點擊事件（事件委派）
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('btn_update')) {
+                    const malltagId = e.target.getAttribute('data-id');
+                    const malltagName = e.target.getAttribute('data-name');
+                    
+                    document.getElementById('update_id_field').textContent = malltagId;
+                    document.getElementById('update_name').value = malltagName;
+                    
+                    showLightbox('lightbox_update');
+                }
+            });
+            
+            // 更新標籤關閉按鈕
+            document.querySelector('.btn_update_close').addEventListener('click', function() {
+                hideLightbox('lightbox_update');
+                document.getElementById('update_id_field').textContent = '';
+                document.getElementById('update_name').value = '';
+            });
+            
+            // 點擊燈箱背景關閉更新燈箱
+            document.getElementById('lightbox_update').addEventListener('click', function(e) {
+                if (e.target.id === 'lightbox_update') {
+                    hideLightbox('lightbox_update');
+                    document.getElementById('update_id_field').textContent = '';
+                    document.getElementById('update_name').value = '';
+                }
+            });
+            
+            // 阻止點擊內容區域時關閉燈箱
+            document.querySelector('#lightbox_update > article').addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            // 更新標籤提交事件
+            document.querySelector('.btn_update_submit').addEventListener('click', function() {
+                const updateMalltagId = parseInt(document.getElementById('update_id_field').textContent);
+                const updateMalltagName = document.getElementById('update_name').value.trim();
+                
+                if (isNaN(updateMalltagId) || updateMalltagName === "") {
+                    alert("❌ 請確認所有欄位都已填寫或取得有效ID。");
+                    return;
+                }
+                
+                console.log("準備更新的資料:", {
+                    id: updateMalltagId,
+                    mallTagName: updateMalltagName
+                });
+                
+                const updateData = {
+                    id: updateMalltagId,
+                    mallTagName: updateMalltagName
+                };
+                
+                // 顯示載入狀態
+                const submitBtn = document.querySelector('.btn_update_submit');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span>⏳</span> 處理中...';
+                submitBtn.disabled = true;
+                
+                fetch(`/api/malltag/update/${updateMalltagId}`, {
+                    method: "PUT",
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                })
+                .then(response => {
+                    console.log("回應狀態:", response.status);
+                    if (!response.ok) {
+                        return response.text().then(errorText => {
+                            throw new Error(`HTTP ${response.status}: ${errorText}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    console.log("更新成功結果:", result);
+                    if (result && result.id && result.mallTagName) {
+                        alert("✅ 更新成功！新標籤名稱: " + result.mallTagName);
+                        hideLightbox('lightbox_update');
+                        document.getElementById('update_id_field').textContent = '';
+                        document.getElementById('update_name').value = '';
+                        init();
+                    } else {
+                        alert("❌ 更新失敗：回應格式不正確");
+                    }
+                })
+                .catch(error => {
+                    console.error("更新請求錯誤:", error);
+                    alert("❌ 更新請求發生錯誤: " + error.message);
+                })
+                .finally(() => {
+                    // 恢復按鈕狀態
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+            });
+            
+            // 鍵盤事件處理
+            document.addEventListener('keydown', function(e) {
+                // ESC 鍵關閉燈箱
+                if (e.key === 'Escape') {
+                    if (document.getElementById('lightbox_add').style.display === 'block') {
+                        hideLightbox('lightbox_add');
+                        document.getElementById('add_name').value = '';
+                    }
+                    if (document.getElementById('lightbox_update').style.display === 'block') {
+                        hideLightbox('lightbox_update');
+                        document.getElementById('update_id_field').textContent = '';
+                        document.getElementById('update_name').value = '';
+                    }
+                }
+                
+                // Enter 鍵提交表單
+                if (e.key === 'Enter') {
+                    if (document.getElementById('lightbox_add').style.display === 'block') {
+                        document.querySelector('.btn_add_submit').click();
+                    }
+                    if (document.getElementById('lightbox_update').style.display === 'block') {
+                        document.querySelector('.btn_update_submit').click();
+                    }
+                }
             });
         });
-
     </script>
 </body>
 </html>
