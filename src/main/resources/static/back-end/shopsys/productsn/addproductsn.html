@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>產品序號批次上傳</title>
     <style>
+        /* 奶茶色系變數 */
+        :root {
+            --milktea-bg: #f7f4ed;
+            --card-bg: #fff;
+            --milktea-yellow: #fff7db;
+            --milktea-border: #e8dec7;
+            --milktea-brown: #70513b;
+            --milktea-main: #ab8556;
+            --milktea-hover: #fae7c2;
+            --milktea-light: #f4ead8;
+            --milktea-accent: #d4b896;
+            --milktea-error: #8b4513;
+            --milktea-error-bg: #fdf5e6;
+            --milktea-success: #2d5a3d;
+            --milktea-success-bg: #f0f8f0;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,73 +29,158 @@
         }
 
         body {
-            font-family: 'Microsoft JhengHei', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: '微軟正黑體', 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--milktea-bg) 0%, var(--milktea-light) 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+        }
+
+        /* 背景裝飾 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(171, 133, 86, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(212, 184, 150, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         .container {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            max-width: 600px;
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(139, 117, 85, 0.15);
+            border: 2px solid var(--milktea-border);
+            padding: 50px 40px;
+            max-width: 700px;
             width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--milktea-main) 0%, var(--milktea-accent) 100%);
+        }
+
+        /* 頂部導航按鈕 */
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
         
-        .btn{ 
-        	display: inline-block;
-		    text-decoration: none;
-		    color: white;
-		    padding: 8px 15px;
-		    border-radius: 5px;
-		    font-weight: bold;
-		    transition: opacity 0.3s;
-		    text-align: center;
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 14px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
-        .btn-home{ background-color: #95a5a6; }
-        .btn-product{ background-color: lightblue}
+        .btn-home { 
+            background: linear-gradient(135deg, var(--milktea-accent) 0%, #9b8b7a 100%);
+        }
+
+        .btn-product { 
+            background: linear-gradient(135deg, var(--milktea-main) 0%, var(--milktea-brown) 100%);
+        }
 
         h1 {
             text-align: center;
-            color: #333;
-            margin-bottom: 30px;
+            color: var(--milktea-main);
+            margin-bottom: 40px;
+            font-size: 2.2rem;
+            font-weight: 700;
+            font-family: 'Press Start 2P', Arial, sans-serif;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(139, 117, 85, 0.1);
+            position: relative;
+        }
+
+        h1::before {
+            margin-right: 15px;
             font-size: 2rem;
-            font-weight: 300;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             font-weight: 600;
-            color: #555;
-            font-size: 14px;
+            color: var(--milktea-brown);
+            font-size: 15px;
+            letter-spacing: 0.3px;
+            position: relative;
+        }
+
+        label::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background: var(--milktea-main);
+            border-radius: 1px;
         }
 
         select, input[type="file"] {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 16px;
+            padding: 16px 18px;
+            border: 2px solid var(--milktea-border);
+            border-radius: 12px;
+            font-size: 15px;
             transition: all 0.3s ease;
-            background: white;
+            background: var(--card-bg);
+            color: var(--milktea-brown);
+            font-family: inherit;
+            font-weight: 500;
         }
 
         select:focus, input[type="file"]:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--milktea-main);
+            box-shadow: 0 0 0 4px rgba(171, 133, 86, 0.1);
+            background: var(--milktea-yellow);
+        }
+
+        /* Select 下拉箭頭自訂 */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ab8556' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 45px;
         }
 
         .file-upload-container {
@@ -89,96 +191,108 @@
         }
 
         .file-upload-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--milktea-main) 0%, var(--milktea-brown) 100%);
             color: white;
-            padding: 15px 30px;
+            padding: 16px 30px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: 600;
             transition: all 0.3s ease;
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(139, 117, 85, 0.2);
         }
 
         .file-upload-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 25px rgba(139, 117, 85, 0.3);
+            background: linear-gradient(135deg, var(--milktea-brown) 0%, var(--milktea-main) 100%);
         }
 
         .file-info {
-            margin-top: 10px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--milktea-yellow);
+            border: 1px solid var(--milktea-border);
+            border-radius: 10px;
             font-size: 14px;
-            color: #666;
+            color: var(--milktea-brown);
             display: none;
+            font-weight: 500;
         }
 
         .upload-btn {
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            background: linear-gradient(135deg, #2d5a3d 0%, #4a7c5a 100%);
             color: white;
-            padding: 15px 40px;
+            padding: 18px 40px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 18px;
             font-weight: 600;
             transition: all 0.3s ease;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 25px;
+            box-shadow: 0 4px 15px rgba(45, 90, 61, 0.2);
         }
 
         .upload-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(86, 171, 47, 0.3);
+            box-shadow: 0 8px 25px rgba(45, 90, 61, 0.3);
+            background: linear-gradient(135deg, #4a7c5a 0%, #2d5a3d 100%);
         }
 
         .upload-btn:disabled {
-            background: #cccccc;
+            background: var(--milktea-light);
+            color: var(--milktea-brown);
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+            opacity: 0.6;
         }
 
         .result {
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 10px;
+            margin-top: 25px;
+            padding: 25px;
+            border-radius: 12px;
             display: none;
             animation: fadeIn 0.5s ease;
+            border: 2px solid;
         }
 
         .result.success {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            border: 1px solid #c3e6cb;
-            color: #155724;
+            background: linear-gradient(135deg, var(--milktea-success-bg) 0%, #e8f5e8 100%);
+            border-color: #4a7c5a;
+            color: var(--milktea-success);
         }
 
         .result.error {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            border: 1px solid #f5c6cb;
-            color: #721c24;
+            background: linear-gradient(135deg, var(--milktea-error-bg) 0%, #f4e4bc 100%);
+            border-color: #deb887;
+            color: var(--milktea-error);
         }
 
         .loading {
             display: none;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 25px;
+            color: var(--milktea-brown);
         }
 
         .spinner {
             display: inline-block;
             width: 40px;
             height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 4px solid var(--milktea-light);
+            border-top: 4px solid var(--milktea-main);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin-bottom: 15px;
         }
 
         @keyframes spin {
@@ -192,50 +306,62 @@
         }
 
         .format-info {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            border-left: 4px solid #2196f3;
+            background: linear-gradient(135deg, var(--milktea-yellow) 0%, var(--milktea-hover) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+            border-left: 5px solid var(--milktea-main);
+            box-shadow: 0 3px 15px rgba(139, 117, 85, 0.1);
         }
 
         .format-info h3 {
-            color: #1976d2;
-            margin-bottom: 10px;
+            color: var(--milktea-main);
+            margin-bottom: 12px;
             font-size: 16px;
+            font-weight: 600;
         }
 
         .format-info p {
-            color: #0d47a1;
+            color: var(--milktea-brown);
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
+            font-weight: 500;
         }
 
         .statistics {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 15px;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         .stat-item {
-            background: rgba(255, 255, 255, 0.8);
-            padding: 15px;
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px 15px;
+            border-radius: 12px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 3px 15px rgba(139, 117, 85, 0.1);
+            border: 1px solid var(--milktea-border);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 117, 85, 0.15);
         }
 
         .stat-number {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
-            color: #333;
+            color: var(--milktea-main);
+            margin-bottom: 5px;
         }
 
         .stat-label {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
+            font-size: 13px;
+            color: var(--milktea-brown);
+            font-weight: 500;
+            opacity: 0.8;
         }
 
         /* 選擇器載入狀態 */
@@ -246,43 +372,159 @@
         .select-loading::after {
             content: '';
             position: absolute;
-            right: 30px;
+            right: 35px;
             top: 50%;
             transform: translateY(-50%);
             width: 16px;
             height: 16px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #667eea;
+            border: 2px solid var(--milktea-light);
+            border-top: 2px solid var(--milktea-main);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
 
         /* 產品選項樣式 */
         .product-option {
-            padding: 5px 0;
+            padding: 8px 0;
+            color: var(--milktea-brown);
         }
 
         /* 錯誤提示 */
         .error-message {
-            color: #dc3545;
-            font-size: 12px;
-            margin-top: 5px;
+            color: var(--milktea-error);
+            font-size: 13px;
+            margin-top: 8px;
             display: none;
+            font-weight: 500;
+            padding: 8px;
+            background: var(--milktea-error-bg);
+            border-radius: 6px;
         }
 
         /* 成功提示 */
         .success-message {
-            color: #28a745;
-            font-size: 12px;
-            margin-top: 5px;
+            color: var(--milktea-success);
+            font-size: 13px;
+            margin-top: 8px;
             display: none;
+            font-weight: 500;
+            padding: 8px;
+            background: var(--milktea-success-bg);
+            border-radius: 6px;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 30px 20px;
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 30px;
+            }
+
+            h1::before {
+                font-size: 1.6rem;
+                margin-right: 10px;
+            }
+
+            .nav-buttons {
+                justify-content: center;
+            }
+
+            .btn {
+                padding: 12px 18px;
+                font-size: 13px;
+            }
+
+            .format-info {
+                padding: 15px;
+            }
+
+            .statistics {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 12px;
+            }
+
+            .stat-item {
+                padding: 15px 10px;
+            }
+
+            .stat-number {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 15px;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                letter-spacing: 0.5px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            select, input[type="file"] {
+                padding: 14px 16px;
+                font-size: 16px; /* 防止 iOS 縮放 */
+            }
+        }
+
+        /* 深色主題支援 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --milktea-bg: #2d2520;
+                --card-bg: #3a2f28;
+                --milktea-yellow: #4a3d33;
+                --milktea-border: #5a4a3d;
+                --milktea-brown: #d4b896;
+                --milktea-main: #e6c79a;
+                --milktea-hover: #4f423a;
+                --milktea-light: #4a3d33;
+                --milktea-accent: #b8956f;
+                --milktea-error: #d4b896;
+                --milktea-error-bg: #3a2f28;
+                --milktea-success: #9db8a3;
+                --milktea-success-bg: #3a2f28;
+            }
+        }
+
+        /* 載入頁面動畫 */
+        @keyframes containerFadeIn {
+            0% { 
+                opacity: 0; 
+                transform: translateY(30px) scale(0.95); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+
+        .container {
+            animation: containerFadeIn 0.6s ease-out;
         }
     </style>
 </head>
 <body>
-	
     <div class="container">
-    	<a href="/" class="btn btn-home">回到首頁</a>
+    	<a href="/back-end/adm/AdmHomePage.html" class="btn btn-home">回到後台首頁</a>
     	<a href="/back-end/shopsys/product/listAllProduct.html" class="btn btn-product">回到商品管理</a>
     	<h1></h1>
         <h1>產品序號批次上傳</h1>
