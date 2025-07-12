@@ -327,7 +327,8 @@
                 postTitle: postTitleInput.value.trim(),
                 postCon: postConTextarea.value.trim(),
                 postPin: '0', // 預設為 '0' (不置頂)
-                postStatus: '1' // 預設為 '1' (公開)
+                postStatus: '1', // 預設為 '1' (公開)
+                memNoId: 1,
             };
 
             // 將 DTO 物件轉換為 JSON 字串並作為 Blob 添加到 FormData 中
@@ -378,7 +379,7 @@
 
                 setTimeout(() => {
                     window.location.href = '/back-end/forumsys/forumpost/allForumPost.html';
-                }, 2000);
+                }, 1000);
 
             } catch (error) {
                 showMessage(`新增失敗: ${error.message}`, 'error');

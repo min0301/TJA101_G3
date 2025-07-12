@@ -88,12 +88,13 @@ public class ForumPostService {
      * 新增文章。
      * 接收 ForumPostUpdateDTO 和 MultipartFile，處理圖片儲存並保存文章。
      *
-     * @param forumPostDTO 包含文章文字資訊的 DTO。
-     * @param imageFile    文章封面圖片檔案 (可選)。
+     * @param forumPostDTO    包含文章文字資訊的 DTO。
+     * @param imageFile       文章封面圖片檔案 (可選)。
+     * @param defaultImageUrlFromFrontend
      * @return 新增後的 ForumPostDTO。
      */
     @Transactional // 交易註解，確保方法內的資料庫操作是原子性的
-    public ForumPostDTO addForumPost(ForumPostUpdateDTO forumPostDTO, MultipartFile imageFile) {
+    public ForumPostDTO addForumPost(ForumPostUpdateDTO forumPostDTO, MultipartFile imageFile, String defaultImageUrlFromFrontend) {
         ForumPost forumPost = new ForumPost();
         // 將 DTO 中的資料設定到 Entity
         forumPost.setPostTitle(forumPostDTO.getPostTitle());
@@ -119,18 +120,17 @@ public class ForumPostService {
                 .orElseThrow(() -> new ResourceNotFoundException("找不到文章類別 ID: " + forumPostDTO.getFtagNoId()));
         forumPost.setFtagNo(forumTag);
          // 判斷使用者是否有上傳圖片檔案
-        Integer selectedCategoryId = null;
+//        Integer selectedCategoryId = null;
         if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = processImageFile(imageFile, "forumsys/forumpost"); // 變數名稱 `imageUrl` 可變
             forumPost.setPostImageUrl(imageUrl);
         }
         // 如果沒有上傳圖片，且有選擇文章類別 (selectedCategoryId 由前端傳入時代表用戶選擇了預設圖片選項)
-        else if (selectedCategoryId != null) {
-            String defaultImageUrl = getCategorDefaultImageUrl(selectedCategoryId);
-            forumPost.setPostImageUrl(defaultImageUrl);
+        else if (defaultImageUrlFromFrontend != null && !defaultImageUrlFromFrontend.isEmpty()) {
+            forumPost.setPostImageUrl(defaultImageUrlFromFrontend);
         } else {
             // 如果既沒有上傳圖片，也沒有選擇預設類別，可以設置一個通用預設圖片
-            forumPost.setPostImageUrl("/images/forumposttag_img/default.jpg"); // 提供一個最終的預設路徑
+            forumPost.setPostImageUrl(baseUrl + "/imgseed/forumposttag)img/09.jpg"); // 提供一個最終的預設路徑
         }
 
 

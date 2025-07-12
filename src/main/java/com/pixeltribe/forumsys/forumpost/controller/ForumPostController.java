@@ -118,7 +118,7 @@ public class ForumPostController {
         }
 
         try {
-            ForumPostDTO savedForumPostDTO = forumPostSvc.addForumPost(forumPostUpdateDTO, imageFile);
+            ForumPostDTO savedForumPostDTO = forumPostSvc.addForumPost(forumPostUpdateDTO, imageFile, defaultImageUrl);
 
             Map<String, Object> successResponse = new HashMap<>();
             successResponse.put("message", "文章新增成功");
