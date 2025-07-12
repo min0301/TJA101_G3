@@ -6,11 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;700&family=Press+Start+2P&display=swap"
+          rel="stylesheet">
 
     <link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
 
     <style>
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            /* 【核心修改】將 overflow-x: hidden 改為 overflow: hidden; */
+            /* 理由：徹底禁止 body 元素產生任何方向的滾動條，將滾動控制權完全交給內部的 content-card。 */
+            overflow: hidden;
+        }
+
         /* --- 核心變數: 全面替換為前台薄荷綠風格 --- */
         :root {
             --primary-bg: #f0f2f5;
@@ -25,21 +35,37 @@
 
         /* --- 基礎樣式: 統一字體與背景 --- */
         html, body {
-            margin: 0; padding: 0; height: 100%; min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            min-height: 100vh;
             background: var(--primary-bg);
             font-family: 'Karla', '微軟正黑體', Arial, sans-serif;
             box-sizing: border-box;
             color: var(--text-color);
         }
-        body { width: 100vw; height: 100vh; overflow-x: hidden; }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow-x: hidden;
+        }
 
         /* --- 頂部導覽列 --- */
         .topbar {
-            width: 100%; height: 60px; background: var(--component-bg);
-            display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            position: fixed; top: 0; left: 0; z-index: 10;
-            padding: 0 24px; box-sizing: border-box;
+            width: 100%;
+            height: 60px;
+            background: var(--component-bg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            padding: 0 24px;
+            box-sizing: border-box;
             border-bottom: 1px solid var(--border-color);
         }
 
@@ -50,76 +76,152 @@
         }
 
         .logout-btn {
-            background: var(--brand-green-light); color: var(--brand-green);
-            border: 2px solid var(--brand-green); border-radius: 8px;
-            padding: 8px 24px; font-family: 'Karla', sans-serif;
-            font-size: 14px; font-weight: 700; cursor: pointer;
+            background: var(--brand-green-light);
+            color: var(--brand-green);
+            border: 2px solid var(--brand-green);
+            border-radius: 8px;
+            padding: 8px 24px;
+            font-family: 'Karla', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
             transition: all 0.2s ease;
         }
-        .logout-btn:hover { background: var(--brand-green); color: var(--component-bg); }
+
+        .logout-btn:hover {
+            background: var(--brand-green);
+            color: var(--component-bg);
+        }
 
         /* --- 主要佈局 --- */
         .main-wrap {
-            display: flex; height: calc(100vh - 60px);
-            min-height: 540px; margin-top: 60px;
+            display: flex;
+            height: calc(100vh - 60px);
+            min-height: 540px;
+            margin-top: 60px;
         }
 
         /* --- 左側選單欄 --- */
         .sidebar-card {
             width: 280px;
-            background: var(--component-bg); border-radius: 0;
+            background: var(--component-bg);
+            border-radius: 0;
             padding: 24px 0;
-            display: flex; flex-direction: column; align-items: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             height: 100%;
             border-right: 1px solid var(--border-color);
         }
-        .sidebar-menu { width: 100%; list-style: none; padding: 0 12px; margin: 0; }
-        .menu-item { width: 100%; margin-bottom: 8px; }
+
+        .sidebar-menu {
+            width: 100%;
+            list-style: none;
+            padding: 0 12px;
+            margin: 0;
+        }
+
+        .menu-item {
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
         .menu-button {
-            display: flex; align-items: center; justify-content: space-between;
-            width: 100%; margin: 0 auto; padding: 14px 20px; font-size: 16px;
-            color: var(--text-color); background: none; border: none;
-            border-radius: 8px; font-family: inherit; cursor: pointer;
-            transition: background 0.15s, color 0.15s; outline: none;
-            font-weight: 700; letter-spacing: 0.2px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin: 0 auto;
+            padding: 14px 20px;
+            font-size: 16px;
+            color: var(--text-color);
+            background: none;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            outline: none;
+            font-weight: 700;
+            letter-spacing: 0.2px;
         }
+
         .menu-button:hover {
-            background: var(--brand-green-light); color: var(--brand-green);
+            background: var(--brand-green-light);
+            color: var(--brand-green);
         }
+
         .menu-button.active {
-            background: var(--brand-green); color: var(--component-bg);
+            background: var(--brand-green);
+            color: var(--component-bg);
         }
+
         .menu-button .icon {
-            margin-right: 16px; font-size: 18px;
+            margin-right: 16px;
+            font-size: 18px;
             vertical-align: -0.15em;
         }
-        .menu-button .arrow { font-size: 14px; transition: transform 0.3s ease; }
-        .menu-item.active .menu-button .arrow { transform: rotate(180deg); }
+
+        .menu-button .arrow {
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-item.active .menu-button .arrow {
+            transform: rotate(180deg);
+        }
 
         .submenu {
-            width: 93%; margin: 4px auto 0; background: var(--primary-bg);
+            width: 93%;
+            margin: 4px auto 0;
+            background: var(--primary-bg);
             border-radius: 8px;
-            max-height: 0; overflow: hidden;
-            transition: max-height 0.4s ease-out, opacity 0.4s ease-out; opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+            opacity: 0;
         }
-        .menu-item.active .submenu { max-height: 550px; opacity: 1; }
+
+        .menu-item.active .submenu {
+            max-height: 550px;
+            opacity: 1;
+        }
+
         .submenu-item {
             padding: 10px 18px 10px 48px;
-            transition: all 0.13s ease; cursor: pointer;
-            position: relative; font-size: 15px; color: var(--text-muted);
-            font-weight: 500; display: block; text-decoration: none;
+            transition: all 0.13s ease;
+            cursor: pointer;
+            position: relative;
+            font-size: 15px;
+            color: var(--text-muted);
+            font-weight: 500;
+            display: block;
+            text-decoration: none;
             border-bottom: 1px solid var(--border-color);
         }
-        .submenu-item:last-child { border-bottom: none; }
+
+        .submenu-item:last-child {
+            border-bottom: none;
+        }
+
         .submenu-item:hover {
-            background: var(--brand-green-light); color: var(--brand-green);
+            background: var(--brand-green-light);
+            color: var(--brand-green);
         }
+
         .submenu-item.active {
-            background: var(--brand-green-light); color: var(--brand-green); font-weight: 700;
+            background: var(--brand-green-light);
+            color: var(--brand-green);
+            font-weight: 700;
         }
+
         .submenu-item .item-icon {
-            position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
-            font-size: 16px; color: var(--brand-green);
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: var(--brand-green);
         }
 
         /* --- 右側內容區 --- */
@@ -141,77 +243,207 @@
             overflow-y: auto;
             box-sizing: border-box; /* 確保 padding 和 border 不會撐大盒子 */
         }
-        .content-card { border-radius: 0; box-shadow: none; }
-        .dashboard-content { width: 100%; max-width: 1100px; margin: 0 auto; }
-        .welcome-section { width: 100%; margin-bottom: 40px; text-align: left; }
-        .welcome-title {
-            font-family: 'Karla', sans-serif; font-size: 28px;
-            color: var(--text-color); font-weight: 700;
-            margin-bottom: 10px;
-            padding: 0; background: none; border-left: none; box-shadow: none;
+
+        .content-card {
+            border-radius: 0;
+            box-shadow: none;
         }
+
+        .dashboard-content {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .welcome-section {
+            width: 100%;
+            margin-bottom: 40px;
+            text-align: left;
+        }
+
+        .welcome-title {
+            font-family: 'Karla', sans-serif;
+            font-size: 28px;
+            color: var(--text-color);
+            font-weight: 700;
+            margin-bottom: 10px;
+            padding: 0;
+            background: none;
+            border-left: none;
+            box-shadow: none;
+        }
+
         .welcome-subtitle {
-            font-size: 16px; color: var(--text-muted);
-            margin: 0; max-width: none; text-align: left;
+            font-size: 16px;
+            color: var(--text-muted);
+            margin: 0;
+            max-width: none;
+            text-align: left;
         }
 
         .stats-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px; width: 100%; margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            width: 100%;
+            margin-bottom: 40px;
         }
+
         .stat-card {
-            background: var(--component-bg); border-radius: 12px;
-            padding: 25px; text-align: center;
+            background: var(--component-bg);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
             transition: all 0.2s ease;
             border: 1px solid var(--border-color);
             min-height: 160px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
-        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-        .stat-icon { font-size: 40px; margin-bottom: 15px; color: var(--brand-green); }
-        .stat-number { font-size: 36px; font-weight: 700; color: var(--text-color); margin-bottom: 8px; }
-        .stat-label { font-size: 15px; font-weight: 500; color: var(--text-muted); }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            color: var(--brand-green);
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
         .guide-text {
-            width: 100%; background: var(--component-bg);
+            width: 100%;
+            background: var(--component-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px; padding: 30px; margin-top: 20px;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 20px;
         }
+
         .guide-text h3 {
-            font-family: 'Karla', sans-serif; color: var(--text-color);
-            font-weight: 700; margin-bottom: 15px; font-size: 18px; letter-spacing: 0;
+            font-family: 'Karla', sans-serif;
+            color: var(--text-color);
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 18px;
+            letter-spacing: 0;
         }
-        .guide-text p { font-size: 15px; line-height: 1.7; margin: 0; color: var(--text-muted); }
-        .sys-block { width: 100%; }
+
+        .guide-text p {
+            font-size: 15px;
+            line-height: 1.7;
+            margin: 0;
+            color: var(--text-muted);
+        }
+
+        .sys-block {
+            width: 100%;
+        }
+
         .sys-subtitle {
-            font-family: 'Karla', sans-serif; font-size: 24px; color: var(--text-color);
-            font-weight: 700; margin-bottom: 30px; letter-spacing: 0;
-            padding: 0; background: none; border-left: none; box-shadow: none; display: block;
+            font-family: 'Karla', sans-serif;
+            font-size: 24px;
+            color: var(--text-color);
+            font-weight: 700;
+            margin-bottom: 30px;
+            letter-spacing: 0;
+            padding: 0;
+            background: none;
+            border-left: none;
+            box-shadow: none;
+            display: block;
         }
-        .sys-block ul { padding: 0; margin: 0; list-style: none; width: 100%; }
+
+        .sys-block ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            width: 100%;
+        }
+
         .sys-block li {
-            margin-bottom: 14px; font-size: 16px; padding: 15px 20px 15px 50px;
-            border-radius: 8px; background: var(--component-bg); font-weight: 500;
+            margin-bottom: 14px;
+            font-size: 16px;
+            padding: 15px 20px 15px 50px;
+            border-radius: 8px;
+            background: var(--component-bg);
+            font-weight: 500;
             border: 1px solid var(--border-color);
-            display: flex; align-items: center; position: relative;
+            display: flex;
+            align-items: center;
+            position: relative;
             transition: all 0.2s ease;
         }
-        .sys-block li:hover { border-color: var(--brand-green); background: var(--brand-green-light); }
+
+        .sys-block li:hover {
+            border-color: var(--brand-green);
+            background: var(--brand-green-light);
+        }
+
         .sys-block li .item-icon {
-            position: absolute; left: 20px; font-size: 18px; color: var(--brand-green);
+            position: absolute;
+            left: 20px;
+            font-size: 18px;
+            color: var(--brand-green);
         }
 
         /* --- 響應式設計 --- */
         @media (max-width: 1100px) {
-            .main-wrap { flex-direction: column; }
-            .sidebar-card, .content-card { border-radius: 0; width: 100%; border-right: none; }
-            .content-card { padding: 30px 4vw; border-top: 1px solid var(--border-color); }
-            .sidebar-card { padding: 12px 0; height: auto;}
+            .main-wrap {
+                flex-direction: column;
+            }
+
+            .sidebar-card, .content-card {
+                border-radius: 0;
+                width: 100%;
+                border-right: none;
+            }
+
+            .content-card {
+                padding: 30px 4vw;
+                border-top: 1px solid var(--border-color);
+            }
+
+            .sidebar-card {
+                padding: 12px 0;
+                height: auto;
+            }
         }
+
         @media (max-width: 650px) {
-            .content-card { padding: 20px; }
-            .topbar-logo img { height: 35px; }
-            .logout-btn { padding: 6px 16px; font-size: 13px; }
-            .stats-grid { grid-template-columns: 1fr; gap: 15px; }
+            .content-card {
+                padding: 20px;
+            }
+
+            .topbar-logo img {
+                height: 35px;
+            }
+
+            .logout-btn {
+                padding: 6px 16px;
+                font-size: 13px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
         }
     </style>
 </head>
@@ -286,7 +518,10 @@
                     <a href="#" class="submenu-item" onclick="renderContent('forum', 'dashboard', event)">
                         <i class="bi bi-pie-chart-fill item-icon"></i>儀表板
                     </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'management', event)">
+                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'categories', event)">
+                        <i class="bi bi-tags-fill item-icon"></i>討論區類別管理
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'forums', event)">
                         <i class="bi bi-card-list item-icon"></i>討論區管理
                     </a>
                     <a href="#" class="submenu-item" onclick="renderContent('forum', 'posts', event)">
@@ -329,14 +564,16 @@
     // 【常數】將內容區域的 DOM 物件提出來，避免重複選取
     const contentArea = document.getElementById('content-area');
 
+
     // =================================================================================
     // 【核心修改】頁面路由設定：未來新增頁面，只需在此處增加一行對應
     // 格式：'主選單Key-子選單Key': '對應的 HTML 檔案路徑'
     // =================================================================================
     const pageMappings = {
         'store-orders': '../shopsys/order/allOrder.html',
-        'forum-management': '../forumsys/forum/allForum.html',
-
+        'forum-forums': '../forumsys/forum/allForum.html',
+        'forum-add': '../forumsys/forum/addForum.html',
+        'forum': '../forumsys/forum/forum.html',
         // 在此處繼續添加其他頁面...
         // 'member-query': '../membersys/query/allMember.html',
     };
@@ -383,54 +620,59 @@
     }
 
     /**
-     * 【全新函式】通用外部頁面載入器 (最重要的新增部分)
-     * @param {string} url - 要載入的 HTML 檔案路徑
+     * 【核心修正】通用外部頁面載入器 (整合版)
+     * @param {string} url - 要載入的 HTML 檔案路徑 (可包含查詢參數)
      */
     async function loadExternalPage(url) {
-        // [不可變] 這是函式核心邏輯
         try {
-            // 步驟 1: 顯示載入中動畫
             contentArea.innerHTML = `<div class="sys-block" style="text-align: center; font-size: 20px;">載入中...</div>`;
 
-            // 步驟 2: 使用 fetch 取得遠端 HTML 檔案內容
-            const response = await fetch(url);
+            // [不可變] 這是修正的核心：建立一個完整的 URL 物件來解析傳入的相對路徑與參數。
+            // window.location.href 作為第二個參數，可以確保相對路徑 (如 ../...) 被正確解析。
+            const fullUrl = new URL(url, window.location.href);
+
+            // [不可變] 將解析出的查詢字串 (例如 "?id=1") 存到 content-area 的 data-page-params 屬性中。
+            // 這是為了讓子頁面的腳本可以讀取到這個值。
+            contentArea.setAttribute('data-page-params', fullUrl.search);
+
+            const response = await fetch(fullUrl);
             if (!response.ok) {
                 throw new Error(`無法載入頁面: ${response.status} ${response.statusText}`);
             }
             const pageText = await response.text();
-
-            // 步驟 3: 使用 DOMParser 將文字解析成一個獨立的 HTML document
             const parser = new DOMParser();
             const doc = parser.parseFromString(pageText, 'text/html');
 
-            // 步驟 4: 抽取出 <style>, <body> 內容, 和 <script>
             const styles = doc.querySelectorAll('style');
             const scripts = doc.querySelectorAll('script');
+            const pageContent = doc.querySelector('[class*="-container"], [class*="-wrapper"]');
 
-            // 找到第一個 class 為 container 的元素作為內容主體
-            // [提醒] 這是為了讓 allOrder.html 能順利顯示。
-            // 建議未來所有子頁面都用一個固定的 ID (如 <div id="page-content">) 包裹內容，會更穩定。
-            const pageContent = doc.querySelector('[class$="-management-container"]') || doc.body;
+            if (!pageContent) {
+                throw new Error("在載入的頁面中找不到主要的內容容器。");
+            }
 
-            // 步驟 5: 清空目前內容，並注入新的 HTML
-            contentArea.innerHTML = '';
+            contentArea.innerHTML = ''; // 清空
             contentArea.appendChild(pageContent);
 
-            // 步驟 6: 動態載入 CSS 樣式
+            // 清理舊的動態樣式和腳本
+            document.querySelectorAll('[data-dynamic-style], [data-dynamic-script]').forEach(el => el.remove());
+
+            // 載入新的樣式
             styles.forEach(style => {
-                document.head.appendChild(style);
+                const newStyle = document.createElement('style');
+                newStyle.setAttribute('data-dynamic-style', 'true');
+                newStyle.textContent = style.textContent;
+                document.head.appendChild(newStyle);
             });
 
-            // 步驟 7: 動態執行 JavaScript
-            // 必須重新建立 script 標籤才能觸發執行
+            // 載入並執行新的腳本
             scripts.forEach(script => {
                 const newScript = document.createElement('script');
-                // 如果 script 有 src 屬性 (外部腳本)，就設定 src
+                newScript.setAttribute('data-dynamic-script', 'true');
                 if (script.src) {
                     newScript.src = script.src;
-                    newScript.async = false; // 確保腳本按順序執行
+                    newScript.async = false;
                 } else {
-                    // 否則就直接放入 inline 腳本
                     newScript.textContent = script.textContent;
                 }
                 document.body.appendChild(newScript);
@@ -439,6 +681,8 @@
         } catch (error) {
             console.error('頁面載入失敗:', error);
             contentArea.innerHTML = `<div class="sys-block" style="color: red;">頁面載入失敗: ${error.message}</div>`;
+            // 失敗時清除可能殘留的參數
+            contentArea.removeAttribute('data-page-params');
         }
     }
 
@@ -499,11 +743,24 @@
             store: '商城系統', news: '新聞系統', forum: '論壇系統', member: '會員系統'
         };
         const subTitles = {
-            'toggle': '產品上下架', 'categories': '產品分類', 'edit': '編輯產品資訊', 'orders': '訂單管理', 'shipping': '產品發貨管理', 'reviews': '訂單評論管理', 'coupons': '優惠券管理',
+            'toggle': '產品上下架',
+            'categories': '產品分類',
+            'edit': '編輯產品資訊',
+            'orders': '訂單管理',
+            'shipping': '產品發貨管理',
+            'reviews': '訂單評論管理',
+            'coupons': '優惠券管理',
             'dashboard': '儀表板', // 通用儀表板標題
-            'news-edit': '新聞編輯', 'comments': '新聞評論管理', 'reports': '審核檢舉',
-            'management': '討論區管理', 'posts': '文章管理', 'forum-comments': '留言管理', 'official': '發布官方文章',
-            'query': '會員資料查詢', 'suspend': '會員停權'
+            'news-edit': '新聞編輯',
+            'comments': '新聞評論管理',
+            'reports': '審核檢舉',
+            'forums': '討論區管理',
+            'posts': '文章管理',
+            'forum-comments': '留言管理',
+            'official': '發布官方文章',
+            'categories': '討論區類別管理',
+            'query': '會員資料查詢',
+            'suspend': '會員停權'
         };
 
         const title = pageTitles[pageKey] || '系統';
@@ -534,7 +791,7 @@
         contentArea.innerHTML = getMainDashboardHTML();
     }
 
-    window.onload = function() {
+    window.onload = function () {
         loadMainDashboard();
     }
 </script>
