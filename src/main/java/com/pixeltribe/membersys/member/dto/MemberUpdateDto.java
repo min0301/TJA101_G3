@@ -1,19 +1,15 @@
 package com.pixeltribe.membersys.member.dto;
 
-import java.time.LocalDate;
-
-public class MemberProfileDto {
+public class MemberUpdateDto {
 
 	private String memName;
-	private LocalDate memBirthday;
-	private String memAccount;
 	private String memNickName;
 	private String memEmail;
 	private String memAddr;
 	private String memPhone;
 
 	// Constructor
-	public MemberProfileDto() {
+	public MemberUpdateDto() {
 
 	}
 
@@ -24,22 +20,6 @@ public class MemberProfileDto {
 
 	public void setMemName(String memName) {
 		this.memName = memName;
-	}
-
-	public LocalDate getMemBirthday() {
-		return memBirthday;
-	}
-
-	public void setMemBirthday(LocalDate memBirthday) {
-		this.memBirthday = memBirthday;
-	}
-
-	public String getMemAccount() {
-		return memAccount;
-	}
-
-	public void setMemAccount(String memAccount) {
-		this.memAccount = memAccount;
 	}
 
 	public String getMemNickName() {

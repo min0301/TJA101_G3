@@ -3,10 +3,10 @@ package com.pixeltribe.membersys.login.model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.pixeltribe.membersys.administrator.dto.AdminBasicDto;
 import com.pixeltribe.membersys.administrator.model.AdmRepository;
 import com.pixeltribe.membersys.administrator.model.Administrator;
 import com.pixeltribe.membersys.login.dto.AdmLoginReturn;
-import com.pixeltribe.membersys.login.dto.AdminInfo;
 import com.pixeltribe.util.JwtUtil;
 
 @Service
@@ -20,7 +20,7 @@ public class AdmLoginService {
 	
 	public AdmLoginReturn login(String admAccount, String admPassword) {
         Administrator admin = admRepository.findByAdmAccount(admAccount);
-        AdminInfo adminInfo = new AdminInfo(admin.getId(),admin.getAdmAccount(),admin.getAdmName());
+        AdminBasicDto adminInfo = new AdminBasicDto(admin.getId(),admin.getAdmAccount(),admin.getAdmName());
         if (admin == null) {
             return new AdmLoginReturn(false, "該管理員帳號不存在");
         }
