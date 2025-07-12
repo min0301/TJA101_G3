@@ -55,8 +55,11 @@ public class ForumService {
     public ForumDetailDTO add(ForumUpdateDTO forumUpdateDTO, MultipartFile imageFile) {
 
         Forum forum = new Forum();
+        Forum saveOrUpdateForum = saveOrUpdateForum(forum, forumUpdateDTO, imageFile);
 
-        return ForumDetailDTO.convertToForumDetailDTO(saveOrUpdateForum(forum, forumUpdateDTO, imageFile));
+        this.refreshHotForumsInRedis();
+
+        return ForumDetailDTO.convertToForumDetailDTO(saveOrUpdateForum);
     }
 
     @Transactional
@@ -64,8 +67,9 @@ public class ForumService {
 
         Forum forum = forumRepository.findById(forNo)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到討論區編號: " + forNo));
-
-        return ForumDetailDTO.convertToForumDetailDTO(saveOrUpdateForum(forum, forumUpdateDTO, imageFile));
+        Forum saveOrUpdateForum = saveOrUpdateForum(forum, forumUpdateDTO, imageFile);
+        this.refreshHotForumsInRedis();
+        return ForumDetailDTO.convertToForumDetailDTO(saveOrUpdateForum);
     }
 
 
@@ -85,6 +89,15 @@ public class ForumService {
                 .map(x -> ForumDetailDTO.convertToForumDetailDTO(x))
                 //  TODO
                 //      .map(ForumDetailDTO::convertToForumDetailDTO) // 對每個 forum 執行轉換
+                .toList();
+    }
+
+    public List<ForumDetailDTO> getAllAdminForum() {
+
+        List<Forum> forums = forumRepository.findAllByOrderByForUpdateDesc();
+
+        return forums.stream()
+                .map(x -> ForumDetailDTO.convertToForumDetailDTO(x))
                 .toList();
     }
 
@@ -187,7 +200,7 @@ public class ForumService {
 
     @Scheduled(fixedRate = 3_600_000)
     @Transactional
-    public void updateHotForumsCache() {
+    public void refreshHotForumsInRedis() {
 //        System.out.println("====== 開始更新熱門看板快取 ======");
         List<Forum> forums = forumRepository.findAllByForStatusOrderByForUpdateDesc('0');
         if (forums.isEmpty()) {
@@ -227,7 +240,6 @@ public class ForumService {
 
 //        System.out.println("====== 熱門看板快取更新完成 ======");
     }
-
 
 
 }
