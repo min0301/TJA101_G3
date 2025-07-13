@@ -3,11 +3,13 @@ package com.pixeltribe.forumsys.message.controller;
 import com.pixeltribe.forumsys.message.model.ForumMesDTO;
 import com.pixeltribe.forumsys.message.model.ForumMesService;
 import com.pixeltribe.forumsys.message.model.ForumMesUptateDTO;
+import com.pixeltribe.membersys.security.MemberDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -58,8 +60,12 @@ public class ForumMesController {
     )
     public ResponseEntity<ForumMesDTO> addForumMes(
             @Valid @RequestBody ForumMesUptateDTO forumMesUptateDTO,
-            @PathVariable("postno") Integer postNo) {
-        ForumMesDTO createdForumMes = forumMesSvc.addForumMes(postNo, forumMesUptateDTO);
+            @PathVariable("postno") Integer postNo,
+            //1.在方法參數中，使用 @AuthenticationPrincipal 注入當前用戶物件
+            @AuthenticationPrincipal MemberDetails currentUser) {
+        //2.直接從 currentUser 物件呼叫 getMemberId() 方法
+        Integer memberId = currentUser.getMemberId();
+        ForumMesDTO createdForumMes = forumMesSvc.addForumMes(postNo, memberId, forumMesUptateDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdForumMes);
     }

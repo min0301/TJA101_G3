@@ -42,12 +42,12 @@ public class ForumMesService {
     }
 
     @Transactional
-    public ForumMesDTO addForumMes(Integer postNo, ForumMesUptateDTO forumMesUptateDTO) {
+    public ForumMesDTO addForumMes(Integer postNo, Integer memberId, ForumMesUptateDTO forumMesUptateDTO) {
 
         ForumMes forumMes = new ForumMes();
         forumMes.setPostNo(forumPostRepository.findById(postNo)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到文章ID: " + postNo)));
-        forumMes.setMemNo(memRepository.findById(forumMesUptateDTO.getMemId())
+        forumMes.setMemNo(memRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到會員")));
         forumMes.setMesCon(forumMesUptateDTO.getMesCon());
 
