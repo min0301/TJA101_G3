@@ -33,10 +33,10 @@ public class ArticleComReportService {
     }
 
     @Transactional
-    public ArticleComReportDTO add(ArticleComReportCreateDTO articleComReportCreateDTO) {
+    public ArticleComReportDTO add(Integer memberId, ArticleComReportCreateDTO articleComReportCreateDTO) {
         ForumMes message = forumMesRepository.findById(articleComReportCreateDTO.getMessageNo())
                 .orElseThrow(() -> new ResourceNotFoundException("找不到訊息"));
-        Member member = memRepository.findById(articleComReportCreateDTO.getMemberNo())
+        Member member = memRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到會員"));
 
         articleComReportRepository.findByMesNoAndReporter(message, member)
