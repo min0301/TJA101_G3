@@ -1,8 +1,10 @@
 package com.pixeltribe.newssys.newsimage.controller;
 
 import com.pixeltribe.newssys.newsimage.model.NewsImageDTO;
+import com.pixeltribe.newssys.newsimage.model.NewsImageIndexDTO;
 import com.pixeltribe.newssys.newsimage.model.NewsImageService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,18 +31,24 @@ public class NewsImageController {
 
     @GetMapping("/{id}")
     @Operation(summary = "取得某個圖片")
-    public List<NewsImageDTO> getImage(@PathVariable Integer id) {
+    public List<NewsImageDTO> getImage(@Valid @PathVariable Integer id) {
 
         return newsImageSrv.findById(id);
     }
 
-    @PostMapping(value = "/upload/{newsId}" , consumes = "multipart/form-data")
+    @PostMapping(value = "/upload/{newsId}", consumes = "multipart/form-data")
     @Operation(summary = "上傳圖片並關聯新聞及回傳圖片 URL（供富文本編輯器插入)")
-    public ResponseEntity<Map<String,String>> uploadImage(
+    public ResponseEntity<Map<String, String>> uploadImage(
             @RequestParam("file") MultipartFile file,
             @PathVariable Integer newsId) {
-        String url = newsImageSrv.uploadAndGetUrl(file,newsId);
-        return ResponseEntity.ok(Map.of("url",url));
+        String url = newsImageSrv.uploadAndGetUrl(file, newsId);
+        return ResponseEntity.ok(Map.of("url", url));
+    }
+
+    @GetMapping("index")
+    @Operation(summary = "給首頁5張最新新聞圖片")
+    public List<NewsImageIndexDTO> getImage5() {
+        return newsImageSrv.getImage5();
     }
 
 }
