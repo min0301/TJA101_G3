@@ -4,37 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>訂單管理後台</title>
+    
     <style>
-        /* --- 核心：樣式完全與 allForum.html 同步 --- */
+    	
+        /* 獨立的 :root 變數，只在這個頁面生效 */
+        :root {
+            --order-primary-bg: #ffffff;
+            --order-component-bg: #f8f9fa;
+            --order-text-color: #333333;
+            --order-border-color: #dee2e6;
+            --order-brand-green: #28a745;
+            --order-brand-green-light: #d4edda;
+            --order-brand-green-hover: #218838;
+        }
+        
+        /* 定義本頁面專用的容器，避免與主頁面衝突 */
         .order-management-container {
+            /* 使用上面定義的變數 */
+            --local-component-bg: #f8f9fa;
+            --local-text-color: #333333;
+            --local-border-color: #dee2e6;
+            --local-brand-green: #28a745;
+            --local-brand-green-light: #d4edda;
+            --local-brand-green-hover: #218838;
+            
             width: 100%;
             max-width: 1400px;
             margin: 0 auto;
+            padding: 20px;
+            font-family: 'Karla', '微軟正黑體', Arial, sans-serif;
         }
 
-        .page-title-header {
+        .order-management-container .page-title-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--local-border-color);
         }
 
-        .page-title-header h2 {
+        .order-management-container .page-title-header h2 {
             font-family: 'Karla', sans-serif;
             font-size: 24px;
-            color: var(--text-color);
+            color: var(--local-text-color);
             font-weight: 700;
             margin: 0;
         }
 
-        .control-bar {
-            background: var(--component-bg);
+        .order-management-container .control-bar {
+            background: var(--local-component-bg);
             padding: 15px 20px;
             border-radius: 10px;
             margin-bottom: 20px;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--local-border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -42,45 +65,45 @@
             gap: 15px;
         }
 
-        .filter-group {
+        .order-management-container .filter-group {
             display: flex;
             align-items: center;
             flex-wrap: wrap;
             gap: 20px;
         }
 
-        .filter-select {
-            border: 1px solid var(--border-color);
+        .order-management-container .filter-select {
+            border: 1px solid var(--local-border-color);
             border-radius: 6px;
             padding: 8px 12px;
-            background: var(--primary-bg);
-            color: var(--text-color);
+            background: var(--local-primary-bg);
+            color: var(--local-text-color);
             transition: border-color 0.2s;
         }
-        .filter-select:focus {
-            border-color: var(--brand-green);
+        .order-management-container .filter-select:focus {
+            border-color: var(--local-brand-green);
             outline: none;
         }
 
-        .table-container {
-            background: var(--component-bg);
+        .order-management-container .table-container {
+            background: var(--local-component-bg);
             border-radius: 12px;
             overflow-x: auto;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--local-border-color);
         }
 
-        .table {
+        .order-management-container .table {
             width: 100%;
             border-collapse: collapse;
             margin: 0;
         }
 
-        .table thead {
-            background: var(--brand-green-light);
+        .order-management-container .table thead {
+            background: var(--local-brand-green-light);
         }
 
-        .table th {
-            color: var(--brand-green);
+        .order-management-container .table th {
+            color: var(--local-brand-green);
             font-weight: 700;
             text-align: center;
             vertical-align: middle;
@@ -88,63 +111,80 @@
             border: none;
         }
 
-        .table td {
+        .order-management-container .table td {
             text-align: center;
             vertical-align: middle;
             padding: 12px;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-color);
+            border-top: 1px solid var(--local-border-color);
+            color: var(--local-text-color);
         }
 
-        /* 訂單專用狀態標籤 (保留獨特性) */
-        .status-badge {
+        /* 訂單編號連結樣式 */
+        .order-management-container .order-link {
+            color: var(--local-brand-green);
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .order-management-container .order-link:hover {
+            color: var(--local-brand-green-hover);
+            text-decoration: underline;
+        }
+        
+        /* 訂單專用狀態標籤 */
+        .order-management-container .status-badge {
             padding: 5px 12px;
             border-radius: 15px;
             font-size: 13px;
             font-weight: 500;
         }
-        .status-processing { background-color: #fff3cd; color: #856404; }
-        .status-completed { background-color: #d4edda; color: #155724; }
-        .status-shipped { background-color: #d1ecf1; color: #0c5460; }
-        .status-unknown { background-color: #e9ecef; color: #495057; }
+        .order-management-container .status-processing { background-color: #fff3cd; color: #856404; }
+        .order-management-container .status-completed { background-color: #d4edda; color: #155724; }
+        .order-management-container .status-shipped { background-color: #d1ecf1; color: #0c5460; }
+        .order-management-container .status-pending { background-color: #f8d7da; color: #721c24; }
+        .order-management-container .status-paying { background-color: #d1ecf1; color: #0c5460; }
+        .order-management-container .status-failed { background-color: #f8d7da; color: #721c24; }
+        .order-management-container .status-cancelled { background-color: #e9ecef; color: #495057; }
+        .order-management-container .status-unknown { background-color: #e9ecef; color: #495057; }
 
-
-        /* 操作按鈕 (與 allForum.html 統一) */
-        .action-btn {
+        /* 操作按鈕 */
+        .order-management-container .action-btn {
             display: inline-block;
             text-decoration: none;
             background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 8px 15px; /* <-- 修改：統一 padding */
+            border: 1px solid var(--order-border-color);
+            color: var(--order-text-color);
+            padding: 8px 15px;
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s ease;
             white-space: nowrap;
+            font-size: 14px;
         }
-        .action-btn:hover {
-            background: var(--brand-green-light);
-            color: var(--brand-green);
-            border-color: var(--brand-green);
+        .order-management-container .action-btn:hover {
+            background: var(--order-brand-green-light);
+            color: var(--order-brand-green);
+            border-color: var(--order-brand-green);
         }
 
-        /* 分頁控制項 (與 allForum.html 統一) */
-        .pagination-controls {
+        /* 分頁控制項 */
+        .order-management-container .pagination-controls {
             display: flex;
             justify-content: flex-end;
             align-items: center;
             padding: 20px 0;
         }
-        .pagination {
+        .order-management-container .pagination {
             display: flex;
             padding-left: 0;
             list-style: none;
             margin: 0;
         }
-        .pagination-controls .page-item .page-link {
-            color: var(--brand-green);
-            background-color: var(--component-bg);
-            border: 1px solid var(--border-color);
+        .order-management-container .pagination-controls .page-item .page-link {
+            color: var(--order-brand-green);
+            background-color: var(--order-component-bg);
+            border: 1px solid var(--order-border-color);
             margin: 0 3px;
             padding: 8px 14px;
             border-radius: 6px;
@@ -152,25 +192,25 @@
             text-decoration: none;
             display: block;
         }
-        .pagination-controls .page-item.active .page-link {
+        .order-management-container .pagination-controls .page-item.active .page-link {
             z-index: 1;
             color: #fff;
-            background-color: var(--brand-green);
-            border-color: var(--brand-green);
+            background-color: var(--order-brand-green);
+            border-color: var(--order-brand-green);
         }
-        .pagination-controls .page-item.disabled .page-link {
+        .order-management-container .pagination-controls .page-item.disabled .page-link {
             color: #6c757d;
             pointer-events: none;
             background-color: #e9ecef;
-            border-color: var(--border-color);
+            border-color: var(--order-border-color);
         }
-        .pagination-controls .page-item .page-link:hover:not(.active) {
-            background-color: var(--brand-green-light);
-            border-color: var(--brand-green);
+        .order-management-container .pagination-controls .page-item .page-link:hover:not(.active) {
+            background-color: var(--order-brand-green-light);
+            border-color: var(--order-brand-green);
         }
 
-        /* 錯誤訊息 (從 allForum.html 引入) */
-        #error-message {
+        /* 錯誤訊息 */
+        .order-management-container #error-message {
             color: #e74c3c;
             background-color: #fbecec;
             border: 1px solid #e74c3c;
@@ -180,18 +220,246 @@
             display: none;
         }
 
-        /* 新增按鈕，使用主模板主題色 */
-        .action-btn.btn-add {
-            background-color: var(--brand-green);
-            border-color: var(--brand-green);
+        /* 新增按鈕 */
+        .order-management-container .action-btn.btn-add {
+            background-color: var(--local-brand-green);
+            border-color: var(--local-brand-green);
             color: white;
             font-weight: bold;
         }
-        .action-btn.btn-add:hover {
-            background-color: var(--brand-green-hover);
-            border-color: var(--brand-green-hover);
+        .order-management-container .action-btn.btn-add:hover {
+            background-color: var(--local-brand-green-hover);
+            border-color: var(--local-brand-green-hover);
         }
+        
+        /* Bootstrap Modal 樣式 - 自行實現，避免依賴外部 Bootstrap */
+        .order-management-container .modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .order-management-container .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .order-management-container .modal-dialog {
+            max-width: 95%;
+            width: 95%;
+            margin: 0;
+        }
+        
+        @media (min-width: 1200px) {
+            .order-management-container .modal-dialog {
+                max-width: 1400px;
+            }
+        }
+        
+        .order-management-container .modal-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .order-management-container .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--local-border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--local-brand-green);
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .order-management-container .modal-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .order-management-container .btn-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.8;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .order-management-container .btn-close:hover {
+            opacity: 1;
+        }
+        
+        .order-management-container .modal-body {
+            padding: 24px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .order-management-container .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--local-border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .order-management-container .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .order-management-container .btn-secondary {
+            background: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+        
+        .order-management-container .btn-primary {
+            background: var(--local-brand-green);
+            border-color: var(--local-brand-green);
+            color: white;
+        }
+        
+        .order-management-container .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .order-management-container .detail-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--local-border-color);
+        }
+        .order-management-container .detail-item:last-child {
+            border-bottom: none;
+        }
+        .order-management-container .detail-label {
+            font-weight: bold;
+            color: var(--local-brand-green);
+            margin-bottom: 4px;
+            display: inline-block;
+        }
+        
+        /* 表格樣式 */
+        .order-management-container .table-responsive {
+            overflow-x: auto;
+        }
+        
+        .order-management-container .table-sm th,
+        .order-management-container .table-sm td {
+            padding: 8px;
+            font-size: 14px;
+        }
+        
+        /* 文字樣式 */
+        .order-management-container .text-center {
+            text-align: center;
+        }
+        
+        .order-management-container .text-danger {
+            color: #dc3545;
+        }
+        
+        .order-management-container .text-muted {
+            color: #6c757d;
+        }
+        
+        .order-management-container .text-primary {
+            color: var(--local-brand-green);
+        }
+        
+        .order-management-container .text-success {
+            color: #28a745;
+        }
+        
+        .order-management-container .text-info {
+            color: #17a2b8;
+        }
+        
+        .order-management-container .text-warning {
+            color: #ffc107;
+        }
+        
+        .order-management-container .fw-bold {
+            font-weight: bold;
+        }
+        
+        .order-management-container .mb-3 {
+            margin-bottom: 1rem;
+        }
+        
+        .order-management-container .me-2 {
+            margin-right: 0.5rem;
+        }
+        
+        .order-management-container .my-4 {
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* 網格系統 */
+        .order-management-container .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px;
+        }
+        
+        .order-management-container .col-12 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            padding: 0 15px;
+        }
+        
+        .order-management-container .col-md-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            padding: 0 15px;
+        }
+        
+        @media (min-width: 768px) {
+            .order-management-container .col-md-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+        
+        /* 星星評分特殊樣式 - 保留這個 */
+        .order-management-container .star-rating {
+            font-size: 16px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+        
+        .order-management-container .star-rating .star {
+            color: #ffc107;
+            margin-right: 2px;
+        }
+        
+        .order-management-container .star-rating .star-empty {
+            color: #e0e0e0;
+            margin-right: 2px;
+        }
+        
     </style>
+    
 </head>
 <body>
 
@@ -206,7 +474,8 @@
         </div>
         <div class="filter-group">
             <div>
-                <label for="itemsPerPageFilter">每頁顯示：</label> <select id="itemsPerPageFilter" class="filter-select" onchange="changeItemsPerPage()">
+                <label for="itemsPerPageFilter">每頁顯示：</label> 
+                <select id="itemsPerPageFilter" class="filter-select" onchange="OrderManager.changeItemsPerPage()">
                 <option value="5">5</option>
                 <option value="10" selected>10</option>
                 <option value="20">20</option>
@@ -214,11 +483,15 @@
             </div>
             <div>
                 <label for="statusFilter">篩選狀態：</label>
-                <select id="statusFilter" class="filter-select" onchange="filterByStatus()">
+                <select id="statusFilter" class="filter-select" onchange="OrderManager.filterByStatus()">
                     <option value="">全部狀態</option>
+                    <option value="等待付款">等待付款</option>
+                    <option value="付款處理中">付款處理中</option>
                     <option value="處理中">處理中</option>
                     <option value="已出貨">已出貨</option>
                     <option value="已完成">已完成</option>
+                    <option value="處理失敗">處理失敗</option>
+                    <option value="已取消">已取消</option>
                 </select>
             </div>
         </div>
@@ -232,6 +505,7 @@
             <tr>
                 <th>訂單編號</th>
                 <th>會員編號</th>
+                <th>優惠券代碼</th>
                 <th>訂購時間</th>
                 <th>訂單狀態</th>
                 <th>訂單總額</th>
@@ -240,14 +514,45 @@
             </thead>
             <tbody id="orderTableBody">
             <tr>
-                <td colspan="6" style="text-align:center; padding: 40px;">載入中...</td>
+                <td colspan="7" style="text-align:center; padding: 40px;">載入中...</td>
             </tr>
             </tbody>
         </table>
     </div>
+    
+    <!-- 訂單明細 Modal -->
+        <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-wide">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="orderDetailModalLabel">
+                            <i class="fas fa-file-invoice me-2"></i>訂單明細
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="orderDetailContent">
+                            <div class="text-center">
+                                <i class="fas fa-spinner fa-spin me-2"></i>載入中...
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                        <button type="button" class="btn btn-primary" onclick="OrderManager.printOrder()">
+                            <i class="fas fa-print me-1"></i>列印
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
 
     <nav id="paginationContainer" class="pagination-controls"></nav>
 </div>
+
+<!-- Bootstrap JS - 重要：Modal 需要這個才能工作 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     // 使用 IIFE (Immediately Invoked Function Expression) 避免污染全域範疇
@@ -325,13 +630,16 @@
             orders.forEach(order => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${order.orderNo || 'N/A'}</td>
+                    <td>
+                		<a href="#" class="order-link" onclick="OrderManager.showOrderDetail('${order.orderNo}')">${order.orderNo}</a>
+                	</td>
                     <td>${order.memNo || '訪客'}</td>
+                    <td>${order.couponWalletNo || '無'}</td>
                     <td>${formatDateTime(order.orderDatetime)}</td>
                     <td><span class="status-badge ${getStatusClass(order.orderStatus)}">${order.orderStatus || '未知'}</span></td>
                     <td>$${(order.orderTotal || 0).toLocaleString()}</td>
                     <td>
-                        <button class="action-btn" onclick="editOrder('${order.orderNo}')">
+                        <button class="action-btn" onclick="OrderManager.editOrder('${order.orderNo}')">
                             <i class="bi bi-pencil-square"></i> 修改
                         </button>
                     </td>
@@ -433,15 +741,196 @@
 
         function getStatusClass(status) {
             switch(status) {
-                case '處理中': return 'status-processing';
-                case '已完成': return 'status-completed';
-                case '已出貨': return 'status-shipped';
+	            case '等待付款': return 'status-pending';
+	        	case '付款處理中': return 'status-paying';
+	            case '處理中': return 'status-processing';
+	            case '已出貨': return 'status-shipped';
+	            case '已完成': return 'status-completed';
+	            case '處理失敗': return 'status-failed';
+	            case '已取消': return 'status-cancelled';
                 default: return 'status-unknown';
             }
         }
 
         // --- 初始化頁面 ---
         loadOrders();
+        
+     // 顯示訂單明細
+        function showOrderDetail(orderNo) {
+            // 顯示 Modal
+            const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+            modal.show();
+            
+            // 重置內容
+            document.getElementById('orderDetailContent').innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-spinner fa-spin me-2"></i>載入訂單明細中...
+                </div>
+            `;
+            
+            // 更新 Modal 標題
+            document.getElementById('orderDetailModalLabel').innerHTML = `
+                <i class="fas fa-file-invoice me-2"></i>訂單明細
+            `;
+            
+            // 同時載入訂單資訊和訂單項目
+            Promise.all([
+                fetch(`/api/orders/${orderNo}`),  // 載入訂單基本資訊
+                fetch(`/api/orderitems/orderno/${orderNo}`)  // 載入訂單項目
+            ])
+            .then(responses => {
+                // 檢查所有回應是否成功
+                responses.forEach(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP 錯誤！狀態: ${response.status}`);
+                    }
+                });
+                // 解析 JSON
+                return Promise.all(responses.map(response => response.json()));
+            })
+            .then(([orderDetail, orderItems]) => {
+                // 將訂單項目加入訂單物件
+                orderDetail.orderItems = orderItems;
+                displayOrderDetail(orderDetail);
+            })
+            .catch(error => {
+                console.error('載入訂單明細失敗:', error);
+                document.getElementById('orderDetailContent').innerHTML = `
+                    <div class="text-danger text-center">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        載入失敗：${error.message}
+                    </div>
+                `;
+            });
+        }
+
+        // 顯示訂單明細內容
+        function displayOrderDetail(order) {
+            const content = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>基本資訊</h6>
+                        <div class="detail-item">
+                            <span class="detail-label">訂單編號：</span>
+                            <span>${order.orderNo}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">會員編號：</span>
+                            <span>${order.memNo || '訪客'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">優惠券代碼：</span>
+                            <span>${order.couponWalletNo || '無'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">訂購時間：</span>
+                            <span>${formatDateTime(order.orderDatetime)}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success mb-3"><i class="fas fa-dollar-sign me-2"></i>金額資訊</h6>
+                        <div class="detail-item">
+                            <span class="detail-label">訂單狀態：</span>
+                            <span class="status-badge ${getStatusClass(order.orderStatus)}">${order.orderStatus}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">訂單總額：</span>
+                            <span class="fw-bold text-success">NT$ ${order.orderTotal ? order.orderTotal.toLocaleString() : '0'}</span>
+                        </div>
+                    </div>
+                </div>  
+                
+                <hr class="my-4">
+                
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="text-info mb-3"><i class="fas fa-shopping-bag me-2"></i>訂單項目</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead style="background-color: #f8f9fa; color: #333;">
+                                    <tr>
+                                        <th style="color: #333;">項次</th>
+                                        <th style="color: #333;">產品名稱</th>
+                                        <th style="color: #333;">產品價格</th>
+                                        <th style="color: #333;">訂購數量</th>
+                                        <th style="color: #333;">小計</th>
+                                        <th style="color: #333;">評價星星數</th>
+                                        <th style="color: #333;">評論內容</th>
+                                        <th style="color: #333;">評論時間</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orderItemsTable">
+                                    ${generateOrderItemsHTML(order.orderItems)}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('orderDetailContent').innerHTML = content;
+        }
+        
+        // 產生訂單項目HTML的函數
+        function generateOrderItemsHTML(orderItems) {
+            if (!orderItems || orderItems.length === 0) {
+                return '<tr><td colspan="8" class="text-muted text-center">此訂單暫無商品項目</td></tr>';
+            }
+
+            return orderItems.map((item, index) => `
+                <tr>
+                    <td><strong>${index + 1}</strong></td>
+                    <td>${item.proName || '商品名稱'}</td>
+                    <td>NT$ ${item.proPrice ? item.proPrice.toLocaleString() : '0'}</td>
+                    <td>${item.orderAmount || '0'}</td>
+                    <td>NT$ ${item.subTotal ? item.subTotal.toLocaleString() : calculateSubtotal(item.proPrice, item.orderAmount)}</td>
+                    <td>${generateStarRating(item.proStar)}</td>
+                    <td>${item.productComment || '無評論'}</td>
+                    <td>${formatDateTime(item.productCommentCrdate) || '未評論'}</td>
+                </tr>
+            `).join('');
+        }
+        
+        // 產生星星評分的函數
+        function generateStarRating(rating) {
+            if (!rating || rating === 0) {
+                return '<span class="text-muted">未評分</span>';
+            }
+            
+            let stars = '<div class="star-rating">';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars += '<span class="star">★</span>';
+                } else {
+                    stars += '<span class="star-empty">☆</span>';
+                }
+            }
+            stars += ` <small class="text-muted">(${rating}/5)</small></div>`;
+            return stars;
+        }
+
+        // 計算小計的函數
+        function calculateSubtotal(price, quantity) {
+            const subtotal = (price || 0) * (quantity || 0);
+            return subtotal.toLocaleString();
+        }
+
+        // 列印訂單
+        function printOrder() {
+            window.print();
+        }
+
+        // 將需要全域存取的函數暴露到 window 物件
+        // 這是唯一會影響全域範疇的部分，但只暴露必要的函數
+        window.OrderManager = {
+            showOrderDetail: showOrderDetail,
+            printOrder: printOrder,
+            filterByStatus: filterByStatus,
+            changeItemsPerPage: changeItemsPerPage,
+            changePage: changePage,
+            addNewOrder: addNewOrder,
+            editOrder: editOrder
+        };
 
     })();
 </script>
