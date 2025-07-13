@@ -1,6 +1,5 @@
 package com.pixeltribe.newssys.newsimage.model;
 
-import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -10,4 +9,20 @@ public interface NewsImageRepository extends JpaRepository<NewsImage, Integer> {
 
     List<NewsImageDTO> findNewsImageByNewsNo_Id(Integer newsNoId);
 
+    @Query("""
+            select new com.pixeltribe.newssys.newsimage.model.NewsImageIndexDTO(
+            nl.imgUrl,
+            nl.newsNo.id,
+            nl.newsNo.newsTit,
+            nl.imgType
+            )from NewsImage nl
+            join nl.newsNo n
+            where nl.id in (
+                select min(sub.id)
+                from NewsImage sub
+                group by sub.newsNo.id
+            )
+            order by n.newsCrdate desc
+            """)
+    List<NewsImageIndexDTO> getTopFiveImage();
 }

@@ -1,5 +1,6 @@
 package com.pixeltribe.forumsys.forumpost.model;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pixeltribe.forumsys.entity.PostCollect;
 import com.pixeltribe.forumsys.entity.PostLike;
