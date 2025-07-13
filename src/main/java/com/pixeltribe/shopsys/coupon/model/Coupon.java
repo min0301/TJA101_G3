@@ -18,7 +18,7 @@ import java.time.Instant;
 public class Coupon {
     @Id
     @Column(name = "COU_NO", nullable = false)
-    private Integer id;
+    private Integer couNo;
 
     @Size(max = 25)
     @Column(name = "COU_NAME", length = 25)
