@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>新增文章 - 論壇文章管理</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-          integrity="sha512-Fo3rlrNjHq3R8U6/S3A7+wP9m/8M+2yF8zN4Fp9J5N6d5qKj5K5f5A7f5D5f5+5G5+5Q5+5g5+5h5+5Q=="
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <style>
         /* CSS 樣式區：定義頁面外觀與排版 (保持與你提供的一致) */
@@ -118,6 +118,68 @@
             border: 1px solid #ddd;
             display: none; /* 預設隱藏 */
         }
+
+        .image-source-options {
+            display: flex; /* 讓選項水平排列 */
+            gap: 15px; /* 選項之間的間距 */
+            margin-bottom: 15px; /* 與下方圖片預覽的間距 */
+        }
+
+        .image-source-label {
+            display: flex; /* 讓 radio 和文字水平對齊 */
+            align-items: center; /* 垂直居中對齊 */
+            padding: 10px 15px; /* 點擊區域的內邊距 */
+            border: 1px solid #ccc; /* 邊框 */
+            border-radius: 5px; /* 圓角 */
+            cursor: pointer; /* 滑鼠指針變為手型 */
+            transition: background-color 0.2s, border-color 0.2s; /* 平滑過渡效果 */
+            flex-grow: 1; /* 讓選項均勻分佈可用空間 */
+            justify-content: center; /* 內容水平居中 */
+        }
+
+        .image-source-label:hover {
+            background-color: #f0f0f0; /* 滑鼠懸停時的背景色 */
+            border-color: #999; /* 滑鼠懸停時的邊框顏色 */
+        }
+
+        .image-source-label input[type="radio"] {
+            /* 隱藏原生 radio 按鈕，我們將使用樣式化的 span 來表示選中狀態 */
+            -webkit-appearance: none; /* 移除瀏覽器預設樣式 */
+            -moz-appearance: none;
+            appearance: none;
+            width: 10px; /* 自訂 radio 圓圈大小 */
+            height: 18px;
+            border: 2px solid #aaa;
+            border-radius: 50%; /* 圓形 */
+            margin-right: 10px; /* 與文字的間距 */
+            outline: none; /* 移除點擊時的藍色外框 */
+            cursor: pointer;
+            position: relative; /* 用於自訂圓點 */
+            display: flex; /* 使用 flexbox 讓圓點居中 */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-source-label input[type="radio"]:checked {
+            border-color: #27ae60; /* 選中時的邊框顏色 */
+            background-color: #fff; /* 選中時的背景色，內部圓點會蓋住 */
+        }
+
+        .image-source-label input[type="radio"]:checked::before {
+            /* 選中時內部的圓點 */
+            content: '';
+            width: 10px; /* 內部圓點大小 */
+            height: 10px;
+            background-color: #27ae60; /* 內部圓點顏色 */
+            border-radius: 50%;
+            display: block;
+        }
+
+        /* 確保文字不會因為 radio 隱藏而消失 */
+        .image-source-label span {
+            font-weight: normal; /* 文字不需要加粗，因為外層 label 已經加粗 */
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -152,15 +214,16 @@
 
         <div class="form-group">
             <label>文章封面圖片</label>
-            <div>
-                <input type="radio" id="useDefaultImage" name="imageSource" value="default" checked>
-                <label for="useDefaultImage">使用預設圖片</label>
+            <div class="image-source-options"><label class="image-source-label"> <input type="radio"
+                                                                                        id="useDefaultImage"
+                                                                                        name="imageSource"
+                                                                                        value="default" checked>
+                <span>使用預設圖片</span> </label>
+                <label class="image-source-label"> <input type="radio" id="uploadCustomImage" name="imageSource"
+                                                          value="custom">
+                    <span>上傳自訂圖片</span>
+                </label>
             </div>
-            <div>
-                <input type="radio" id="uploadCustomImage" name="imageSource" value="custom">
-                <label for="uploadCustomImage">上傳自訂圖片</label>
-            </div>
-
             <img id="defaultImagePreview" src="" alt="預設圖片預覽" style="display: none;">
             <input type="file" id="postCoverImageFile" name="imageFile" accept="image/*" style="display: none;">
         </div>
@@ -197,7 +260,7 @@
         // 定義預設圖片的映射關係
         // 假設您的圖片都放在 /resources/imgseed/forumposttag_img/
         // 並以文章類別 ID 作為檔案名 (例如 1.jpg, 2.jpg 等)
-        const DEFAULT_IMAGE_BASE_PATH = '/resources/imgseed/forumposttag_img/';
+        const DEFAULT_IMAGE_BASE_PATH = 'http://localhost:8080/images/forumposttag_img/';
         const DEFAULT_IMAGE_MAP = {
             // 範例：映射類別 ID 到圖片名稱
             // 這些 ID 和圖片名稱需要根據您的實際情況進行配置
@@ -286,13 +349,14 @@
                 defaultImagePreview.style.display = 'none';
                 defaultImagePreview.src = ''; // 清空預覽圖片
                 postCoverImageFileInput.style.display = 'block';
+
             }
         }
 
         // --- 根據選定的文章類別更新預設圖片預覽 ---
         function updateDefaultImagePreview() {
             const selectedOption = ftagNoSelect.options[ftagNoSelect.selectedIndex];
-            const defaultImageName = selectedOption ? selectedOption.dataset.defaultImage : '';
+            const defaultImageName = selectedOption && selectedOption.dataset.defaultImage ? selectedOption.dataset.defaultImage : '';
 
             if (useDefaultImageRadio.checked && defaultImageName) {
                 selectedDefaultImageUrl = DEFAULT_IMAGE_BASE_PATH + defaultImageName;
@@ -328,7 +392,7 @@
                 postCon: postConTextarea.value.trim(),
                 postPin: '0', // 預設為 '0' (不置頂)
                 postStatus: '1', // 預設為 '1' (公開)
-                memNoId: 1,
+                memNoId: 1, //[可變] 會員ID 暫時固定為 1
             };
 
             // 將 DTO 物件轉換為 JSON 字串並作為 Blob 添加到 FormData 中
@@ -368,7 +432,7 @@
                     throw new Error(errorMessage || `發生錯誤，狀態碼: ${response.status}`);
                 }
 
-                showMessage('文章新增成功！2秒後將返回文章列表頁。', 'success');
+                showMessage('文章新增成功！1秒後將返回文章列表頁。', 'success');
                 form.reset();
                 defaultImagePreview.style.display = 'none'; // 重置時隱藏圖片
                 selectedDefaultImageUrl = ''; // 清空預設圖片URL
@@ -387,6 +451,31 @@
             } finally {
                 submitButton.disabled = false;
                 submitButton.textContent = '確認新增';
+            }
+        });
+        postCoverImageFileInput.addEventListener('change', function () { // 變數名稱 `postCoverImageFileInput` 不可變
+            if (this.files && this.files[0]) { // 變數名稱 `this.files` 不可變
+                // 創建 FileReader 物件來讀取檔案內容
+                const reader = new FileReader(); // 變數名稱 `reader` 不可變
+
+                // 當 FileReader 完成讀取時觸發
+                reader.onload = function (e) { // 變數名稱 `e` 不可變
+                    // 將讀取到的圖片資料 (base64 編碼的 URL) 設定給預覽圖片的 src
+                    defaultImagePreview.src = e.target.result; // 變數名稱 `e.target.result` 不可變
+                    defaultImagePreview.style.display = 'block'; // 確保預覽圖片顯示出來
+                    // 確保選擇自訂圖片時，預設圖片的 Radio 按鈕沒有被選中
+                    uploadCustomImageRadio.checked = true; // 變數名稱 `uploadCustomImageRadio` 不可變
+                };
+
+                // 以 Data URL (base64) 的形式讀取檔案
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                // 如果用戶選擇了檔案但後來取消選擇 (例如點擊取消按鈕)
+                defaultImagePreview.src = ''; // 清空預覽圖片來源
+                defaultImagePreview.style.display = 'none'; // 隱藏預覽圖片
+                // 如果取消選擇，自動切換回使用預設圖片的 Radio 按鈕
+                useDefaultImageRadio.checked = true; // 變數名稱 `useDefaultImageRadio` 不可變
+                handleImageSourceChange(); // 變數名稱 `handleImageSourceChange` 不可變
             }
         });
 

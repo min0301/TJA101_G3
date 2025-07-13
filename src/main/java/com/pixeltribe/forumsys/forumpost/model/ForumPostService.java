@@ -7,6 +7,7 @@ import com.pixeltribe.forumsys.forum.model.ForumRepository;
 import com.pixeltribe.forumsys.forumtag.model.ForumTag;
 import com.pixeltribe.forumsys.forumtag.model.ForumTagRepository;
 import com.pixeltribe.membersys.member.model.MemRepository;
+import com.pixeltribe.membersys.member.model.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,7 @@ public class ForumPostService {
     private String baseUrl;
 
     private static final Map<Integer, String> DEFAULT_IMAGE_MAP = new HashMap<>(); // 變數名稱 `DEFAULT_IMAGE_MAP` 不可變，通常作為常數
+
     static {
         // 這些 ID 和圖片名稱需要根據您的實際情況進行配置
         DEFAULT_IMAGE_MAP.put(1, "01.jpg");
@@ -66,30 +68,31 @@ public class ForumPostService {
     }
 
     // --- CRUD 操作 (返回 DTO) ---
+
     /**
      * 根據文章類別 ID 獲取其預設圖片 URL。
      *
      * @param categoryId 文章類別 ID。
      * @return 預設圖片的完整 URL。
      */
-    public String getCategorDefaultImageUrl(Integer categoryId) { // 方法名稱 `getCategorDefaultImageUrl` 可變
+    public String getCategoryDefaultImageUrl(Integer categoryId) { // 方法名稱 `getCategorDefaultImageUrl` 可變
         String imageName = DEFAULT_IMAGE_MAP.get(categoryId); // 變數名稱 `imageName` 可變
         if (imageName != null) {
             // 注意：這裡的路徑需要與您的 Spring Boot 靜態資源映射一致
             // 如果圖片在 src/main/resources/imgseed/forumposttag_img/，則路徑應該是 /imgseed/forumposttag_img/
             // 並搭配 baseUrl
-            return baseUrl + "/imgseed/forumposttag_img/" + imageName;
+            return baseUrl + "/images/forumposttag_img/" + imageName;
         }
         // 如果沒有找到對應的圖片，返回一個通用的預設圖片
-        return baseUrl + "/imgseed/forumposttag_img/default.jpg"; // 提供一個通用的預設路徑
+        return baseUrl + "/images/forumposttag_img/default.jpg"; // 提供一個通用的預設路徑
     }
 
     /**
      * 新增文章。
      * 接收 ForumPostUpdateDTO 和 MultipartFile，處理圖片儲存並保存文章。
      *
-     * @param forumPostDTO    包含文章文字資訊的 DTO。
-     * @param imageFile       文章封面圖片檔案 (可選)。
+     * @param forumPostDTO                包含文章文字資訊的 DTO。
+     * @param imageFile                   文章封面圖片檔案 (可選)。
      * @param defaultImageUrlFromFrontend
      * @return 新增後的 ForumPostDTO。
      */
@@ -108,7 +111,7 @@ public class ForumPostService {
         forumPost.setPostUpdate(Instant.now()); // 設定更新時間
 
         // 查找並設定關聯實體
-//        Member member = memRepository.findById(forumPostDTO.getMemId())
+//        Member member = memRepository.findById(1)
 //                .orElseThrow(() -> new ResourceNotFoundException("找不到會員 ID: " + forumPostDTO.getMemId()));
 //        forumPost.setMemNo(member);
 
@@ -119,28 +122,25 @@ public class ForumPostService {
         ForumTag forumTag = forumTagRepository.findById(forumPostDTO.getFtagNoId())
                 .orElseThrow(() -> new ResourceNotFoundException("找不到文章類別 ID: " + forumPostDTO.getFtagNoId()));
         forumPost.setFtagNo(forumTag);
-         // 判斷使用者是否有上傳圖片檔案
-//        Integer selectedCategoryId = null;
+        // 判斷使用者是否有上傳圖片檔案
+
         if (imageFile != null && !imageFile.isEmpty()) {
-            String imageUrl = processImageFile(imageFile, "forumsys/forumpost"); // 變數名稱 `imageUrl` 可變
+            // 如果有上傳自訂圖片，則處理並使用上傳圖片的 URL
+            String imageUrl = processImageFile(imageFile, "forumsys/forumpost");
             forumPost.setPostImageUrl(imageUrl);
-        }
-        // 如果沒有上傳圖片，且有選擇文章類別 (selectedCategoryId 由前端傳入時代表用戶選擇了預設圖片選項)
-        else if (defaultImageUrlFromFrontend != null && !defaultImageUrlFromFrontend.isEmpty()) {
+        } else if (defaultImageUrlFromFrontend != null && !defaultImageUrlFromFrontend.isEmpty()) {
+            // 如果沒有上傳自訂圖片，但前端傳來了預設圖片的 URL，則使用該 URL
             forumPost.setPostImageUrl(defaultImageUrlFromFrontend);
         } else {
-            // 如果既沒有上傳圖片，也沒有選擇預設類別，可以設置一個通用預設圖片
-            forumPost.setPostImageUrl(baseUrl + "/imgseed/forumposttag)img/09.jpg"); // 提供一個最終的預設路徑
+            // 如果兩者都沒有，可以設置一個通用預設圖片或根據文章類別 ID 獲取預設圖片
+            // 這裡可以考慮根據 ftagNoId 再次獲取預設圖片，作為最終備用
+            forumPost.setPostImageUrl(getCategoryDefaultImageUrl(forumPostDTO.getFtagNoId())); // 優先使用該類別的預設圖片
         }
-
-
-        // 處理圖片儲存
-        String imageUrl = processImageFile(imageFile, "forumsys/forumpost"); // 變數名稱 `imageUrl` 可變
-        forumPost.setPostImageUrl(imageUrl);
 
         ForumPost savedForumPost = forumPostRepository.save(forumPost);
         return new ForumPostDTO(savedForumPost); // 返回 DTO
     }
+
 
     /**
      * 更新文章。
@@ -180,7 +180,7 @@ public class ForumPostService {
 
         // 處理圖片更新
         String imageUrl = processImageFile(imageFile, "forumsys/forumpost");
-        if (imageUrl != null) { // 如果有新圖片上傳，則更新 URL
+        if (imageUrl != null && !imageFile.isEmpty()) { // 如果有新圖片上傳，則更新 URL
             existingPost.setPostImageUrl(imageUrl);
         }
 
@@ -288,8 +288,4 @@ public class ForumPostService {
         }
         return null; // 沒有上傳圖片，返回 null
     }
-
-    // 移除原始的 insertPost 方法，因為它功能與 addForumPost 重複
-    // @Transactional
-    // public ForumPostDTO insertPost(...) { ... }
 }
