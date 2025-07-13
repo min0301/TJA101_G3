@@ -6,12 +6,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.pixeltribe.membersys.member.model.MemRepository;
 import com.pixeltribe.membersys.member.model.Member;
-
+import com.pixeltribe.shopsys.cart.model.CartService;
+import com.pixeltribe.shopsys.cart.model.CartDTO;
 import com.pixeltribe.shopsys.order.exception.OrderNotFoundException;
 import com.pixeltribe.shopsys.order.model.OrderDTO.OrderStatusInfo;
 import com.pixeltribe.shopsys.orderItem.model.CreateOrderItemRequest;
@@ -30,6 +32,9 @@ import lombok.extern.slf4j.Slf4j;
 public class OrderService {
 	
 	@Autowired
+	private CartService cartService;
+	
+	@Autowired
 	private OrderRepository orderRepository;
 	
 	@Autowired
@@ -40,6 +45,9 @@ public class OrderService {
     
     @Autowired
     private MemRepository memRepository;
+    
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 	
 	//  ========== 新增 ========== //
 	//  訂單編號、會員編號、優惠票夾代碼、訂購時間、訂購狀態、訂單總額、使用積分
@@ -122,18 +130,42 @@ public class OrderService {
                 log.info("PAYMENT_AUDIT|orderNo={}|action=START_PAYMENT|oldStatus={}|newStatus={}|timestamp={}", 
                         orderNo, oldStatus, newStatus, timestamp);
                 break;
+                
             case "PROCESSING":
                 log.info("PAYMENT_AUDIT|orderNo={}|action=PAYMENT_SUCCESS|oldStatus={}|newStatus={}|timestamp={}", 
                         orderNo, oldStatus, newStatus, timestamp);
+                // 付款成功時，清空購物車
+                try {
+                    cartService.clearCart(order.getMemNo().getId());
+                    log.info("付款成功，已清空購物車：orderNo={}, memNo={}", 
+                            orderNo, order.getMemNo().getId());
+                } catch (Exception e) {
+                    log.error("清空購物車失敗：orderNo={}, memNo={}", 
+                             orderNo, order.getMemNo().getId(), e);
+                }
                 break;
+                
+            case "SHIPPED":  // 序號已發送狀態
+                log.info("PAYMENT_AUDIT|orderNo={}|action=SERIAL_DELIVERED|oldStatus={}|newStatus={}|timestamp={}", 
+                        orderNo, oldStatus, newStatus, timestamp);
+                log.info("數位商品序號已發送：orderNo={}", orderNo);
+                break;    
+                
             case "COMPLETED":
                 log.info("PAYMENT_AUDIT|orderNo={}|action=ORDER_COMPLETED|oldStatus={}|newStatus={}|timestamp={}", 
                         orderNo, oldStatus, newStatus, timestamp);
                 break;
+                
             case "FAILED":
                 log.info("PAYMENT_AUDIT|orderNo={}|action=PAYMENT_FAILED|oldStatus={}|newStatus={}|timestamp={}", 
                         orderNo, oldStatus, newStatus, timestamp);
                 break;
+            
+            case "CANCELLED":
+                log.info("PAYMENT_AUDIT|orderNo={}|action=ORDER_CANCELLED|oldStatus={}|newStatus={}|timestamp={}", 
+                        orderNo, oldStatus, newStatus, timestamp);
+                break;   
+                
             default:
                 // 記錄其他狀態變更
                 log.info("PAYMENT_AUDIT|orderNo={}|action=STATUS_CHANGE|oldStatus={}|newStatus={}|timestamp={}", 
@@ -150,6 +182,57 @@ public class OrderService {
             throw new RuntimeException("更新訂單狀態失敗：" + e.getMessage());
         }
     }
+	
+	
+	// ========== 發貨檢查方法 ========== //
+		    
+		    /*
+		     1. 檢查訂單所有商品是否都已發貨
+		     2. @param orderNo 訂單編號
+		     3. @return 是否全部發貨
+		     */
+		    public boolean areAllItemsShipped(Integer orderNo) {
+		        try {
+		            // 檢查該訂單的所有商品項目是否都已分配序號
+		            String sql = "SELECT COUNT(*) FROM order_item oi " +
+		                        "LEFT JOIN pro_serial_numbers psn ON oi.order_item_no = psn.order_item_no " +
+		                        "WHERE oi.order_no = ? AND psn.product_sn IS NULL";
+		            
+		            Integer unshippedCount = jdbcTemplate.queryForObject(sql, Integer.class, orderNo);
+		            
+		            boolean allShipped = (unshippedCount != null && unshippedCount == 0);
+		            log.debug("訂單發貨檢查：orderNo={}, 未發貨商品數={}, 全部發貨={}", 
+		                     orderNo, unshippedCount, allShipped);
+		            
+		            return allShipped;
+		            
+		        } catch (Exception e) {
+		            log.error("檢查訂單發貨狀態失敗：orderNo={}", orderNo, e);
+		            return false;
+		        }
+		    }
+
+		    /*
+		     1. 檢查並更新訂單發貨狀態
+		     2. @param orderNo 訂單編號
+		     3. @return 是否已完全發貨
+		     */
+		    public boolean checkAndUpdateShippingStatus(Integer orderNo) {
+		        try {
+		            if (areAllItemsShipped(orderNo)) {
+		                // 如果全部商品都已發貨，更新訂單狀態
+		                updateOrderStatus(orderNo, "SHIPPED");
+		                log.info("訂單全部商品已發貨，狀態已更新：orderNo={}", orderNo);
+		                return true;
+		            }
+		            return false;
+		        } catch (Exception e) {
+		            log.error("檢查並更新訂單發貨狀態失敗：orderNo={}", orderNo, e);
+		            return false;
+		        }
+		    }
+	
+	
 	
 	/*  
 	1. 查詢會員的所有訂單
@@ -222,6 +305,54 @@ public class OrderService {
 
 	    } catch (Exception e) {
 	        log.error("建立訂單失敗：memNo={}", memNo, e);
+	        throw new RuntimeException("建立訂單失敗：" + e.getMessage());
+	    }
+	}
+	
+	// 從購物車建立訂單的方法
+		/*  
+		1. 從購物車建立訂單 (完整版本)
+		2. 取得購物車資料並轉換為訂單
+		*/
+	public OrderDTO createOrderFromCart(Integer memNo, String contactEmail, String contactPhone) {
+	    try {
+	        log.info("從購物車建立訂單：memNo={}", memNo);
+
+	        // 1. 取得購物車資料
+	        CartDTO cart = cartService.getMemberCart(memNo);
+	        
+	        // 2. 驗證購物車不為空
+	        if (cart.getItem() == null || cart.getItem().isEmpty()) {
+	            throw new RuntimeException("購物車為空，無法建立訂單");
+	        }
+	        
+	        log.info("購物車商品數量：{}", cart.getItem().size());
+	        
+	        // 3. 轉換購物車商品為訂單項目
+	        List<CreateOrderItemRequest> orderItems = cart.getItem().stream()
+	                .map(item -> {
+	                    CreateOrderItemRequest orderItem = new CreateOrderItemRequest();
+	                    orderItem.setProNo(item.getProNo());
+	                    orderItem.setQuantity(item.getProNum());
+	                    return orderItem;
+	                })
+	                .collect(Collectors.toList());
+	        
+	        // 4. 建立訂單請求
+	        CreateOrderRequest orderRequest = new CreateOrderRequest();
+	        orderRequest.setContactEmail(contactEmail);
+	        orderRequest.setContactPhone(contactPhone);
+	        orderRequest.setOrderItems(orderItems);
+	        
+	        // 5. 建立訂單（使用現有邏輯）
+	        OrderDTO order = createOrder(orderRequest, memNo);
+	        
+	        // 6. 訂單建立成功，購物車將在付款成功時清空
+	        log.info("從購物車建立訂單成功：orderNo={}, 購物車保留待付款完成後清空", order.getOrderNo());
+	        return order;
+	        
+	    } catch (Exception e) {
+	        log.error("從購物車建立訂單失敗：memNo={}", memNo, e);
 	        throw new RuntimeException("建立訂單失敗：" + e.getMessage());
 	    }
 	}

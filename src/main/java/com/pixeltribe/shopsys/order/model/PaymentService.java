@@ -12,8 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +21,7 @@ import org.springframework.util.StringUtils;
 import com.pixeltribe.shopsys.orderItem.model.OrderItemDTO;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.mail.internet.MimeMessage;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -37,7 +36,7 @@ public class PaymentService {
 	private OrderService orderService;
 	
 	@Autowired
-	private JavaMailSender mailSender;
+	private EmailService emailService;
 	
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -479,7 +478,7 @@ public class PaymentService {
 	            }
 	            
 	            // 4. 發送預購到貨郵件
-	            sendPreOrderDeliveryEmail(order, preOrderItem.getProductName(), serialNumber);
+	            emailService.sendPreOrderDeliveryEmail(order, preOrderItem.getProductName(), serialNumber);
 	            
 	            log.info("預購訂單處理完成：orderNo={}, orderItemNo={}, serial={}", 
 	                    orderNo, preOrderItem.getOrderItemNo(), serialNumber);
@@ -514,7 +513,7 @@ public class PaymentService {
 	            }
 	            
 	            // 4. 發送付款成功郵件 (含現貨序號 + 預購說明)
-	            sendPaymentSuccessEmail(order, inStockSerials, preOrderItems);
+	            emailService.sendPaymentSuccessEmail(order, inStockSerials, preOrderItems);
 	            
 	            // 5. 更新訂單狀態為已完成
 	            orderService.updateOrderStatus(order.getOrderNo(), "COMPLETED");
@@ -602,164 +601,6 @@ public class PaymentService {
 	        }
 	    }
     
-	    // ========== Email流程處理 ========== //
-	    /* 
-	   	 1. 發送付款成功郵件 (含現貨序號 + 預購說明)
-	   	 2. @param order 訂單
-	   	 3. @param inStockSerials 現貨序號列表
-	   	 4. @param preOrderItems 預購商品列表
-	   	 */
-	    private void sendPaymentSuccessEmail(OrderDTO order, List<String> inStockSerials, List<OrderItemDTO> preOrderItems) {
-	        try {
-	            log.info("開始發送付款成功郵件：orderNo={}", order.getOrderNo());
-	            
-	            MimeMessage message = mailSender.createMimeMessage();
-	            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-	            
-	            helper.setTo(order.getContactEmail());
-	            helper.setSubject("付款成功確認 - 訂單 #" + order.getOrderNo());
-	            
-	            String emailContent = buildPaymentSuccessEmailContent(order, inStockSerials, preOrderItems);
-	            helper.setText(emailContent, true);
-	            
-	            mailSender.send(message);
-	            log.info("付款成功郵件發送完成：orderNo={}", order.getOrderNo());
-	            
-	        } catch (Exception e) {
-	            log.error("發送付款成功郵件失敗：orderNo={}", order.getOrderNo(), e);
-	        }
-	    }
-	    
-	    /* 
-	   	 1. 發送預購產品已上架並寄出序號
-	   	 2. @param order 訂單
-	   	 3. @param proName 商品名稱
-	   	 4. @param serialNumber 序號
-	   	 */
-	    private void sendPreOrderDeliveryEmail(OrderDTO order, String proName, String productSn) {
-	        try {
-	            log.info("開始發送預購到貨E-mail郵件：orderNo={}, product={}", order.getOrderNo(), proName);
-	            
-	            MimeMessage message = mailSender.createMimeMessage();
-	            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-	            
-	            helper.setTo(order.getContactEmail());
-	            helper.setSubject("預購產品到貨通知 - " + proName);
-	            
-	            String emailContent = buildPreOrderDeliveryEmailContent(order, proName, productSn);
-	            helper.setText(emailContent, true);
-	            
-	            mailSender.send(message);
-	            log.info("預購到貨郵件發送完成：orderNo={}", order.getOrderNo());
-	            
-	        } catch (Exception e) {
-	            log.error("發送預購到貨郵件失敗：orderNo={}", order.getOrderNo(), e);
-	        }
-	    }
-	    
-	    
-	    /* 
-	   	 1. 建立付款成功郵件內容
-	   	 2. @param order 訂單
-	   	 3. @param inStockSerials 現貨序號列表
-	   	 4. @param preOrderItems 預購商品列表
-	   	 5. @return HTML 郵件內容
-	   	 */
-	    private String buildPaymentSuccessEmailContent(OrderDTO order, List<String> inStockSerials, List<OrderItemDTO> preOrderItems) {
-	        StringBuilder content = new StringBuilder();
-	        
-	        content.append("<html><head><meta charset='UTF-8'></head><body>");
-	        content.append("<h2>付款成功確認</h2>");
-	        content.append("<p>親愛的客戶您好，您的訂單已付款成功！</p>");
-	        
-	        // 訂單基本資訊
-	        content.append("<h3>訂單明細</h3>");
-	        content.append("<table border='1' style='border-collapse: collapse; width: 100%;'>");
-	        content.append("<tr><td><strong>訂單編號</strong></td><td>#").append(order.getOrderNo()).append("</td></tr>");
-	        content.append("<tr><td><strong>付款時間</strong></td><td>").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("</td></tr>");
-	        content.append("<tr><td><strong>總金額</strong></td><td>NT$ ").append(order.getOrderTotal()).append("</td></tr>");
-	        content.append("</table>");
-	        
-	        // 商品清單
-	        content.append("<h3>產品清單</h3>");
-	        content.append("<table border='1' style='border-collapse: collapse; width: 100%;'>");
-	        content.append("<tr><th>產品名稱</th><th>價格</th><th>狀態</th><th>序號</th></tr>");
-	        
-	        int serialIndex = 0;
-	        for (OrderItemDTO item : order.getOrderItems()) {
-	            content.append("<tr>");
-	            content.append("<td>").append(item.getProductName()).append("</td>");
-	            content.append("<td>NT$ ").append(item.getProPrice()).append("</td>");
-	            
-	            // 根據序號庫存判斷商品狀態
-	            if (isProductInStock(item.getProNo()) && serialIndex < inStockSerials.size()) {
-	                content.append("<td>現貨</td>");
-	                content.append("<td><strong>").append(inStockSerials.get(serialIndex++)).append("</strong></td>");
-	            } else {
-	                content.append("<td>預購中</td>");
-	                content.append("<td>到貨後發送</td>");
-	            }
-	            content.append("</tr>");
-	        }
-	        
-	        content.append("</table>");
-	        
-	        // 預購說明
-	        if (!preOrderItems.isEmpty()) {
-	            content.append("<h3>預購產品說明</h3>");
-	            content.append("<p>您有 <strong>").append(preOrderItems.size()).append("</strong> 項預購產品</p>");
-	            content.append("<p>預購產品將於到貨後立即為您發放序號，屆時會再發送郵件通知</p>");
-	            content.append("<p>我們會在產品上架後的 <strong>1個工作天</strong> 自動發送序號給您</p>");
-	        }
-	        
-	        content.append("<hr>");
-	        content.append("<p>感謝您的支持！<br><strong>像素部落商城</strong></p>");
-	        content.append("</body></html>");
-	        
-	        return content.toString();
-	    }
-	    
-	    
-	    /* 
-	   	 1. 建立預購到貨郵件內容
-	   	 2. @param order 訂單
-	   	 3. @param proName 產品名稱
-	   	 4. @param productSn 序號
-	   	 5. @return HTML 郵件內容
-	   	 */
-	    private String buildPreOrderDeliveryEmailContent(OrderDTO order, String proName, String productSn) {
-	        StringBuilder content = new StringBuilder();
-	        
-	        content.append("<html><head><meta charset='UTF-8'></head><body>");
-	        content.append("<h2>預購產品到貨通知</h2>");
-	        content.append("<p>親愛的客戶您好，您預購的產品已到貨！</p>");
-	        
-	        content.append("<h3>產品資訊</h3>");
-	        content.append("<table border='1' style='border-collapse: collapse; width: 100%;'>");
-	        content.append("<tr><td><strong>訂單編號</strong></td><td>#").append(order.getOrderNo()).append("</td></tr>");
-	        content.append("<tr><td><strong>產品名稱</strong></td><td>").append(proName).append("</td></tr>");
-	        content.append("<tr><td><strong>到貨時間</strong></td><td>").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("</td></tr>");
-	        content.append("</table>");
-	        
-	        content.append("<h3>遊戲序號</h3>");
-	        content.append("<div style='background: #f0f8ff; padding: 20px; margin: 10px 0; border: 2px solid #4169e1; border-radius: 8px; text-align: center;'>");
-	        content.append("<p style='margin: 0; font-size: 14px; color: #666;'>請複製以下序號到遊戲中啟用</p>");
-	        content.append("<div style='font-size: 24px; font-weight: bold; color: #4169e1; margin: 10px 0; font-family: monospace;'>");
-	        content.append(productSn);
-	        content.append("</div>");
-	        content.append("</div>");
-	        
-	        content.append("<h3>使用說明</h3>");
-	        content.append("<p>請儘快使用序號啟用遊戲</p>");
-	        content.append("<p>如有問題請聯繫客服</p>");
-	        content.append("<p>序號僅能使用一次，請妥善保存</p>");
-	        
-	        content.append("<hr>");
-	        content.append("<p>感謝您的耐心等待！<br><strong>像素部落商城</strong></p>");
-	        content.append("</body></html>");
-	        
-	        return content.toString();
-	    }
 	    
 	    // ========== 付款成功/失敗處理 ========== //
 	    /* 
@@ -822,6 +663,15 @@ public class PaymentService {
 	            failureInfo.put("reason", reason);
 	            failureInfo.put("failureTime", LocalDateTime.now().toString());
 	            updatePaymentStatusInRedis(orderNo, "FAILED", failureInfo);
+	            
+	            // 發送付款失敗郵件
+	            try {
+	                OrderDTO order = orderService.getOrderDetail(orderNo);
+	                emailService.sendPaymentFailedEmail(order, reason);
+	                log.info("付款失敗郵件已發送：orderNo={}", orderNo);
+	            } catch (Exception emailEx) {
+	                log.error("發送付款失敗郵件失敗：orderNo={}", orderNo, emailEx);
+	            }
 	            
 	            log.info("付款失敗處理完成：orderNo={}, reason={}", orderNo, reason);
 	            
@@ -903,6 +753,7 @@ public class PaymentService {
 	    
 	    
 	    // ========== 私有工具方法 ========== //
+
 	    /* 
 	   	 1. 生成交易編號
 	   	 2. @param orderNo 訂單編號
