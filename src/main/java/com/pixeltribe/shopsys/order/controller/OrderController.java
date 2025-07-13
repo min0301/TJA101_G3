@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pixeltribe.shopsys.order.model.Order;
+import com.pixeltribe.shopsys.order.model.OrderDTO;
 import com.pixeltribe.shopsys.order.model.OrderRepository;
+import com.pixeltribe.shopsys.order.model.OrderService;
 
 
 @RestController
@@ -23,6 +25,9 @@ public class OrderController {
 	
 	@Autowired
 	private OrderRepository orderRepository;
+	
+	@Autowired
+	private OrderService orderService;
 	
 	
 	@GetMapping("orders")
@@ -85,4 +90,9 @@ public class OrderController {
 	    return orderMap;
 	}
 	
+	@GetMapping("/orders/member/{id}")
+	public List<OrderDTO> getOrderByMemId(@PathVariable Integer id){
+	    List<OrderDTO> orders = orderService.getmemOrders(id);
+	    return orders;
+	}
 }

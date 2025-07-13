@@ -16,11 +16,11 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 	Order findByOrderNo(Integer orderNo);
 	
 	// 根據會員編號查詢訂單，按時間降序排列
-    @Query(value = "SELECT * FROM order_table o WHERE o.MEM_NO = :memNo ORDER BY o.ORDER_DATETIME DESC", nativeQuery = true)
+    @Query(value = "SELECT * FROM `order` o WHERE o.MEM_NO = :memNo ORDER BY o.ORDER_DATETIME DESC", nativeQuery = true)
     List<Order> findByMemNoOrderByOrderDatetimeDesc(@Param("memNo") Integer memNo);
     
     // 根據會員編號查詢訂單，按訂單編號降序排列
-    @Query(value = "SELECT * FROM order_table o WHERE o.MEM_NO = :memNo ORDER BY o.ORDER_NO DESC", nativeQuery = true)
+    @Query(value = "SELECT * FROM `order` o WHERE o.MEM_NO = :memNo ORDER BY o.ORDER_NO DESC", nativeQuery = true)
     List<Order> findByMemNoOrderByOrderNoDesc(@Param("memNo") Integer memNo);
 	
 	

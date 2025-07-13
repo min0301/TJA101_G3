@@ -154,7 +154,7 @@ public class OrderService {
 	/*  
 	1. 查詢會員的所有訂單
 	*/
-	public List<OrderDTO> getmenOrders(Integer memNo) {
+	public List<OrderDTO> getmemOrders(Integer memNo) {
         try {
             log.debug("查詢會員訂單：memNo={}", memNo);
             
