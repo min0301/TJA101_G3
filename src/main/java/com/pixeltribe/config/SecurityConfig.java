@@ -17,6 +17,10 @@ class SecurityConfig {
 
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
     // 【新增】密碼加密器的 Bean
     @Bean
     public PasswordEncoder passwordEncoder() {

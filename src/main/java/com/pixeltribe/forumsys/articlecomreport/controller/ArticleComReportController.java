@@ -4,10 +4,12 @@ import com.pixeltribe.forumsys.articlecomreport.model.ArticleComReportCreateDTO;
 import com.pixeltribe.forumsys.articlecomreport.model.ArticleComReportDTO;
 import com.pixeltribe.forumsys.articlecomreport.model.ArticleComReportService;
 import com.pixeltribe.forumsys.articlecomreport.model.ArticleComReportUpdateDTO;
+import com.pixeltribe.membersys.security.MemberDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,10 +29,12 @@ public class ArticleComReportController {
             summary = "新增文章留言檢舉"
     )
     public ResponseEntity<ArticleComReportDTO> addArticleComReport(
-            @Valid @RequestBody ArticleComReportCreateDTO articleComReportCreateDTO
+            @Valid @RequestBody ArticleComReportCreateDTO articleComReportCreateDTO,
+            @AuthenticationPrincipal MemberDetails currentUser
     ) {
+        Integer memberId = currentUser.getMemberId();
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                articleComReportService.add(articleComReportCreateDTO));
+                articleComReportService.add(memberId, articleComReportCreateDTO));
     }
 
     @PutMapping("/articlecomreports/{comno}")
