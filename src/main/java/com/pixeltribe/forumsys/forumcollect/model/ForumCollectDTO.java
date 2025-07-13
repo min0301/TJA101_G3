@@ -33,6 +33,7 @@ public class ForumCollectDTO {
                 .fcollUpdate(forumCollect.getFcollUpdate())
                 .forumNo(forumCollect.getForNo().getId())
                 .memberNo(forumCollect.getMemNo().getId())
+                .collectStatus(forumCollect.getCollectStatus().name())
                 .build();
     }
 

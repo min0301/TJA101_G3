@@ -3,10 +3,12 @@ package com.pixeltribe.forumsys.messagelike.controller;
 import com.pixeltribe.forumsys.messagelike.model.ForumMesLikeDTO;
 import com.pixeltribe.forumsys.messagelike.model.ForumMesLikeService;
 import com.pixeltribe.forumsys.messagelike.model.ForumMesLikeUpdateDTO;
+import com.pixeltribe.membersys.security.MemberDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,8 +37,10 @@ public class ForumMesLikeController {
     )
     public ResponseEntity<ForumMesLikeDTO> updateForumMesLike(
             @Valid @RequestBody ForumMesLikeUpdateDTO forumMesLikeUpdateDTO,
-            @PathVariable("mesno") Integer mesNo) {
-        ForumMesLikeDTO forumMesLikecreate = forumMesLikeService.updateLike(mesNo, forumMesLikeUpdateDTO.getMemberId(), forumMesLikeUpdateDTO.getFmlikeStatus());
+            @PathVariable("mesno") Integer mesNo,
+            @AuthenticationPrincipal MemberDetails currentUser) {
+        Integer memberId = currentUser.getMemberId();
+        ForumMesLikeDTO forumMesLikecreate = forumMesLikeService.updateLike(mesNo, memberId, forumMesLikeUpdateDTO.getFmlikeStatus());
         return ResponseEntity.status(HttpStatus.CREATED).body(forumMesLikecreate);
     }
 

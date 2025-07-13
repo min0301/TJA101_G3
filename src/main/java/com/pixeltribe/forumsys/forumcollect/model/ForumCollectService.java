@@ -27,9 +27,9 @@ public class ForumCollectService {
     }
 
     @Transactional
-    public ForumCollectDTO addForumCollect(Integer forNo, ForumCollectUpdateDTO forumCollectUpdateDTO) {
+    public ForumCollectDTO addForumCollect(Integer memberId, Integer forNo, ForumCollectUpdateDTO forumCollectUpdateDTO) {
 
-        Member member = memRepository.findById(forumCollectUpdateDTO.getMemberNo())
+        Member member = memRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到會員, 編號: " + forumCollectUpdateDTO.getMemberNo()));
         Forum forum = forumRepository.findById(forNo)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到論壇文章, 編號: " + forNo));
@@ -52,9 +52,9 @@ public class ForumCollectService {
         return ForumCollectDTO.convertToForumCollectDTO(forumCollectRepository.save(forumCollect));
     }
 
-    public List<ForumCollectDTO> getForumCollectForMenber(Integer memberNo) {
-        Member member = memRepository.findById(memberNo)
-                .orElseThrow(() -> new ResourceNotFoundException("找不到會員, 編號: " + memberNo));
+    public List<ForumCollectDTO> getForumCollectForMenber(Integer memberId) {
+        Member member = memRepository.findById(memberId)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到會員, 編號: " + memberId));
         List<ForumCollect> forumCollect = forumCollectRepository.findByMemNo(member);
         return forumCollect.stream()
                 .map(ForumCollectDTO::convertToForumCollectDTO)
