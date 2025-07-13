@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>留言檢舉管理</title>
+    <style>
+        /* 樣式與 allForum.html / allMessages.html 完全一致，確保視覺統一 */
+        .report-management-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-title-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .page-title-header h2 {
+            font-family: 'Karla', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .control-bar {
+            background: var(--component-bg);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .filter-select {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 12px;
+            background: var(--primary-bg);
+        }
+
+        .table-container {
+            background: var(--component-bg);
+            border-radius: 12px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table thead {
+            background: var(--brand-green-light);
+        }
+
+        .table th {
+            color: var(--brand-green);
+            font-weight: 700;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .table td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .action-btn {
+            display: inline-block;
+            text-decoration: none;
+            border: 1px solid var(--border-color);
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--brand-green-light);
+            color: var(--brand-green);
+            border-color: var(--brand-green);
+        }
+
+        .action-btn.btn-process {
+            background-color: #e67e22;
+            color: white;
+            border-color: #e67e22;
+        }
+
+        /* 處理按鈕用橘色系 */
+        .action-btn.btn-process:hover {
+            background-color: #d35400;
+        }
+
+        .pagination-controls {
+            display: flex;
+            justify-content: flex-end;
+            padding: 20px 0;
+        }
+
+        .pagination {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page-item .page-link {
+            color: var(--brand-green);
+            background-color: var(--component-bg);
+            border: 1px solid var(--border-color);
+            margin: 0 3px;
+            padding: 8px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+
+        .page-item.active .page-link {
+            color: #fff;
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+        }
+
+        #error-message {
+            color: #e74c3c;
+            background-color: #fbecec;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #f1c40f;
+            color: #856404;
+        }
+
+        /* 待處理 */
+        .status-processed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        /* 已處理 */
+    </style>
+</head>
+<body>
+
+<div class="report-management-container">
+    <div class="page-title-header">
+        <h2><i class="bi bi-shield-check item-icon"></i>審核留言檢舉</h2>
+    </div>
+
+    <div class="control-bar">
+        <div class="filter-group">
+            <label for="statusFilter">篩選狀態：</label>
+            <select id="statusFilter" class="filter-select" onchange="filterReports()">
+                <option value="">全部</option>
+                <option value="0" selected>待處理</option>
+                <option value="1">已處理</option>
+            </select>
+            <label for="itemsPerPageFilter">每頁顯示：</label>
+            <select id="itemsPerPageFilter" class="filter-select" onchange="changeItemsPerPage()">
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="error-message"></div>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>檢舉 ID</th>
+                <th>被檢舉留言 ID</th>
+                <th>檢舉者</th>
+                <th>檢舉類型</th>
+                <th>檢舉時間</th>
+                <th>狀態</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="reportTableBody"></tbody>
+        </table>
+    </div>
+
+    <nav id="paginationContainer" class="pagination-controls"></nav>
+</div>
+
+<script>
+    (function () {
+        'use strict';
+        // 【不可變】API 端點，對應 ArticleComReportController 的 getAllArticleComReport
+        const apiUrl = 'http://localhost:8080/api/articlecomreports';
+
+        const tableBody = document.getElementById('reportTableBody');
+        const errorMessageDiv = document.getElementById('error-message');
+        const paginationContainer = document.getElementById('paginationContainer');
+        const itemsPerPageFilter = document.getElementById('itemsPerPageFilter');
+        const statusFilter = document.getElementById('statusFilter');
+
+        let allReportsData = [];
+        let currentPage = 1;
+        let itemsPerPage = 10;
+
+        async function loadReports() {
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error(`HTTP 錯誤: ${response.status}`);
+                allReportsData = await response.json();
+                itemsPerPage = parseInt(itemsPerPageFilter.value, 10);
+                currentPage = 1;
+                updateDisplay();
+            } catch (error) {
+                showError(error);
+            }
+        }
+
+        function updateDisplay() {
+            const currentStatus = statusFilter.value;
+            const filteredData = currentStatus
+                ? allReportsData.filter(report => report.artComRepStatus == currentStatus)
+                : [...allReportsData];
+
+            const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+            renderTableBody(paginatedData);
+            renderPaginationControls(filteredData.length);
+        }
+
+        function renderTableBody(reports) {
+            tableBody.innerHTML = '';
+            if (!reports || reports.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 40px;">找不到符合條件的檢舉案件</td></tr>`;
+                return;
+            }
+
+            reports.forEach(report => {
+                const row = document.createElement('tr');
+                // 【核心】根據 ArticleComReportDTO 的欄位來渲染
+                row.innerHTML = `
+                <td>${report.id}</td>
+                <td>${report.messageNo}</td>
+                <td>${report.member || 'N/A'}</td>
+                <td>${report.reportType || '未知類型'}</td>
+                <td>${formatDateTime(report.createTime)}</td>
+                <td>${getStatusBadge(report.artComRepStatus)}</td>
+                <td>
+                    <a href="#"
+                       onclick="event.preventDefault(); loadExternalPage('../forumsys/messagereport/processReport.html?id=${report.id}')"
+                       class="action-btn btn-process">處理</a>
+                </td>
+            `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function renderPaginationControls(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+            let html = '<ul class="pagination">';
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="event.preventDefault(); changePage(${currentPage - 1})">上一頁</a></li>`;
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" onclick="event.preventDefault(); changePage(${i})">${i}</a></li>`;
+            }
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" onclick="event.preventDefault(); changePage(${currentPage + 1})">下一頁</a></li>`;
+            html += '</ul>';
+            paginationContainer.innerHTML = html;
+        }
+
+        // --- 事件處理與輔助函式 ---
+        window.filterReports = function () {
+            currentPage = 1;
+            updateDisplay();
+        };
+        window.changeItemsPerPage = function () {
+            itemsPerPage = parseInt(itemsPerPageFilter.value, 10);
+            currentPage = 1;
+            updateDisplay();
+        };
+        window.changePage = function (page) {
+            const totalPages = Math.ceil(allReportsData.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            updateDisplay();
+        };
+
+        function getStatusBadge(status) {
+            // 【不可變】後端定義 '0' 為待處理, '1' 為已處理
+            if (status == '0') return `<span class="status-badge status-pending">待處理</span>`;
+            return `<span class="status-badge status-processed">已處理</span>`;
+        }
+
+        function showError(error) {
+            errorMessageDiv.style.display = 'block';
+            errorMessageDiv.innerHTML = `<strong>資料載入失敗！</strong><br>${error.message}`;
+        }
+
+        function formatDateTime(dtStr) {
+            return dtStr ? new Date(dtStr).toLocaleString('zh-TW', {hour12: false}) : '-';
+        }
+
+        loadReports();
+    })();
+</script>
+</body>
+</html>

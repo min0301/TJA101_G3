@@ -34,11 +34,20 @@ public class ForumMesController {
 
     @GetMapping("/posts/message")
     @Operation(
-            summary = "查所有的留言"
+            summary = "查所有開放的留言"
     )
     public List<ForumMesDTO> getAllForumMes() {
 
         return forumMesSvc.getAllForumMes();
+    }
+
+    @GetMapping("/admin/posts/message")
+    @Operation(
+            summary = "查所有的留言"
+    )
+    public List<ForumMesDTO> getAllAdminForumMes() {
+
+        return forumMesSvc.getAllAdminForumMes();
     }
 
     @GetMapping("/posts/{mesno}")

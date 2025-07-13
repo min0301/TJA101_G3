@@ -58,6 +58,15 @@ public class ArticleComReportService {
                 .orElseThrow(() -> new ResourceNotFoundException("找不到文章留言檢舉編號: " + articleComReportNo));
         articleComReport.setArtComRepStatus(articleComReportUpdateDTO.getArtComRepStatus());
         articleComReport.setFinishTime(Instant.now());
+
+        if (Boolean.TRUE.equals(articleComReportUpdateDTO.getHideMessage())) {
+            ForumMes messageToUpdate = articleComReport.getMesNo();
+            if (messageToUpdate != null) {
+                messageToUpdate.setMesStatus('1');
+            }
+        }
+
+
         return ArticleComReportDTO.convertToArticleComReportDTO(articleComReportRepository.save(articleComReport));
     }
 
@@ -66,6 +75,12 @@ public class ArticleComReportService {
         return articleComReportRepository.findAll().stream()
                 .map(ArticleComReportDTO::convertToArticleComReportDTO)
                 .toList();
+    }
+
+    public ArticleComReportDTO getOneArticleComReport(Integer articleComReportNo) {
+        ArticleComReport articleComReport = articleComReportRepository.findById(articleComReportNo)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到文章留言檢舉編號: " + articleComReportNo));
+        return ArticleComReportDTO.convertToArticleComReportDTO(articleComReport);
     }
 
 

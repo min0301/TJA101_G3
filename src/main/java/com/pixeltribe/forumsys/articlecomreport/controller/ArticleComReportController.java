@@ -56,5 +56,15 @@ public class ArticleComReportController {
         return articleComReportService.getAllArticleComReport();
     }
 
+    @GetMapping("articlecomreports/{comNo}")
+    @Operation(
+            summary = "查詢單筆文章留言檢舉"
+    )
+    public ArticleComReportDTO getArticleComReportById(
+            @PathVariable("comNo") Integer comNo
+    ) {
+        return articleComReportService.getOneArticleComReport(comNo);
+    }
+
 
 }

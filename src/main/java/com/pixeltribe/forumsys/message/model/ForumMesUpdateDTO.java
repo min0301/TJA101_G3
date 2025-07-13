@@ -15,4 +15,7 @@ public class ForumMesUpdateDTO {
     @NotEmpty(message = "留言名稱: 請勿空白")
     @Schema(description = "文章留言")
     private String mesCon;
+
+    @Schema(description = "留言狀態")
+    private Character mesStatus;
 }

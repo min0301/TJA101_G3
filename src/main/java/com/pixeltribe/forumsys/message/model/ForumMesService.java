@@ -28,6 +28,13 @@ public class ForumMesService {
                 .toList();
     }
 
+    public List<ForumMesDTO> getAllAdminForumMes() {
+        List<ForumMes> forumMess = forumMesRepository.findAll();
+        return forumMess.stream()
+                .map(ForumMesDTO::convertToForumMesDTO)
+                .toList();
+    }
+
     public ForumMesDTO getOneForumMes(Integer mesNo) {
         ForumMes forumMes = forumMesRepository.findById(mesNo)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到留言ID: " + mesNo));
@@ -75,6 +82,9 @@ public class ForumMesService {
                 .orElseThrow(() -> new ResourceNotFoundException("找不到會員")));
         forumMes.setMesCon(forumMesUpdateDTO.getMesCon());
 
+        if (forumMesUpdateDTO.getMesStatus() != null) {
+            forumMes.setMesStatus(forumMesUpdateDTO.getMesStatus());
+        }
         return ForumMesDTO.convertToForumMesDTO(forumMesRepository.save(forumMes));
 
     }

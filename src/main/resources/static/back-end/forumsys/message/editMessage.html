@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>編輯留言</title>
+    <style>
+        .message-management-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-title-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .page-title-header h2 {
+            font-family: 'Karla', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .form-wrapper {
+            background: var(--component-bg);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .form-control, .form-control-plaintext {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .form-control:focus {
+            border-color: var(--brand-green);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--brand-green-light);
+        }
+
+        .form-control-plaintext {
+            background-color: #f8f9fa;
+            border-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        /* 唯讀欄位樣式 */
+        textarea.form-control {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .form-actions {
+            text-align: right;
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .action-btn {
+            display: inline-block;
+            text-decoration: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+
+        .action-btn.btn-save {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+            color: white;
+        }
+
+        .action-btn.btn-save:hover {
+            background-color: var(--brand-green-hover);
+        }
+
+        #message-area {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 6px;
+            display: none;
+            font-weight: bold;
+        }
+
+        #message-area.success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        #message-area.error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+<div class="message-management-container">
+    <div class="page-title-header">
+        <h2><i class="bi bi-pencil-square item-icon"></i>編輯留言</h2>
+    </div>
+
+    <div class="form-wrapper">
+        <form id="edit-message-form">
+            <input type="hidden" id="messageId">
+            <input type="hidden" id="postId">
+            <input type="hidden" id="memberId">
+
+            <div class="form-group">
+                <label>留言會員</label>
+                <input type="text" id="memberName" class="form-control-plaintext" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="mesCon">留言內容</label>
+                <textarea id="mesCon" name="mesCon" class="form-control" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="mesStatus">留言狀態</label>
+                <select id="mesStatus" name="mesStatus" class="form-control" required>
+                    <option value="0">正常</option>
+                    <option value="1">隱藏</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <a href="#" onclick="event.preventDefault(); loadExternalPage('../forumsys/message/allMessages.html')"
+                   class="action-btn">返回列表</a>
+                <button type="submit" id="submit-button" class="action-btn btn-save">儲存修改</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="message-area"></div>
+</div>
+
+<script>
+    (function () {
+        'use strict';
+        const form = document.getElementById('edit-message-form');
+        const messageIdInput = document.getElementById('messageId');
+        const postIdInput = document.getElementById('postId');
+        const memberIdInput = document.getElementById('memberId');
+        const memberNameInput = document.getElementById('memberName');
+        const contentTextarea = document.getElementById('mesCon');
+        const statusSelect = document.getElementById('mesStatus');
+        const submitButton = document.getElementById('submit-button');
+        const messageArea = document.getElementById('message-area');
+
+        const apiBaseUrl = 'http://localhost:8080/api';
+
+        const contentArea = document.getElementById('content-area');
+        const pageParamsString = contentArea ? contentArea.getAttribute('data-page-params') : '';
+        const urlParams = new URLSearchParams(pageParamsString);
+        const messageId = urlParams.get('id');
+
+        async function initializePage() {
+            if (!messageId) {
+                showMessage("錯誤：URL 中缺少留言 ID。", 'error');
+                return;
+            }
+
+            try {
+                // 【不可變】API 端點對應 ForumMesController 的 findOneForumMes
+                const response = await fetch(`${apiBaseUrl}/posts/${messageId}`);
+                if (!response.ok) throw new Error(`請求失敗，狀態碼: ${response.status}`);
+
+                const data = await response.json(); // data 是 ForumMesDTO
+                populateForm(data);
+            } catch (error) {
+                showMessage(`資料載入失敗: ${error.message}`, 'error');
+            }
+        }
+
+        function populateForm(data) {
+            messageIdInput.value = data.id;
+            postIdInput.value = data.postId;
+            memberIdInput.value = data.memberId;
+            memberNameInput.value = `${data.memberName} (ID: ${data.memberId})`;
+            contentTextarea.value = data.mesCon;
+            statusSelect.value = data.mesStatus;
+        }
+
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            submitButton.disabled = true;
+            submitButton.textContent = '儲存中...';
+
+            // 【核心】後端 update 方法需要 postId, memId, mesCon
+            // 雖然此處我們只讓管理員修改內容和狀態，但呼叫 API 時仍需傳遞原始的 postId 和 memId
+            const updateDto = {
+                postId: parseInt(postIdInput.value, 10),
+                memId: parseInt(memberIdInput.value, 10),
+                mesCon: contentTextarea.value,
+                mesStatus: statusSelect.value
+            };
+
+            try {
+                // 【不可變】API 端點對應 ForumMesController 的 updateForumMes
+                const response = await fetch(`${apiBaseUrl}/posts/messages/${messageId}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(updateDto)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || `更新失敗`);
+                }
+
+                showMessage('更新成功！2秒後將返回列表頁。', 'success');
+                setTimeout(() => loadExternalPage('../forumsys/message/allMessages.html'), 2000);
+            } catch (error) {
+                submitButton.disabled = false;
+                submitButton.textContent = '儲存修改';
+                showMessage(`儲存失敗: ${error.message}`, 'error');
+            }
+        });
+
+        function showMessage(message, type) {
+            messageArea.textContent = message;
+            messageArea.className = type;
+            messageArea.style.display = 'block';
+        }
+
+        initializePage();
+    })();
+</script>
+
+</body>
+</html>
