@@ -177,7 +177,7 @@ public class PaymentService {
     // ========== 定時任務設定  ========== //
     // ***** 處理付款超時：每5分鐘檢查一次 超過30分鐘就付款失敗  ***** //
     
-    @Scheduled(fixedRate = 300000)
+    @Scheduled(fixedRate = 300000)   // 排成器每5分鐘檢查一次付款狀態   5*60*1000
     public void handlePaymentTimeout() {
         try {
             Set<String> paymentKeys = redisTemplate.keys("payment:*");
@@ -199,7 +199,7 @@ public class PaymentService {
                     // ***** 檢查是否超過30分鐘 ***** //
                     if ("PAYING".equals(status) && 
                             createdAt != null && 
-                            (currentTime - createdAt) > 1800000) { // 30分鐘
+                            (currentTime - createdAt) > 1800000) { // 30分鐘 =60*30*1000
                             
                             Integer orderNo = (Integer) paymentInfo.get("orderNo");
                             
