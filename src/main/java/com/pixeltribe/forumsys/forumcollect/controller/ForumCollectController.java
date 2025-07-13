@@ -3,11 +3,15 @@ package com.pixeltribe.forumsys.forumcollect.controller;
 import com.pixeltribe.forumsys.forumcollect.model.ForumCollectDTO;
 import com.pixeltribe.forumsys.forumcollect.model.ForumCollectService;
 import com.pixeltribe.forumsys.forumcollect.model.ForumCollectUpdateDTO;
+import com.pixeltribe.membersys.security.MemberDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -25,19 +29,23 @@ public class ForumCollectController {
     )
     public ResponseEntity<ForumCollectDTO> updateForumCollect(
             @PathVariable("forno") Integer forNo,
-            @Valid @RequestBody ForumCollectUpdateDTO forumCollectUpdateDTO) {
-        ForumCollectDTO forumCollectDTO = forumCollectService.addForumCollect(forNo, forumCollectUpdateDTO);
+            @Valid @RequestBody ForumCollectUpdateDTO forumCollectUpdateDTO,
+            @AuthenticationPrincipal MemberDetails currentUser) {
+        Integer memberId = currentUser.getMemberId();
+        ForumCollectDTO forumCollectDTO = forumCollectService.addForumCollect(memberId, forNo, forumCollectUpdateDTO);
         return ResponseEntity.ok(forumCollectDTO);
 
     }
 
-//    等會員做完再來寫
-//    @GetMapping("/forums/collect/me")
-//    @Operation(
-//            summary = "取得會員收藏討論區列表"
-//    )
-//    public List<ForumCollectDTO> getForumCollectForMenber(){
-//        return forumCollectService.getForumCollectForMenber(memberNo);
-//    }
+    @GetMapping("/forums/collect/me")
+    @Operation(
+            summary = "取得會員收藏討論區列表"
+    )
+    public List<ForumCollectDTO> getForumCollectForMenber(
+            @AuthenticationPrincipal MemberDetails currentUser
+    ){
+        Integer memberId = currentUser.getMemberId();
+        return forumCollectService.getForumCollectForMenber(memberId);
+    }
 
 }

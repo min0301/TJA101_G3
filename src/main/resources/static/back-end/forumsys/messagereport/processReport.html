@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>處理留言檢舉</title>
+    <style>
+        .process-report-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-title-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .page-title-header h2 {
+            font-family: 'Karla', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .panel {
+            background: var(--component-bg);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-group, .form-group {
+            margin-bottom: 20px;
+        }
+
+        .info-group label, .form-group label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .info-group .content {
+            font-size: 16px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .info-group .message-content {
+            min-height: 120px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .form-actions {
+            text-align: right;
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .action-btn {
+            display: inline-block;
+            text-decoration: none;
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+
+        .action-btn.btn-submit {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+            color: white;
+        }
+
+        #message-area {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 6px;
+            display: none;
+            font-weight: bold;
+        }
+
+        #message-area.success {
+            color: #155724;
+            background-color: #d4edda;
+        }
+
+        #message-area.error {
+            color: #721c24;
+            background-color: #f8d7da;
+        }
+
+        .sync-action-group {
+            padding: 15px;
+            border: 1px dashed var(--brand-green);
+            border-radius: 8px;
+            margin-top: 20px;
+            background-color: var(--brand-green-light);
+        }
+
+        /* 狀態標籤 (與 allMessages.html 相同) */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-normal {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-hidden {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+
+<div class="process-report-container">
+    <div class="page-title-header">
+        <h2><i class="bi bi-shield-shaded item-icon"></i>處理檢舉案件</h2>
+    </div>
+    <div class="main-layout">
+        <div class="panel" id="reported-message-panel">
+            <h3 class="panel-title">被檢舉的留言資訊</h3>
+            <div id="message-loading">載入中...</div>
+        </div>
+        <div class="panel" id="report-details-panel">
+            <h3 class="panel-title">檢舉詳情 & 處理</h3>
+            <div id="report-loading">載入中...</div>
+        </div>
+    </div>
+    <div id="message-area" style="margin-top: 20px;"></div>
+</div>
+
+<script>
+    (async function () {
+        'use strict';
+        const reportPanel = document.getElementById('report-details-panel');
+        const messagePanel = document.getElementById('reported-message-panel');
+        const messageArea = document.getElementById('message-area');
+        const apiBaseUrl = 'http://localhost:8080/api';
+        const pageParams = new URLSearchParams(document.getElementById('content-area')?.getAttribute('data-page-params') || '');
+        const reportId = pageParams.get('id');
+
+        if (!reportId) {
+            reportPanel.innerHTML = '<p style="color: red;">錯誤：URL 中缺少檢舉 ID。</p>';
+            return;
+        }
+
+        try {
+            const reportData = await fetchData(`${apiBaseUrl}/articlecomreports/${reportId}`);
+            const messageData = await fetchData(`${apiBaseUrl}/posts/${reportData.messageNo}`);
+
+            renderMessagePanel(messageData);
+            renderReportPanel(reportData, messageData); // 將留言資料也傳入，以便判斷是否禁用按鈕
+        } catch (error) {
+            showGlobalMessage(`頁面初始化失敗: ${error.message}`, 'error');
+        }
+
+        async function fetchData(url) {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`請求失敗: ${response.status}`);
+            return response.json();
+        }
+
+        function renderMessagePanel(data) {
+            // 【核心修改 1】新增「目前狀態」欄位
+            messagePanel.innerHTML = `
+            <h3 class="panel-title">被檢舉的留言資訊</h3>
+            <div class="info-group"><label>留言作者</label><div class="content">${data.memberName || 'N/A'} (ID: ${data.memberId})</div></div>
+            <div class="info-group">
+                <label>目前狀態</label>
+                <div class="content">${getMessageStatusBadge(data.mesStatus)}</div>
+            </div>
+            <div class="info-group"><label>留言內容</label><div class="content message-content">${data.mesCon || ''}</div></div>
+            <div class="info-group"><label>留言時間</label><div class="content">${formatDateTime(data.mesCrdate)}</div></div>
+        `;
+        }
+
+        function renderReportPanel(reportData, messageData) {
+            // 【核心修改 2】如果檢舉已處理，或留言已被隱藏，則禁用整個表單
+            const isActionDisabled = reportData.artComRepStatus != '0' || messageData.mesStatus != '0';
+            const disabledAttribute = isActionDisabled ? 'disabled' : '';
+            let buttonText = '確認處理';
+            if (reportData.artComRepStatus != '0') {
+                buttonText = '此檢舉已處理';
+            } else if (messageData.mesStatus != '0') {
+                buttonText = '留言已被隱藏';
+            }
+
+            reportPanel.innerHTML = `
+            <h3 class="panel-title">檢舉詳情 & 處理</h3>
+            <div class="info-group"><label>檢舉者</label><div class="content">${reportData.member || 'N/A'}</div></div>
+            <div class="info-group"><label>檢舉類型</label><div class="content">${reportData.reportType || '未知'}</div></div>
+            <div class="info-group"><label>檢舉時間</label><div class="content">${formatDateTime(reportData.createTime)}</div></div>
+            <form id="process-form">
+                <div class="form-group">
+                    <label for="artComRepStatus">處理狀態</label>
+                    <select id="artComRepStatus" class="form-control" ${disabledAttribute}>
+                        <option value="0" ${reportData.artComRepStatus == '0' ? 'selected' : ''}>待處理</option>
+                        <option value="1" ${reportData.artComRepStatus == '1' ? 'selected' : ''}>已處理 (檢舉有效)</option>
+                        <option value="2" ${reportData.artComRepStatus == '2' ? 'selected' : ''}>已處理 (檢舉無效)</option>
+                    </select>
+                </div>
+                <div class="sync-action-group" id="sync-action-container" style="display: none;">
+                    <input type="checkbox" id="hideMessageCheckbox" name="hideMessage" ${disabledAttribute}>
+                    <label for="hideMessageCheckbox">同時隱藏此留言 (將留言狀態設為 '1')</label>
+                </div>
+                <div class="form-actions">
+                    <a href="#" onclick="event.preventDefault(); loadExternalPage('../forumsys/messagereport/allReports.html')" class="action-btn">返回列表</a>
+                    <button type="submit" id="submit-button" class="action-btn btn-submit" ${disabledAttribute}>${buttonText}</button>
+                </div>
+            </form>
+        `;
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            const form = document.getElementById('process-form');
+            if (form) {
+                const statusSelect = document.getElementById('artComRepStatus');
+                const syncActionContainer = document.getElementById('sync-action-container');
+
+                const toggleSyncAction = () => {
+                    syncActionContainer.style.display = (statusSelect.value === '1') ? 'block' : 'none';
+                };
+
+                statusSelect.addEventListener('change', toggleSyncAction);
+                form.addEventListener('submit', handleFormSubmit);
+                toggleSyncAction();
+            }
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            const submitButton = document.getElementById('submit-button');
+            submitButton.disabled = true;
+            submitButton.textContent = '處理中...';
+
+            const statusSelect = document.getElementById('artComRepStatus');
+            const hideCheckbox = document.getElementById('hideMessageCheckbox');
+
+            const updateDto = {
+                artComRepStatus: statusSelect.value,
+                hideMessage: (statusSelect.value === '1' && hideCheckbox.checked)
+            };
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/articlecomreports/${reportId}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(updateDto)
+                });
+                if (!response.ok) throw new Error(await response.text() || '更新失敗');
+
+                showGlobalMessage('處理成功！2秒後將返回列表頁。', 'success');
+                setTimeout(() => loadExternalPage('../forumsys/messagereport/allReports.html'), 2000);
+            } catch (error) {
+                showGlobalMessage(`處理失敗: ${error.message}`, 'error');
+                submitButton.disabled = false;
+                submitButton.textContent = '確認處理';
+            }
+        }
+
+        // --- 輔助函式 ---
+        function getMessageStatusBadge(status) {
+            if (status == '0') return `<span class="status-badge status-normal">正常</span>`;
+            return `<span class="status-badge status-hidden">已隱藏</span>`;
+        }
+
+        function showGlobalMessage(message, type) {
+            messageArea.textContent = message;
+            messageArea.className = type;
+            messageArea.style.display = 'block';
+        }
+
+        function formatDateTime(dtStr) {
+            return dtStr ? new Date(dtStr).toLocaleString('zh-TW', {hour12: false}) : '-';
+        }
+    })();
+</script>
+</body>
+</html>

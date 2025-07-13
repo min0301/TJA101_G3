@@ -21,7 +21,7 @@ public class ForumCategoryService {
     public ForumCategoryDTO add(ForumCategoryUpdateDTO forumCategoryUpdateDTO) {
         forumCategoryRepository.findByCatName(forumCategoryUpdateDTO.getCatName())
                 .ifPresent(existingCat -> {
-                    throw new ConflictException("Category with name " + existingCat.getCatName() + " already exists");
+                    throw new ConflictException("類別名稱：" + existingCat.getCatName() + " 已經存在");
                 });
         ForumCategory forumCategory = new ForumCategory();
         forumCategory.setCatName(forumCategoryUpdateDTO.getCatName());
@@ -33,13 +33,15 @@ public class ForumCategoryService {
     @Transactional
     public ForumCategoryDTO update(Integer catNo, ForumCategoryUpdateDTO forumCategoryUpdateDTO) {
 
-        forumCategoryRepository.findByCatName(forumCategoryUpdateDTO.getCatName())
-                .ifPresent(existingCat -> {
-                    throw new ConflictException("Category with name " + existingCat.getCatName() + " already exists");
-                });
-
         ForumCategory forumCategory = forumCategoryRepository.findById(catNo)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到討論區編號: " + catNo));
+
+        forumCategoryRepository.findByCatName(forumCategoryUpdateDTO.getCatName())
+                .filter(existingCat -> !existingCat.getId().equals(catNo))
+                .ifPresent(existingCat -> {
+                    throw new ConflictException("類別名稱：" + existingCat.getCatName() + " 已經存在");
+                });
+
 
         forumCategory.setCatName(forumCategoryUpdateDTO.getCatName());
         forumCategory.setCatDes(forumCategoryUpdateDTO.getCatDes());

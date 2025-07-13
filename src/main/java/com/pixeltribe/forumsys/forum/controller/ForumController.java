@@ -34,7 +34,7 @@ public class ForumController {
 
     @GetMapping("/admin/forums")
     @Operation(
-            summary = "查全部開放的討論區"
+            summary = "查全部討論區"
     )
     public List<ForumDetailDTO> findAdminAll() {
 

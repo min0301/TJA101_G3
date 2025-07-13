@@ -18,6 +18,8 @@ public class ArticleComReportUpdateDTO {
     private Instant finishTime;
     @Schema(description = "檢舉類型編號")
     private Integer reportTypeNo;
+    @Schema(description = "是否同時隱藏被檢舉的留言 (true: 是, false/null: 否)")
+    private Boolean hideMessage; // 使用 Boolean 而非 boolean，使其可以為 null，更具彈性
 
     public static ArticleComReportUpdateDTO convertToArticleComReportUpdateDTO(ArticleComReport articleComReport) {
         return ArticleComReportUpdateDTO.builder()

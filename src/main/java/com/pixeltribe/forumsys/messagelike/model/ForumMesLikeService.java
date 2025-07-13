@@ -32,9 +32,9 @@ public class ForumMesLikeService {
     }
 
     @Transactional
-    public ForumMesLikeDTO updateLike(Integer mesNo, Integer memId, LikeStatus requestedStatus) {
-        Member member = memRepository.findById(memId)
-                .orElseThrow(() -> new IllegalArgumentException("找不到會員編號:" + memId));
+    public ForumMesLikeDTO updateLike(Integer mesNo, Integer memberId, LikeStatus requestedStatus) {
+        Member member = memRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("找不到會員編號:" + memberId));
         ForumMes message = forumMesRepository.findById(mesNo)
                 .orElseThrow(() -> new IllegalArgumentException("找不到訊息編號:" + mesNo));
         Optional<ForumMesLike> existingLikeOpt = forumMesLikeRepository.findByMemNoAndMesNo(member, message);

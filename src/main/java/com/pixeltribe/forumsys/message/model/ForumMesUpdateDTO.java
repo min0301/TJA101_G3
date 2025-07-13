@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
-public class ForumMesUptateDTO {
+public class ForumMesUpdateDTO {
     @Schema(description = "文章編號")
     private Integer postId;
 
@@ -15,4 +15,7 @@ public class ForumMesUptateDTO {
     @NotEmpty(message = "留言名稱: 請勿空白")
     @Schema(description = "文章留言")
     private String mesCon;
+
+    @Schema(description = "留言狀態")
+    private Character mesStatus;
 }
