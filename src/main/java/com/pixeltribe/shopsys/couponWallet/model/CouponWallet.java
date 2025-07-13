@@ -2,21 +2,13 @@ package com.pixeltribe.shopsys.couponWallet.model;
 
 
 import com.pixeltribe.membersys.member.model.Member;
+import com.pixeltribe.shopsys.coupon.model.Coupon;
 import com.pixeltribe.shopsys.order.model.Order;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-
-import com.pixeltribe.membersys.member.model.Member;
-import com.pixeltribe.shopsys.order.model.Order;
-
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
@@ -30,9 +22,10 @@ public class CouponWallet {
     @Id
     @Column(name = "COUPON_WALLET_NO", nullable = false)
     private Integer id;
-
-    @Column(name = "COU_NO")
-    private Integer couNo;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "COU_NO")
+    private Coupon couNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEM_NO")
@@ -49,3 +42,5 @@ public class CouponWallet {
     private Set<Order> orders = new LinkedHashSet<>();
 
 }
+    
+    
