@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>討論區類別管理</title>
+  <style>
+    /* --- 【核心修正】從 allForum.html 複製過來的基礎樣式 --- */
+    .forum-management-container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-title-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .page-title-header h2 {
+      font-family: 'Karla', sans-serif;
+      font-size: 24px;
+      color: var(--text-color);
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .control-bar {
+      background: var(--component-bg);
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .filter-select {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 12px;
+      background: var(--primary-bg);
+      color: var(--text-color);
+      transition: border-color 0.2s;
+    }
+
+    .filter-select:focus {
+      border-color: var(--brand-green);
+      outline: none;
+    }
+
+    .table-container {
+      background: var(--component-bg);
+      border-radius: 12px;
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+    }
+
+    .table thead {
+      background: var(--brand-green-light);
+    }
+
+    .table th {
+      color: var(--brand-green);
+      font-weight: 700;
+      text-align: center;
+      vertical-align: middle;
+      padding: 15px;
+      border: none;
+    }
+
+    .table td {
+      text-align: center;
+      vertical-align: middle;
+      padding: 12px;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-color);
+    }
+
+    .action-btn {
+      display: inline-block;
+      text-decoration: none;
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .action-btn:hover {
+      background: var(--brand-green-light);
+      color: var(--brand-green);
+      border-color: var(--brand-green);
+    }
+
+    .action-btn.btn-add {
+      background-color: var(--brand-green);
+      border-color: var(--brand-green);
+      color: white;
+      font-weight: bold;
+    }
+
+    .action-btn.btn-add:hover {
+      background-color: var(--brand-green-hover);
+      border-color: var(--brand-green-hover);
+    }
+
+    .pagination-controls {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 20px 0;
+    }
+
+    .pagination {
+      display: flex;
+      padding-left: 0;
+      list-style: none;
+      margin: 0;
+    }
+
+    .pagination-controls .page-item .page-link {
+      color: var(--brand-green);
+      background-color: var(--component-bg);
+      border: 1px solid var(--border-color);
+      margin: 0 3px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: block;
+    }
+
+    .pagination-controls .page-item.active .page-link {
+      z-index: 1;
+      color: #fff;
+      background-color: var(--brand-green);
+      border-color: var(--brand-green);
+    }
+
+    #error-message {
+      color: #e74c3c;
+      background-color: #fbecec;
+      border: 1px solid #e74c3c;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 5px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="forum-management-container">
+  <div class="page-title-header">
+    <h2><i class="bi bi-tags-fill item-icon"></i>討論區類別管理</h2>
+  </div>
+
+  <div class="control-bar">
+    <div>
+      <a href="#" onclick="event.preventDefault(); loadExternalPage('../forumsys/category/addCategory.html')"
+         class="action-btn btn-add">＋ 新增類別</a>
+    </div>
+    <div class="filter-group">
+      <div>
+        <label for="itemsPerPageFilter">每頁顯示：</label>
+        <select id="itemsPerPageFilter" class="filter-select" onchange="changeItemsPerPage()">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="20">20</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="error-message"></div>
+
+  <div class="table-container">
+    <table class="table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>類別名稱</th>
+        <th>類別描述</th>
+        <th>建立時間</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody id="categoryTableBody">
+      </tbody>
+    </table>
+  </div>
+
+  <nav id="paginationContainer" class="pagination-controls"></nav>
+
+</div>
+
+<script>
+  // JavaScript 內容維持不變
+  (function () {
+    'use strict';
+    const apiUrl = 'http://localhost:8080/api/categorys';
+    const tableBody = document.getElementById('categoryTableBody');
+    const errorMessageDiv = document.getElementById('error-message');
+    const paginationContainer = document.getElementById('paginationContainer');
+    const itemsPerPageFilter = document.getElementById('itemsPerPageFilter');
+    let allCategoriesData = [];
+    let currentPage = 1;
+    let itemsPerPage = 10;
+    async function loadCategories() {
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
+        }
+        allCategoriesData = await response.json();
+        itemsPerPage = parseInt(itemsPerPageFilter.value) || 10;
+        currentPage = 1;
+        updateDisplay();
+      } catch (error) {
+        showError(error);
+      }
+    }
+    function updateDisplay() {
+      const filteredData = [...allCategoriesData];
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedData = filteredData.slice(startIndex, endIndex);
+      renderTableBody(paginatedData);
+      renderPaginationControls(filteredData.length);
+    }
+    function renderTableBody(categories) {
+      tableBody.innerHTML = '';
+      if (!categories || categories.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 40px;">目前沒有任何類別</td></tr>`;
+        return;
+      }
+      categories.forEach(category => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+                    <td>${category.id}</td>
+                    <td>${category.catName || 'N/A'}</td>
+                    <td>${category.catDes || '無描述'}</td>
+                    <td>${formatDateTime(category.catDate)}</td>
+                    <td>
+                        <a href="#"
+                           onclick="event.preventDefault(); loadExternalPage('../forumsys/category/editCategory.html?id=${category.id}')"
+                           class="action-btn">修改</a>
+                    </td>
+                `;
+        tableBody.appendChild(row);
+      });
+    }
+    function renderPaginationControls(totalItems) {
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      if (totalPages <= 1) {
+        paginationContainer.innerHTML = '';
+        return;
+      }
+      let paginationHTML = '<ul class="pagination">';
+      paginationHTML += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="event.preventDefault(); changePage(${currentPage - 1})">上一頁</a></li>`;
+      for (let i = 1; i <= totalPages; i++) {
+        paginationHTML += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" onclick="event.preventDefault(); changePage(${i})">${i}</a></li>`;
+      }
+      paginationHTML += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" onclick="event.preventDefault(); changePage(${currentPage + 1})">下一頁</a></li>`;
+      paginationHTML += '</ul>';
+      paginationContainer.innerHTML = paginationHTML;
+    }
+    window.changeItemsPerPage = function () {
+      itemsPerPage = parseInt(itemsPerPageFilter.value);
+      currentPage = 1;
+      updateDisplay();
+    }
+    window.changePage = function (page) {
+      const totalPages = Math.ceil(allCategoriesData.length / itemsPerPage);
+      if (page < 1 || page > totalPages) return;
+      currentPage = page;
+      updateDisplay();
+    }
+    function showError(error) {
+      console.error('無法獲取類別資料:', error);
+      errorMessageDiv.style.display = 'block';
+      errorMessageDiv.innerHTML = `<strong>資料載入失敗！</strong> 請檢查後端服務是否啟動。<br>詳細錯誤: ${error.message}`;
+    }
+    function formatDateTime(dateTimeStr) {
+      if (!dateTimeStr) return '-';
+      try {
+        return new Date(dateTimeStr).toLocaleString('zh-TW', { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      } catch (e) {
+        return dateTimeStr;
+      }
+    }
+    loadCategories();
+  })();
+</script>
+
+</body>
+</html>

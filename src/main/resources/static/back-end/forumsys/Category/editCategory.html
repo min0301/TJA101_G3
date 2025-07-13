@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>編輯討論區類別</title>
+  <style>
+    /* 【核心修正】從 addForum.html 複製過來的表單樣式 */
+    .forum-management-container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-title-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .page-title-header h2 {
+      font-family: 'Karla', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .item-icon {
+      margin-right: 10px;
+    }
+
+    .form-wrapper {
+      background: var(--component-bg);
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #34495e;
+      font-size: 16px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 16px;
+      background: var(--primary-bg);
+      color: var(--text-color);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--brand-green);
+      outline: none;
+      box-shadow: 0 0 0 3px var(--brand-green-light);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .form-actions {
+      text-align: right;
+      margin-top: 40px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+    }
+
+    .action-btn {
+      display: inline-block;
+      text-decoration: none;
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .action-btn:hover {
+      background: #f2f2f2;
+      border-color: #adadad;
+    }
+
+    .action-btn.btn-submit, .action-btn.btn-save {
+      background-color: var(--brand-green);
+      border-color: var(--brand-green);
+      color: white;
+    }
+
+    .action-btn.btn-submit:hover, .action-btn.btn-save:hover {
+      background-color: var(--brand-green-hover);
+      border-color: var(--brand-green-hover);
+    }
+
+    #message-area {
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 6px;
+      display: none;
+      font-weight: bold;
+      border: 1px solid transparent;
+    }
+
+    #message-area.success {
+      color: #155724;
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+    }
+
+    #message-area.error {
+      color: #721c24;
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+
+<div class="forum-management-container">
+  <div class="page-title-header">
+    <h2><i class="bi bi-pencil-square item-icon"></i>編輯討論區類別</h2>
+  </div>
+
+  <div class="form-wrapper">
+    <form id="edit-category-form">
+      <input type="hidden" id="categoryId" name="id">
+
+      <div class="form-group">
+        <label for="catName">類別名稱</label>
+        <input type="text" id="catName" name="catName" class="form-control" required>
+      </div>
+
+      <div class="form-group">
+        <label for="catDes">類別描述</label>
+        <textarea id="catDes" name="catDes" class="form-control" required></textarea>
+      </div>
+
+      <div class="form-actions">
+        <a href="#" onclick="event.preventDefault(); loadExternalPage('../forumsys/category/allCategory.html')"
+           class="action-btn">返回列表</a>
+        <button type="submit" id="submit-button" class="action-btn btn-save">儲存修改</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="message-area"></div>
+</div>
+
+<script>
+  (function () {
+    'use strict';
+
+    // --- DOM 元素定義 ---
+    const form = document.getElementById('edit-category-form');
+    const categoryIdInput = document.getElementById('categoryId');
+    const nameInput = document.getElementById('catName');
+    const descriptionTextarea = document.getElementById('catDes');
+    const submitButton = document.getElementById('submit-button');
+    const messageArea = document.getElementById('message-area');
+
+    // --- API & 參數定義 ---
+    const apiBaseUrl = 'http://localhost:8080/api';
+
+    // 【核心】從 AdmHomePage.html 傳遞過來的 data-page-params 屬性中讀取 ID
+    const contentArea = document.getElementById('content-area');
+    const pageParamsString = contentArea ? contentArea.getAttribute('data-page-params') : '';
+    const urlParams = new URLSearchParams(pageParamsString);
+    const categoryId = urlParams.get('id'); // 【不可變】變數名稱，但獲取 'id' 的邏輯是固定的
+
+    /**
+     * @description 頁面初始化函式
+     */
+    async function initializePage() {
+      if (!categoryId) {
+        showMessage("錯誤：URL 中缺少類別 ID。", 'error');
+        form.style.display = 'none';
+        return;
+      }
+
+      try {
+        // 【核心】發送 GET 請求獲取單一類別的資料
+        // 【不可變】API 端點對應 ForumCategoryController 的 @GetMapping("/category/{catno}")
+        const response = await fetch(`${apiBaseUrl}/category/${categoryId}`);
+        if (!response.ok) {
+          throw new Error(`請求失敗，狀態碼: ${response.status}`);
+        }
+        const categoryData = await response.json();
+        populateForm(categoryData);
+
+      } catch (error) {
+        showMessage(`資料載入失敗: ${error.message}`, 'error');
+      }
+    }
+
+    /**
+     * @description 將獲取到的類別資料填充到表單欄位
+     * @param {object} data - 單筆類別資料物件 (ForumCategoryDTO)
+     */
+    function populateForm(data) {
+      categoryIdInput.value = data.id;
+      nameInput.value = data.catName;
+      descriptionTextarea.value = data.catDes;
+    }
+
+    /**
+     * @description 監聽表單提交事件
+     */
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      submitButton.disabled = true;
+      submitButton.textContent = '儲存中...';
+      hideMessage();
+
+      // 【核心】準備要送到後端的 DTO 物件
+      const categoryUpdateDto = {
+        catName: nameInput.value,
+        catDes: descriptionTextarea.value,
+      };
+
+      try {
+        // 【核心】發送 PUT 請求
+        // 【不可變】API 端點對應 ForumCategoryController 的 @PutMapping("/admin/category/{catno}")
+        const response = await fetch(`${apiBaseUrl}/admin/category/${categoryId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(categoryUpdateDto)
+        });
+
+        if (!response.ok) {
+          if(response.status === 409) { // 409 Conflict
+            const errorText = await response.text();
+            throw new Error(errorText || `發生衝突: 類別名稱可能已存在`);
+          }
+          const errorText = await response.text();
+          throw new Error(errorText || `更新失敗，狀態碼: ${response.status}`);
+        }
+
+        showMessage('更新成功！2秒後將返回列表頁。', 'success');
+        setTimeout(() => {
+          loadExternalPage('../forumsys/category/allCategory.html');
+        }, 2000);
+
+      } catch (error) {
+        showMessage(`儲存失敗: ${error.message}`, 'error');
+        submitButton.disabled = false;
+        submitButton.textContent = '儲存修改';
+      }
+    });
+
+    // --- 輔助函式 ---
+    function showMessage(message, type) {
+      messageArea.textContent = message;
+      messageArea.className = type;
+      messageArea.style.display = 'block';
+    }
+
+    function hideMessage() {
+      messageArea.style.display = 'none';
+    }
+
+    // --- 執行初始化 ---
+    initializePage();
+
+  })();
+</script>
+
+</body>
+</html>
