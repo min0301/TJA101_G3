@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
-public class ForumMesUptateDTO {
+public class ForumMesUpdateDTO {
     @Schema(description = "文章編號")
     private Integer postId;
 
