@@ -19,7 +19,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer>{
 
 	    List<Product> findByProStatus(String proStatus);
 	    
-	    List<Product> findByProStatusAndOverProDate(String proStatus, LocalDate proDate);
+//	    List<Product> findByProStatusAndOverProDate(String proStatus, LocalDate proDate);
 	    
 	    @Query(value="SELECT * FROM Product p WHERE p.PRO_STATUS = '預購中' AND p.PRO_DATE <= :date", nativeQuery = true)
 	    List<Product> findPreorderProductsBeforeDate(@Param("date") LocalDate date);
