@@ -16,7 +16,7 @@ import lombok.Setter;
 public class FavoriteProduct {
     @Id
     @Column(name = "FAV_PRO_NO", nullable = false)
-    private Integer id;
+    private Integer favProNo;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

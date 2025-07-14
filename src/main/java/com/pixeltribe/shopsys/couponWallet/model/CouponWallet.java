@@ -27,6 +27,7 @@ public class CouponWallet {
     @JoinColumn(name = "COU_NO")
     private Coupon couNo;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEM_NO")
     private Member memNo;
