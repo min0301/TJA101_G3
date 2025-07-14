@@ -29,6 +29,7 @@ import com.pixeltribe.forumsys.forum.model.ForumDetailDTO;
 import com.pixeltribe.shopsys.product.model.Product;
 import com.pixeltribe.shopsys.product.model.ProductAddDTO;
 import com.pixeltribe.shopsys.product.model.ProductDTOMapper;
+import com.pixeltribe.shopsys.product.model.ProductDisplayDTO;
 import com.pixeltribe.shopsys.product.model.ProductEditDTO;
 import com.pixeltribe.shopsys.product.model.ProductIsmarketDTO;
 import com.pixeltribe.shopsys.product.model.ProductManageDTO;
@@ -42,7 +43,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
 public class ProductController {
 	
 		@Autowired
@@ -115,11 +115,15 @@ public class ProductController {
 		    }
 		
 		@GetMapping("/product/{id}")
-		public ProductEditDTO getOneProduct(
-		            @Parameter
-		            @PathVariable Integer id) {
-			
+		public ProductEditDTO getOneProduct(@Parameter
+											@PathVariable Integer id) {
 		   return productDTOMapper.toProductEditDTO(productService.getOneProduct(id));
+		 }
+		
+		@GetMapping("/product/{id}/search")
+		public ProductDisplayDTO searchOneProduct(@Parameter
+										@PathVariable Integer id) {
+		   return productDTOMapper.toProductDisplayDTO(productService.getOneProduct(id));
 		 }
 		 
 		@GetMapping("/product/cover/{id}")

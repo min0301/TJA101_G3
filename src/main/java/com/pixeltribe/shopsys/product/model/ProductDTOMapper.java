@@ -66,6 +66,24 @@ public class ProductDTOMapper {
 		return paDTO;
 	}
 	
+	public  ProductDisplayDTO toProductDisplayDTO(Product product) {
+		ProductDisplayDTO pdDTO = new ProductDisplayDTO();
+		pdDTO.setId(product.getId());
+		pdDTO.setProName(product.getProName());
+		pdDTO.setProPrice(product.getProPrice());
+		pdDTO.setProStatus(product.getProStatus());
+		pdDTO.setProVersion(product.getProVersion());
+		pdDTO.setProDate(product.getProDate());
+		pdDTO.setProCover(product.getProCover());
+		pdDTO.setProDetails(product.getProDetails());
+		pdDTO.setProInclude(product.getProInclude());
+		pdDTO.setMallTagNo(product.getMallTagNo().getId());
+		pdDTO.setProTotalCommit(product.getProTotalCommit());
+		pdDTO.setProTotalStar(product.getProTotalStar());
+		
+		return pdDTO;
+	}
+	
 	public  ProductSearchDTO toProductSearchDTO(Product product) {
 		ProductSearchDTO psDTO = new ProductSearchDTO();
 		psDTO.setId(product.getId());

@@ -68,7 +68,7 @@ public class ProductService {
 	}
 	
 	public List<ProductSearchDTO> findByMarket(Character proIsMarket) {
-		List<Product> products = productRepository.findByMarket( proIsMarket);
+		List<Product> products = productRepository.findByMarket(proIsMarket);
 		return productDTOMapper.toProductSearchDTOList(products);
 	}
 

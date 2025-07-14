@@ -10,8 +10,9 @@ class MallTagManager {
 		this.productsContainer = null;
 		this.currentSelectedTag = null;
 		this.malltagData = [];
+		this.isInitialized = false;
 
-		this.init();
+		// 不在構造函數中自動調用 init()，改由外部控制
 	}
 
 	/**
@@ -19,9 +20,19 @@ class MallTagManager {
 	 */
 	async init() {
 		try {
+			// 如果已經初始化過，直接返回
+			if (this.isInitialized) {
+				return;
+			}
+
 			// 等待 DOM 載入完成
 			if (document.readyState === 'loading') {
-				document.addEventListener('DOMContentLoaded', () => this.setup());
+				return new Promise((resolve) => {
+					document.addEventListener('DOMContentLoaded', async () => {
+						await this.setup();
+						resolve();
+					});
+				});
 			} else {
 				await this.setup();
 			}
@@ -34,11 +45,17 @@ class MallTagManager {
 	 * 設定標籤系統
 	 */
 	async setup() {
-	    this.createMalltagContainer();
-	    this.setupProductsContainer();
-	    await this.loadMalltagData();
-	    this.renderMalltags(); // 這裡會自動載入"全部"
-	    this.setupEventListeners();
+		try {
+			this.createMalltagContainer();
+			this.setupProductsContainer();
+			await this.loadMalltagData();
+			this.renderMalltags(); // 這裡會自動載入"全部"
+			this.setupEventListeners();
+			this.isInitialized = true;
+			console.log('MallTagManager 初始化完成');
+		} catch (error) {
+			console.error('MallTag 設定失敗:', error);
+		}
 	}
 
 	/**
@@ -79,9 +96,18 @@ class MallTagManager {
 	 * 設定商品顯示容器
 	 */
 	setupProductsContainer() {
-		// 找到右側主要內容區域
-		const mainContent = document.querySelector('.col-lg-9');
-		if (mainContent) {
+		// 先找 dynamic-content-container
+		let targetContainer = document.getElementById('dynamic-content-container');
+
+		if (!targetContainer) {
+			// 如果沒有，找到右側主要內容區域
+			const mainContent = document.querySelector('.col-lg-9');
+			if (mainContent) {
+				targetContainer = mainContent;
+			}
+		}
+
+		if (targetContainer) {
 			// 創建商品顯示結構
 			const productsSection = document.createElement('div');
 			productsSection.id = 'products-section';
@@ -115,9 +141,9 @@ class MallTagManager {
                 </div>
             `;
 
-			// 將商品區域插入到主內容區域
-			mainContent.innerHTML = '';
-			mainContent.appendChild(productsSection);
+			// 清空容器並插入商品區域
+			targetContainer.innerHTML = '';
+			targetContainer.appendChild(productsSection);
 
 			this.productsContainer = document.getElementById('products-container');
 		}
@@ -127,266 +153,272 @@ class MallTagManager {
 	 * 注入必要的 CSS 樣式
 	 */
 	injectStyles() {
-	    const styleId = 'malltag-styles';
-	    
-	    // 檢查樣式是否已存在
-	    if (document.getElementById(styleId)) return;
+		const styleId = 'malltag-styles';
 
-	    const style = document.createElement('style');
-	    style.id = styleId;
-	    style.textContent = `
-	        /* 側邊欄容器樣式 */
-	        .mall-category-sidebar {
-	            background: transparent;
-	            border-radius: 0;
-	            padding: 0;
-	            border: none;
-	            box-shadow: none;
-	            width: 100%;
-	        }
+		if (document.getElementById(styleId)) return;
 
-	        .mall-category-sidebar h5 {
-	            color: var(--text-color);
-	            font-weight: 600;
-	            margin-bottom: 1rem;
-	            padding-bottom: 0.5rem;
-	            border-bottom: none;
-	            font-size: 1.1rem;
-	            text-align: center;
-	        }
+		const style = document.createElement('style');
+		style.id = styleId;
+		style.textContent = `
+		        /* 側邊欄容器樣式 */
+		        .mall-category-sidebar {
+		            background: transparent;
+		            border-radius: 0;
+		            padding: 0;
+		            border: none;
+		            box-shadow: none;
+		            width: 100%;
+		        }
 
-	        /* MallTag 容器樣式 */
-	        .malltag-container {
-	            display: flex;
-	            flex-direction: column;
-	            gap: 0.3rem;
-	            max-height: 400px;
-	            overflow-y: auto;
-	            width: 100%;
-	        }
+		        .mall-category-sidebar h5 {
+		            color: var(--text-color);
+		            font-weight: 600;
+		            margin-bottom: 1rem;
+		            padding-bottom: 0.5rem;
+		            border-bottom: none;
+		            font-size: 1.1rem;
+		            text-align: center;
+		        }
 
-	        /* 按鈕占滿側邊欄寬度 */
-	        .malltag-item {
-	            display: flex;
-	            align-items: center;
-	            justify-content: center;
-	            padding: 1rem 1.5rem;
-	            background: var(--theme-white);
-	            border: 1px solid var(--border-color);
-	            border-radius: 10px;
-	            text-decoration: none;
-	            color: var(--text-color);
-	            transition: all 0.3s ease;
-	            cursor: pointer;
-	            position: relative;
-	            margin-bottom: 0.3rem;
-	            width: 100%;
-	            min-height: 60px;
-	            box-sizing: border-box;
-	        }
+		        .malltag-container {
+		            display: flex;
+		            flex-direction: column;
+		            gap: 0.3rem;
+		            max-height: 400px;
+		            overflow-y: auto;
+		            width: 100%;
+		        }
 
-	        .malltag-item:hover {
-	            background: var(--bg-icons-hover);
-	            color: var(--text-color);
-	            transform: none;
-	            box-shadow: 0 4px 10px 2px rgba(0, 0, 0, 0.2);
-	            text-decoration: none;
-	        }
+		        .malltag-item {
+		            display: flex;
+		            align-items: center;
+		            justify-content: center;
+		            padding: 1rem 1.5rem;
+		            background: var(--theme-white);
+		            border: 1px solid var(--border-color);
+		            border-radius: 10px;
+		            text-decoration: none;
+		            color: var(--text-color);
+		            transition: all 0.3s ease;
+		            cursor: pointer;
+		            position: relative;
+		            margin-bottom: 0.3rem;
+		            width: 100%;
+		            min-height: 60px;
+		            box-sizing: border-box;
+		        }
 
-	        .malltag-item.active {
-	            background: var(--bg-icons-hover);
-	            color: var(--text-color);
-	            border-color: var(--bg-icons-border-hover);
-	        }
+		        .malltag-item:hover {
+		            background: var(--bg-icons-hover);
+		            color: var(--text-color);
+		            transform: none;
+		            box-shadow: 0 4px 10px 2px rgba(0, 0, 0, 0.2);
+		            text-decoration: none;
+		        }
 
-	        /* 文字樣式 */
-	        .malltag-name {
-	            font-weight: 600;
-	            font-size: 1.2rem;
-	            color: var(--text-color);
-	            text-align: center;
-	            width: 100%;
-	            line-height: 1.4;
-	        }
+		        .malltag-item.active {
+		            background: var(--bg-icons-hover);
+		            color: var(--text-color);
+		            border-color: var(--bg-icons-border-hover);
+		        }
 
-	        .loading-malltags {
-	            display: flex;
-	            align-items: center;
-	            justify-content: center;
-	            padding: 2rem;
-	            color: var(--text-color);
-	            font-size: 1rem;
-	            width: 100%;
-	        }
+		        .malltag-name {
+		            font-weight: 600;
+		            font-size: 1.2rem;
+		            color: var(--text-color);
+		            text-align: center;
+		            width: 100%;
+		            line-height: 1.4;
+		        }
 
-	        .loading-spinner {
-	            width: 20px;
-	            height: 20px;
-	            border: 2px solid var(--border-color);
-	            border-top: 2px solid var(--green-color);
-	            border-radius: 50%;
-	            animation: spin 1s linear infinite;
-	            margin-right: 0.5rem;
-	        }
+		        .loading-malltags {
+		            display: flex;
+		            align-items: center;
+		            justify-content: center;
+		            padding: 2rem;
+		            color: var(--text-color);
+		            font-size: 1rem;
+		            width: 100%;
+		        }
 
-	        /* 商品顯示區域樣式 - 修正佈局 */
-	        .products-grid {
-	            display: grid;
-	            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-	            gap: 1.5rem;
-	            margin-bottom: 2rem;
-	        }
+		        .loading-spinner {
+		            width: 20px;
+		            height: 20px;
+		            border: 2px solid var(--border-color);
+		            border-top: 2px solid var(--green-color);
+		            border-radius: 50%;
+		            animation: spin 1s linear infinite;
+		            margin-right: 0.5rem;
+		        }
 
-	        .product-card {
-	            background: var(--theme-white);
-	            border: 1px solid var(--border-color);
-	            border-radius: 13px;
-	            overflow: hidden;
-	            transition: all 0.3s ease;
-	            box-shadow: 0px 30px 40px rgb(2 45 62 / 8%);
-	            display: flex;
-	            flex-direction: column;
-	            height: 100%; /* 確保所有卡片等高 */
-	        }
+		        /* 商品顯示區域樣式 - 修正佈局 */
+		        .products-grid {
+		            display: grid;
+		            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		            gap: 1.5rem;
+		            margin-bottom: 2rem;
+		        }
 
-	        .product-card:hover {
-	            transform: translateY(-4px);
-	            box-shadow: 0 16px 30px 2px rgba(0, 0, 0, 0.26);
-	        }
+		        /* 修正商品卡片 - 確保購物車按鈕不被裁切 */
+		        .product-card {
+		            background: var(--theme-white);
+		            border: 1px solid var(--border-color);
+		            border-radius: 13px;
+		            overflow: hidden; /* 保持 overflow: hidden */
+		            transition: all 0.3s ease;
+		            box-shadow: 0px 30px 40px rgb(2 45 62 / 8%);
+		            display: flex;
+		            flex-direction: column;
+		            height: 100%;
+		        }
 
-	        /* 修正圖片樣式 - 完整顯示圖片 */
-	        .product-image {
-	            width: 100%;
-	            height: 200px;
-	            object-fit: contain; /* 改為 contain 完整顯示圖片 */
-	            background: var(--bg-color);
-	            flex-shrink: 0; /* 防止圖片被壓縮 */
-	            padding: 0.5rem; /* 添加一點內邊距 */
-	            box-sizing: border-box; /* 確保 padding 不會增加總寬度 */
-	        }
+		        .product-card:hover {
+		            transform: translateY(-4px);
+		            box-shadow: 0 16px 30px 2px rgba(0, 0, 0, 0.26);
+		        }
 
-	        /* 修正商品資訊區域 */
-	        .product-info {
-	            padding: 1.25rem;
-	            position: relative;
-	            display: flex;
-	            flex-direction: column;
-	            flex-grow: 1; /* 讓這個區域填滿剩餘空間 */
-	        }
+		        /* 商品卡片點擊區域 */
+		        .product-clickable-area {
+		            cursor: pointer;
+		            flex-grow: 1;
+		            display: flex;
+		            flex-direction: column;
+		        }
 
-	        .product-name {
-	            font-weight: 600;
-	            font-size: 1.1rem;
-	            color: var(--text-color);
-	            margin-bottom: 0.5rem;
-	            line-height: 1.4;
-	            display: -webkit-box;
-	            -webkit-line-clamp: 2;
-	            -webkit-box-orient: vertical;
-	            overflow: hidden;
-	            flex-grow: 1; /* 讓標題區域可以彈性調整 */
-	        }
+		        .product-clickable-area:hover {
+		            opacity: 0.9;
+		        }
 
-	        .product-price {
-	            font-size: 1.2rem;
-	            font-weight: 700;
-	            color: var(--text-color);
-	            margin-bottom: 1rem;
-	            margin-top: auto; /* 將價格推到可用空間的底部 */
-	        }
+		        /* 修正圖片樣式 */
+		        .product-image {
+		            width: 100%;
+		            height: 200px;
+		            object-fit: contain;
+		            background: var(--bg-color);
+		            flex-shrink: 0;
+		            padding: 0.5rem;
+		            box-sizing: border-box;
+		        }
 
-	        /* 購物車按鈕區域 - 固定在底部 */
-	        .product-cart-area {
-	            background: var(--green-color);
-	            margin: 0 -1.25rem -1.25rem -1.25rem; /* 不要 margin-top */
-	            padding: 0.75rem 1.25rem;
-	            display: flex;
-	            align-items: center;
-	            justify-content: center;
-	            cursor: pointer;
-	            transition: all 0.3s ease;
-	            margin-top: auto; /* 確保按鈕在底部 */
-	        }
+		        /* 修正商品資訊區域 */
+		        .product-info {
+		            padding: 1.25rem;
+		            position: relative;
+		            display: flex;
+		            flex-direction: column;
+		            flex-grow: 1;
+		        }
 
-	        .product-cart-area:hover {
-	            background: var(--green-color-hover);
-	        }
+		        .product-name {
+		            font-weight: 600;
+		            font-size: 1.1rem;
+		            color: var(--text-color);
+		            margin-bottom: 0.5rem;
+		            line-height: 1.4;
+		            display: -webkit-box;
+		            -webkit-line-clamp: 2;
+		            -webkit-box-orient: vertical;
+		            overflow: hidden;
+		            flex-grow: 1;
+		        }
 
-	        .product-cart-icon {
-	            color: var(--white);
-	            font-size: 1.2rem;
-	            margin-right: 0.5rem;
-	        }
+		        /* 修正價格樣式 - 移除底部間距 */
+		        .product-price {
+		            font-size: 1.2rem;
+		            font-weight: 700;
+		            color: var(--text-color);
+		            margin-bottom: 0;
+		            margin-top: auto;
+		        }
 
-	        .product-cart-text {
-	            color: var(--white);
-	            font-weight: 500;
-	            font-size: 0.9rem;
-	        }
+		        /* 修正購物車按鈕 - 不使用負邊距 */
+		        .product-cart-area {
+		            background: var(--green-color);
+		            margin: 0; /* 移除所有負邊距 */
+		            padding: 0.75rem 1.25rem;
+		            display: flex;
+		            align-items: center;
+		            justify-content: center;
+		            cursor: pointer;
+		            transition: all 0.3s ease;
+		            border-radius: 0 0 13px 13px; /* 只讓底部圓角 */
+		        }
 
-	        .products-header h4 {
-	            color: var(--text-color);
-	            margin: 0;
-	            font-size: 1.3rem;
-	        }
+		        .product-cart-icon {
+		            color: var(--white);
+		            font-size: 1.2rem;
+		            margin-right: 0.5rem;
+		        }
 
-	        .malltag-error,
-	        .products-error {
-	            text-align: center;
-	            padding: 1.5rem;
-	            color: var(--theme);
-	            font-size: 1rem;
-	            width: 100%;
-	        }
+		        .product-cart-text {
+		            color: var(--white);
+		            font-weight: 500;
+		            font-size: 0.9rem;
+		        }
 
-	        /* 滾動條樣式 */
-	        .malltag-container::-webkit-scrollbar {
-	            width: 8px;
-	        }
+		        .products-header h4 {
+		            color: var(--text-color);
+		            margin: 0;
+		            font-size: 1.3rem;
+		        }
 
-	        .malltag-container::-webkit-scrollbar-track {
-	            background: var(--bg-color);
-	            border-radius: 4px;
-	        }
+		        .malltag-error,
+		        .products-error {
+		            text-align: center;
+		            padding: 1.5rem;
+		            color: var(--theme);
+		            font-size: 1rem;
+		            width: 100%;
+		        }
 
-	        .malltag-container::-webkit-scrollbar-thumb {
-	            background: var(--green-color);
-	            border-radius: 4px;
-	        }
+		        /* 滾動條樣式 */
+		        .malltag-container::-webkit-scrollbar {
+		            width: 8px;
+		        }
 
-	        @keyframes spin {
-	            to { transform: rotate(360deg); }
-	        }
+		        .malltag-container::-webkit-scrollbar-track {
+		            background: var(--bg-color);
+		            border-radius: 4px;
+		        }
 
-	        /* 響應式設計 */
-	        @media (max-width: 768px) {
-	            .mall-category-sidebar {
-	                margin-bottom: 1.5rem;
-	            }
-	            
-	            .products-grid {
-	                grid-template-columns: 1fr;
-	            }
-	            
-	            .malltag-item {
-	                padding: 0.8rem 1.2rem;
-	                min-height: 50px;
-	            }
-	            
-	            .malltag-name {
-	                font-size: 1.1rem;
-	            }
-	            
-	            .mall-category-sidebar h5 {
-	                font-size: 1rem;
-	                text-align: center;
-	            }
-	        }
-	    `;
-	    
-	    document.head.appendChild(style);
+		        .malltag-container::-webkit-scrollbar-thumb {
+		            background: var(--green-color);
+		            border-radius: 4px;
+		        }
+
+		        @keyframes spin {
+		            to { transform: rotate(360deg); }
+		        }
+
+		        /* 響應式設計 */
+		        @media (max-width: 768px) {
+		            .mall-category-sidebar {
+		                margin-bottom: 1.5rem;
+		            }
+		            
+		            .products-grid {
+		                grid-template-columns: 1fr;
+		            }
+		            
+		            .malltag-item {
+		                padding: 0.8rem 1.2rem;
+		                min-height: 50px;
+		            }
+		            
+		            .malltag-name {
+		                font-size: 1.1rem;
+		            }
+		            
+		            .mall-category-sidebar h5 {
+		                font-size: 1rem;
+		                text-align: center;
+		            }
+		        }
+		    `;
+
+		document.head.appendChild(style);
 	}
-	
+
 	/**
 	 * 從資料庫載入標籤資料
 	 */
@@ -414,46 +446,115 @@ class MallTagManager {
 	 * 處理 API 回傳的標籤資料
 	 */
 	processMalltagData(rawData) {
-	    let processedData = [];
-	    
-	    // 首先添加"全部"選項
-	    processedData.push({
-	        id: 'all',
-	        name: '全部',
-	        icon: '全'
-	    });
-	    
-	    // 然後添加從API獲取的標籤
-	    if (Array.isArray(rawData)) {
-	        const apiTags = rawData.map(tag => ({
-	            id: tag.id,
-	            name: tag.mallTagName,
-	            icon: tag.mallTagName.charAt(0).toUpperCase()
-	        }));
-	        processedData = processedData.concat(apiTags);
-	    }
-	    
-	    return processedData;
+		let processedData = [];
+
+		// 首先添加"全部"選項
+		processedData.push({
+			id: 'all',
+			name: '全部',
+			icon: '全'
+		});
+
+		// 然後添加從API獲取的標籤
+		if (Array.isArray(rawData)) {
+			const apiTags = rawData.map(tag => ({
+				id: tag.id,
+				name: tag.mallTagName,
+				icon: tag.mallTagName.charAt(0).toUpperCase()
+			}));
+			processedData = processedData.concat(apiTags);
+		}
+
+		return processedData;
+	}
+
+	/**
+	 * 從 URL 獲取分類參數
+	 */
+	getCategoryFromUrl() {
+		const urlParams = new URLSearchParams(window.location.search);
+		const categoryId = urlParams.get('category');
+
+		if (categoryId && categoryId !== 'all') {
+			return categoryId;
+		}
+
+		return null;
+	}
+
+	/**
+	 * 根據 URL 參數自動選擇分類
+	 */
+	autoSelectCategoryFromUrl() {
+		const categoryId = this.getCategoryFromUrl();
+
+		if (categoryId) {
+			console.log('從 URL 獲取分類ID:', categoryId);
+
+			// 尋找對應的分類項目
+			const targetTag = this.malltagContainer.querySelector(`[data-malltag-id="${categoryId}"]`);
+
+			if (targetTag) {
+				console.log('找到目標分類，自動選擇');
+				this.handleMalltagClick(targetTag);
+				return true;
+			} else {
+				console.warn('URL 中的分類ID不存在，使用預設選項');
+			}
+		}
+
+		// 如果沒有 URL 參數或找不到對應分類，選擇"全部"
+		this.autoSelectAllOption();
+		return false;
+	}
+
+	/**
+	 * 更新 URL 中的分類參數
+	 */
+	updateUrlWithCategory(categoryId) {
+		if (!window.history || !window.history.pushState) {
+			return; // 不支援 History API
+		}
+
+		const url = new URL(window.location);
+
+		if (categoryId === 'all') {
+			// 移除 category 參數
+			url.searchParams.delete('category');
+		} else {
+			// 設定 category 參數
+			url.searchParams.set('category', categoryId);
+		}
+
+		// 更新 URL（不重新載入頁面）
+		window.history.pushState({}, '', url);
+		console.log('URL 已更新:', url.toString());
 	}
 
 	/**
 	 * 渲染標籤列表
 	 */
 	renderMalltags() {
-	    if (!this.malltagContainer) return;
+		console.log('開始渲染標籤列表...');
 
-	    if (this.malltagData.length === 0) {
-	        this.showError('沒有可用的商城標籤');
-	        return;
-	    }
+		if (!this.malltagContainer) {
+			console.error('標籤容器不存在');
+			return;
+		}
 
-	    const malltagList = this.malltagData.map(tag => this.createMalltagItem(tag)).join('');
-	    this.malltagContainer.innerHTML = malltagList;
-	    
-	    // 自動選擇並載入"全部"選項
-	    this.autoSelectAllOption();
+		if (this.malltagData.length === 0) {
+			console.warn('沒有標籤資料');
+			this.showError('沒有可用的商城標籤');
+			return;
+		}
+
+		const malltagList = this.malltagData.map(tag => this.createMalltagItem(tag)).join('');
+		this.malltagContainer.innerHTML = malltagList;
+		console.log('標籤列表渲染完成');
+
+		// 根據 URL 參數或預設選擇分類
+		this.autoSelectCategoryFromUrl();
 	}
-
 
 	/**
 	 * 創建單個標籤項目
@@ -488,60 +589,65 @@ class MallTagManager {
 	 * 處理標籤點擊
 	 */
 	handleMalltagClick(malltagItem) {
-	    const tagId = malltagItem.dataset.malltagId;
-	    const tagName = malltagItem.dataset.malltagName;
+		const tagId = malltagItem.dataset.malltagId;
+		const tagName = malltagItem.dataset.malltagName;
 
-	    // 更新選中狀態
-	    this.updateSelectedTag(malltagItem);
+		// 更新選中狀態
+		this.updateSelectedTag(malltagItem);
 
-	    // 顯示商品標題
-	    this.showProductsHeader(tagName);
+		// 顯示商品標題
+		this.showProductsHeader(tagName);
 
-	    // 根據選擇的標籤ID決定搜尋方式
-	    if (tagId === 'all') {
-	        this.searchAllProducts();
-	    } else {
-	        this.searchProducts(tagId);
-	    }
+		// 更新 URL（不重新載入頁面）
+		this.updateUrlWithCategory(tagId);
 
-	    console.log(`選擇了標籤: ${tagName} (ID: ${tagId})`);
+		// 根據選擇的標籤ID決定搜尋方式
+		if (tagId === 'all') {
+			this.searchAllProducts();
+		} else {
+			this.searchProducts(tagId);
+		}
+
+		console.log(`選擇了標籤: ${tagName} (ID: ${tagId})`);
 	}
-	
+
 	async searchAllProducts() {
-	    try {
-	        this.showProductsLoading();
+		try {
+			this.showProductsLoading();
 
-	        const url = `${this.apiBaseUrl}/product/searchall`;
-	        const response = await fetch(url);
+			const url = `${this.apiBaseUrl}/product/searchall`;
+			const response = await fetch(url);
 
-	        if (!response.ok) {
-	            throw new Error(`HTTP error! status: ${response.status}`);
-	        }
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
 
-	        const products = await response.json();
-	        this.displayProducts(products);
+			const products = await response.json();
+			this.displayProducts(products);
 
-	    } catch (error) {
-	        console.error('搜尋所有商品失敗:', error);
-	        this.showProductsError('搜尋失敗，請檢查網路連接或後端服務是否正常運行');
-	    } finally {
-	        this.hideProductsLoading();
-	    }
+		} catch (error) {
+			console.error('搜尋所有商品失敗:', error);
+			this.showProductsError('搜尋失敗，請檢查網路連接或後端服務是否正常運行');
+		} finally {
+			this.hideProductsLoading();
+		}
 	}
+
 	autoSelectAllOption() {
-	    const allOption = this.malltagContainer.querySelector('[data-malltag-id="all"]');
-	    if (allOption) {
-	        // 設置為選中狀態
-	        allOption.classList.add('active');
-	        this.currentSelectedTag = allOption;
-	        
-	        // 顯示標題
-	        this.showProductsHeader('全部');
-	        
-	        // 載入所有商品
-	        this.searchAllProducts();
-	    }
+		const allOption = this.malltagContainer.querySelector('[data-malltag-id="all"]');
+		if (allOption) {
+			// 設置為選中狀態
+			allOption.classList.add('active');
+			this.currentSelectedTag = allOption;
+
+			// 顯示標題
+			this.showProductsHeader('全部');
+
+			// 載入所有商品
+			this.searchAllProducts();
+		}
 	}
+
 	/**
 	 * 更新選中標籤的視覺狀態
 	 */
@@ -560,17 +666,17 @@ class MallTagManager {
 	 * 顯示商品區域標題
 	 */
 	showProductsHeader(tagName) {
-	    const productsHeader = document.querySelector('.products-header');
-	    const productsTitle = document.getElementById('products-title');
+		const productsHeader = document.querySelector('.products-header');
+		const productsTitle = document.getElementById('products-title');
 
-	    if (productsHeader && productsTitle) {
-	        if (tagName === '全部') {
-	            productsTitle.textContent = '所有商品';
-	        } else {
-	            productsTitle.textContent = `${tagName} - 商品列表`;
-	        }
-	        productsHeader.style.display = 'block';
-	    }
+		if (productsHeader && productsTitle) {
+			if (tagName === '全部') {
+				productsTitle.textContent = '所有商品';
+			} else {
+				productsTitle.textContent = `${tagName} - 商品列表`;
+			}
+			productsHeader.style.display = 'block';
+		}
 	}
 
 	/**
@@ -627,24 +733,28 @@ class MallTagManager {
 	 * 創建商品卡片
 	 */
 	createProductCard(product) {
+		console.log('創建商品卡片，ID:', product.id);
+
 		return `
-            <div class="product-card">
-                <img src="${this.apiBaseUrl}/product/cover/${product.id}" 
-                     alt="${this.escapeHtml(product.proName)}" 
-                     class="product-image"
-                     onerror="this.src='${this.generatePlaceholderImage()}'">
-                <div class="product-info">
-                    <div class="product-name">${this.escapeHtml(product.proName)}</div>
-                    <div class="product-price">NT$ ${this.formatPrice(product.proPrice)}</div>
-                    
-                    <!-- 購物車按鈕區域 -->
-                    <div class="product-cart-area" onclick="addToCart('${product.id}')">
-                        <i class="bi bi-cart-plus product-cart-icon"></i>
-                        <span class="product-cart-text">加入購物車</span>
-                    </div>
-                </div>
-            </div>
-        `;
+	        <div class="product-card" data-product-id="${product.id}">
+	            <div class="product-clickable-area" onclick="window.location.href='product.html?id=${product.id}'">
+	                <img src="${this.apiBaseUrl}/product/cover/${product.id}" 
+	                     alt="${this.escapeHtml(product.proName)}" 
+	                     class="product-image"
+	                     onerror="this.src='${this.generatePlaceholderImage()}'">
+	                <div class="product-info">
+	                    <div class="product-name">${this.escapeHtml(product.proName)}</div>
+	                    <div class="product-price">NT$ ${this.formatPrice(product.proPrice)}</div>
+	                </div>
+	            </div>
+	            
+	            <!-- 購物車按鈕區域 -->
+	            <div class="product-cart-area" onclick="event.stopPropagation(); addToCart('${product.id}')">
+	                <i class="bi bi-cart-plus product-cart-icon"></i>
+	                <span class="product-cart-text">加入購物車</span>
+	            </div>
+	        </div>
+	    `;
 	}
 
 	/**
@@ -765,7 +875,20 @@ class MallTagManager {
 			this.productsContainer.innerHTML = '';
 		}
 	}
+
+	/**
+	 * 檢查是否已初始化
+	 */
+	isReady() {
+		return this.isInitialized;
+	}
 }
+
+// 全域函數 - 處理商品點擊（與 HTML 中的 handleProductClick 保持一致）
+window.handleProductClick = function(productId) {
+	console.log('跳轉到商品詳情頁面，ID:', productId);
+	window.location.href = `product.html?id=${productId}`;
+};
 
 // 臨時的購物車功能（先顯示提示，後續可以擴展）
 function addToCart(productId) {
@@ -822,8 +945,8 @@ function addToCart(productId) {
 	}, 3000);
 }
 
-// 初始化標籤管理器
-const mallTagManager = new MallTagManager();
-
 // 導出到全域範圍供其他腳本使用
 window.MallTagManager = MallTagManager;
+
+// 創建實例但不自動初始化（由 HTML 控制）
+window.mallTagManager = new MallTagManager();
