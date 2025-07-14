@@ -92,7 +92,7 @@ public class OrderDTO {
                 return "danger";    // 紅色 - 失敗/取消
             } else if (progressPercentage >= 80) {
                 return "warning";   // 橙色 - 處理中/已出貨
-            } else if (progressPercentage >= 40) {  // 🆕 新增這個範圍給 PAYING
+            } else if (progressPercentage >= 40) {  // 新增這個範圍給 PAYING
                 return "primary";   // 藍色 - 付款處理中
             } else {
                 return "info";      // 淺藍色 - 等待付款
