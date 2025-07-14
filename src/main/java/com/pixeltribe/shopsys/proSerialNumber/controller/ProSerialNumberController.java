@@ -110,11 +110,11 @@ public class ProSerialNumberController {
     }
     @Transactional
     @PostMapping("/productsn/allstock")
-    public ResponseEntity<Map<Integer, Long>> getProductStock(@RequestBody List<Integer> proNos) {
+    public ResponseEntity<Map<Integer, Integer>> getProductStock(@RequestBody List<Integer> proNos) {
         try {
-            Map<Integer, Long> stockMap = new HashMap<>();
+            Map<Integer, Integer> stockMap = new HashMap<>();
             for (Integer proNo : proNos) {
-                Long stockCount = proSerialNumberService.countStock(proNo);
+            	Integer stockCount = proSerialNumberService.countStock(proNo);
                 stockMap.put(proNo, stockCount);
             }
             return ResponseEntity.ok(stockMap);
@@ -124,12 +124,12 @@ public class ProSerialNumberController {
     }
     
     @GetMapping("/productsn/stock/{proNo}")
-    public ResponseEntity<Long> getStock(@PathVariable Integer proNo) {
+    public ResponseEntity<Integer> getStock(@PathVariable Integer proNo) {
         try {
-            Long stockCount = proSerialNumberService.countStock(proNo);
+        	Integer stockCount = proSerialNumberService.countStock(proNo);
             return ResponseEntity.ok(stockCount);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(0L);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(0);
         }
     }
 }
