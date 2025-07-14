@@ -12,7 +12,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.pixeltribe.shopsys.order.model.OrderDTO;
 import com.pixeltribe.shopsys.orderItem.model.OrderItemDTO;
 
 import jakarta.mail.internet.MimeMessage;

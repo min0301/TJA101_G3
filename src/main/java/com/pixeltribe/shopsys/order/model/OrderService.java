@@ -59,11 +59,6 @@ public class OrderService {
 	        return orderRepository.save(order);
 	    }
 	
-	//  ========== 改 ========== //
-	public void update() {
-		
-	}
-	
 	//  ========== 查-單一查詢 ========== //
 	public Order getOneOrder(Integer orderNo) {
 		Optional<Order> optional = orderRepository.findById(orderNo);
@@ -71,9 +66,7 @@ public class OrderService {
 	}
 	
 	//  ========== 查-查全部 ========== //
-	public List<Order> getAllOrder(){
-		return orderRepository.findAll();
-	}
+	
 	
 	//  ========== PaymentService 需要的功能 ========== //
 	/*  
