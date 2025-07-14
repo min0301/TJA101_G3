@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>論壇文章管理後台</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrNjHq3R8U6/S3A7+wP9m/8M+2yF8zN4Fp9J5N6d5qKj5K5f5A7f5D5f5+5G5+5Q5+5g5+5h5+5Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <style>
         /* CSS 樣式區 - 定義頁面外觀 */
 
@@ -229,49 +230,53 @@
             }
             /* 到完全不透明 */
         }
+        /* 封面圖片 (新增) */
+        thead th:nth-child(1) {
+            width: 10%;
+        }
 
         /* 表格欄位寬度設定 */
-        thead th:nth-child(1) {
+        thead th:nth-child(2) {
             width: 5%;
         }
 
         /* 文章 ID */
-        thead th:nth-child(2) {
+        thead th:nth-child(3) {
             width: 20%;
         }
 
         /* 文章標題 */
-        thead th:nth-child(3) {
+        thead th:nth-child(4) {
             width: 10%;
         }
 
         /* 作者 */
-        thead th:nth-child(4) {
-            width: 15%;
-        }
-
-        /* 所屬討論區 */
         thead th:nth-child(5) {
             width: 15%;
         }
 
-        /* 發文時間 */
+        /* 所屬討論區 */
         thead th:nth-child(6) {
-            width: 8%;
+            width: 15%;
         }
 
-        /* 留言數 */
+        /* 發文時間 */
         thead th:nth-child(7) {
             width: 8%;
         }
 
-        /* 讚數 */
+        /* 留言數 */
         thead th:nth-child(8) {
             width: 8%;
         }
 
-        /* 倒讚數 */
+        /* 讚數 */
         thead th:nth-child(9) {
+            width: 8%;
+        }
+
+        /* 倒讚數 */
+        thead th:nth-child(10) {
             width: 11%;
         }
 
@@ -336,8 +341,7 @@
 
         .modal-form-group input[type="text"],
         .modal-form-group textarea,
-        .modal-form-group select,
-        .modal-form-group input[type="file"] { /* 新增 file 類型樣式 */
+        .modal-form-group select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -345,6 +349,28 @@
             box-sizing: border-box;
             font-size: 15px;
         }
+        /* 新增 input[type="radio"] 的樣式，使其與 input[type="file"] 同行對齊 */
+        .modal-form-group input[type="radio"] {
+            width: auto; /* 取消 100% 寬度 */
+            margin-right: 5px; /* 與 label 間隔 */
+            vertical-align: middle; /* 垂直對齊 */
+        }
+        .modal-form-group label[for^="modalUse"], .modal-form-group label[for^="modalUpload"] {
+            display: inline-block; /* 讓 label 與 radio button 在同一行 */
+            margin-bottom: 0;
+            font-weight: normal;
+            vertical-align: middle;
+        }
+        .modal-form-group input[type="file"] { /* 新增 file 類型樣式 */
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 15px;
+            margin-top: 10px; /* 與上方 radio button 間隔 */
+        }
+
 
         .modal-form-group textarea {
             min-height: 120px;
@@ -391,6 +417,66 @@
             margin-top: 5px;
             display: block;
         }
+        /* 在 allForumPost.html 的 <style> 標籤內添加以下樣式 */
+
+        .image-source-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .image-source-label {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+            flex-grow: 1;
+            justify-content: center;
+        }
+
+        .image-source-label:hover {
+            background-color: #f0f0f0;
+            border-color: #999;
+        }
+
+        .image-source-label input[type="radio"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #aaa;
+            border-radius: 50%;
+            margin-right: 10px;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-source-label input[type="radio"]:checked {
+            border-color: #27ae60;
+            background-color: #fff;
+        }
+
+        .image-source-label input[type="radio"]:checked::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background-color: #27ae60;
+            border-radius: 50%;
+            display: block;
+        }
+
+        .image-source-label span {
+            font-weight: normal;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -408,6 +494,7 @@
 <table>
     <thead>
     <tr>
+        <th>文章封面圖</th>
         <th>文章ID</th>
         <th>文章標題</th>
         <th>作者</th>
@@ -481,10 +568,16 @@
             </div>
 
             <div class="modal-form-group">
-                <label for="modalPostCoverImage">文章封面圖片:</label>
-                <input type="file" id="modalPostCoverImage" name="imageFile" accept="image/*">
-                <span class="modal-error-feedback" id="modalPostCoverImageError"></span>
-                <img id="currentPostCoverImage" src="" alt="當前封面圖片" style="max-width: 150px; margin-top: 10px; display: none;">
+                <label>文章封面圖片:</label>
+                <div class="image-source-options"> <label class="image-source-label"> <input type="radio" id="modalUseDefaultImage" name="modalImageSource" value="default" checked>
+                    <span>使用預設圖片</span> </label>
+                    <label class="image-source-label"> <input type="radio" id="modalUploadCustomImage" name="modalImageSource" value="custom">
+                        <span>上傳自訂圖片</span>
+                    </label>
+                </div>
+                <img id="modalDefaultImagePreview" src="" alt="預設圖片預覽" style="max-width: 150px; margin-top: 10px; display: none;">
+                <input type="file" id="modalPostImageFile" name="imageFile" accept="image/*" style="display: none;">
+                <img id="currentPostImage" src="" alt="當前封面圖片" style="max-width: 150px; margin-top: 10px; display: none;">
             </div>
 
             <div class="modal-form-group">
@@ -539,6 +632,15 @@
         const API_FORUM_SEGMENT = '/forum';
         const API_FORUM_TAG_SEGMENT = '/forumtag';
 
+        // 【新增】預設圖片映射與路徑 (與 addForumPost.html 保持一致)
+        const DEFAULT_IMAGE_BASE_PATH = 'http://localhost:8080/images/forumposttag_img/';
+        const DEFAULT_IMAGE_MAP = {
+            1: '01.jpg', 2: '02.jpg', 3: '03.jpg', 4: '04.jpg', 5: '05.jpg',
+            6: '06.jpg', 7: '07.jpg', 8: '08.jpg', 9: '09.jpg', 10: '10.jpg', 11: '11.jpg'
+        };
+
+
+
         // 載入所有文章列表或特定論壇的文章列表
         async function initialize() {
             try {
@@ -591,10 +693,12 @@
 
                 // 判斷是否有圖片URL，如果有則顯示縮圖
                 const postImageHtml = post.postCoverImageUrl ?
-                    `<a href="${post.postCoverImageUrl}" target="_blank"><img src="${post.postCoverImageUrl}" alt="封面" class="forum-thumbnail"></a>` :
+                    `<a href="../${post.postCoverImageUrl}" target="_blank"><img src="${post.postCoverImageUrl}" alt="封面" class="forum-thumbnail"></a>` :
+
                     '無圖片';
 
                 row.innerHTML = `
+                    <td>${postImageHtml}</td>
                     <td>${post.id}</td>
                     <td>${post.postTitle || '無標題'}</td>
                     <td>${post.memberName || '匿名'}</td>
@@ -693,8 +797,14 @@
         const modalFtagNoIdSelect = document.getElementById('modalFtagNoId');
         const modalPostPinCheckbox = document.getElementById('modalPostPin');
         const modalPostStatusCheckbox = document.getElementById('modalPostStatus');
-        const modalPostCoverImageInput = document.getElementById('modalPostCoverImage'); // 圖片上傳 input
-        const currentPostCoverImage = document.getElementById('currentPostCoverImage'); // 當前圖片顯示
+
+        // 【新增】編輯模態框的圖片相關元素
+        const modalUseDefaultImageRadio = document.getElementById('modalUseDefaultImage');
+        const modalUploadCustomImageRadio = document.getElementById('modalUploadCustomImage');
+        const modalDefaultImagePreview = document.getElementById('modalDefaultImagePreview');
+        const modalPostImageFileInput = document.getElementById('modalPostImageFile'); // 檔案上傳 input
+
+        const currentPostImage = document.getElementById('currentPostImage'); // 當前圖片顯示 (用於顯示已存在的圖片)
         const editForumPostModalForm = document.getElementById('editForumPostModalForm');
         const modalErrorMessagesDiv = document.getElementById('modal-error-messages');
 
@@ -713,8 +823,15 @@
             editModal.style.display = 'none';
             editForumPostModalForm.reset(); // 重置表單
             clearModalErrors(); // 清除錯誤訊息
-            currentPostCoverImage.style.display = 'none'; // 隱藏圖片
-            currentPostCoverImage.src = ''; // 清空圖片源
+            currentPostImage.style.display = 'none'; // 隱藏已存在的圖片
+            currentPostImage.src = ''; // 清空已存在的圖片源
+
+            // 【新增】重置模態框圖片選擇狀態
+            modalUseDefaultImageRadio.checked = true; // 預設選中「使用預設圖片」
+            modalPostImageFileInput.style.display = 'none'; // 隱藏文件選擇
+            modalPostImageFileInput.value = ''; // 清空文件選擇
+            modalDefaultImagePreview.style.display = 'none'; // 隱藏預覽圖
+            modalDefaultImagePreview.src = ''; // 清空預覽圖源
         }
 
         // 處理模態框錯誤訊息
@@ -750,29 +867,37 @@
         async function loadModalSelectOptions() {
             try {
                 // 載入討論區
-                const forumResponse = await fetch(`${API_BASE_URL}/api${API_FORUM_SEGMENT}/all`); // 修改後的路徑
-                if (!forumResponse.ok) throw new Error(`載入討論區失敗: ${forumResponse.statusText}`);
+                const forumResponse = await fetch(`${API_BASE_URL}/api/forums`);
+                if (!forumResponse.ok) {
+                    throw new Error(`載入討論區失敗: ${forumResponse.statusText} (HTTP ${forumResponse.status})`);
+                }
                 const forums = await forumResponse.json();
                 modalForNoIdSelect.innerHTML = '<option value="">請選擇討論區</option>';
                 forums.forEach(forum => {
                     const option = document.createElement('option');
-                    option.value = forum.id;
-                    option.textContent = forum.forName;
+                    // 確保這裡的屬性名與 ForumDetailDTO.java 中的屬性名一致
+                    option.value = forum.id; // ForumDetailDTO 中的 ID 屬性是 'id'
+                    option.textContent = forum.forName; // ForumDetailDTO 中的名稱屬性是 'forName'
                     modalForNoIdSelect.appendChild(option);
                 });
 
                 // 載入文章類別
-                const ftagResponse = await fetch(`${API_BASE_URL}/api${API_FORUM_TAG_SEGMENT}/all`); // 修改後的路徑
-                if (!ftagResponse.ok) throw new Error(`載入文章類別失敗: ${ftagResponse.statusText}`);
+                // 根據您的 ForumTagController.java，獲取所有文章類別的 API 是 /api/forumtag
+                const ftagResponse = await fetch(`${API_BASE_URL}/api/forumtag`);
+                if (!ftagResponse.ok) {
+                    throw new Error(`載入文章類別失敗: ${ftagResponse.statusText} (HTTP ${ftagResponse.status})`);
+                }
                 const forumTags = await ftagResponse.json();
                 modalFtagNoIdSelect.innerHTML = '<option value="">請選擇文章類別</option>';
                 forumTags.forEach(tag => {
                     const option = document.createElement('option');
-                    option.value = tag.id;
-                    option.textContent = tag.ftagName; // 假設 ForumTag 有 ftagName 屬性
+                    // 確保這裡的屬性名與 ForumTagDTO.java 中的屬性名一致
+                    option.value = tag.id; // ForumTagDTO 中的 ID 屬性是 'id'
+                    option.textContent = tag.ftagName; // ForumTagDTO 中的名稱屬性是 'ftagName'
+                    // 【新增】將預設圖片名存儲在 dataset
+                    option.dataset.defaultImage = DEFAULT_IMAGE_MAP[tag.id] || '';
                     modalFtagNoIdSelect.appendChild(option);
                 });
-
             } catch (error) {
                 showModalError(`載入選單選項失敗: ${error.message}`);
                 console.error('載入選單選項時發生錯誤:', error);
@@ -799,25 +924,80 @@
                 modalForNoIdSelect.value = post.forumId || ''; // 使用 forumId
                 modalFtagNoIdSelect.value = post.forumTagId || ''; // 使用 forumTagId
 
+                // 【修正點 4：編輯時顯示預設圖片或現有圖片】
+                const defaultImageForCurrentTag = DEFAULT_IMAGE_MAP[post.forumTagId];
+                const expectedDefaultImageUrl = defaultImageForCurrentTag ? DEFAULT_IMAGE_BASE_PATH + defaultImageForCurrentTag : '';
+
+                if (post.postCoverImageUrl && post.postCoverImageUrl === expectedDefaultImageUrl) {
+                    // 如果文章的圖片 URL 等於該類別的預設圖片 URL
+                    modalUseDefaultImageRadio.checked = true;
+                    modalDefaultImagePreview.src = post.postCoverImageUrl;
+                    modalDefaultImagePreview.style.display = 'block';
+                    modalPostImageFileInput.style.display = 'none'; // 隱藏文件輸入
+                    currentPostImage.style.display = 'none'; // 隱藏「當前封面圖片」
+                } else if (post.postCoverImageUrl) {
+                    // 如果文章有圖片 URL，且不是預設圖片（或沒有匹配的預設圖片），則顯示為自訂圖片
+                    modalUploadCustomImageRadio.checked = true;
+                    currentPostImage.src = post.postCoverImageUrl; // 顯示實際文章圖片
+                    currentPostImage.style.display = 'block';
+                    modalPostImageFileInput.style.display = 'block'; // 顯示文件輸入，讓用戶可以選擇新圖片
+                    modalDefaultImagePreview.style.display = 'none'; // 隱藏預設預覽圖
+                } else {
+                    // 如果文章沒有圖片 URL，預設選中「使用預設圖片」並顯示該類別的預設圖片
+                    modalUseDefaultImageRadio.checked = true;
+                    modalDefaultImagePreview.src = expectedDefaultImageUrl;
+                    modalDefaultImagePreview.style.display = 'block';
+                    modalPostImageFileInput.style.display = 'none';
+                    currentPostImage.style.display = 'none';
+                }
+                // 確保圖片選擇邏輯更新正確的顯示狀態
+                handleModalImageSourceChange(); // 呼叫這個函數來根據選中的 radio button 更新顯示
+
                 // 處理 Character 類型的布林值，確保它們能正確轉換為 JS 的 true/false
                 // 後端 DTO 中 postPin 和 postStatus 是 Character，這裡判斷 '1' 或 true
                 modalPostPinCheckbox.checked = (post.postPin === '1' || post.postPin === true);
                 modalPostStatusCheckbox.checked = (post.postStatus === '1' || post.postStatus === true);
 
-                // 顯示當前封面圖片
-                if (post.postCoverImageUrl) {
-                    currentPostCoverImage.src = post.postCoverImageUrl;
-                    currentPostCoverImage.style.display = 'block';
-                } else {
-                    currentPostCoverImage.style.display = 'none';
-                    currentPostCoverImage.src = '';
-                }
 
             } catch (error) {
                 showModalError(`載入文章資料失敗: ${error.message}`);
                 console.error('載入文章資料到模態框時發生錯誤:', error);
             }
         }
+
+        // 【新增】編輯模態框的圖片來源選擇處理函數
+        function handleModalImageSourceChange() {
+            if (modalUseDefaultImageRadio.checked) {
+                modalPostImageFileInput.style.display = 'none';
+                modalPostImageFileInput.value = ''; // 清空已選擇的自訂檔案
+                currentPostImage.style.display = 'none'; // 隱藏當前圖片 (因為要顯示預設圖片)
+                currentPostImage.src = '';
+
+                // 根據當前選擇的文章類別顯示預設圖片
+                const selectedOption = modalFtagNoIdSelect.options[modalFtagNoIdSelect.selectedIndex];
+                const defaultImageName = selectedOption ? selectedOption.dataset.defaultImage : '';
+                if (defaultImageName) {
+                    modalDefaultImagePreview.src = DEFAULT_IMAGE_BASE_PATH + defaultImageName;
+                    modalDefaultImagePreview.style.display = 'block';
+                } else {
+                    modalDefaultImagePreview.style.display = 'none';
+                    modalDefaultImagePreview.src = '';
+                }
+            } else { // modalUploadCustomImageRadio.checked
+                modalDefaultImagePreview.style.display = 'none';
+                modalDefaultImagePreview.src = ''; // 清空預設預覽圖片
+                modalPostImageFileInput.style.display = 'block'; // 顯示檔案上傳
+                // 這裡不清空 currentPostImage，因為用戶可能只是想「查看」現有圖片，然後再決定是否上傳新圖片
+                // currentPostImage.style.display 會在 loadPostDataToModal 中根據實際圖片是否存在而設定
+            }
+        }
+
+        // 【新增】監聽編輯模態框的文章類別選擇變更
+        modalFtagNoIdSelect.addEventListener('change', handleModalImageSourceChange);
+        // 【新增】監聽編輯模態框的圖片來源電台按鈕變更
+        modalUseDefaultImageRadio.addEventListener('change', handleModalImageSourceChange);
+        modalUploadCustomImageRadio.addEventListener('change', handleModalImageSourceChange);
+
 
         // 模態框表單提交事件
         editForumPostModalForm.addEventListener('submit', async function (event) {
@@ -843,14 +1023,32 @@
             // 將 DTO 物件轉換為 JSON 字串並作為 Blob 添加到 FormData
             formData.append('forumPostUpdate', new Blob([JSON.stringify(forumPostUpdateDTO)], { type: 'application/json' }));
 
-            // 添加圖片檔案
-            if (modalPostCoverImageInput.files.length > 0) {
-                formData.append('imageFile', modalPostCoverImageInput.files[0]);
-            } else {
-                // 如果沒有選擇新圖片，但原本有圖片，可以考慮傳遞一個標識，告訴後端不要修改圖片
-                // 或者後端如果 imageFile 是 required = false，不傳就不會更新。
-                // 這裡的後端 `required = false`，所以不傳就不處理圖片更新。
+            // 【修正點 5：編輯時圖片上傳邏輯】
+            if (modalUploadCustomImageRadio.checked && modalPostImageFileInput.files.length > 0) {
+                // 如果用戶選擇了上傳自訂圖片，且確實選擇了檔案
+                formData.append('imageFile', modalPostImageFileInput.files[0]);
+            } else if (modalUseDefaultImageRadio.checked) {
+                // 如果用戶選擇了使用預設圖片，傳遞預設圖片 URL
+                const selectedOption = modalFtagNoIdSelect.options[modalFtagNoIdSelect.selectedIndex];
+                const defaultImageName = selectedOption ? selectedOption.dataset.defaultImage : '';
+                if (defaultImageName) {
+                    // 如果有預設圖片，就傳遞它的 URL
+                    formData.append('defaultImageUrl', DEFAULT_IMAGE_BASE_PATH + defaultImageName);
+                } else {
+                    // 如果選擇了預設圖片但該類別沒有預設圖片，可以考慮傳遞一個空字串或特定值，讓後端知道要清空圖片
+                    // 或者後端會根據沒有 imageFile 且沒有 defaultImageUrl 來決定不更新圖片或使用通用預設
+                    // 目前 Service 層 updateForumPost 沒有接收 defaultImageUrl 參數，這是一個需要注意的點
+                    // 如果後端需要知道「將圖片設為預設」，則此處需調整或後端調整
+                    // 目前的 Service 邏輯：有 imageFile 就更新，沒有就保留原圖
+                    // 因此，如果選擇預設圖片，但沒有傳遞 imageFile，則圖片不會變。若要變成預設，後端需額外判斷
+                    // 這裡先不傳遞 defaultImageUrl 給 update API，讓後端只處理 imageFile。
+                }
             }
+            // else {
+            //     // 如果沒有選擇自訂圖片，且沒有選擇預設圖片 (即保留現有圖片)
+            //     // 則不傳遞 imageFile 或 defaultImageUrl，後端會保留原圖
+            // }
+
 
             console.log("提交的 FormData:", forumPostUpdateDTO); // 打印 DTO 內容，FormData 無法直接打印
 
@@ -891,6 +1089,32 @@
         editModal.addEventListener('click', function (event) {
             if (event.target === editModal) {
                 closeEditModal();
+            }
+        });
+        // 【新增】為編輯模態框的圖片上傳 input 添加 change 事件監聽器
+        modalPostImageFile.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // 當選擇新圖片時，顯示它，並確保相關 radio 按鈕被選中
+                    currentPostImage.src = e.target.result; // 通常會用 currentPostImage 預覽新上傳的圖片
+                    currentPostImage.style.display = 'block';
+
+                    modalDefaultImagePreview.style.display = 'none'; // 隱藏預設圖片預覽
+                    modalDefaultImagePreview.src = ''; // 清空預設圖片來源
+
+                    modalUploadCustomImageRadio.checked = true; // 選中「上傳自訂圖片」
+                    // handleModalImageSourceChange(); // 這裡也可以呼叫，確保狀態同步
+                };
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                // 如果取消選擇檔案
+                currentPostImage.src = '';
+                currentPostImage.style.display = 'none';
+
+                // 自動切換回「使用預設圖片」模式
+                modalUseDefaultImageRadio.checked = true;
+                handleModalImageSourceChange(); // 確保 UI 回到預設狀態
             }
         });
 

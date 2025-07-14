@@ -98,12 +98,14 @@ public class ForumPostController {
      * @param imageFile 封面圖片檔案 (可選)
      * @param result 驗證結果
      * @return 新增後的文章 DTO 或錯誤訊息
+     * @param defaultImageUrl 預設圖片的 URL
      */
     @PostMapping(value = "/forumpost/insert", consumes = {"multipart/form-data"})
     @Operation(summary = "新增文章", description = "會員新增文章，可包含封面圖片")
     public ResponseEntity<Map<String, Object>> insertForumPost(
             @RequestPart("forumPostUpdate") @Valid ForumPostUpdateDTO forumPostUpdateDTO,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+            @RequestPart(value = "defaultImageUrl", required = false) String defaultImageUrl,
             BindingResult result) {
 
         if (result.hasErrors()) {
@@ -116,7 +118,7 @@ public class ForumPostController {
         }
 
         try {
-            ForumPostDTO savedForumPostDTO = forumPostSvc.addForumPost(forumPostUpdateDTO, imageFile);
+            ForumPostDTO savedForumPostDTO = forumPostSvc.addForumPost(forumPostUpdateDTO, imageFile, defaultImageUrl);
 
             Map<String, Object> successResponse = new HashMap<>();
             successResponse.put("message", "文章新增成功");
@@ -156,6 +158,7 @@ public class ForumPostController {
             @PathVariable Integer postId,
             @RequestPart("forumPostUpdate") @Valid ForumPostUpdateDTO forumPostUpdateDTO,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+            @RequestPart(value = "defaultImageUrl", required = false) String defaultImageUrl,
             BindingResult result) {
 
         if (result.hasErrors()) {
@@ -169,7 +172,7 @@ public class ForumPostController {
 
         try {
             // Service 方法需要增加 forNo 參數進行額外驗證
-            ForumPostDTO updatedPostDTO = forumPostSvc.updateForumPost(postId, forNo, forumPostUpdateDTO, imageFile); // 修改調用 Service 方法
+            ForumPostDTO updatedPostDTO = forumPostSvc.updateForumPost(postId, forNo, forumPostUpdateDTO, imageFile, defaultImageUrl); // 修改調用 Service 方法
             Map<String, Object> successResponse = new HashMap<>();
             successResponse.put("message", "文章更新成功");
             successResponse.put("forumPost", updatedPostDTO);
