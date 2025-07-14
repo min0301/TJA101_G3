@@ -42,6 +42,9 @@ public class ForumDetailDTO {
     @Schema(description = "最後留言時間")
     private Instant lastMessageTime;
 
+    @Schema(description = "當前用戶是否已追蹤")
+    private boolean isCollected;
+
     public static ForumDetailDTO convertToForumDetailDTO(Forum forum) {
         return ForumDetailDTO.builder()
                 .id(forum.getId())

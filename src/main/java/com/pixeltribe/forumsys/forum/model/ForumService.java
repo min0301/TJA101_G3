@@ -4,6 +4,11 @@ import com.pixeltribe.forumsys.exception.FileStorageException;
 import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
 import com.pixeltribe.forumsys.forumcategory.model.ForumCategory;
 import com.pixeltribe.forumsys.forumcategory.model.ForumCategoryRepository;
+import com.pixeltribe.forumsys.forumcollect.model.ForumCollect;
+import com.pixeltribe.forumsys.forumcollect.model.ForumCollectRepository;
+import com.pixeltribe.forumsys.shared.CollectStatus;
+import com.pixeltribe.membersys.member.model.Member;
+import com.pixeltribe.membersys.security.MemberDetails;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,12 +25,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.pixeltribe.forumsys.forum.model.ForumDetailDTO.convertToForumDetailDTO;
 
 @Service("forumService")
 public class ForumService {
@@ -33,11 +37,13 @@ public class ForumService {
 
     private final ForumRepository forumRepository;
     private final ForumCategoryRepository forumCategoryRepository;
+    private final ForumCollectRepository forumCollectRepository;
 
-    public ForumService(ForumRepository forumRepository, ForumCategoryRepository forumCategoryRepository) {
+    public ForumService(ForumRepository forumRepository, ForumCategoryRepository forumCategoryRepository, ForumCollectRepository forumCollectRepository) {
 
         this.forumRepository = forumRepository;
         this.forumCategoryRepository = forumCategoryRepository;
+        this.forumCollectRepository = forumCollectRepository;
     }
 
     @Autowired
@@ -59,7 +65,7 @@ public class ForumService {
 
         this.refreshHotForumsInRedis();
 
-        return ForumDetailDTO.convertToForumDetailDTO(saveOrUpdateForum);
+        return convertToForumDetailDTO(saveOrUpdateForum);
     }
 
     @Transactional
@@ -69,7 +75,7 @@ public class ForumService {
                 .orElseThrow(() -> new ResourceNotFoundException("找不到討論區編號: " + forNo));
         Forum saveOrUpdateForum = saveOrUpdateForum(forum, forumUpdateDTO, imageFile);
         this.refreshHotForumsInRedis();
-        return ForumDetailDTO.convertToForumDetailDTO(saveOrUpdateForum);
+        return convertToForumDetailDTO(saveOrUpdateForum);
     }
 
 
@@ -86,7 +92,7 @@ public class ForumService {
 
         // 2. 使用 Stream API 將 List<Forum> 轉換為 List<ForumDetailDTO>
         return forums.stream()
-                .map(x -> ForumDetailDTO.convertToForumDetailDTO(x))
+                .map(x -> convertToForumDetailDTO(x))
                 //  TODO
                 //      .map(ForumDetailDTO::convertToForumDetailDTO) // 對每個 forum 執行轉換
                 .toList();
@@ -97,7 +103,7 @@ public class ForumService {
         List<Forum> forums = forumRepository.findAllByOrderByForUpdateDesc();
 
         return forums.stream()
-                .map(x -> ForumDetailDTO.convertToForumDetailDTO(x))
+                .map(x -> convertToForumDetailDTO(x))
                 .toList();
     }
 
@@ -110,10 +116,32 @@ public class ForumService {
                 .toList();
     }
 
-    public ForumDetailDTO getOneForum(Integer forNo) {
+    public ForumDetailDTO getOneForum(Integer forNo, MemberDetails currentUser) {
+
+
         Forum forum = forumRepository.findById(forNo)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到討論區編號: " + forNo));
-        return ForumDetailDTO.convertToForumDetailDTO(forum);
+
+        ForumDetailDTO dto = convertToForumDetailDTO(forum);
+
+        // 2. 如果使用者未登入，isCollected 直接為 false
+        if (currentUser == null) {
+            dto.setCollected(false);
+            return dto;
+        }
+
+        Integer memberId = currentUser.getMemberId();
+
+        Member member = new Member();
+        member.setId(memberId);
+        Optional<ForumCollect> existingCollectOpt = forumCollectRepository.findByForNoAndMemNo(forum, member);
+
+        if (existingCollectOpt.isPresent() && existingCollectOpt.get().getCollectStatus() == CollectStatus.COLLECT) {
+            dto.setCollected(true);
+        } else {
+            dto.setCollected(false);
+        }
+        return dto;
     }
 
 
@@ -174,7 +202,7 @@ public class ForumService {
                 ));
         List<ForumDetailDTO> hotForumDTOs = forums.stream()
                 .map(forum -> {
-                    ForumDetailDTO dto = ForumDetailDTO.convertToForumDetailDTO(forum);
+                    ForumDetailDTO dto = convertToForumDetailDTO(forum);
                     Object[] stats = forumHotMap.get(forum.getId());
                     if (stats != null) {
                         // 如果找到了，表示n天內有留言
@@ -219,7 +247,7 @@ public class ForumService {
 
         List<ForumDetailDTO> hotForumDTOs = forums.stream()
                 .map(forum -> {
-                    ForumDetailDTO dto = ForumDetailDTO.convertToForumDetailDTO(forum);
+                    ForumDetailDTO dto = convertToForumDetailDTO(forum);
                     Object[] stats = forumHotMap.get(forum.getId());
                     if (stats != null) {
                         dto.setHotScore((Long) stats[0]); // 注意：COUNT(id) 在 JPA 中通常返回 Long

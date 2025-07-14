@@ -1,10 +1,12 @@
 package com.pixeltribe.forumsys.forum.controller;
 
 import com.pixeltribe.forumsys.forum.model.*;
+import com.pixeltribe.membersys.security.MemberDetails;
 import io.swagger.v3.oas.annotations.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -106,9 +108,10 @@ public class ForumController {
     )
     public ForumDetailDTO findOneForum(
             @Parameter(description = "討論區編號", example = "1")
-            @PathVariable Integer forNo) {
+            @PathVariable Integer forNo,
+            @AuthenticationPrincipal MemberDetails currentUser) {
 
-        return forumSvc.getOneForum(forNo);
+        return forumSvc.getOneForum(forNo, currentUser);
     }
 
     @GetMapping("/forums/hot")

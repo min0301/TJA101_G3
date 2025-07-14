@@ -2,6 +2,7 @@ package com.pixeltribe.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -12,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity // 建議加上這個註解，明確啟用 Web Security
+@EnableWebSecurity // 明確啟用 Web Security
 class SecurityConfig {
 
     private JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -31,16 +32,55 @@ class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // 因為使用 JWT，關閉 CSRF
-//                .cors(cors -> cors.disable())
                 .cors(Customizer.withDefaults()) // 建議使用預設或自訂的 CORS 設定，而不是 disable()
 
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll()) // 暫時全開
-                // 【修改重點】因為是 JWT，Session 管理設為無狀態 (Stateless)
+                .authorizeHttpRequests(auth -> auth
+                                // 1. 設定公開端點 (任何人都可以訪問)
+                                //    - 登入/註冊 API
+                                //    - 靜態資源 (css, js, images...)
+                                //    - 不需登入就可查看的 GET 請求 (例如: 熱門討論區、文章列表、分類列表)
+                                .requestMatchers(
+                                        "/api/**",  //暫時全開，記得去下面加入自己的方法
+                                        //========靜態公開資源========
+                                        "/",
+                                        "/assets/**",
+                                        "/back-end/**",
+                                        "/images/**",
+                                        "/js/**",
+                                        "/out-statics/**",
+                                        "/templates/**",
+                                        "/front-end/**",
+                                        "/index.html",
+                                        "/indexstatic.html",
+                                        "/swagger-ui/**",
+                                        //========靜態公開資源========
+                                        "/webjars/**",
+                                        "/css/**",
+                                        "/v3/**",
+                                        //========公開API========
+                                        //========討論區========
+                                        "/api/posts/*/messages",    // 查單一文章的留言列表API
+                                        "/api/forums",              // 討論區列表API
+                                        "/api/forums/*",            // 單一討論區API
+                                        "/api/forums/hot"          // 熱門討論區API
+                                        //========新聞========
+                                        //========商城========
+                                        //========會員========
+
+                                ).permitAll()
+
+                                // 2. 設定需要登入才能訪問的端點
+                                .requestMatchers(HttpMethod.PUT, "/api/forums/*/collect").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/api/forums/collect/me").authenticated()
+
+                                // 3. 設定需要特定權限(角色)的端點，例如管理員
+//                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                                // 4. 兜底規則：除了上面允許的，其他所有請求都需要登入
+                                .anyRequest().authenticated()
+                )
+
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .sessionManagement(session -> session.disable())
-                // 【移除】移除 httpBasic 和 formLogin，它們是基於 Session 的登入方式
-                // .httpBasic(Customizer.withDefaults()) <--- 刪除
-                // .formLogin(Customizer.withDefaults()); <--- 刪除
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
