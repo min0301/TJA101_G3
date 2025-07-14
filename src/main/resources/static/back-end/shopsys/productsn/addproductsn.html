@@ -1,298 +1,261 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>產品序號批次上傳</title>
     <style>
-        /* 奶茶色系變數 */
-        :root {
-            --milktea-bg: #f7f4ed;
-            --card-bg: #fff;
-            --milktea-yellow: #fff7db;
-            --milktea-border: #e8dec7;
-            --milktea-brown: #70513b;
-            --milktea-main: #ab8556;
-            --milktea-hover: #fae7c2;
-            --milktea-light: #f4ead8;
-            --milktea-accent: #d4b896;
-            --milktea-error: #8b4513;
-            --milktea-error-bg: #fdf5e6;
-            --milktea-success: #2d5a3d;
-            --milktea-success-bg: #f0f8f0;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: '微軟正黑體', 'Microsoft JhengHei', Arial, sans-serif;
-            background: linear-gradient(135deg, var(--milktea-bg) 0%, var(--milktea-light) 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        /* --- 核心修改：樣式與 allOrder.html 及主模板同步 --- */
+        .upload-container {
+            width: 100%;
+            max-width: 800px; /* 表單頁面使用較小的最大寬度 */
+            margin: 0 auto;
             padding: 20px;
-            position: relative;
         }
 
-        /* 背景裝飾 */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(171, 133, 86, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(212, 184, 150, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(15px);
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(139, 117, 85, 0.15);
-            border: 2px solid var(--milktea-border);
-            padding: 50px 40px;
-            max-width: 700px;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, var(--milktea-main) 0%, var(--milktea-accent) 100%);
-        }
-
-        /* 頂部導航按鈕 */
-        .nav-buttons {
+        /* 頁面標題，與 allOrder.html 對齊 */
+        .page-title-header {
             display: flex;
-            gap: 12px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            display: inline-block;
-            text-decoration: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-align: center;
-            font-size: 14px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
-        
-        .btn-home { 
-            background: linear-gradient(135deg, var(--milktea-accent) 0%, #9b8b7a 100%);
-        }
-
-        .btn-product { 
-            background: linear-gradient(135deg, var(--milktea-main) 0%, var(--milktea-brown) 100%);
-        }
-
-        h1 {
-            text-align: center;
-            color: var(--milktea-main);
-            margin-bottom: 40px;
-            font-size: 2.2rem;
+        .page-title-header h2 {
+            font-family: 'Karla', sans-serif; /* 使用主模板字體 */
+            font-size: 24px;
+            color: var(--text-color);
             font-weight: 700;
-            font-family: 'Press Start 2P', Arial, sans-serif;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 4px rgba(139, 117, 85, 0.1);
-            position: relative;
+            margin: 0;
         }
 
-        h1::before {
-            margin-right: 15px;
-            font-size: 2rem;
-        }
-
-        .form-group {
-            margin-bottom: 30px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 12px;
-            font-weight: 600;
-            color: var(--milktea-brown);
-            font-size: 15px;
-            letter-spacing: 0.3px;
-            position: relative;
-        }
-
-        label::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            left: 0;
-            width: 30px;
-            height: 2px;
-            background: var(--milktea-main);
-            border-radius: 1px;
-        }
-
-        select, input[type="file"] {
-            width: 100%;
-            padding: 16px 18px;
-            border: 2px solid var(--milktea-border);
+        /* 表單容器 */
+        .form-container {
+            background: var(--component-bg);
+            padding: 30px;
             border-radius: 12px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background: var(--card-bg);
-            color: var(--milktea-brown);
-            font-family: inherit;
-            font-weight: 500;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        select:focus, input[type="file"]:focus {
+        /* 表單群組 */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        /* 必填欄位標記 */
+        .form-group label::after {
+            content: ' *';
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* 輸入欄位樣式 */
+        .form-group select,
+        .form-group input[type="file"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-color);
+            background: var(--primary-bg);
+            transition: all 0.2s ease;
+        }
+
+        .form-group select:focus,
+        .form-group input[type="file"]:focus {
             outline: none;
-            border-color: var(--milktea-main);
-            box-shadow: 0 0 0 4px rgba(171, 133, 86, 0.1);
-            background: var(--milktea-yellow);
+            border-color: var(--brand-green);
+            box-shadow: 0 0 0 3px rgba(var(--brand-green-rgb), 0.1);
         }
 
         /* Select 下拉箭頭自訂 */
-        select {
+        .form-group select {
             appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ab8556' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right 12px center;
-            background-size: 20px;
-            padding-right: 45px;
+            background-size: 16px;
+            padding-right: 40px;
         }
 
+        /* 檔案上傳特殊樣式 */
         .file-upload-container {
             position: relative;
-            overflow: hidden;
-            display: inline-block;
             width: 100%;
         }
 
         .file-upload-btn {
-            background: linear-gradient(135deg, var(--milktea-main) 0%, var(--milktea-brown) 100%);
-            color: white;
-            padding: 16px 30px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
             width: 100%;
+            padding: 12px 16px;
+            background: var(--brand-green);
+            color: white;
+            border: 1px solid var(--brand-green);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            box-shadow: 0 4px 15px rgba(139, 117, 85, 0.2);
+            gap: 8px;
         }
 
         .file-upload-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(139, 117, 85, 0.3);
-            background: linear-gradient(135deg, var(--milktea-brown) 0%, var(--milktea-main) 100%);
+            background: var(--brand-green-hover);
+            border-color: var(--brand-green-hover);
         }
 
         .file-info {
-            margin-top: 15px;
-            padding: 15px;
-            background: var(--milktea-yellow);
-            border: 1px solid var(--milktea-border);
-            border-radius: 10px;
-            font-size: 14px;
-            color: var(--milktea-brown);
+            margin-top: 10px;
+            padding: 12px;
+            background: var(--brand-green-light);
+            border: 1px solid var(--brand-green);
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text-color);
             display: none;
+        }
+
+        /* 按鈕樣式 */
+        .action-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            font-size: 14px;
             font-weight: 500;
         }
 
-        .upload-btn {
-            background: linear-gradient(135deg, #2d5a3d 0%, #4a7c5a 100%);
-            color: white;
-            padding: 18px 40px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 25px;
-            box-shadow: 0 4px 15px rgba(45, 90, 61, 0.2);
+        .action-btn:hover {
+            background: var(--brand-green-light);
+            color: var(--brand-green);
+            border-color: var(--brand-green);
         }
 
-        .upload-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(45, 90, 61, 0.3);
-            background: linear-gradient(135deg, #4a7c5a 0%, #2d5a3d 100%);
+        .action-btn.btn-home {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+            color: white;
+            font-weight: bold;
+        }
+
+        .action-btn.btn-home:hover {
+            background-color: var(--brand-green-hover);
+            border-color: var(--brand-green-hover);
+        }
+
+        .action-btn.btn-product {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+            color: white;
+            font-weight: bold;
+        }
+
+        .action-btn.btn-product:hover {
+            background-color: var(--brand-green-hover);
+            border-color: var(--brand-green-hover);
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 15px 24px;
+            background: var(--brand-green);
+            color: white;
+            border: 1px solid var(--brand-green);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            margin-top: 20px;
+        }
+
+        .upload-btn:hover:not(:disabled) {
+            background: var(--brand-green-hover);
+            border-color: var(--brand-green-hover);
         }
 
         .upload-btn:disabled {
-            background: var(--milktea-light);
-            color: var(--milktea-brown);
+            background: #e9ecef;
+            border-color: var(--border-color);
+            color: #6c757d;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-            opacity: 0.6;
         }
 
+        /* 導航按鈕群組 */
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 0;
+        }
+
+        /* 結果顯示 */
         .result {
             margin-top: 25px;
-            padding: 25px;
-            border-radius: 12px;
+            padding: 20px;
+            border-radius: 6px;
             display: none;
-            animation: fadeIn 0.5s ease;
-            border: 2px solid;
         }
 
         .result.success {
-            background: linear-gradient(135deg, var(--milktea-success-bg) 0%, #e8f5e8 100%);
-            border-color: #4a7c5a;
-            color: var(--milktea-success);
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
         }
 
         .result.error {
-            background: linear-gradient(135deg, var(--milktea-error-bg) 0%, #f4e4bc 100%);
-            border-color: #deb887;
-            color: var(--milktea-error);
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
         }
 
+        .result h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+
+        .result p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        /* 載入狀態 */
         .loading {
             display: none;
             text-align: center;
-            margin-top: 25px;
-            color: var(--milktea-brown);
+            margin-top: 20px;
+            color: var(--text-color);
         }
 
         .spinner {
             display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--milktea-light);
-            border-top: 4px solid var(--milktea-main);
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--brand-green);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         @keyframes spin {
@@ -300,68 +263,78 @@
             100% { transform: rotate(360deg); }
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        /* 格式說明 */
         .format-info {
-            background: linear-gradient(135deg, var(--milktea-yellow) 0%, var(--milktea-hover) 100%);
+            background: var(--brand-green-light);
             padding: 20px;
-            border-radius: 12px;
+            border-radius: 6px;
             margin-top: 25px;
-            border-left: 5px solid var(--milktea-main);
-            box-shadow: 0 3px 15px rgba(139, 117, 85, 0.1);
+            border-left: 4px solid var(--brand-green);
         }
 
         .format-info h3 {
-            color: var(--milktea-main);
-            margin-bottom: 12px;
+            color: var(--brand-green);
+            margin: 0 0 12px 0;
             font-size: 16px;
             font-weight: 600;
         }
 
         .format-info p {
-            color: var(--milktea-brown);
+            color: var(--text-color);
             font-size: 14px;
             line-height: 1.6;
-            font-weight: 500;
+            margin: 0;
         }
 
+        /* 統計資料 */
         .statistics {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 15px;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         .stat-item {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px 15px;
-            border-radius: 12px;
+            background: var(--primary-bg);
+            padding: 15px;
+            border-radius: 6px;
             text-align: center;
-            box-shadow: 0 3px 15px rgba(139, 117, 85, 0.1);
-            border: 1px solid var(--milktea-border);
-            transition: all 0.3s ease;
-        }
-
-        .stat-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(139, 117, 85, 0.15);
+            border: 1px solid var(--border-color);
         }
 
         .stat-number {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
-            color: var(--milktea-main);
+            color: var(--brand-green);
             margin-bottom: 5px;
         }
 
         .stat-label {
-            font-size: 13px;
-            color: var(--milktea-brown);
-            font-weight: 500;
+            font-size: 12px;
+            color: var(--text-color);
             opacity: 0.8;
+        }
+
+        /* 錯誤和成功訊息 */
+        .error-message,
+        .success-message {
+            font-size: 13px;
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
         }
 
         /* 選擇器載入狀態 */
@@ -377,161 +350,60 @@
             transform: translateY(-50%);
             width: 16px;
             height: 16px;
-            border: 2px solid var(--milktea-light);
-            border-top: 2px solid var(--milktea-main);
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--brand-green);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
 
-        /* 產品選項樣式 */
-        .product-option {
-            padding: 8px 0;
-            color: var(--milktea-brown);
-        }
-
-        /* 錯誤提示 */
-        .error-message {
-            color: var(--milktea-error);
-            font-size: 13px;
-            margin-top: 8px;
-            display: none;
-            font-weight: 500;
-            padding: 8px;
-            background: var(--milktea-error-bg);
-            border-radius: 6px;
-        }
-
-        /* 成功提示 */
-        .success-message {
-            color: var(--milktea-success);
-            font-size: 13px;
-            margin-top: 8px;
-            display: none;
-            font-weight: 500;
-            padding: 8px;
-            background: var(--milktea-success-bg);
-            border-radius: 6px;
-        }
-
         /* 響應式設計 */
         @media (max-width: 768px) {
-            body {
+            .upload-container {
                 padding: 15px;
             }
 
-            .container {
-                padding: 30px 20px;
-                max-width: 100%;
+            .form-container {
+                padding: 20px;
             }
 
-            h1 {
-                font-size: 1.8rem;
-                margin-bottom: 30px;
-            }
-
-            h1::before {
-                font-size: 1.6rem;
-                margin-right: 10px;
-            }
-
-            .nav-buttons {
-                justify-content: center;
-            }
-
-            .btn {
-                padding: 12px 18px;
-                font-size: 13px;
-            }
-
-            .format-info {
-                padding: 15px;
-            }
-
-            .statistics {
-                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-                gap: 12px;
-            }
-
-            .stat-item {
-                padding: 15px 10px;
-            }
-
-            .stat-number {
-                font-size: 24px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 25px 15px;
-                border-radius: 20px;
-            }
-
-            h1 {
-                font-size: 1.5rem;
-                letter-spacing: 0.5px;
+            .page-title-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
             }
 
             .nav-buttons {
                 flex-direction: column;
-            }
-
-            .btn {
                 width: 100%;
             }
 
-            select, input[type="file"] {
-                padding: 14px 16px;
-                font-size: 16px; /* 防止 iOS 縮放 */
+            .action-btn {
+                width: 100%;
+                text-align: center;
             }
-        }
 
-        /* 深色主題支援 */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --milktea-bg: #2d2520;
-                --card-bg: #3a2f28;
-                --milktea-yellow: #4a3d33;
-                --milktea-border: #5a4a3d;
-                --milktea-brown: #d4b896;
-                --milktea-main: #e6c79a;
-                --milktea-hover: #4f423a;
-                --milktea-light: #4a3d33;
-                --milktea-accent: #b8956f;
-                --milktea-error: #d4b896;
-                --milktea-error-bg: #3a2f28;
-                --milktea-success: #9db8a3;
-                --milktea-success-bg: #3a2f28;
+            .statistics {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 10px;
             }
-        }
-
-        /* 載入頁面動畫 */
-        @keyframes containerFadeIn {
-            0% { 
-                opacity: 0; 
-                transform: translateY(30px) scale(0.95); 
-            }
-            100% { 
-                opacity: 1; 
-                transform: translateY(0) scale(1); 
-            }
-        }
-
-        .container {
-            animation: containerFadeIn 0.6s ease-out;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-    	<a href="/back-end/adm/AdmHomePage.html" class="btn btn-home">回到後台首頁</a>
-    	<a href="/back-end/shopsys/product/listAllProduct.html" class="btn btn-product">回到商品管理</a>
-    	<h1></h1>
-        <h1>產品序號批次上傳</h1>
 
+<div class="upload-container">
+    <div class="page-title-header">
+        <h2><i class="bi bi-upload item-icon"></i>產品序號批次上傳</h2>
+        <div class="nav-buttons">
+            <a href="/back-end/adm/AdmHomePage.html" class="action-btn btn-home">回後台首頁</a>
+            <a href="/back-end/shopsys/product/listAllProduct.html" class="action-btn btn-product">商品管理</a>
+        </div>
+    </div>
+
+    <div class="form-container">
         <form id="uploadForm">
             <div class="form-group">
-                <label for="productSelect">選擇產品 *</label>
+                <label for="productSelect">選擇產品</label>
                 <select id="productSelect" name="proNo" required>
                     <option value="">載入中...</option>
                 </select>
@@ -540,7 +412,7 @@
             </div>
 
             <div class="form-group">
-                <label for="fileInput">上傳序號檔案 *</label>
+                <label for="fileInput">上傳序號檔案</label>
                 <div class="file-upload-container">
                     <button type="button" class="file-upload-btn" onclick="document.getElementById('fileInput').click()">
                         <span>📁</span>
@@ -574,22 +446,32 @@
             </p>
         </div>
     </div>
+</div>
 
-    <script>
+<script>
+    // 使用 IIFE (Immediately Invoked Function Expression) 避免污染全域範疇
+    (function() {
+        // --- 變數定義區 ---
         let selectedFile = null;
         let products = [];
 
-        // 頁面載入時取得產品列表
-        document.addEventListener('DOMContentLoaded', function() {
-            loadProducts();
-        });
+        // 可變：這些是 DOM 元素的引用，名稱可依個人習慣修改，但要與 HTML 的 id 對應
+        const productSelect = document.getElementById('productSelect');
+        const productError = document.getElementById('productError');
+        const productSuccess = document.getElementById('productSuccess');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
 
-        // 載入產品列表
+        // --- 核心功能函式 ---
+
+        /**
+         * @description 載入產品列表
+         */
         async function loadProducts() {
-            const productSelect = document.getElementById('productSelect');
-            const productError = document.getElementById('productError');
-            const productSuccess = document.getElementById('productSuccess');
-            
             try {
                 // 顯示載入狀態
                 productSelect.className = 'select-loading';
@@ -597,13 +479,10 @@
                 productError.style.display = 'none';
                 productSuccess.style.display = 'none';
 
-                // 模擬 API 請求 - 請替換為您的實際 API 端點
                 const response = await fetch('/api/product', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        // 如果需要認證，加入 Authorization header
-                        // 'Authorization': 'Bearer your-token-here'
                     }
                 });
 
@@ -622,8 +501,7 @@
                 // 檢查是否有商品資料
                 if (products.length === 0) {
                     productSelect.innerHTML = '<option value="">沒有可用的產品</option>';
-                    productError.textContent = '沒有找到任何產品資料';
-                    productError.style.display = 'block';
+                    showError('productError', '沒有找到任何產品資料');
                     return;
                 }
 
@@ -632,13 +510,11 @@
                     const option = document.createElement('option');
                     option.value = product.id;
                     option.textContent = product.proName;
-                    option.className = 'product-option';
                     productSelect.appendChild(option);
                 });
 
                 // 顯示成功訊息
-                productSuccess.textContent = `成功載入 ${products.length} 個產品`;
-                productSuccess.style.display = 'block';
+                showSuccess('productSuccess', `成功載入 ${products.length} 個產品`);
                 
                 // 3秒後隱藏成功訊息
                 setTimeout(() => {
@@ -650,16 +526,7 @@
                 
                 // 顯示錯誤訊息
                 productSelect.innerHTML = '<option value="">載入失敗，請重新整理頁面</option>';
-                productError.textContent = `載入產品列表失敗: ${error.message}`;
-                productError.style.display = 'block';
-                
-                // 提供重試按鈕
-                const retryBtn = document.createElement('button');
-                retryBtn.textContent = '重試';
-                retryBtn.type = 'button';
-                retryBtn.onclick = loadProducts;
-                retryBtn.style.cssText = 'margin-left: 10px; padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;';
-                productError.appendChild(retryBtn);
+                showErrorWithRetry('productError', `載入產品列表失敗: ${error.message}`, loadProducts);
                 
             } finally {
                 // 移除載入狀態
@@ -667,10 +534,11 @@
             }
         }
 
-        // 檔案選擇處理
-        document.getElementById('fileInput').addEventListener('change', function(e) {
+        /**
+         * @description 處理檔案選擇
+         */
+        function handleFileSelection(e) {
             selectedFile = e.target.files[0];
-            const fileInfo = document.getElementById('fileInfo');
             
             if (selectedFile) {
                 const fileSize = (selectedFile.size / 1024 / 1024).toFixed(2);
@@ -697,13 +565,14 @@
                     選擇檔案
                 `;
             }
-        });
+        }
 
-        // 表單提交處理
-        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+        /**
+         * @description 處理表單提交
+         */
+        async function handleFormSubmit(e) {
             e.preventDefault();
             
-            const productSelect = document.getElementById('productSelect');
             const proNo = productSelect.value;
             
             if (!proNo) {
@@ -730,14 +599,12 @@
             }
             
             await uploadFile(proNo, selectedFile);
-        });
+        }
 
-        // 上傳檔案
+        /**
+         * @description 上傳檔案
+         */
         async function uploadFile(proNo, file) {
-            const uploadBtn = document.getElementById('uploadBtn');
-            const loading = document.getElementById('loading');
-            const result = document.getElementById('result');
-            
             try {
                 // 顯示載入狀態
                 uploadBtn.disabled = true;
@@ -753,10 +620,6 @@
                 const response = await fetch('/api/productSN/addmultiple', {
                     method: 'POST',
                     body: formData,
-                    // 如果需要認證，加入 headers
-                    // headers: {
-                    //     'Authorization': 'Bearer your-token-here'
-                    // }
                 });
                 
                 const data = await response.json();
@@ -777,10 +640,12 @@
             }
         }
 
-        // 顯示成功結果
+        // --- 輔助函式 ---
+
+        /**
+         * @description 顯示成功結果
+         */
         function showSuccessResult(data) {
-            const result = document.getElementById('result');
-            
             let statisticsHtml = '';
             if (data.statistics) {
                 statisticsHtml = `
@@ -813,9 +678,10 @@
             result.style.display = 'block';
         }
 
-        // 顯示結果訊息
+        /**
+         * @description 顯示結果訊息
+         */
         function showResult(message, type) {
-            const result = document.getElementById('result');
             const icon = type === 'success' ? '✅' : '❌';
             
             result.innerHTML = `
@@ -826,23 +692,72 @@
             result.style.display = 'block';
         }
 
-        // 重置表單
+        /**
+         * @description 顯示錯誤訊息
+         */
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        /**
+         * @description 顯示成功訊息
+         */
+        function showSuccess(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        /**
+         * @description 顯示帶重試按鈕的錯誤訊息
+         */
+        function showErrorWithRetry(elementId, message, retryFunction) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            
+            // 提供重試按鈕
+            const retryBtn = document.createElement('button');
+            retryBtn.textContent = '重試';
+            retryBtn.type = 'button';
+            retryBtn.onclick = retryFunction;
+            retryBtn.style.cssText = 'margin-left: 10px; padding: 5px 10px; background: var(--brand-green); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;';
+            element.appendChild(retryBtn);
+            element.style.display = 'block';
+        }
+
+        /**
+         * @description 重置表單
+         */
         function resetForm() {
-            document.getElementById('uploadForm').reset();
+            uploadForm.reset();
             selectedFile = null;
-            document.getElementById('fileInfo').style.display = 'none';
+            fileInfo.style.display = 'none';
             document.querySelector('.file-upload-btn').innerHTML = `
                 <span>📁</span>
                 選擇檔案
             `;
-            document.getElementById('result').style.display = 'none';
-            document.getElementById('productSelect').value = '';
+            result.style.display = 'none';
+            productSelect.value = '';
         }
 
-        // 手動重新載入產品列表的函數
-        function refreshProducts() {
-            loadProducts();
-        }
-    </script>
+        // --- 事件處理 ---
+        
+        // 檔案選擇事件
+        fileInput.addEventListener('change', handleFileSelection);
+
+        // 表單提交事件
+        uploadForm.addEventListener('submit', handleFormSubmit);
+
+        // --- 初始化頁面 ---
+        loadProducts();
+
+        // 手動重新載入產品列表的函數（暴露到全域供按鈕使用）
+        window.refreshProducts = loadProducts;
+
+    })();
+</script>
+
 </body>
 </html>

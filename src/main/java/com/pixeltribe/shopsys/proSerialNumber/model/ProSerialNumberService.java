@@ -44,11 +44,11 @@ public class ProSerialNumberService {
         return savedList.size();
     }
     
-    public Long countProducts(Integer proNo) {
+    public Integer countProducts(Integer proNo) {
         return proSerialNumberRepository.countProduct(proNo);
     }
     
-    public Long countStock(Integer proNo) {
+    public Integer countStock(Integer proNo) {
         return proSerialNumberRepository.countStock(proNo);
     }
     
