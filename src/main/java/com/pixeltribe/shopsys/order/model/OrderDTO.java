@@ -19,7 +19,7 @@ public class OrderDTO {
 	private Integer memNo;
 	private Integer couponWalletNo;
 	
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Aisa/Taipei")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Taipei")
 	private Instant orderDatetime;
 	
 	private String orderStatus;
