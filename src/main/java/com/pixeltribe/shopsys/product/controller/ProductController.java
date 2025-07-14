@@ -181,5 +181,11 @@ public class ProductController {
 				return productService.findByMallTagAndMarket(mallTagNo, proIsMarket);
 		        
 		}
+		
+		@GetMapping("/product/searchall")
+		public List<ProductSearchDTO> findByMarket(
+	            @RequestParam(required = false, defaultValue = "0") Character proIsMarket) {
+				return productService.findByMarket(proIsMarket);  
+		}
 	        
 }

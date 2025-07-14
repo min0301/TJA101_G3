@@ -17,9 +17,10 @@ public interface ProductRepository extends JpaRepository<Product, Integer>{
 	    @Query(value="SELECT * FROM Product p WHERE p.MALL_TAG_NO = :mallTagNo "+"AND (p.PRO_ISMARKET IS NULL OR p.PRO_ISMARKET = :proIsMarket)", nativeQuery = true)
 	    List<Product> findByMallTagAndMarket(@Param("mallTagNo") Integer mallTagNo,@Param("proIsMarket") Character proIsMarket);
 
+	    @Query(value="SELECT * FROM Product p WHERE p.PRO_ISMARKET = :proIsMarket", nativeQuery = true)
+	    List<Product> findByMarket(@Param("proIsMarket") Character proIsMarket);
+
 	    List<Product> findByProStatus(String proStatus);
-	    
-//	    List<Product> findByProStatusAndOverProDate(String proStatus, LocalDate proDate);
 	    
 	    @Query(value="SELECT * FROM Product p WHERE p.PRO_STATUS = '預購中' AND p.PRO_DATE <= :date", nativeQuery = true)
 	    List<Product> findPreorderProductsBeforeDate(@Param("date") LocalDate date);
