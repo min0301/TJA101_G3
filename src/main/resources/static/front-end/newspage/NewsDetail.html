@@ -4,6 +4,15 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <title>新聞內容</title>
+    <link rel="stylesheet" href="/assets/vendors/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="/assets/vendors/simplebar/simplebar.min.css">
+    <link rel="stylesheet" href="/assets/vendors/aos/aos.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/responsive.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet">
     <style>
         :root {
             --bd: #dee2e6;
@@ -201,10 +210,52 @@
             background: #ced4da;
             cursor: not-allowed
         }
+
+        .vine-navbar.fixed-top {
+            background: #fff !important;
+            box-shadow: 0 2px 12px #0001 !important;
+            z-index: 1030;
+        }
     </style>
 </head>
 <body>
-<main id="news-box"><!-- JS 會把文章和留言塞進來 --></main>
+
+<!-- Switcher Icon -->
+<div class="switcher switcher-show" id="theme-switcher">
+    <i id="switcher-icon" class="bi bi-moon"></i>
+</div>
+
+<!-- Back to the Top -->
+<a href="#" id="back-to-top"></a>
+
+<div class="vine-wrapper">
+
+    <!-- Header placeholder -->
+    <div id="header-placeholder"></div>
+
+    <!-- Hero -->
+    <section class="vine-hero-2 bg-img-1">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="hero-content" data-aos="fade-down" data-aos-easing="linear">
+                        <h1>像素部落 (Pixel Tribe)</h1>
+                        <p>遊戲愛好者的聚集地</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!--    add-->
+    <main id="news-box"><!-- JS 會把文章和留言塞進來 --></main>
+
+    <!-- Footer placeholder -->
+    <div id="footer-placeholder"></div>
+
+</div> <!-- /.vine-wrapper -->
+<!-- 燈箱  -->
+<div id="newsLightboxes"></div>
 
 <script>
     /* ---------- 小工具 ---------- */
@@ -227,6 +278,7 @@
         /* 文章 ------------------------------------------------ */
         const news = await fetch(`/api/News/${id}`).then(r => r.json());
         const box = $('#news-box');
+        document.title = `${news.newsTit}`;
         box.innerHTML = `
     <h1 class="news-title">${news.newsTit}</h1>
     <div class="news-meta">
@@ -237,17 +289,42 @@
         news.categoryTags.forEach(t => $('.tags', box).append(tagSpan(t)));
 
         /* 圖片 ------------------------------------------------ */
+        /* ---------- 圖片 ------------------------------------------------ */
         const imgs = await fetch(`/api/news/image/${id}`).then(r => r.json());
         if (imgs.length) {
             const wrap = document.createElement('div');
             wrap.className = 'news-images';
-            imgs.forEach(i => {
+
+            // ① 取得放置燈箱用的容器；若沒有就另外建立
+            const modalContainer = document.getElementById('newsLightboxes') ||
+                document.body.appendChild(Object.assign(
+                    document.createElement('div'), { id: 'newsLightboxes' }));
+
+            imgs.forEach((i, idx) => {
+                /* === 產生圖片縮圖連結（點擊開燈箱） === */
                 const a = document.createElement('a');
-                a.href = i.imgUrl;
-                a.target = '_blank';
-                a.innerHTML = `<img src="${i.imgUrl}">`;
+                a.href = 'javascript:void(0)';
+                a.setAttribute('data-bs-toggle', 'modal');
+                a.setAttribute('data-bs-target', `#imgModal-${idx}`);
+                a.innerHTML = `<img src="${i.imgUrl}" alt="news image">`;
                 wrap.append(a);
+
+                /* === 產生對應 Modal（燈箱本體） === */
+                const modal = document.createElement('div');
+                modal.className = 'modal fade';
+                modal.id = `imgModal-${idx}`;
+                modal.tabIndex = -1;
+                modal.setAttribute('aria-hidden', 'true');
+                modal.innerHTML = `
+          <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content bg-transparent border-0">
+              <img src="${i.imgUrl}" class="w-100 rounded-3" alt="news image">
+            </div>
+          </div>
+        `;
+                modalContainer.appendChild(modal);
             });
+
             box.append(wrap);
         }
 
@@ -366,9 +443,18 @@
 
     /* ---------- 啟動 ---------- */
     document.addEventListener('DOMContentLoaded', () => {
-        const id = new URLSearchParams(location.search).get('id') || 1;
+        const id = new URLSearchParams(location.search).get('newsId');
         loadPage(id);
     });
 </script>
+<script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+<script src="/assets/vendors/aos/aos.js"></script>
+<script src="/assets/js/global-loader.js"></script>
+<script src="/assets/vendors/jquery/jquery.min.js"></script>
+<script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+<script src="/assets/vendors/popper/popper.min.js"></script>
+<script src="/assets/vendors/simplebar/simplebar.min.js"></script>
+<script src="/assets/js/main.js"></script>
+<script src="news-carousel.js"></script>
 </body>
 </html>
