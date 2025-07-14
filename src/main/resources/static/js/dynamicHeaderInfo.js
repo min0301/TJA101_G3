@@ -100,7 +100,7 @@
 		} else {
 			// 顯示訪客，隱藏會員
 			if (memberArea) memberArea.style.display = "none";
-			if (guestArea) guestArea.style.display = "flex";  // 因為你用 flex！
+			if (guestArea) guestArea.style.display = "flex";
 			if (addPostBtn) addPostBtn.style.display = "none";
 		}
 	}
@@ -108,14 +108,14 @@
 	// ====== 3. 綁定 logout 按鈕 ======
 	function bindLogoutBtn() {
 		const logoutBtn = document.getElementById('logout-btn');
-		if (logoutBtn && !logoutBtn.hasAttribute('data-bound')) { // 防止重複綁定
+		if (logoutBtn && !logoutBtn.hasAttribute('data-bound')) {
 			logoutBtn.setAttribute('data-bound', 'true');
 			logoutBtn.addEventListener('click', function(e) {
 				e.preventDefault();
 				showPixelModal('GoodBye Pixi!', function() {
 					localStorage.removeItem('memberInfo');
 					localStorage.removeItem('jwt');
-					window.location.href = '/index.html'; // 首頁依你實際路徑可調整
+					window.location.href = '/index.html';
 				});
 			});
 		}

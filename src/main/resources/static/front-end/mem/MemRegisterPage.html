@@ -188,7 +188,7 @@ body {
 			</div>
 			<div class="btns">
 				<button class="btn" type="submit">完成註冊</button>
-				<button class="btn" type="button" onclick="window.location.href='/indexstatic.html'">返回首頁</button>
+				<button class="btn" type="button" onclick="window.location.href='/index.html'">返回首頁</button>
 			</div>
 		</form>
 	</div>
@@ -263,7 +263,7 @@ body {
 	        const result = await resp.json();
 	        if (result.success) {
 	            alert('註冊成功！歡迎加入 PIXEL TRIBE！');
-	            window.location.href = '/indexstatic.html';
+	            window.location.href = '/index.html';
 	        } else {
 	            alert(result.message);
 	        }
