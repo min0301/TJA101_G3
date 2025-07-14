@@ -408,11 +408,6 @@ public class AdminOrderService {
                         continue;
                     }
                     
-                    // 檢查狀態轉換是否合法
-                    if (!isValidStatusTransition(order.getOrderStatus(), newStatus)) {
-                        errors.add("訂單 " + orderNo + " 狀態轉換不合法：" + order.getOrderStatus() + " -> " + newStatus);
-                        continue;
-                    }
                     
                     // 更新狀態
                     orderService.updateOrderStatus(orderNo, newStatus);
@@ -422,6 +417,10 @@ public class AdminOrderService {
                     log.info("ADMIN_BULK_STATUS_UPDATE|orderNo={}|admin={}|oldStatus={}|newStatus={}|timestamp={}", 
                             orderNo, adminId, order.getOrderStatus(), newStatus, System.currentTimeMillis());
                     
+                } catch (IllegalStateException e) {
+                    // 抓取 OrderService 的驗證錯誤
+                    errors.add("訂單 " + orderNo + " 狀態轉換不合法：" + e.getMessage());
+                    continue;
                 } catch (Exception e) {
                     errors.add("訂單 " + orderNo + " 更新失敗：" + e.getMessage());
                     log.error("批量更新單個訂單失敗：orderNo={}", orderNo, e);
@@ -626,14 +625,6 @@ public class AdminOrderService {
             log.warn("檢查序號分配狀態失敗：orderNo={}", orderNo, e);
             return false;
         }
-    }
-    
-    private boolean isValidStatusTransition(String currentStatus, String newStatus) {
-        // 簡化的狀態轉換規則
-        if ("CANCELLED".equals(currentStatus) || "COMPLETED".equals(currentStatus)) {
-            return false; // 已完成或已取消的訂單不能再改變狀態
-        }
-        return true;
     }
     
     

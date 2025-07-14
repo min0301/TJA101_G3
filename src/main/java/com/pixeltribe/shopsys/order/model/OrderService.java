@@ -15,7 +15,7 @@ import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.shopsys.cart.model.CartService;
 import com.pixeltribe.shopsys.cart.model.CartDTO;
 import com.pixeltribe.shopsys.order.exception.OrderNotFoundException;
-import com.pixeltribe.shopsys.order.model.OrderDTO.OrderStatusInfo;
+import com.pixeltribe.shopsys.order.model.CreateOrderRequest;
 import com.pixeltribe.shopsys.orderItem.model.CreateOrderItemRequest;
 import com.pixeltribe.shopsys.orderItem.model.OrderItem;
 import com.pixeltribe.shopsys.orderItem.model.OrderItemDTO;
@@ -114,6 +114,15 @@ public class OrderService {
                 String oldStatus = order.getOrderStatus();
                 long timestamp = System.currentTimeMillis();
             
+            // 加入狀態轉換驗證
+            if (!isValidStatusTransition(oldStatus, newStatus)) {
+                String errorMsg = String.format("不合法的狀態轉換：%s → %s (訂單編號：%d)", 
+                                               oldStatus, newStatus, orderNo);
+                log.warn(errorMsg);
+                throw new IllegalStateException(errorMsg);
+                }
+                
+              
             // 更新狀態
             order.setOrderStatus(newStatus);
             
@@ -375,12 +384,15 @@ public class OrderService {
             }
             
             // 更新訂單狀態
-            order.setOrderStatus("CANCELLED");
-            
-            orderRepository.save(order);
-            
-            log.info("訂單取消成功：orderNo={}", orderNo);
-            return true;
+            try {
+                updateOrderStatus(orderNo, "CANCELLED");
+                log.info("訂單取消成功：orderNo={}", orderNo);
+                return true;
+            } catch (IllegalStateException e) {
+                // 如果狀態轉換失敗，記錄錯誤
+                log.error("訂單狀態轉換失敗：orderNo={}, error={}", orderNo, e.getMessage());
+                return false;
+            }
             
         } catch (Exception e) {
             log.error("取消訂單失敗：orderNo={}", orderNo, e);
@@ -507,23 +519,61 @@ public class OrderService {
 	private boolean canCancelOrder(String orderStatus) {
         return "PENDING".equals(orderStatus) || "FAILED".equals(orderStatus);
     }
-}
 	
-//========== 相關的 DTO 和 Request 類別 ========== //
-//***** 建立訂單請求 ***** //
-class CreateOrderRequest {
-    private String contactEmail;
-    private String contactPhone;
-    private List<CreateOrderItemRequest> orderItems;
-    
-    // getters and setters
-    public String getContactEmail() { return contactEmail; }
-    public void setContactEmail(String contactEmail) { this.contactEmail = contactEmail; }
-    
-    public String getContactPhone() { return contactPhone; }
-    public void setContactPhone(String contactPhone) { this.contactPhone = contactPhone; }
-    
-    public List<CreateOrderItemRequest> getOrderItems() { return orderItems; }
-    public void setOrderItems(List<CreateOrderItemRequest> orderItems) { this.orderItems = orderItems; }
-}	
+	
+	// ***** 檢查狀態轉換是否合法 ***** //
+	private boolean isValidStatusTransition(String currentStatus, String newStatus) {
+	    // 相同狀態不需要轉換
+	    if (currentStatus.equals(newStatus)) {
+	        return true;
+	    }
+	    
+	    log.debug("檢查狀態轉換：{} → {}", currentStatus, newStatus);
+	    
+	    // 定義合法的狀態轉換規則
+	    switch (currentStatus) {
+	        case "PENDING":
+	            // 待付款 → 可以轉換到：付款中、取消、失敗
+	            return "PAYING".equals(newStatus) || 
+	                   "CANCELLED".equals(newStatus) || 
+	                   "FAILED".equals(newStatus);
+	                   
+	        case "PAYING":
+	            // 付款中 → 可以轉換到：處理中、失敗、取消
+	            return "PROCESSING".equals(newStatus) || 
+	                   "FAILED".equals(newStatus) || 
+	                   "CANCELLED".equals(newStatus);
+	                   
+	        case "PROCESSING":
+	            // 處理中 → 可以轉換到：已出貨、已完成、取消
+	            return "SHIPPED".equals(newStatus) || 
+	                   "COMPLETED".equals(newStatus) || 
+	                   "CANCELLED".equals(newStatus);
+	                   
+	        case "SHIPPED":
+	            // 已出貨 → 可以轉換到：已完成
+	            return "COMPLETED".equals(newStatus);
+	            
+	        case "COMPLETED":
+	            // 已完成 → 終結狀態，不能轉換
+	            log.warn("訂單已完成，無法變更狀態：currentStatus={}, newStatus={}", currentStatus, newStatus);
+	            return false;
+	            
+	        case "CANCELLED":
+	            // 已取消 → 終結狀態，不能轉換  
+	            log.warn("訂單已取消，無法變更狀態：currentStatus={}, newStatus={}", currentStatus, newStatus);
+	            return false;
+	            
+	        case "FAILED":
+	            // 失敗 → 可以重新開始：待付款、取消
+	            return "PENDING".equals(newStatus) || 
+	                   "CANCELLED".equals(newStatus);
+	                   
+	        default:
+	            // 未知狀態，記錄警告但允許轉換（向後兼容）
+	            log.warn("未知的訂單狀態：{}", currentStatus);
+	            return true;
+	    }
+	}
+}
 	

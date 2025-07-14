@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pixeltribe.shopsys.order.model.*;
+import com.pixeltribe.shopsys.orderItem.model.CreateOrderItemRequest;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -140,6 +141,49 @@ public class OrderController {
             return ResponseEntity.badRequest().build();
         }
     }
+	
+	// ***** 建立新訂單 (通用版本) ***** //
+	@PostMapping("/create")
+	public ResponseEntity<Map<String, Object>> createOrder(@RequestBody CreateOrderRequestDTO request) {
+	    try {
+	        log.info("建立新訂單：memNo={}", request.getMemNo());
+	        
+	        // 轉換為 Service 需要的格式
+	        CreateOrderRequest serviceRequest = new CreateOrderRequest();
+	        serviceRequest.setContactEmail(request.getContactEmail());
+	        serviceRequest.setContactPhone(request.getContactPhone());
+	        
+	        // 轉換 DTO 類型
+	        List<CreateOrderItemRequest> serviceOrderItems = request.getOrderItems().stream()
+	                .map(dto -> {
+	                    CreateOrderItemRequest serviceItem = new CreateOrderItemRequest();
+	                    serviceItem.setProNo(dto.getProNo());
+	                    serviceItem.setQuantity(dto.getQuantity());
+	                    return serviceItem;
+	                })
+	                .collect(Collectors.toList());
+	        
+	        serviceRequest.setOrderItems(serviceOrderItems);
+	        
+	        OrderDTO order = orderService.createOrder(serviceRequest, request.getMemNo());
+	        
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("success", true);
+	        response.put("message", "訂單建立成功");
+	        response.put("order", order);
+	        
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        log.error("建立訂單失敗：memNo={}", request.getMemNo(), e);
+	        
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("success", false);
+	        response.put("message", "建立訂單失敗：" + e.getMessage());
+	        
+	        return ResponseEntity.badRequest().body(response);
+	    }
+	}
+	
 	
 	
 	// ***** 從購物車建立新訂單 ***** //
@@ -643,4 +687,27 @@ public class OrderController {
 	        if (totalCount == 0) return 0.0;
 	        return (double) successCount / totalCount * 100;
 	    }
+	    
 	}
+	    
+	@Data
+	class CreateOrderRequestDTO {
+	    private Integer memNo;
+	    private String contactEmail;
+	    private String contactPhone;
+	    private List<CreateOrderItemRequestDTO> orderItems;
+	}
+
+	@Data  
+	class CreateOrderItemRequestDTO {
+	    private Integer proNo;
+	    private Integer quantity;
+	}
+	
+	@Data
+	class AdminCancelRequest {
+	    private String adminId;
+	    private String reason;
+	}
+	    
+	    
