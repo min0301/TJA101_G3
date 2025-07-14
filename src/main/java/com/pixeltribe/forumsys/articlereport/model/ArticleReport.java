@@ -1,4 +1,4 @@
-package com.pixeltribe.forumsys.entity;
+package com.pixeltribe.forumsys.articlereport.model;
 
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import com.pixeltribe.forumsys.reporttype.model.ReportType;
@@ -18,6 +18,7 @@ import java.time.Instant;
 @Table(name = "article_report")
 public class ArticleReport {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "NO", nullable = false)
     private Integer id;
 

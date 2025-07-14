@@ -9,7 +9,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pixeltribe.forumsys.articlecomreport.model.ArticleComReport;
-import com.pixeltribe.forumsys.entity.ArticleReport;
+import com.pixeltribe.forumsys.articlereport.model.ArticleReport;
 import com.pixeltribe.forumsys.entity.ForumChatMessage;
 import com.pixeltribe.forumsys.entity.ForumChatReport;
 import com.pixeltribe.forumsys.forumcollect.model.ForumCollect;
