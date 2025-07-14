@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>像素部落 - 新聞區</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/vendors/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="/assets/vendors/simplebar/simplebar.min.css">
+    <link rel="stylesheet" href="/assets/vendors/aos/aos.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/responsive.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet">
+    <style>
+        .post-box img {
+            height: 100%;
+        }
+
+        .post-box {
+            min-height: 160px;
+        }
+
+        .news-image-wrapper {
+            width: 200px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa; /* 可選，避免圖片過小時露白 */
+            padding: 0.5rem;
+        }
+
+        .news-img {
+            max-width: 100%;
+            max-height: 120px;
+            object-fit: contain;
+        }
+
+
+    </style>
+</head>
+<body>
+<!-- Switcher Icon -->
+<div class="switcher switcher-show" id="theme-switcher">
+    <i id="switcher-icon" class="bi bi-moon"></i>
+</div>
+
+<!-- Back to the Top -->
+<a href="#" id="back-to-top"></a>
+
+<div class="vine-wrapper">
+
+    <!-- Header placeholder -->
+    <div id="header-placeholder"></div>
+
+    <!-- Hero -->
+    <section class="vine-hero-2 bg-img-1">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="hero-content" data-aos="fade-down" data-aos-easing="linear">
+                        <h1>像素部落 (Pixel Tribe)</h1>
+                        <p>遊戲愛好者的聚集地</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEWS CAROUSEL START -->
+    <div class="container" style="margin-top:50px;">
+        <div class="news-carousel mb-5" data-aos="fade-up" data-aos-easing="linear">
+            <div id="newsCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner"></div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#newsCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#newsCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- NEWS CAROUSEL END -->
+
+    <!-- News List -->
+    <div class="container py-5">
+        <div id="news-list"></div>
+    </div>
+
+    <!-- Footer placeholder -->
+    <div id="footer-placeholder"></div>
+
+</div> <!-- /.vine-wrapper -->
+<!-- 燈箱  -->
+<div id="newsLightboxes"></div>
+<!-- Scripts -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Fetch and render news (case-sensitive endpoint)
+        console.log('Fetching news...');
+        fetch('/api/News/allAll?page=0&size=5')
+            .then(r => r.ok ? r.json() : Promise.reject(`Status ${r.status}`))
+            .then(async page => {
+                console.log('News page:', page);
+                const items = await Promise.all(page.content.map(async n => {
+                    const imgRes = await fetch(`/api/news/image/${n.id}`);
+                    const imgs = imgRes.ok ? await imgRes.json() : [];
+                    return {
+                        ...n,
+                        cover: imgs[0]?.imgUrl || '/assets/img/placeholder.png'
+                    };
+                }));
+                console.log('News items:', items.length);
+                renderNews(items);
+            })
+            .catch(err => console.error('Error fetching news:', err));
+
+        // Render news items
+        function renderNews(list) {
+            const wrap = document.getElementById('news-list');
+            wrap.innerHTML = list.map(n => `
+    <div class="post-box d-flex mb-4 align-items-stretch" data-aos="fade-up">
+  <div class="news-image-wrapper">
+    <img src="${n.cover}" class="news-img rounded-start" alt="news cover">
+  </div>
+  <div class="card flex-grow-1 shadow-sm rounded-2 border-0 d-flex flex-column">
+    <div class="card-body">
+      <h3 class="text-teal mb-2">${n.newsTit}</h3>
+      <div class="mb-2">
+        ${Array.isArray(n.categoryTags)
+                ? n.categoryTags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('')
+                : ''}
+      </div>
+      <p class="text-muted mb-0">${stripHtml(n.newsCon).slice(0, 100)}&hellip;</p>
+    </div>
+
+    <div class="card-footer bg-transparent d-flex justify-content-between align-items-center border-top-0 mt-auto">
+      <a href="/front-end/newspage/NewsDetail.html?newsId=${n.id}" class="btn btn-sm btn-mint rounded-pill">閱讀更多</a>
+      <div class="text-muted"><i class="bi bi-chat-dots me-1"></i>${n.commentCount || 0}</div>
+    </div>
+
+  </div>
+</div>
+
+  `).join('');
+        }
+
+        // Strip HTML tags
+        function stripHtml(html) {
+            const d = document.createElement('div');
+            d.innerHTML = html;
+            return d.textContent || d.innerText || '';
+        }
+    });
+</script>
+
+<!-- Vendor JS -->
+<!--<script src="newsdetail.js"></script>-->
+<script src="/assets/js/global-loader.js"></script>
+<script src="/assets/vendors/jquery/jquery.min.js"></script>
+<script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+<script src="/assets/vendors/popper/popper.min.js"></script>
+<script src="/assets/vendors/simplebar/simplebar.min.js"></script>
+<script src="/assets/js/main.js"></script>
+<script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+<script src="/assets/vendors/aos/aos.js"></script>
+<script>
+    // Initialize AOS animations
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.AOS) {
+            AOS.init();
+        }
+    });
+</script>
+<script src="./news-carousel.js"></script>
+</body>
+</html>

@@ -34,7 +34,7 @@ newsData.forEach((n, idx) => {
       <img src="${n.img}" class="d-block w-100" alt="${n.title}">
     </a>
     <div class="carousel-caption">
-      <a href="${n.link}" class="stretched-link text-white">${n.title}</a>
+      <a href="/front-end/newspage/NewsDetail.html?newsId=${n.id}" class="stretched-link text-white">${n.title}</a>
     </div>
   `;
     inner.appendChild(item);

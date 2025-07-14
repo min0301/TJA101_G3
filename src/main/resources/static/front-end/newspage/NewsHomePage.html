@@ -1,175 +1,105 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>最新遊戲新聞</title>
-    <style>
-        :root {
-            --primary: #1e40af;
-            --gray: #475569;
-            --bg: #f8fafc;
-        }
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            padding: 2rem;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-            line-height: 1.6;
-            background: var(--bg);
-        }
-        h1 { font-size: 2rem; margin: 0 0 1.5rem; color: var(--primary); }
-        ul#news-list {
-            margin: 0; padding: 0;
-            list-style: none;
-            display: grid;
-            gap: 1.5rem;
-        }
-        article {
-            background: #fff;
-            border-radius: 1rem;
-            padding: 1rem 1.25rem;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s;
-            display: flex;
-            gap: 1.25rem;
-        }
-        article:hover { transform: translateY(-2px); }
-        .thumb { flex: 0 0 220px; aspect-ratio: 16/9; border-radius: 0.75rem; overflow: hidden; }
-        .thumb img { display: none; width: 100%; height: 100%; object-fit: cover; }
-        .content { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
-        h2 { font-size: 1.25rem; margin: 0 0 0.25rem; line-height: 1.4; }
-        h2 a { color: inherit; text-decoration: none; }
-        h2 a:hover { text-decoration: underline; }
-        p { margin: 0.25rem 0 0.5rem; color: var(--gray); font-size: 0.925rem; }
-        .meta { font-size: 0.875rem; color: var(--gray); display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.25rem; }
-        .tags { margin-top: 0.5rem; gap: 0.5rem; }
-        .tags span {
-            background: var(--primary); color: #fff;
-            font-size: 0.75rem; padding: 0.125rem 0.5rem;
-            border-radius: 0.5rem; white-space: nowrap;
-        }
-        /* 分頁 */
-        .pager { margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; }
-        .pager button {
-            padding: 0.5rem 1.25rem;
-            border: 1px solid var(--primary);
-            background: var(--primary);
-            color: #fff; border-radius: 0.5rem; cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        .pager button[disabled] {
-            opacity: 0.4; cursor: default;
-        }
-        @media (max-width: 640px) {
-            article { flex-direction: column; }
-            .thumb { width: 100%; }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApexForum - News Demo (API)</title>
+
+    <!-- ============================================== -->
+    <!-- Style sheets (絕對路徑，以同主機 /assets 為根) -->
+    <!-- ============================================== -->
+    <link rel="stylesheet" href="/assets/vendors/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="/assets/vendors/simplebar/simplebar.min.css">
+    <link rel="stylesheet" href="/assets/vendors/aos/aos.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/responsive.css">
+
+    <script>
+        /* 第一次載入時決定明暗主題 */
+        const saved = localStorage.getItem('theme');
+        const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+    </script>
 </head>
 <body>
-<h1>最新 5 則遊戲新聞</h1>
-<ul id="news-list"></ul>
-<div id="pager" class="pager"></div>
 
+<!-- ================== 內容區（節錄） ================== -->
+<section class="vine-top">
+    <div class="container">
+        <!-- 動態新聞卡片插入點 -->
+        <div id="news-list" class="row gy-4 mt-5"></div>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- Scripts                                         -->
+<!-- ============================================== -->
+<script src="/assets/vendors/jquery/jquery.min.js"></script>
+<script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+<script src="/assets/vendors/popper/popper.min.js"></script>
+<script src="/assets/vendors/simplebar/simplebar.min.js"></script>
+<script src="/assets/vendors/aos/aos.js"></script>
+<script src="/assets/js/main.js"></script>
+
+<!-- =========== 動態載入新聞（避免 CORS） =========== -->
 <script>
-    const listEl  = document.getElementById('news-list');
-    const pagerEl = document.getElementById('pager');
-    const pageSize = 5;        // 每頁固定 5 筆
-
-    /** 首次載入 */
-    fetchNews(0, pageSize);
-
     /**
-     * 依頁碼撈取新聞
+     * 注意：全部採用「相對路徑」或「以 / 開頭」的**同源**請求，
+     * 避免 localhost 與 127.0.0.1 混用造成 CORS。
+     * 若前後端分離在不同網域 → 請在後端加 CORS 設定。
      */
-    function fetchNews(page, size) {
-        // 清空列表，顯示 loading
-        listEl.innerHTML = '<li>載入中…</li>';
-        pagerEl.innerHTML = '';
 
-        fetch(`/api/News?page=${page}&size=${size}`)
-            .then(res => res.json())
-            .then(data => {
-                renderNewsList(data.content);
-                renderPager(data.pageNumber, data.totalPages);
-                data.content.forEach(n => loadFirstImage(n.id));
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. 取新聞清單（同源，相對路徑即可）
+        fetch('/api/News/allAll?page=0&size=6')
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
             })
-            .catch(err => {
-                listEl.innerHTML = '<li>無法載入新聞資料…</li>';
-                console.error(err);
-            });
-    }
-
-    /**
-     * 渲染新聞清單
-     */
-    function renderNewsList(items) {
-        if (!Array.isArray(items) || items.length === 0) {
-            listEl.innerHTML = '<li>目前沒有資料。</li>';
-            return;
-        }
-        listEl.innerHTML = items.map(toHtml).join('');
-    }
-
-    /**
-     * 產生單條 HTML
-     */
-    function toHtml(n) {
-        const pub = new Date(n.newsCrdate).toLocaleString();
-        const upd = n.newsUpdate ? new Date(n.newsUpdate).toLocaleString() : null;
-        const tags = (n.categoryTags || []).map(t => `<span>${t}</span>`).join(' ');
-
-        return `
-        <li>
-            <article>
-                <div class="thumb"><img data-id="${n.id}" alt="${n.newsTit}" loading="lazy" /></div>
-                <div class="content">
-                    <h2><a href="News.html?id=${n.id}" title="查看詳細">${n.newsTit}</a></h2>
-                    <p>${n.newsCon.slice(0, 120)}…</p>
-                    <div class="meta">
-                        <span>發布：${pub}</span>
-                        ${upd ? `<span>更新：${upd}</span>` : ''}
-                        <span>圖片：${n.numberOfNewsPhoto}</span>
-                    </div>
-                    <div class="meta tags">${tags}</div>
-                </div>
-            </article>
-        </li>`;
-    }
-
-    /**
-     * 簡易分頁控制
-     */
-    function renderPager(page, total) {
-        if (total <= 1) return;   // 只有一頁不顯示
-        const prevDisabled = page === 0     ? 'disabled' : '';
-        const nextDisabled = page >= total-1 ? 'disabled' : '';
-
-        pagerEl.innerHTML = `
-            <button ${prevDisabled} onclick="fetchNews(${page-1}, ${pageSize})">上一頁</button>
-            <span>第 ${page+1} / ${total} 頁</span>
-            <button ${nextDisabled} onclick="fetchNews(${page+1}, ${pageSize})">下一頁</button>
-        `;
-    }
-
-    /**
-     * 取第一張圖
-     */
-    function loadFirstImage(newsId) {
-        fetch(`/api/news/image/News/${newsId}`)
-            .then(res => res.json())
-            .then(imgs => {
-                if (!Array.isArray(imgs) || imgs.length === 0) return;
-                const first = imgs[0];
-                const imgEl = listEl.querySelector(`img[data-id="${newsId}"]`);
-                if (imgEl) {
-                    imgEl.src = first.imgUrl;
-                    imgEl.style.display = 'block';
-                }
+            .then(async page => {
+                const newsArr = page.content || [];
+                // 2. 平行取每則首圖
+                const newsWithImg = await Promise.all(
+                    newsArr.map(async n => {
+                        try {
+                            const imgRes = await fetch(`/api/news/image/News/${n.id}`);
+                            const imgList = imgRes.ok ? await imgRes.json() : [];
+                            const firstImg = imgList.length ? imgList[0].imgUrl : '/assets/img/placeholder.jpg';
+                            return { ...n, cover:firstImg };
+                        } catch (e){
+                            return { ...n, cover:'/assets/img/placeholder.jpg' };
+                        }
+                    })
+                );
+                renderNews(newsWithImg);
             })
-            .catch(err => console.error(`載入新聞 ${newsId} 圖片失敗`, err));
+            .catch(err => console.error('載入新聞失敗', err));
+    });
+
+    function renderNews(list){
+        const container = document.getElementById('news-list');
+        container.innerHTML = list.map(n => `
+    <div class="col-md-6 col-lg-4">
+      <article class="card h-100 shadow-sm">
+        <img src="${n.cover}" class="card-img-top" alt="${n.newsTit}">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">${n.newsTit}</h5>
+          <p class="card-text text-truncate">${stripHtml(n.newsCon)}</p>
+          <a href="/news/${n.id}" class="btn btn-mint mt-auto">閱讀更多</a>
+        </div>
+      </article>
+    </div>
+  `).join('');
+    }
+
+    function stripHtml(html){
+        const div = document.createElement('div');
+        div.innerHTML = html || '';
+        return div.textContent || div.innerText || '';
     }
 </script>
+
 </body>
 </html>
