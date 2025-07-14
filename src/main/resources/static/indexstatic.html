@@ -78,7 +78,6 @@
         <p>請從左側選單選擇「論壇」、「新聞」或「商城」瀏覽內容。</p>
     </main>
 </div>
-
 <script>
     // 兩種狀態模板
     const guestTpl = `
@@ -104,7 +103,6 @@
         document.getElementById('logout-btn').onclick = logout;
     }
     function logout() {
-        // 建議加上你專案自己的登出API呼叫
         // fetch('/api/member/logout', { method: 'POST' }).then(...)
         localStorage.removeItem('jwt');
         showGuestUI();
