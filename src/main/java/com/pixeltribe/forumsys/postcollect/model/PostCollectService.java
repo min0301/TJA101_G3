@@ -1,32 +1,68 @@
 package com.pixeltribe.forumsys.postcollect.model;
 
+import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
+import com.pixeltribe.forumsys.forumcollect.model.ForumCollectDTO;
+import com.pixeltribe.forumsys.forumpost.model.ForumPost;
+import com.pixeltribe.forumsys.forumpost.model.ForumPostRepository;
+import com.pixeltribe.forumsys.shared.PostCollectStatus;
+import com.pixeltribe.membersys.member.model.MemRepository;
+import com.pixeltribe.membersys.member.model.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PostCollectService {
 
-    @Autowired
-    private PostCollectRepository postCollectRepository;
+    private final PostCollectRepository postCollectRepository;
+    private final ForumPostRepository forumPostRepository;
+    private final MemRepository memRepository;
 
-    public List<PostCollectDto> getPostCollectionsByMemberId(Integer memberId) {
-        // 查詢這個會員的所有收藏文章
-        List<PostCollect> collects = postCollectRepository.findByMember_Id(memberId);
-
-        // 組成 DTO 列表（回傳前端需要的資料）
-        List<PostCollectDto> result = new ArrayList<>();
-        for (PostCollect collect : collects) {
-            PostCollectDto dto = new PostCollectDto(
-                collect.getId(),
-                collect.getPostNo().getPostTitle(),    // 文章標題
-                collect.getPcollUpdate()          	   // 收藏時)
-            );
-            result.add(dto);
-        }
-        return result;
+    public PostCollectService(PostCollectRepository postCollectRepository, ForumPostRepository forumPostRepository, MemRepository memRepository){
+        this.postCollectRepository = postCollectRepository;
+        this.forumPostRepository = forumPostRepository;
+        this.memRepository = memRepository;
     }
 
+    @Transactional
+    public PostCollectDTO addPostCollect(Integer memberId, Integer postId, PostCollectUpdateDTO postCollectUpdateDTO ){
+
+        Member member = memRepository.findById(memberId)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到會員, 編號: " + postCollectUpdateDTO.getMemberNo()));
+
+        ForumPost forumPost = forumPostRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到文章, 編號: " + postId));
+
+        Optional<PostCollect> existingCollectOpt = postCollectRepository.findByPostNoAndMemNo(forumPost, member);
+        PostCollect postCollect;
+        if (existingCollectOpt.isPresent()) {
+            postCollect = existingCollectOpt.get();
+            if (postCollect.getPostCollectStatus() == PostCollectStatus.COLLECT) {
+                postCollect.setPostCollectStatus(PostCollectStatus.NORMAL);
+            } else {
+                postCollect.setPostCollectStatus(PostCollectStatus.COLLECT);
+            }
+        } else {
+            postCollect = new PostCollect();
+            postCollect.setPostNo(forumPost);
+            postCollect.setMemNo(member);
+            postCollect.setPostCollectStatus(PostCollectStatus.COLLECT);
+        }
+        return PostCollectDTO.convertToPostCollectDTO(postCollectRepository.save(postCollect));
+    }
+
+    public List<PostCollectDTO> getPostCollectForMember(Integer memberId){
+        Member member = memRepository.findById(memberId)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到會員, 編號: " + memberId));
+        List<PostCollect> postCollect = postCollectRepository.findByMemNo(member);
+        return postCollect.stream()
+                .map(PostCollectDTO::convertToPostCollectDTO)
+                .toList();
+
+    }
 }
+

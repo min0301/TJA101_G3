@@ -2,6 +2,7 @@ package com.pixeltribe.forumsys.forumpost.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pixeltribe.forumsys.postcollect.model.PostCollect;
 import com.pixeltribe.forumsys.entity.PostLike;
 import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.forumsys.forumimage.model.ForumImage;

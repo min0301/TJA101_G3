@@ -4,11 +4,11 @@
 -- ===== START OF MEMBER_SysAndNEWS_Sys.sql =====
 -- 建立資料庫
 CREATE
-DATABASE IF NOT EXISTS pixel_tribe;
+    DATABASE IF NOT EXISTS pixel_tribe;
 USE pixel_tribe;
 
 SET
-FOREIGN_KEY_CHECKS = 0;
+    FOREIGN_KEY_CHECKS = 0;
 
 -- 移除清除既有資料表（依 FK 先子後父）
 -- 依相依關係由下而上刪除，避免 Foreign-Key Constraint 衝突
@@ -797,9 +797,9 @@ VALUES (2, 1, '0', 3, '2025-06-07 12:00:00', NULL),
 
 -- 設定自增主鍵起始值與遞增量
 SET
-auto_increment_offset = 1;
+    auto_increment_offset = 1;
 SET
-auto_increment_increment = 1;
+    auto_increment_increment = 1;
 
 
 -- 建立 討論區類別 表格 --
@@ -1727,6 +1727,7 @@ CREATE TABLE POST_COLLECT
     `PCOLL_NO`     INT AUTO_INCREMENT PRIMARY KEY COMMENT '文章收藏編號',
     `MEM_NO`       INT COMMENT '會員編號',
     `POST_NO`      INT COMMENT '文章編號',
+    `POST_COLLECT_STATUS` VARCHAR(50) COMMENT '文章收藏狀態',
     `PCOLL_UPDATE` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新時間',
     FOREIGN KEY (`MEM_NO`) REFERENCES MEMBER (`MEM_NO`) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (`POST_NO`) REFERENCES FORUM_POST (`POST_NO`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -2187,38 +2188,38 @@ BEGIN
     -- 生成新的ORDER_NO (格式: YYYYMM0001)
     SET NEW.ORDER_NO = CONCAT(current_month, LPAD(next_seq, 4, '0'));
 END$$
-    DELIMITER ;
+DELIMITER ;
 
 -- 停用外鍵檢查（插入測試資料時）
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- 插入 9筆 訂單ORDER 資料（會自動產生 ORDER_NO）
 
-    INSERT INTO `ORDER` (MEM_NO, COUPON_WALLET_NO, ORDER_STATUS, ORDER_TOTAL, POINT_USED)
-    VALUES (15, 1, '已完成', 1399, 0),
-           (23, NULL, '處理中', 1990, 0),
-           (8, 3, '已完成', 1090, 0),
-           (12, 5, '已完成', 1090, 0),
-           (23, NULL, '處理中', 1690, 0),
-           (6, 7, '已完成', 899, 0),
-           (29, NULL, '已出貨', 1390, 0),
-           (15, 9, '已完成', 218, 0),
-           (37, 10, '處理中', 1690, 0);
+INSERT INTO `ORDER` (MEM_NO, COUPON_WALLET_NO, ORDER_STATUS, ORDER_TOTAL, POINT_USED)
+VALUES (15, 1, '已完成', 1399, 0),
+       (23, NULL, '處理中', 1990, 0),
+       (8, 3, '已完成', 1090, 0),
+       (12, 5, '已完成', 1090, 0),
+       (23, NULL, '處理中', 1690, 0),
+       (6, 7, '已完成', 899, 0),
+       (29, NULL, '已出貨', 1390, 0),
+       (15, 9, '已完成', 218, 0),
+       (37, 10, '處理中', 1690, 0);
 
 -- 插入對應 ORDER_ITEM 測試資料的新訂單（手動指定 ORDER_NO）
-    INSERT INTO `ORDER` (ORDER_NO, MEM_NO, COUPON_WALLET_NO, ORDER_DATETIME, ORDER_STATUS, ORDER_TOTAL, POINT_USED)
-    VALUES
-        (2025070010, 15, NULL, '2025-07-07 16:31:16', '已完成', 2397, 0),
-        (2025070011, 20, NULL, '2025-07-08 10:15:30', '已完成', 1990, 0),
-        (2025070012, 25, 3, '2025-07-09 14:22:45', '處理中', 2144, 0),
-        (2025070013, 29, NULL, '2025-07-10 09:30:20', '已出貨', 3380, 0),
-        (2025070014, 33, 5, '2025-07-11 11:45:10', '已完成', 3180, 0),
-        (2025070015, 28, NULL, '2025-07-12 15:20:35', '處理中', 3497, 0),
-        (2025070016, 29, 7, '2025-07-13 16:31:16', '已出貨', 1390, 0);
+INSERT INTO `ORDER` (ORDER_NO, MEM_NO, COUPON_WALLET_NO, ORDER_DATETIME, ORDER_STATUS, ORDER_TOTAL, POINT_USED)
+VALUES
+    (2025070010, 15, NULL, '2025-07-07 16:31:16', '已完成', 2397, 0),
+    (2025070011, 20, NULL, '2025-07-08 10:15:30', '已完成', 1990, 0),
+    (2025070012, 25, 3, '2025-07-09 14:22:45', '處理中', 2144, 0),
+    (2025070013, 29, NULL, '2025-07-10 09:30:20', '已出貨', 3380, 0),
+    (2025070014, 33, 5, '2025-07-11 11:45:10', '已完成', 3180, 0),
+    (2025070015, 28, NULL, '2025-07-12 15:20:35', '處理中', 3497, 0),
+    (2025070016, 29, 7, '2025-07-13 16:31:16', '已出貨', 1390, 0);
 
 
 
-    -- ===== END OF order.sql =====
+-- ===== END OF order.sql =====
 
 -- ===== START OF oreder_item.sql =====
 -- 建立資料庫並設定自動遞增屬性
@@ -2231,39 +2232,39 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- 建立 訂單明細ORDER_ITEM 資料表
 
 
-    CREATE TABLE ORDER_ITEM (
-                                ORDER_ITEM_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '訂單明細編號',
-                                ORDER_NO INT COMMENT'訂單編號',
-                                PRO_NO INT COMMENT'產品編號',
-                                ORDER_AMOUNT INT COMMENT'訂購數量',
-                                PRO_PRICE INT COMMENT'產品價格',
-                                PRO_NAME VARCHAR(30) COMMENT'產品名稱',
-                                PRODUCT_COMMENT VARCHAR(255) COMMENT'產品評論內容',
-                                PRODUCT_COMMENT_CRDATE DATETIME COMMENT'評論時間',
-                                PRO_STAR INT COMMENT'產品評價',
-                                PRO_COM_STATUS CHAR(1) DEFAULT '0' COMMENT'產品評論狀態',
-                                DATA_SOURCE CHAR(1) DEFAULT 'R' COMMENT '資料來源：R=真實訂單, T=測試資料',
+CREATE TABLE ORDER_ITEM (
+                            ORDER_ITEM_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '訂單明細編號',
+                            ORDER_NO INT COMMENT'訂單編號',
+                            PRO_NO INT COMMENT'產品編號',
+                            ORDER_AMOUNT INT COMMENT'訂購數量',
+                            PRO_PRICE INT COMMENT'產品價格',
+                            PRO_NAME VARCHAR(30) COMMENT'產品名稱',
+                            PRODUCT_COMMENT VARCHAR(255) COMMENT'產品評論內容',
+                            PRODUCT_COMMENT_CRDATE DATETIME COMMENT'評論時間',
+                            PRO_STAR INT COMMENT'產品評價',
+                            PRO_COM_STATUS CHAR(1) DEFAULT '0' COMMENT'產品評論狀態',
+                            DATA_SOURCE CHAR(1) DEFAULT 'R' COMMENT '資料來源：R=真實訂單, T=測試資料',
 
-                                FOREIGN KEY (ORDER_NO) REFERENCES `ORDER`(ORDER_NO),
-                                FOREIGN KEY (PRO_NO) REFERENCES PRODUCT(PRO_NO)
-    );
+                            FOREIGN KEY (ORDER_NO) REFERENCES `ORDER`(ORDER_NO),
+                            FOREIGN KEY (PRO_NO) REFERENCES PRODUCT(PRO_NO)
+);
 
 -- 插入原有的測試資料（標記為 'T'）
-    INSERT INTO ORDER_ITEM (ORDER_NO, PRO_NO, ORDER_AMOUNT, PRO_PRICE, PRO_NAME, PRODUCT_COMMENT, PRODUCT_COMMENT_CRDATE, PRO_STAR, PRO_COM_STATUS, DATA_SOURCE)
-    VALUES
-        (2025070001, 1, 1, 1499, '光與影：33 號遠征隊', NULL, NULL, NULL, '1', 'T'),
-        (2025070002, 2, 1, 1990, '印第安納瓊斯：古老之圈', NULL, NULL, NULL, '1', 'T'),
-        (2025070003, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1', 'T'),
-        (2025070004, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1', 'T'),
-        (2025070005, 5, 1, 1690, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1', 'T'),
-        (2025070006, 6, 1, 999, '雙點博物館', NULL, NULL, NULL, '1', 'T'),
-        (2025070007, 7, 1, 1390, '人中之龍 8 外傳 夏威夷海盜', NULL, NULL, NULL, '1', 'T'),
-        (2025070008, 8, 1, 318, '即刻離職', NULL, NULL, NULL, '1', 'T'),
-        (2025070009, 10, 1, 1790, '歧路旅人 + 歧路旅人 II 合輯', NULL, NULL, NULL, '1', 'T');
+INSERT INTO ORDER_ITEM (ORDER_NO, PRO_NO, ORDER_AMOUNT, PRO_PRICE, PRO_NAME, PRODUCT_COMMENT, PRODUCT_COMMENT_CRDATE, PRO_STAR, PRO_COM_STATUS, DATA_SOURCE)
+VALUES
+    (2025070001, 1, 1, 1499, '光與影：33 號遠征隊', NULL, NULL, NULL, '1', 'T'),
+    (2025070002, 2, 1, 1990, '印第安納瓊斯：古老之圈', NULL, NULL, NULL, '1', 'T'),
+    (2025070003, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1', 'T'),
+    (2025070004, 4, 1, 1190, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1', 'T'),
+    (2025070005, 5, 1, 1690, '艾爾登法環：黑夜君臨', NULL, NULL, NULL, '1', 'T'),
+    (2025070006, 6, 1, 999, '雙點博物館', NULL, NULL, NULL, '1', 'T'),
+    (2025070007, 7, 1, 1390, '人中之龍 8 外傳 夏威夷海盜', NULL, NULL, NULL, '1', 'T'),
+    (2025070008, 8, 1, 318, '即刻離職', NULL, NULL, NULL, '1', 'T'),
+    (2025070009, 10, 1, 1790, '歧路旅人 + 歧路旅人 II 合輯', NULL, NULL, NULL, '1', 'T');
 
 -- 插入與前端對應的測試資料（符合業務邏輯：一個訂單多個商品）
-    INSERT INTO ORDER_ITEM (ORDER_NO, PRO_NO, ORDER_AMOUNT, PRO_PRICE, PRO_NAME, PRODUCT_COMMENT, PRODUCT_COMMENT_CRDATE, PRO_STAR, PRO_COM_STATUS, DATA_SOURCE)
-    VALUES
+INSERT INTO ORDER_ITEM (ORDER_NO, PRO_NO, ORDER_AMOUNT, PRO_PRICE, PRO_NAME, PRODUCT_COMMENT, PRODUCT_COMMENT_CRDATE, PRO_STAR, PRO_COM_STATUS, DATA_SOURCE)
+VALUES
 
 -- 訂單 2025070010：購買 2 個光與影 + 1 個雙點博物館
 (2025070010, 1, 2, 699, '光與影：33 號遠征隊', NULL, NULL, NULL, '0', 'T'),
@@ -2290,7 +2291,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- 訂單 2025070016：購買 1 個人中之龍
 (2025070016, 7, 1, 1390, '人中之龍 8 外傳 夏威夷海盜', NULL, NULL, NULL, '0', 'T');
 
-    -- 重新啟用外鍵檢查
+-- 重新啟用外鍵檢查
 --
 -- ===== END OF oreder_item.sql =====
 
@@ -2307,17 +2308,17 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- SET auto_increment_increment = 1;
 
 -- 建立 產品圖片PRODUCT_IMAGE 資料表
-    CREATE TABLE PRODUCT_IMAGE
-    (
-        PRO_IMG_NO   INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品圖片編號',
-        PRO_NO       INT                            NOT NULL COMMENT '產品編號',
-        PRO_IMG_DATA LONGBLOB COMMENT '圖片資料',
-        PRO_IMG_TYPE VARCHAR(100) COMMENT '產品圖片類型',
+CREATE TABLE PRODUCT_IMAGE
+(
+    PRO_IMG_NO   INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品圖片編號',
+    PRO_NO       INT                            NOT NULL COMMENT '產品編號',
+    PRO_IMG_DATA LONGBLOB COMMENT '圖片資料',
+    PRO_IMG_TYPE VARCHAR(100) COMMENT '產品圖片類型',
 
-        CONSTRAINT FK_PRODUCT_IMAGE_PRODUCT_PRO_NO
-            FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-    );
-    -- ===== END OF product_image.sql =====
+    CONSTRAINT FK_PRODUCT_IMAGE_PRODUCT_PRO_NO
+        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+);
+-- ===== END OF product_image.sql =====
 
 -- ===== START OF favorite_product.sql =====
 -- 建立資料庫並設定自動遞增屬性
@@ -2331,19 +2332,19 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- SET auto_increment_offset = 1;
 -- SET auto_increment_increment = 1;
 
-    CREATE TABLE FAVORITE_PRODUCT
-    (
-        FAV_PRO_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '最愛產品編號',
-        MEM_NO     INT                            NOT NULL COMMENT '會員編號',
-        PRO_NO     INT                            NOT NULL COMMENT '產品編號',
+CREATE TABLE FAVORITE_PRODUCT
+(
+    FAV_PRO_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '最愛產品編號',
+    MEM_NO     INT                            NOT NULL COMMENT '會員編號',
+    PRO_NO     INT                            NOT NULL COMMENT '產品編號',
 
-        FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
-        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-    );
+    FOREIGN KEY (MEM_NO) REFERENCES MEMBER (MEM_NO),
+    FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+);
 
 -- -- 插入 產品序號 FAVORITE_PRODUCT 資料
-    INSERT INTO FAVORITE_PRODUCT (MEM_NO, PRO_NO)
-        VALUE (20, 1),
+INSERT INTO FAVORITE_PRODUCT (MEM_NO, PRO_NO)
+    VALUE (20, 1),
     (33, 3),
     (6, 5),
     (5, 7),
@@ -2358,7 +2359,7 @@ SET FOREIGN_KEY_CHECKS = 0;
     (3, 8),
     (13, 13),
     (25, 16);
-    -- ===== END OF favorite_product.sql =====
+-- ===== END OF favorite_product.sql =====
 
 -- ===== START OF pro_serial_numbers.sql =====
 -- 建立資料庫並設定自動遞增屬性
@@ -2373,21 +2374,21 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- SET auto_increment_increment = 1;
 
 -- 建立 產品序號 PRO_SERIAL_NUMBERS 資料表
-    CREATE TABLE PRO_SERIAL_NUMBERS
-    (
-        PRODUCT_SN_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品序號流水號',
-        PRODUCT_SN    VARCHAR(100) COMMENT '產品序號',
-        ORDER_ITEM_NO INT COMMENT '訂單明細編號',
-        PRO_NO        INT COMMENT '產品編號',
+CREATE TABLE PRO_SERIAL_NUMBERS
+(
+    PRODUCT_SN_NO INT AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '產品序號流水號',
+    PRODUCT_SN    VARCHAR(100) COMMENT '產品序號',
+    ORDER_ITEM_NO INT COMMENT '訂單明細編號',
+    PRO_NO        INT COMMENT '產品編號',
 
-        FOREIGN KEY (ORDER_ITEM_NO) REFERENCES ORDER_ITEM (ORDER_ITEM_NO),
-        FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
-    );
+    FOREIGN KEY (ORDER_ITEM_NO) REFERENCES ORDER_ITEM (ORDER_ITEM_NO),
+    FOREIGN KEY (PRO_NO) REFERENCES PRODUCT (PRO_NO)
+);
 
 
 -- -- 插入 產品序號 PRO_SERIAL_NUMBERS 資料
-    INSERT INTO PRO_SERIAL_NUMBERS (PRODUCT_SN, ORDER_ITEM_NO, PRO_NO)
-        VALUE ('N284X-42RP4-0J9KS', 1, 1),
+INSERT INTO PRO_SERIAL_NUMBERS (PRODUCT_SN, ORDER_ITEM_NO, PRO_NO)
+    VALUE ('N284X-42RP4-0J9KS', 1, 1),
     ('F81F0-G1VP0-L0B96', NULL, 1),
     ('SGH46-30U5H-S89PJ', NULL, 1),
     ('34GL1-72L86-B66YJ', NULL, 1),
@@ -2539,4 +2540,4 @@ SET FOREIGN_KEY_CHECKS = 0;
     ('0GP8B-HMD0I-1N4JB', NULL, 17);
 
 -- ===== END OF pro_serial_numbers.sql =====
-    SET FOREIGN_KEY_CHECKS = 1;
+SET FOREIGN_KEY_CHECKS = 1;
