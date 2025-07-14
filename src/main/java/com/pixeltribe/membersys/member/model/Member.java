@@ -21,8 +21,8 @@ import com.pixeltribe.forumsys.entity.PostLike;
 
 
 import com.pixeltribe.forumsys.messagelike.model.ForumMesLike;
+import com.pixeltribe.forumsys.postcollect.model.PostCollect;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
-import com.pixeltribe.forumsys.entity.PostCollect;
 import com.pixeltribe.membersys.friendlist.model.FriendList;
 import com.pixeltribe.membersys.memberloginlog.model.MemberLoginLog;
 import com.pixeltribe.membersys.privatechatroom.model.PrivateChatroom;
@@ -218,7 +218,7 @@ public class Member {
     @OneToMany(mappedBy = "memNo")
     private Set<Order> orders = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "memNo")
+    @OneToMany(mappedBy = "member")
     private Set<PostCollect> postCollects = new LinkedHashSet<>();
     
     @JsonManagedReference(value = "member1-privatechatroom")

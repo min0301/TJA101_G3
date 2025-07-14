@@ -201,13 +201,13 @@ body {
 				<i class="bi bi-person me-1"></i>個人資料
 			</button>
 			<button class="tab-btn" data-tab="orders">
-				<i class="bi bi-receipt me-1"></i>過去訂單
+				<i class="bi bi-receipt me-1"></i>消費紀錄
 			</button>
 			<button class="tab-btn" data-tab="coupons">
 				<i class="bi bi-ticket me-1"></i>優惠券
 			</button>
 			<button class="tab-btn" data-tab="collections">
-				<i class="bi bi-bookmarks me-1"></i>收藏文章
+				<i class="bi bi-bookmarks me-1"></i>關注討論區
 			</button>
 		</div>
 		<div id="memberMainArea"></div>
@@ -217,6 +217,9 @@ body {
 	<div id="footer-placeholder"></div>
 	<script src="/assets/js/global-loader.js"></script>
 	<script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+	<!-- 載入Header & Footer 動態資料-->
+	<script src="/js/dynamicHeaderInfo.js"></script>
+	<!-- 網頁行為 -->
 	<script>
 	document.addEventListener('DOMContentLoaded', async function () {
 		  const jwt = localStorage.getItem('jwt');
@@ -357,7 +360,7 @@ body {
 		      let html = `
 		        <div class="member-center-card mb-4 bg-white">
 		          <div class="card-body py-4 px-4">
-		            <div class="card-section-title">歷史訂單</div>
+		            <div class="card-section-title">消費紀錄</div>
 		            <div class="table-responsive">
 		              <table class="table align-middle mb-0">
 		                <thead>
@@ -412,7 +415,6 @@ body {
 		              <table class="table align-middle mb-0">
 		                <thead>
 		                  <tr>
-		                    <th>優惠券編號</th>
 		                    <th>名稱</th>
 		                    <th>序號</th>
 		                    <th>適用範圍</th>
@@ -443,7 +445,6 @@ body {
 		        if (coupons && coupons.length > 0) {
 		          rows = coupons.map(coupon => `
 		            <tr>
-		              <td>${coupon.id || '-'}</td>
 		              <td>${coupon.couName || '-'}</td>
 		              <td>${coupon.couCode || '-'}</td>
 		              <td>全部商品</td>
@@ -463,13 +464,13 @@ body {
 		    	  let html = `
 		    		    <div class="member-center-card mb-4 bg-white">
 		    		      <div class="card-body py-4 px-4">
-		    		        <div class="card-section-title">我的收藏</div>
+		    		        <div class="card-section-title">關注討論區</div>
 		    		        <div class="table-responsive">
 		    		          <table class="table align-middle mb-0">
 		    		            <thead>
 		    		              <tr>
-		    		                <th>文章標題</th>
-		    		                <th>收藏日期</th>
+		    		                <th>討論區名稱</th>
+		    		                <th>上次更新</th>
 		    		              </tr>
 		    		            </thead>
 		    		            <tbody id="collections-tbody">
@@ -496,11 +497,11 @@ body {
 		    		      rows = collections.map(item => `
 		    		        <tr>
 		    		          <td>${item.postTitle || '-'}</td>
-		    		          <td>${item.pcollUpdate ? item.pcollUpdate.replace('T', ' ').slice(0, 10) : '-'}</td>
+		    		          <td>${item.postUpdate ? item.pcollUpdate.replace('T', ' ').slice(0, 10) : '-'}</td>
 		    		        </tr>
 		    		      `).join('');
 		    		    } else {
-		    		      rows = `<tr><td colspan="2" class="text-center text-muted">您尚未收藏任何文章</td></tr>`;
+		    		      rows = `<tr><td colspan="2" class="text-center text-muted">您尚未關注任何討論區</td></tr>`;
 		    		    }
 		    		    document.getElementById('collections-tbody').innerHTML = rows;
 		    		  } catch (e) {

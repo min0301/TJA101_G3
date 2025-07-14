@@ -1,4 +1,4 @@
-package com.pixeltribe.forumsys.entity;
+package com.pixeltribe.forumsys.postcollect.model;
 
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import jakarta.persistence.*;
@@ -22,7 +22,7 @@ public class PostCollect {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEM_NO")
-    private Member memNo;
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_NO")
