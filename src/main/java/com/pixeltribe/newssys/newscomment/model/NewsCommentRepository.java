@@ -10,9 +10,19 @@ import java.util.List;
 public interface NewsCommentRepository extends JpaRepository<NewsComment, Integer> {
 
     @Query("""
-            select new com.pixeltribe.newssys.newscomment.model.NewsCommentDTO( n.id,n.ncomCon,n.ncomCre,n.ncomStatus,n.memNo.id,n.memNo.memNickName,n.ncomLikeLc,n.ncomLikeDlc) from NewsComment n where n.newsNo.id=:newsNo order by n.ncomCre
+            select new com.pixeltribe.newssys.newscomment.model.NewsCommentDTO(
+                        n.id,
+                        n.ncomCon,
+                        n.ncomCre,
+                        n.ncomStatus,
+                        n.memNo.id,
+                        n.memNo.memNickName,
+                        n.ncomLikeLc,
+                        n.ncomLikeDlc) from NewsComment n
+                        where n.newsNo.id=:newsNo and n.ncomStatus='1'
+                        order by n.ncomCre
             """)
-    public List<NewsCommentDTO> getNewsCommentsByNewsNo(Integer newsNo);
+    List<NewsCommentDTO> getNewsCommentsByNewsNo(Integer newsNo);
 
-    public NewsComment save(NewsComment newsComment);
+    NewsComment save(NewsComment newsComment);
 }

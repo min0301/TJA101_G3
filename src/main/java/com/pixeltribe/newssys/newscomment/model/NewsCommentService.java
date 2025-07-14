@@ -5,22 +5,25 @@ import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.newssys.news.model.News;
 import com.pixeltribe.newssys.news.model.NewsRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 
 @Service
 @Transactional
 public class NewsCommentService {
-    @Autowired
-    NewsCommentRepository newsCommentRepository;
-    @Autowired
-    NewsRepository newsRepository;
-    @Autowired
-    MemRepository memRepository;
+
+    private final NewsCommentRepository newsCommentRepository;
+    private final NewsRepository newsRepository;
+    private final MemRepository memRepository;
+
+    public NewsCommentService(NewsCommentRepository newsCommentRepository, NewsRepository newsRepository, MemRepository memRepository) {
+        this.newsCommentRepository = newsCommentRepository;
+        this.newsRepository = newsRepository;
+        this.memRepository = memRepository;
+    }
 
     @Transactional(readOnly = true)
     public List<NewsCommentDTO> findAll(Integer id) {
@@ -40,8 +43,21 @@ public class NewsCommentService {
         c.setNcomCon(content);
         newsCommentRepository.save(c);
 
-        NewsCommentCreationDTO nCCDTO = new NewsCommentCreationDTO(content, newsId, memberId);
+        return new NewsCommentCreationDTO(content, newsId, memberId);
+    }
 
-        return nCCDTO;
+    public NewsCommentUpdateDTO save(@NotNull NewsCommentUpdateDTO dto) {
+        Member member = memRepository.findById(dto.getMemNoId()).
+                orElseThrow(() -> new EntityNotFoundException("not found member"));
+        News news = newsRepository.findById(dto.getNewsNoId())
+                .orElseThrow(() -> new EntityNotFoundException(" not found news"));
+        NewsComment newsComment = new NewsComment();
+        newsComment.setId(dto.getId());
+        newsComment.setNcomCon(dto.getNcomCon());
+        newsComment.setNcomStatus(dto.getNcomStatus());
+        newsComment.setNewsNo(news);
+        newsComment.setMemNo(member);
+        NewsComment saved = newsCommentRepository.save(newsComment);
+        return  new NewsCommentUpdateDTO(saved.getId(),saved.getNcomCon(),saved.getNcomStatus(),saved.getMemNo().getId(),saved.getNewsNo().getId());
     }
 }
