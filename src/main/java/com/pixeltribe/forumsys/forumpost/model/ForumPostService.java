@@ -111,9 +111,9 @@ public class ForumPostService {
         forumPost.setPostUpdate(Instant.now()); // 設定更新時間
 
         // 查找並設定關聯實體
-//        Member member = memRepository.findById(1)
-//                .orElseThrow(() -> new ResourceNotFoundException("找不到會員 ID: " + forumPostDTO.getMemId()));
-//        forumPost.setMemNo(member);
+        Member member = memRepository.findById(1)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到會員 ID: 1。請確認資料庫中是否存在 ID 為 1 的會員。" ));
+        forumPost.setMemNo(member);
 
         Forum forum = forumRepository.findById(forumPostDTO.getForNoId())
                 .orElseThrow(() -> new ResourceNotFoundException("找不到討論區 ID: " + forumPostDTO.getForNoId()));
@@ -151,7 +151,7 @@ public class ForumPostService {
      * @return 更新後的 ForumPostDTO。
      */
     @Transactional
-    public ForumPostDTO updateForumPost(Integer postId, Integer forNo, ForumPostUpdateDTO forumPostDTO, MultipartFile imageFile) {
+    public ForumPostDTO updateForumPost(Integer postId, Integer forNo, ForumPostUpdateDTO forumPostDTO, MultipartFile imageFile, String defaultImageUrlFromFrontend) {
         ForumPost existingPost = forumPostRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到文章 ID: " + postId));
 

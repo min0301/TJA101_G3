@@ -158,6 +158,7 @@ public class ForumPostController {
             @PathVariable Integer postId,
             @RequestPart("forumPostUpdate") @Valid ForumPostUpdateDTO forumPostUpdateDTO,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+            @RequestPart(value = "defaultImageUrl", required = false) String defaultImageUrl,
             BindingResult result) {
 
         if (result.hasErrors()) {
@@ -171,7 +172,7 @@ public class ForumPostController {
 
         try {
             // Service 方法需要增加 forNo 參數進行額外驗證
-            ForumPostDTO updatedPostDTO = forumPostSvc.updateForumPost(postId, forNo, forumPostUpdateDTO, imageFile); // 修改調用 Service 方法
+            ForumPostDTO updatedPostDTO = forumPostSvc.updateForumPost(postId, forNo, forumPostUpdateDTO, imageFile, defaultImageUrl); // 修改調用 Service 方法
             Map<String, Object> successResponse = new HashMap<>();
             successResponse.put("message", "文章更新成功");
             successResponse.put("forumPost", updatedPostDTO);
