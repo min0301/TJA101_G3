@@ -16,13 +16,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -32,37 +29,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
-    // 定義不需要觸發此 Filter 的公開路徑列表
-    // 這些路徑應與 SecurityConfig 中設定為 permitAll() 的靜態資源路徑保持一致
-    private final List<AntPathRequestMatcher> publicMatchers = Arrays.asList(
-            new AntPathRequestMatcher("/assets/**"),
-            new AntPathRequestMatcher("/images/**"),
-            new AntPathRequestMatcher("/js/**"),
-            new AntPathRequestMatcher("/back-end/**"),
-            new AntPathRequestMatcher("/out-statics/**"),
-            new AntPathRequestMatcher("/templates/**"),
-            new AntPathRequestMatcher("/front-end/**"),
-            new AntPathRequestMatcher("/index.html"),
-            new AntPathRequestMatcher("/indexstatic.html"),
-            new AntPathRequestMatcher("/css/**"),
-            new AntPathRequestMatcher("/webjars/**"),
-            new AntPathRequestMatcher("/swagger-ui/**"),
-            new AntPathRequestMatcher("/v3/api-docs/**"),
-            new AntPathRequestMatcher("/")
-    );
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
     }
 
-    @Override
-    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
-        // 當請求的路徑 (request URI) 匹配到 publicMatchers 列表中的任何一個模式時，
-        // 此方法回傳 true，那麼接下來的 doFilterInternal 方法將「不會」被執行。
-        return publicMatchers.stream()
-                .anyMatch(matcher -> matcher.matches(request));
-    }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
@@ -71,8 +43,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization");
 
 //         【診斷日誌 1】檢查請求路徑和 Header
-        log.debug("處理請求: {}" + request.getRequestURI());
-        log.debug("Authorization Header: {}" + header);
+        log.debug("處理請求: {}", request.getRequestURI());
+        log.debug("Authorization Header: {}", header);
 
         // 檢查 Header 是否為 null，或格式是否不以 "Bearer " 開頭
         if (header == null || !header.startsWith("Bearer ")) {
@@ -87,7 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             username = jwtUtil.extractUsername(token); // 從 token 解析帳號
 
             // 【診斷日誌 2】檢查從 Token 中解析出的使用者名稱
-            log.debug("從token中提取的使用者名稱: {}" + username);
+            log.debug("從token中提取的使用者名稱: {}", username);
 
 
             // 2. 判斷 token 合法
@@ -125,14 +97,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             }
         } catch (ExpiredJwtException e) {
-            log.warn("【JWT 錯誤】Token 已過期: " + e.getMessage());
+            log.warn("JWT Token 已過期", e);
         } catch (SignatureException e) {
-            log.warn("【JWT 錯誤】Token 簽名無效: " + e.getMessage());
+            log.warn("JWT Token 簽名無效", e);
         } catch (MalformedJwtException e) {
-            log.warn("【JWT 錯誤】Token 格式錯誤: " + e.getMessage());
+            log.warn("JWT Token 格式錯誤", e);
         } catch (Exception e) {
-            // 捕獲其他所有可能的異常
-            log.error("【JWT 錯誤】Token 驗證時發生未知錯誤: " + e.getMessage());
+            // 捕獲其他所有未知異常，記錄為錯誤(Error)級別
+            log.error("JWT Token 驗證時發生未知錯誤", e);
         }
 
         // 3. 通過驗證才往下
