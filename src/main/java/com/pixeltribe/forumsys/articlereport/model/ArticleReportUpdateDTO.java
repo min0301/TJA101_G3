@@ -1,6 +1,7 @@
 package com.pixeltribe.forumsys.articlereport.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ import java.time.Instant;
 @Builder
 public class ArticleReportUpdateDTO {
 
+    @Size(max = 1)
     @Schema(description = "文章檢舉處理狀態")
     private Character artRepStatus;
     @Schema(description = "文章檢舉處理完成時間")

@@ -62,7 +62,8 @@ class SecurityConfig {
                                         "/api/posts/*/messages",    // 查單一文章的留言列表API
                                         "/api/forums",              // 討論區列表API
                                         "/api/forums/*",            // 單一討論區API
-                                        "/api/forums/hot"          // 熱門討論區API
+                                        "/api/forums/hot",          // 熱門討論區API
+                                        "/api/posts/collect/me"     // 取得會員收藏文章列表API
                                         //========新聞========
                                         //========商城========
                                         //========會員========

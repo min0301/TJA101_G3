@@ -22,7 +22,7 @@ public class PostCollect {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEM_NO")
-    private Member member;
+    private Member memNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_NO")

@@ -47,6 +47,8 @@ public class ArticleReportService {
         ArticleReport articleReport = new ArticleReport();
         articleReport.setPostNo(forumPost);
         articleReport.setReporter(member);
+        articleReport.setArtRepStatus('0'); // 或其他預設狀態
+        articleReport.setCreateTime(Instant.now());
         articleReport.setRpiNo(reportTypeRepository.findById(articleReportCreateDTO.getReportTypeNo())
                 .orElseThrow(() -> new ResourceNotFoundException("找不到文章檢舉類型編號")));
         return ArticleReportDTO.convertToArticleReportDTO(articleReportRepository.save(articleReport));

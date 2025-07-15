@@ -38,9 +38,9 @@ public class ArticleReportDTO {
                 .artRepStatus(articleReport.getArtRepStatus())
                 .createTime(articleReport.getCreateTime())
                 .finishTime(articleReport.getFinishTime())
-                .postNo(articleReport.getPostNo().getId() == null ? null : articleReport.getPostNo().getId())
-                .member(articleReport.getReporter().getMemName() == null ? null : articleReport.getReporter().getMemName())
-                .reportType(articleReport.getRpiNo().getRpiType() == null ? null : articleReport.getRpiNo().getRpiType())
+                .postNo(articleReport.getPostNo() == null ? null : articleReport.getPostNo().getId())
+                .member(articleReport.getReporter() == null ? null : articleReport.getReporter().getMemName())
+                .reportType(articleReport.getRpiNo() == null ? null : articleReport.getRpiNo().getRpiType())
                 .build();
     }
 

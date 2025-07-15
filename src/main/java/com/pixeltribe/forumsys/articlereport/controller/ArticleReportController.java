@@ -36,15 +36,15 @@ public class ArticleReportController {
                     articleReportService.add(memberId, articleReportCreateDTO));
     }
 
-    @PutMapping("/articlereports/{postno}")
+    @PutMapping("/articlereports/{postsno}")
     @Operation(
             summary = "文章檢舉處理"
     )
     public ResponseEntity<ArticleReportDTO> updatearticleReport(
-            @PathVariable("postno") Integer postno,
+            @PathVariable("postsno") Integer postsno,
             @Valid @RequestBody ArticleReportUpdateDTO articleReportUpdateDTO
             ){
-        return ResponseEntity.ok(articleReportService.update(postno,articleReportUpdateDTO));
+        return ResponseEntity.ok(articleReportService.update(postsno,articleReportUpdateDTO));
     }
     @GetMapping("/articlereports")
     @Operation(
@@ -54,12 +54,12 @@ public class ArticleReportController {
         return articleReportService.getAllArticleReport();
     }
 
-    @GetMapping("articlereports/{postno}")
+    @GetMapping("articlereports/{postsno}")
     @Operation(
             summary = "查詢單筆文章檢舉"
     )
     public ArticleReportDTO getArticleReportById(
-            @PathVariable("postNo") Integer postNo
+            @PathVariable("postsNo") Integer postNo
     ){
         return articleReportService.getoneArticleReport(postNo);
     }
