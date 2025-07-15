@@ -9,5 +9,7 @@ public interface ForumMesRepository extends JpaRepository<ForumMes, Integer> {
     List<ForumMes> findByPostNo_Id(Integer postNo);
 
     List<ForumMes> findByMesStatus(Character status);
+    
+    List<ForumMes> findByPostNo_IdAndMesStatus(Integer postNo, Character status);
 
 }

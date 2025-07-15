@@ -42,7 +42,7 @@ public class ForumMesLikeDTO {
                 .fmlikeStatus(forumMesLike.getFmlikeStatus())
                 .fmlikeCrdate(forumMesLike.getFmlikeCrdate())
                 .messageId(forumMesLike.getMesNo().getId() == null ? null : forumMesLike.getMesNo().getId())
-                .memberId(forumMesLike.getMesNo().getId() == null ? null : forumMesLike.getMesNo().getId())
+                .memberId(forumMesLike.getMemNo().getId() == null ? null : forumMesLike.getMemNo().getId())
                 .memberName(forumMesLike.getMemNo().getMemName() == null ? null : forumMesLike.getMemNo().getMemName())
                 .build();
     }

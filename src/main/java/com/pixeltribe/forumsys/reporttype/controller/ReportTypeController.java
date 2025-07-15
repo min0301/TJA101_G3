@@ -54,11 +54,11 @@ public class ReportTypeController {
         return ReportTypeDTO.convertToReportTypeDTO(reportTypeService.getOneReportType(rpiNo));
     }
 
-    @GetMapping("/allreport-type")
-    @Operation(
-            summary = "查所有檢舉類型"
-    )
-    public List<ReportTypeDTO> findAllReportType() {
-        return reportTypeService.getAllReportType();
+    @GetMapping("/report-types")
+    @Operation(summary = "查詢所有檢舉類型")
+    public ResponseEntity<List<ReportTypeDTO>> getAllReportTypes() {
+        List<ReportTypeDTO> reportTypes = reportTypeService.getAllReportTypes();
+        return ResponseEntity.ok(reportTypes);
     }
+
 }

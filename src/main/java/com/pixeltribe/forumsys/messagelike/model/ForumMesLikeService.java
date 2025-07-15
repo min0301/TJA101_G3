@@ -9,7 +9,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service("forumMesLikeService")
 public class ForumMesLikeService {
@@ -37,28 +36,31 @@ public class ForumMesLikeService {
                 .orElseThrow(() -> new IllegalArgumentException("找不到會員編號:" + memberId));
         ForumMes message = forumMesRepository.findById(mesNo)
                 .orElseThrow(() -> new IllegalArgumentException("找不到訊息編號:" + mesNo));
-        Optional<ForumMesLike> existingLikeOpt = forumMesLikeRepository.findByMemNoAndMesNo(member, message);
+        ForumMesLike likeRecord = forumMesLikeRepository.findByMemNoAndMesNo(member, message)
+                .orElseGet(() -> {
+                    ForumMesLike newLike = new ForumMesLike();
+                    newLike.setMemNo(member);
+                    newLike.setMesNo(message);
+                    newLike.setFmlikeStatus(LikeStatus.NEUTRAL);
+                    return newLike;
+                });
+        LikeStatus oldStatus = likeRecord.getFmlikeStatus();
+        LikeStatus newStatus = oldStatus == requestedStatus ? LikeStatus.NEUTRAL : requestedStatus;
 
-        if (existingLikeOpt.isPresent()) {
-            ForumMesLike existingLike = existingLikeOpt.get();
-            if (existingLike.getFmlikeStatus() == requestedStatus) {
-                existingLike.setFmlikeStatus(LikeStatus.NEUTRAL);
-            } else {
-                // 否則，更新為新狀態 (例如從讚改為倒讚)
-                existingLike.setFmlikeStatus(requestedStatus);
-            }
-            forumMesLikeRepository.save(existingLike); // save 方法會自動判斷是更新還是新增
-            return ForumMesLikeDTO.convertToForumMesLikeDTO(existingLike);
-        } else {
-            // --- 紀錄不存在，直接新增 ---
-            ForumMesLike newLike = new ForumMesLike();
-            newLike.setMemNo(member);
-            newLike.setMesNo(message);
-            newLike.setFmlikeStatus(requestedStatus);
-            forumMesLikeRepository.save(newLike);
-            return ForumMesLikeDTO.convertToForumMesLikeDTO(newLike);
-        }
+        int likeCnt = 0;
+        int disLikeCnt = 0;
 
+        if (oldStatus == LikeStatus.LIKE) likeCnt--;
+        if (oldStatus == LikeStatus.DISLIKE) disLikeCnt--;
+        if (newStatus == LikeStatus.LIKE) likeCnt++;
+        if (newStatus == LikeStatus.DISLIKE) disLikeCnt++;
+
+        message.setMesLikeLc(message.getMesLikeLc() + likeCnt);
+        message.setMesLikeDlc(message.getMesLikeDlc() + disLikeCnt);
+
+        likeRecord.setFmlikeStatus(newStatus);
+
+        return ForumMesLikeDTO.convertToForumMesLikeDTO(forumMesLikeRepository.save(likeRecord));
     }
 
 
