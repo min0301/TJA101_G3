@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface ArticleReportRepository extends JpaRepository<ArticleReport, Integer> {
-    Optional<ArticleReport> findByForNoAndReporter(ForumPost postNo, Member reporter);
+    Optional<ArticleReport> findByPostNoAndReporter(ForumPost postNo, Member reporter);
 
     ForumPost postNo(ForumPost postNo);
 }

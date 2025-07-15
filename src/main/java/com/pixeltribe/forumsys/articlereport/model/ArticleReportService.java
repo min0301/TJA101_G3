@@ -39,7 +39,7 @@ public class ArticleReportService {
         Member member = memRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到會員"));
 
-        articleReportRepository.findByForNoAndReporter(forumPost, member)
+        articleReportRepository.findByPostNoAndReporter(forumPost, member)
                 .ifPresent(
                         articleReport -> {
                             throw new ConflictException("文章檢舉" + articleReportCreateDTO + "已經存在");
