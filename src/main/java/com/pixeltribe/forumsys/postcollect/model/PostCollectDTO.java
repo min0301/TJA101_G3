@@ -26,6 +26,13 @@ public class PostCollectDTO {
     @Schema(description = "會員編號")
     private Integer memberNo;
 
+
+    /**
+     * 將 PostCollect 轉換為 PostCollectDTO
+     *
+     * @param postCollect PostCollect 實體
+     * @return PostCollectDTO
+     */
     public static PostCollectDTO convertToPostCollectDTO(PostCollect postCollect) {
         return PostCollectDTO.builder()
                 .id(postCollect.getId())
