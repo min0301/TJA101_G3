@@ -9,7 +9,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pixeltribe.forumsys.articlecomreport.model.ArticleComReport;
-import com.pixeltribe.forumsys.entity.ArticleReport;
+import com.pixeltribe.forumsys.articlereport.model.ArticleReport;
 import com.pixeltribe.forumsys.entity.ForumChatMessage;
 import com.pixeltribe.forumsys.entity.ForumChatReport;
 import com.pixeltribe.forumsys.forumcollect.model.ForumCollect;
@@ -23,6 +23,7 @@ import com.pixeltribe.forumsys.entity.PostLike;
 import com.pixeltribe.forumsys.messagelike.model.ForumMesLike;
 import com.pixeltribe.forumsys.postcollect.model.PostCollect;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
+import com.pixeltribe.forumsys.postcollect.model.PostCollect;
 import com.pixeltribe.membersys.friendlist.model.FriendList;
 import com.pixeltribe.membersys.memberloginlog.model.MemberLoginLog;
 import com.pixeltribe.membersys.privatechatroom.model.PrivateChatroom;
@@ -218,7 +219,7 @@ public class Member {
     @OneToMany(mappedBy = "memNo")
     private Set<Order> orders = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "memNo")
     private Set<PostCollect> postCollects = new LinkedHashSet<>();
     
     @JsonManagedReference(value = "member1-privatechatroom")
