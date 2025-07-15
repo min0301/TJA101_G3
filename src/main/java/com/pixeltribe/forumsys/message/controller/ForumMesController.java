@@ -62,7 +62,7 @@ public class ForumMesController {
 
     @GetMapping("/posts/{postno}/messages")
     @Operation(
-            summary = "查單一文章留言list"
+            summary = "查單一文章公開留言list"
     )
     public List<ForumMesDTO> getForumMesByPost(
             @PathVariable("postno") Integer postNo) {

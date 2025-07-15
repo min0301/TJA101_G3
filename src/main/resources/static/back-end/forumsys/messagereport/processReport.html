@@ -218,40 +218,43 @@
         }
 
         function renderReportPanel(reportData, messageData) {
-            // 【核心修改 2】如果檢舉已處理，或留言已被隱藏，則禁用整個表單
-            const isActionDisabled = reportData.artComRepStatus != '0' || messageData.mesStatus != '0';
-            const disabledAttribute = isActionDisabled ? 'disabled' : '';
-            let buttonText = '確認處理';
-            if (reportData.artComRepStatus != '0') {
-                buttonText = '此檢舉已處理';
-            } else if (messageData.mesStatus != '0') {
-                buttonText = '留言已被隱藏';
-            }
+            // 【核心修改 1】判斷「這筆檢舉」是否已被處理
+            const isReportProcessed = reportData.artComRepStatus != '0';
+            // 【核心修改 2】判斷「這則留言」是否已被隱藏
+            const isMessageHidden = messageData.mesStatus != '0';
+
+            // 表單的主要部分（下拉選單、提交按鈕）只跟「檢舉本身」的狀態有關
+            const mainFormDisabled = isReportProcessed ? 'disabled' : '';
+            const buttonText = isReportProcessed ? '此檢舉已處理' : '確認處理';
+
+            // 「隱藏留言」的 checkbox 則跟「留言本身」的狀態有關
+            const hideCheckboxDisabled = isMessageHidden ? 'disabled' : '';
 
             reportPanel.innerHTML = `
-            <h3 class="panel-title">檢舉詳情 & 處理</h3>
-            <div class="info-group"><label>檢舉者</label><div class="content">${reportData.member || 'N/A'}</div></div>
-            <div class="info-group"><label>檢舉類型</label><div class="content">${reportData.reportType || '未知'}</div></div>
-            <div class="info-group"><label>檢舉時間</label><div class="content">${formatDateTime(reportData.createTime)}</div></div>
-            <form id="process-form">
-                <div class="form-group">
-                    <label for="artComRepStatus">處理狀態</label>
-                    <select id="artComRepStatus" class="form-control" ${disabledAttribute}>
-                        <option value="0" ${reportData.artComRepStatus == '0' ? 'selected' : ''}>待處理</option>
-                        <option value="1" ${reportData.artComRepStatus == '1' ? 'selected' : ''}>已處理 (檢舉有效)</option>
-                        <option value="2" ${reportData.artComRepStatus == '2' ? 'selected' : ''}>已處理 (檢舉無效)</option>
-                    </select>
-                </div>
-                <div class="sync-action-group" id="sync-action-container" style="display: none;">
-                    <input type="checkbox" id="hideMessageCheckbox" name="hideMessage" ${disabledAttribute}>
-                    <label for="hideMessageCheckbox">同時隱藏此留言 (將留言狀態設為 '1')</label>
-                </div>
-                <div class="form-actions">
-                    <a href="#" onclick="event.preventDefault(); loadExternalPage('../forumsys/messagereport/allReports.html')" class="action-btn">返回列表</a>
-                    <button type="submit" id="submit-button" class="action-btn btn-submit" ${disabledAttribute}>${buttonText}</button>
-                </div>
-            </form>
-        `;
+    <h3 class="panel-title">檢舉詳情 & 處理</h3>
+    <div class="info-group"><label>檢舉者</label><div class="content">${reportData.member || 'N/A'}</div></div>
+    <div class="info-group"><label>檢舉類型</label><div class="content">${reportData.reportType || '未知'}</div></div>
+    <div class="info-group"><label>檢舉時間</label><div class="content">${formatDateTime(reportData.createTime)}</div></div>
+    <form id="process-form">
+        <div class="form-group">
+            <label for="artComRepStatus">處理狀態</label>
+            <select id="artComRepStatus" class="form-control" ${mainFormDisabled}>
+                <option value="0" ${reportData.artComRepStatus == '0' ? 'selected' : ''}>待處理</option>
+                <option value="1" ${reportData.artComRepStatus == '1' ? 'selected' : ''}>已處理 (檢舉有效)</option>
+                <option value="2" ${reportData.artComRepStatus == '2' ? 'selected' : ''}>已處理 (檢舉無效)</option>
+            </select>
+        </div>
+        <div class="sync-action-group" id="sync-action-container" style="display: none;">
+            <input type="checkbox" id="hideMessageCheckbox" name="hideMessage" ${hideCheckboxDisabled}>
+            <label for="hideMessageCheckbox">同時隱藏此留言</label>
+            ${isMessageHidden ? '<small style="color: #e67e22; display: block; margin-top: 5px;">(此留言已被隱藏，此操作將不會重複執行)</small>' : ''}
+        </div>
+        <div class="form-actions">
+            <a href="#" onclick="event.preventDefault(); loadExternalPage('../forumsys/messagereport/allReports.html')" class="action-btn">返回列表</a>
+            <button type="submit" id="submit-button" class="action-btn btn-submit" ${mainFormDisabled}>${buttonText}</button>
+        </div>
+    </form>
+    `;
             setupEventListeners();
         }
 

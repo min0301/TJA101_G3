@@ -42,7 +42,7 @@ public class ForumMesService {
     }
 
     public List<ForumMesDTO> getForumMesByPost(Integer postNo) {
-        List<ForumMes> forumMes = forumMesRepository.findByPostNo_Id(postNo);
+        List<ForumMes> forumMes = forumMesRepository.findByPostNo_IdAndMesStatus(postNo, '0');
         return forumMes.stream()
                 .map(ForumMesDTO::convertToForumMesDTO)
                 .toList();
