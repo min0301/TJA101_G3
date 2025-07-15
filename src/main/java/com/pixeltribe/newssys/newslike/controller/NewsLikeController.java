@@ -44,16 +44,24 @@ public class NewsLikeController {
         NewsLikeDTO dto = newsLikeService.getUserLikeStatus(memNoId, ncomNoId);
         return ResponseEntity.ok(dto);
     }
+// TODO 由 updateNewsLike() 接管
+//    @PostMapping("/NewsLike/add")
+//    @Operation(summary = "新增評論 讚/倒讚/中立")
+//    public NewsLikeDTO addNewsLike(@RequestBody NewsLikeDTO newsLikeDTO) {
+//        Integer commendId = newsLikeDTO.getNcomNoId();
+//        Integer memberId = newsLikeDTO.getMemNoId();
+//        Character status = newsLikeDTO.getNlikeStatus();
+//        return newsLikeService.addNewsLike(commendId,memberId,status);
+//    }
 
-
-    @PostMapping("/NewsLike/add")
-    @Operation(summary = "新增/修改評論讚/倒讚/中立")
-    public NewsLikeDTO addNewsLike(@RequestBody NewsLikeDTO newsLikeDTO) {
+    @PutMapping("/NewsLike/update")
+    @Operation(summary = "更新評論 讚/倒讚/中立")
+    public NewsLikeDTO updateNewsLike(@RequestBody NewsLikeDTO newsLikeDTO) {
         Integer commendId = newsLikeDTO.getNcomNoId();
         Integer memberId = newsLikeDTO.getMemNoId();
         Character status = newsLikeDTO.getNlikeStatus();
 
-        return newsLikeService.addNewsLike(commendId,memberId,status);
+        return newsLikeService.updateNewsLike(commendId,memberId,status);
     }
 
 }

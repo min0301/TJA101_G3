@@ -84,74 +84,6 @@ async function loadPage(id) {
 
 }
 
-function makeCommentCard1(c) {
-    const card = document.createElement('div');
-    card.className = 'border rounded p-3 mb-4 shadow-sm';
-
-    card.innerHTML = card.innerHTML = `
-  <div class="d-flex justify-content-between">
-    <div class="d-flex gap-3">
-      <img src="/assets/img/avatar/default.jpg" alt="User" class="rounded-circle" width="50" height="50" style="pointer-events: none;">
-      <div>
-        <h6 class="fw-bold text-dark mb-1" style="pointer-events: none;">${c.memNoMemNickName || '匿名'}</h6>
-        <p class="mb-2 text-dark">${c.ncomCon}</p>
-        <div class="d-flex gap-3">
-          <button class="btn btn-outline-success btn-sm rounded-pill up-btn">
-            <i class="bi bi-hand-thumbs-up"></i> <span class="up-count">${c.ncomLikeLc}</span>
-          </button>
-          <button class="btn btn-outline-danger btn-sm rounded-pill down-btn">
-            <i class="bi bi-hand-thumbs-down"></i> <span class="down-count">${c.ncomLikeDlc}</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ︙ 按鈕與選單 -->
-    <div class="dropdown">
-      <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="bi bi-three-dots-vertical fs-5"></i>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item report-btn" href="#">檢舉</a></li>
-      </ul>
-    </div>
-  </div>
-`;
-    card.dataset.commentId = c.id;
-    const upBtn = card.querySelector('.up-btn');
-    const downBtn = card.querySelector('.down-btn');
-    const upCount = card.querySelector('.up-count');
-    const downCount = card.querySelector('.down-count');
-
-    let voted = false;
-
-    upBtn.addEventListener('click', async () => {
-        if (voted) return alert("你已經投過票了");
-        try {
-            const res = await fetch(`/api/NewsComment/upvote/${c.id}`, { method: 'POST' });
-            if (!res.ok) throw new Error('上讚失敗');
-            upCount.textContent = parseInt(upCount.textContent) + 1;
-            voted = true;
-        } catch (e) {
-            alert(e.message);
-        }
-    });
-
-    downBtn.addEventListener('click', async () => {
-        if (voted) return alert("你已經投過票了");
-        try {
-            const res = await fetch(`/api/NewsComment/downvote/${c.id}`, { method: 'POST' });
-            if (!res.ok) throw new Error('倒讚失敗');
-            downCount.textContent = parseInt(downCount.textContent) + 1;
-            voted = true;
-        } catch (e) {
-            alert(e.message);
-        }
-    });
-
-    return card;
-}
-
 function makeCommentCard(c) {
     const card = document.createElement('div');
     card.className = 'border rounded p-3 mb-4 shadow-sm';
@@ -198,74 +130,96 @@ function makeCommentCard(c) {
     const memberInfo = JSON.parse(raw || '{}');
     const currentUserId = memberInfo?.id;
 
-    let voted = false;
+    let currentStatus = '1'; // 預設為中立
 
-    // 查詢該留言的按讚狀態
+// 初始化按鈕狀態
     if (currentUserId) {
         fetch(`/api/NewsLikeByMember?memNoId=${currentUserId}&ncomNoId=${c.id}`)
             .then(res => res.json())
             .then(data => {
-                const status = data.nlikeStatus;
-                if (status === '2') {
-                    upBtn.classList.add('btn-success', 'active'); // ✅ 高亮按讚
-                    voted = true;
-                } else if (status === '3') {
-                    downBtn.classList.add('btn-danger', 'active'); // ✅ 高亮倒讚
-                    voted = true;
-                }
+                currentStatus = data.nlikeStatus;
+                updateButtonsUI(currentStatus);
             })
             .catch(err => console.error('取得讚狀態失敗', err));
     }
 
-    // 點讚事件
+// 更新按鈕樣式
+    function updateButtonsUI(status) {
+        upBtn.classList.remove('btn-success', 'active');
+        downBtn.classList.remove('btn-danger', 'active');
+        if (status === '2') upBtn.classList.add('btn-success', 'active');
+        if (status === '3') downBtn.classList.add('btn-danger', 'active');
+    }
+
+// 統一發送更新 API
+    async function updateLikeStatus(newStatus) {
+        try {
+            const res = await fetch('/api/NewsLike/update', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    memNoId: currentUserId,
+                    ncomNoId: c.id,
+                    nlikeStatus: newStatus
+                })
+            });
+            if (!res.ok) throw await res.json();
+            currentStatus = newStatus;
+            return true;
+        } catch (e) {
+            alert(e.message || '更新失敗');
+            return false;
+        }
+    }
+
+// 👍 按讚邏輯
     upBtn.addEventListener('click', async () => {
         if (!currentUserId) return alert("請先登入");
-        if (voted) return alert("你已經投過票了");
 
-        try {
-            const res = await fetch('/api/NewsLike/add', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    memNoId: currentUserId,
-                    ncomNoId: c.id,
-                    nlikeStatus: '2' // ✅ 表示按讚
-                })
-            });
-            if (!res.ok) throw await res.json();
-
+        let newStatus;
+        if (currentStatus === '2') {
+            // 從讚 → 中立
+            newStatus = '1';
+            upCount.textContent = parseInt(upCount.textContent) - 1;
+        } else if (currentStatus === '3') {
+            // 從倒讚 → 改按讚
+            newStatus = '2';
             upCount.textContent = parseInt(upCount.textContent) + 1;
-            upBtn.classList.add('btn-success', 'active');
-            voted = true;
-        } catch (e) {
-            alert(e.message || '上讚失敗');
+            downCount.textContent = parseInt(downCount.textContent) - 1;
+        } else {
+            // 中立 → 按讚
+            newStatus = '2';
+            upCount.textContent = parseInt(upCount.textContent) + 1;
         }
+
+        const ok = await updateLikeStatus(newStatus);
+        if (ok) updateButtonsUI(newStatus);
     });
 
-    // 倒讚事件
+// 👎 倒讚邏輯
     downBtn.addEventListener('click', async () => {
         if (!currentUserId) return alert("請先登入");
-        if (voted) return alert("你已經投過票了");
 
-        try {
-            const res = await fetch('/api/NewsLike/add', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    memNoId: currentUserId,
-                    ncomNoId: c.id,
-                    nlikeStatus: '3' // ✅ 表示倒讚
-                })
-            });
-            if (!res.ok) throw await res.json();
-
+        let newStatus;
+        if (currentStatus === '3') {
+            // 從倒讚 → 中立
+            newStatus = '1';
+            downCount.textContent = parseInt(downCount.textContent) - 1;
+        } else if (currentStatus === '2') {
+            // 從按讚 → 改倒讚
+            newStatus = '3';
             downCount.textContent = parseInt(downCount.textContent) + 1;
-            downBtn.classList.add('btn-danger', 'active');
-            voted = true;
-        } catch (e) {
-            alert(e.message || '倒讚失敗');
+            upCount.textContent = parseInt(upCount.textContent) - 1;
+        } else {
+            // 中立 → 倒讚
+            newStatus = '3';
+            downCount.textContent = parseInt(downCount.textContent) + 1;
         }
+
+        const ok = await updateLikeStatus(newStatus);
+        if (ok) updateButtonsUI(newStatus);
     });
+
 
     return card;
 }
@@ -289,14 +243,14 @@ function renderPlatformTags(tags = []) {
 }
 
 /* ---------- 新留言輸入盒 ---------- */
-function makeNewCommentBox(newsId, onSuccess) {
+function makeNewCommentBox(newsId) {
     const wrap = document.createElement('div');
     wrap.className = 'comment-form d-flex gap-3 align-items-start mb-5';
     wrap.id = 'new-comment';
     const memberInfo = localStorage.getItem('memberInfo');
     const mem = JSON.parse(memberInfo || '{}');
+
     wrap.innerHTML = `
-<!--        <h3>留言</h3>-->
         <img src="/images/memberAvatar/mem${mem.id}.png" alt="User" class="rounded-circle" width="60" height="60">
         <div class="flex-grow-1">
             <textarea class="form-control mb-2" rows="4" placeholder="發表你的看法…" id="c-input"></textarea>
@@ -325,11 +279,8 @@ function makeNewCommentBox(newsId, onSuccess) {
         btn.disabled = true;
 
         const raw = localStorage.getItem('memberInfo');
-        console.log("raw memberInfo:", raw);
-
         const memberinfo = JSON.parse(raw || '{}');
         const currentUser = memberinfo.id;
-        console.log("解析後 currentUser:", currentUser);
 
         if (!currentUser) {
             alert("請先登入後再留言");
@@ -340,29 +291,27 @@ function makeNewCommentBox(newsId, onSuccess) {
         try {
             const payload = {
                 ncomCon: txt,
-                newsNoId: newsId,
-                memNoId: currentUser // TODO: 登入會員系統，可用 memNoId = currentUser.id 動態綁定。
+                newsNoId: parseInt(newsId), // ✅ 確保是整數
+                memNoId: parseInt(currentUser)
             };
             console.log("送出 JSON:", JSON.stringify(payload, null, 2));
 
             const res = await fetch('/api/NewsComment/add', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload)
             });
 
             if (!res.ok) throw await res.json();
-            const newCom = await res.json();
-            // ✅ 成功後重新撈留言區
-            reloadCommentArea(newsId);
 
-            ta.value = '';
-            btn.disabled = true;
-            onSuccess(newCom);
+            // ✅ 成功後重新撈留言區
+            await reloadCommentArea(newsId);
 
         } catch (err) {
             console.error('留言失敗', err);
             alert(err?.errors?.[0]?.message ?? '留言失敗，請稍後再試');
+        } finally {
+            ta.value = '';
             btn.disabled = false;
         }
     });
@@ -376,9 +325,9 @@ async function reloadCommentArea(newsId) {
     area.innerHTML = ''; // 清空區塊
 
     // 重新加上輸入框
-    area.append(makeNewCommentBox(newsId, reloadCommentArea));
+    area.append(makeNewCommentBox(newsId));
 
-    // 重新撈留言
+    // 撈留言
     const comments = await fetch(`/api/NewsComment/${newsId}`).then(r => r.json());
     comments.forEach(c => {
         const commentCard = makeCommentCard(c);
@@ -387,14 +336,14 @@ async function reloadCommentArea(newsId) {
 
     area.addEventListener('click', e => {
         if (e.target.closest('.report-btn')) {
-            const commentCard = e.target.closest('.border.rounded'); // 找到整個卡片
+            const commentCard = e.target.closest('.border.rounded');
             const commentId = commentCard?.dataset.commentId;
             if (!commentId) return alert("找不到留言 ID");
             showReportModal(commentId);
         }
     });
-
 }
+
 
 /* ---------- 把新留言插回列表 ---------- */
 function prependComment(area, c) {
@@ -441,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch('/api/create/newscommentreport', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     reporterId: JSON.parse(localStorage.getItem('memberInfo'))?.id,
                     reportTypeId: parseInt(reasonId),

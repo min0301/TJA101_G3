@@ -33,14 +33,14 @@ public class NewsLike {
     @JsonIgnore
     private Member memNo;
 
-    @NotNull
+
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "NLIKE_UPDATE", nullable = false)
+    @Column(name = "NLIKE_UPDATE", nullable = false, insertable = false, updatable = false)
     private Instant nlikeUpdate;
 
-    @NotNull
+
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "NLIKE_CRDATE", nullable = false)
+    @Column(name = "NLIKE_CRDATE", nullable = false, insertable = false, updatable = false)
     private Instant nlikeCrdate;
 
     /*對應留言*/
