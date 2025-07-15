@@ -179,6 +179,7 @@ Scripts
 <script src="/assets/vendors/simplebar/simplebar.min.js"></script>
 <script src="/assets/js/main.js"></script>
 <script src="news-carousel.js"></script>
+<script src="/js/dynamicHeaderInfo.js"></script>
 <script>
     /* ---------- 小工具 ---------- */
     const $ = (s, p = document) => p.querySelector(s);
@@ -262,15 +263,16 @@ Scripts
         area.className = 'comment-area';
 
         box.append(area);
-
-// 留言輸入框
-        area.append(makeNewCommentBox(id, c => prependComment(area, c)));
-
-// 顯示所有留言（包含改過的 makeCommentCard）
-        comments.forEach(c => {
-            const commentCard = makeCommentCard(c);  // 這個函式內容要修改過（如下）
-            area.append(commentCard);
-        });
+//TODO
+// // 留言輸入框
+//         area.append(makeNewCommentBox(id, c => prependComment(area, c)));
+//
+// // 顯示所有留言（包含改過的 makeCommentCard）
+//         comments.forEach(c => {
+//             const commentCard = makeCommentCard(c);  // 這個函式內容要修改過（如下）
+//             area.append(commentCard);
+//         });
+        reloadCommentArea(id);
 
     }
 
@@ -386,12 +388,26 @@ Scripts
             if (!txt) return;
             btn.disabled = true;
 
+            const raw = localStorage.getItem('memberInfo');
+            console.log("raw memberInfo:", raw);
+
+            const memberinfo = JSON.parse(raw || '{}');
+            const currentUser = memberinfo.id;
+            console.log("解析後 currentUser:", currentUser);
+
+            if (!currentUser) {
+                alert("請先登入後再留言");
+                btn.disabled = false;
+                return;
+            }
+
             try {
                 const payload = {
                     ncomCon: txt,
                     newsNoId: newsId,
-                    memNoId: 1 // TODO: 實際使用者 ID 若有登入會員系統，可用 memNoId = currentUser.id 動態綁定。
+                    memNoId: currentUser // TODO: 登入會員系統，可用 memNoId = currentUser.id 動態綁定。
                 };
+                console.log("送出 JSON:", JSON.stringify(payload, null, 2));
 
                 const res = await fetch('/api/NewsComment/add', {
                     method: 'POST',
@@ -401,6 +417,8 @@ Scripts
 
                 if (!res.ok) throw await res.json();
                 const newCom = await res.json();
+                // ✅ 成功後重新撈留言區
+                reloadCommentArea(newsId);
 
                 ta.value = '';
                 btn.disabled = true;
@@ -414,6 +432,21 @@ Scripts
         });
 
         return wrap;
+    }
+
+    async function reloadCommentArea(newsId) {
+        const area = $('.comment-area');
+        area.innerHTML = ''; // 清空區塊
+
+        // 重新加上輸入框
+        area.append(makeNewCommentBox(newsId, reloadCommentArea));
+
+        // 重新撈留言
+        const comments = await fetch(`/api/NewsComment/${newsId}`).then(r => r.json());
+        comments.forEach(c => {
+            const commentCard = makeCommentCard(c);
+            area.append(commentCard);
+        });
     }
 
 
