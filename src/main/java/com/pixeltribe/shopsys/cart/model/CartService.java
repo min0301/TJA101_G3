@@ -2,15 +2,20 @@ package com.pixeltribe.shopsys.cart.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.pixeltribe.membersys.member.model.MemRepository;
+import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.shopsys.cart.exception.CartErrorCode;
 import com.pixeltribe.shopsys.cart.exception.CartException;
 import com.pixeltribe.shopsys.product.model.Product;
 import com.pixeltribe.shopsys.product.model.ProductRepository;
+import org.springframework.data.redis.core.RedisTemplate;
+
 
 
 @Service
@@ -23,13 +28,22 @@ public class CartService {
 	@Autowired    
 	private ProductRepository productRepository;  
 	
+	@Autowired
+	private MemRepository memRepository;
+	
+	@Autowired  
+    private RedisTemplate<String, String> redisTemplate;
+    
+    // Redis Key 前綴常數
+    private static final String PREORDER_STOCK_PREFIX = "preorder:stock:product:";
+	
 	// ============ 加入商品到購物車 ===========//
 	public CartDTO addToCart(Integer memNo, Integer proNo, Integer proNum) {
 		
 		Product product = productRepository.findById(proNo).orElse(null);
         
         if (product == null) {
-            throw new CartException(CartErrorCode.CART_002); // 商品不存在
+            throw new CartException(CartErrorCode.CART_006); // 商品不存在
         }
         
         boolean 已下架 = (product.getProIsmarket() == '1');
@@ -37,17 +51,28 @@ public class CartService {
         	throw new CartException(CartErrorCode.CART_002); // 商品不可購買
         }
         
-        // ******* 預留 等庫存功能完成後啟用 ************ //
-        // 檢查庫存是否足夠
-/*        if (product.getProStock() == null || product.getProStock() <= 0) {
-            throw new CartException(CartErrorCode.CART_003);    // 商品庫存不足
+        // ******* 檢查庫存 ************ //
+        // 庫存檢查邏輯（軟性提醒）
+        boolean hasStockIssue = false;
+        String stockWarning = null;
+
+        // 檢查庫存（不阻止加入，但提供警告）
+        Integer availableStock = getProductStock(product);
+
+        if (availableStock == 0) {
+            hasStockIssue = true;
+            stockWarning = getStockWarningMessage(product, proNum, availableStock);
+        } else if (availableStock != Integer.MAX_VALUE && proNum > availableStock) {
+            hasStockIssue = true;
+            stockWarning = getStockWarningMessage(product, proNum, availableStock);
+        } else if (availableStock <= 10 && !"預購".equals(product.getProStatus())) {
+            hasStockIssue = true;
+            stockWarning = getStockWarningMessage(product, proNum, availableStock);
         }
         
-        // 檢查要購買的數量是否超過庫存
-        if (proNum > product.getProStock()) {
-            throw new CartException(CartErrorCode.CART_004); // 購買數量超過庫存
-        }
-*/
+
+        
+        
         // 使用資料庫裡的產品資訊
         String proName = product.getProName();
         Integer proPrice = product.getProPrice();
@@ -75,8 +100,19 @@ public class CartService {
 		
 		// 商品已存在，增加數量
 		if (existingItem != null) {
-			existingItem.setProNum(existingItem.getProNum() + proNum);
+			// 更新數量並重新檢查庫存
+		    Integer newTotalQuantity = existingItem.getProNum() + proNum;
+		    
+		    // 重新檢查總數量的庫存狀況
+		    if (availableStock != Integer.MAX_VALUE && newTotalQuantity > availableStock) {
+		        hasStockIssue = true;
+		        stockWarning = getStockWarningMessage(product, newTotalQuantity, availableStock);
+		    }
+			
+			existingItem.setProNum(newTotalQuantity);
             existingItem.calculateTotal(); // 重新計算小計
+            existingItem.setHasStockIssue(hasStockIssue);    
+            existingItem.setStockWarning(stockWarning);
 		} else {
 			// 建立新商品項目
 			CartDTO.CartItem newItem = new CartDTO.CartItem();
@@ -84,6 +120,9 @@ public class CartService {
             newItem.setProName(proName);
             newItem.setProPrice(proPrice);
             newItem.setProNum(proNum);
+            newItem.setProStatus(product.getProStatus());  // 確認庫存部分
+            newItem.setHasStockIssue(hasStockIssue);       // 確認庫存部分
+            newItem.setStockWarning(stockWarning);         // 確認庫存部分
             newItem.calculateTotal(); // 計算小計
             cart.getItem().add(newItem);  //加入購物車
 		}
@@ -195,6 +234,7 @@ public class CartService {
 	public AdminCartListResponse getAllCartsForAdmin(Integer page, Integer size, Integer memNo) {
 		 try {
 	            List<AdminCartDTO> carts = new ArrayList<>();
+	            Integer totalCarts = 0;  // 先宣告總數變數
 	            
 	           // 如果指定會員編號，只查詢該會員
 	            if (memNo != null) {
@@ -202,18 +242,23 @@ public class CartService {
 	                if (cart != null) {
 	                    AdminCartDTO adminCart = convertToAdminCartDTO(cart);
 	                    carts.add(adminCart);
+	                    totalCarts = 1;  // 指定會員時總數為1
+	                } else {
+	                    totalCarts = 0;  // 找不到時總數為0
 	                }
 	            } else {
-	               
-	                 List<CartDTO> allCarts = cartRepository.getAllCarts(page, size);
-	                 for (CartDTO cart : allCarts) {
-	                     AdminCartDTO adminCart = convertToAdminCartDTO(cart);
-	                     carts.add(adminCart);
-	                 }
+	                // 先取得總購物車數量
+	                totalCarts = cartRepository.getTotalCartsCount();
+	                
+	                // 再取得分頁資料
+	                List<CartDTO> allCarts = cartRepository.getAllCarts(page, size);
+	                for (CartDTO cart : allCarts) {
+	                    AdminCartDTO adminCart = convertToAdminCartDTO(cart);
+	                    carts.add(adminCart);
+	                }
 	            }
 	            
 	            // 計算分頁資訊
-	            Integer totalCarts = carts.size();
 	            Integer totalPages = (totalCarts + size - 1) / size;  // 向上取整
 	            
 	            AdminCartListResponse.AdminCartData data = 
@@ -224,7 +269,7 @@ public class CartService {
 	        } catch (Exception e) {
 	            throw new CartException(CartErrorCode.ADM_001);
 	        } 
-	}
+	    }
 	
 	// ============ 購物車統計 (後台) =========== //
 	public CartStatisticsResponse getCartStatistics() {
@@ -244,11 +289,36 @@ public class CartService {
 	
 	// ============ 轉換方法 =========== //
 	private AdminCartDTO convertToAdminCartDTO(CartDTO cart) {
+		
         AdminCartDTO adminCart = new AdminCartDTO();
         adminCart.setMemNo(cart.getMemNo());
+        
+        
+        // 查詢會員名稱
+        try {
+            Optional<Member> memberOpt = memRepository.findById(cart.getMemNo());
+            if (memberOpt.isPresent()) {
+                Member member = memberOpt.get();
+                adminCart.setMemName(member.getMemName());
+            } else {
+                // 拋出會員資料異常
+                throw new CartException(CartErrorCode.CART_009);
+            }
+        } catch (CartException e) {
+            // 重新拋出購物車異常，讓上層處理
+            throw e;
+        } catch (Exception e) {
+            // 其他異常也轉為會員資料問題
+            System.err.println("查詢會員名稱失敗: " + e.getMessage());
+            throw new CartException(CartErrorCode.CART_009, e);
+        }
+        
+        
         adminCart.setTotalItems(cart.getTotalItem());
         adminCart.setTotalQuantity(cart.getTotalQuantity());
         adminCart.setTotalPrice(cart.getTotalPrice());
+        
+        
         
         // 轉換商品清單
         List<AdminCartDTO.AdminCartItemDTO> adminItems = new ArrayList<>();
@@ -265,6 +335,117 @@ public class CartService {
         
         return adminCart;
     }
+	
+	
+	// ============ 查詢產品庫存資訊 (後台) =========== //
+		public StockInfoResponse getStockInfo(Integer productId) {
+			Product product = productRepository.findById(productId).orElse(null);
+			if (product == null) {
+				return null;
+			}
+			
+			Integer stock = getProductStock(product);
+			String stockSource = "預購".equals(product.getProStatus()) ? "Redis暫存數量" : "序號表計算";
+			
+			return new StockInfoResponse(
+				productId, 
+				product.getProName(), 
+				product.getProStatus(), 
+				stock, 
+				stockSource
+			);
+		}
+		
+		// ============ 設定預購商品庫存 (後台) =========== //
+		public void setPreOrderStock(Integer productId, Integer stock) {
+			try {
+				String key = PREORDER_STOCK_PREFIX + productId;
+				redisTemplate.opsForValue().set(key, stock.toString());
+				System.out.println("預購產品 " + productId + " 庫存已設定為: " + stock);
+			} catch (Exception e) {
+				System.err.println("設定預購產品庫存失敗: " + e.getMessage());
+				throw new RuntimeException("設定預購庫存失敗", e);
+			}
+		}
+	
+	
+	
+	
+	// ============ 私有方法 - 獲取產品庫存 =========== //
+	// 獲取產品庫存
+	private Integer getProductStock(Product product) {
+	    if (product == null) {
+	        return 0;
+	    }
+	    
+	    // 根據產品狀態決定庫存來源
+	    if ("預購".equals(product.getProStatus())) {
+	        return getPreOrderStock(product.getId());
+	    } else if ("上架".equals(product.getProStatus())) {
+	        return getOnShelfStock(product.getId());
+	    } else {
+	        return 0; // 其他狀態
+	    }
+	}
+
+	// 獲取預購商品庫存（從 Redis）
+	private Integer getPreOrderStock(Integer productId) {
+	    try {
+	        String key = PREORDER_STOCK_PREFIX + productId;
+	        String stockStr = redisTemplate.opsForValue().get(key);
+	        
+	        if (stockStr == null) {
+	            return Integer.MAX_VALUE; // 預購商品預設無限制
+	        }
+	        
+	        return Integer.parseInt(stockStr);
+	    } catch (Exception e) {
+	        System.err.println("查詢預購產品庫存失敗: " + e.getMessage());
+	        return Integer.MAX_VALUE;
+	    }
+	}
+
+	// 獲取上架商品庫存（從序號表）
+	private Integer getOnShelfStock(Integer productId) {
+	    try {
+	        Product product = productRepository.findById(productId).orElse(null);
+	        if (product == null) {
+	            return 0;
+	        }
+	        
+	        // 計算未分配給訂單的序號數量（orderItemNo 為 null）
+	        Long availableCount = product.getProSerialNumbers().stream()
+	            .filter(serialNumber -> serialNumber.getOrderItemNo() == null)
+	            .count();
+	            
+	        return availableCount.intValue();
+	        
+	    } catch (Exception e) {
+	        System.err.println("查詢上架產品庫存失敗: " + e.getMessage());
+	        return 0;
+	    }
+	}
+
+	// 生成庫存警告訊息
+	private String getStockWarningMessage(Product product, Integer requestQuantity, Integer availableStock) {
+	    String productType = "預購".equals(product.getProStatus()) ? "預購商品" : "現貨商品";
+	    
+	    if (availableStock == 0) {
+	        return String.format("此%s目前缺貨", productType);
+	    } else if (availableStock == Integer.MAX_VALUE) {
+	        return null; // 無限制庫存，無警告
+	    } else if (requestQuantity > availableStock) {
+	        return String.format("%s庫存不足，目前僅剩 %d 個", productType, availableStock);
+	    } else if (availableStock <= 10 && !"預購".equals(product.getProStatus())) {
+	        return String.format("現貨庫存偏低，僅剩 %d 個", availableStock);
+	    }
+	    
+	    return null; // 庫存充足，無警告
+	}
+	
+	
+	
+	
 }
 	
 	

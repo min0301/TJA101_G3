@@ -10,10 +10,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pixeltribe.shopsys.cart.exception.CartErrorCode;
+import com.pixeltribe.shopsys.cart.exception.CartException;
 import com.pixeltribe.shopsys.cart.model.AdminCartListResponse;
 import com.pixeltribe.shopsys.cart.model.CartDTO;
 import com.pixeltribe.shopsys.cart.model.CartService;
 import com.pixeltribe.shopsys.cart.model.CartStatisticsResponse;
+import com.pixeltribe.shopsys.cart.model.StockInfoResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -37,11 +40,14 @@ public class CartController {
 		
 		// 取得會員ID
 		Integer memNo = (Integer) request.getAttribute("currentId");
+	    if (memNo == null) {       // 加入登入驗證
+	        throw new CartException(CartErrorCode.ADM_001);
+	    }
 		
 		// 呼叫CartService
-		CartDTO cart = cartService.addToCart(memNo, proNo, proNum);
-		
-		return ResponseEntity.ok(cart);   // 配對成功
+	    CartDTO cart = cartService.addToCart(memNo, proNo, proNum);
+	    
+	    return ResponseEntity.ok(cart);   // 配對成功
 	}
 	
 	
@@ -52,12 +58,12 @@ public class CartController {
 	
 		
 		Integer currentMemNo = (Integer) request.getAttribute("currentId");
-		if (!memNo.equals(currentMemNo)) {
-			// 可以拋出權限例外或直接使用當前會員編號
-		};
-
-		CartDTO cart = cartService.getMemberCart(memNo);
-        return ResponseEntity.ok(cart);
+	    if (!memNo.equals(currentMemNo)) {
+	        // 拋出權限不足的例外
+	        throw new CartException(CartErrorCode.ADM_001);
+	    }
+	    CartDTO cart = cartService.getMemberCart(memNo);
+	    return ResponseEntity.ok(cart);
 	}
 	
 	
@@ -68,19 +74,26 @@ public class CartController {
             HttpServletRequest request) {
 		
 		Integer memNo = (Integer) request.getAttribute("currentId");
-        CartDTO cart = cartService.removeFromCart(memNo, proNo);
-        
-        return ResponseEntity.ok(cart);
+	    if (memNo == null) {  // 加入登入驗證
+	        throw new CartException(CartErrorCode.ADM_001);
+	    }
+	    CartDTO cart = cartService.removeFromCart(memNo, proNo);
+	    
+	    return ResponseEntity.ok(cart);
 	}
+	
 	
 	// ========== 更新商品數量 ============ //
 	@PutMapping("/api/cart/update/{proNo}")
 	public ResponseEntity<CartDTO> updateQuantity(
-            @RequestParam Integer proNo,
+            @PathVariable Integer proNo,
             @RequestParam Integer proNum,
             HttpServletRequest request) {
 		
 		Integer memNo = (Integer) request.getAttribute("currentId");
+		if (memNo == null) {  // 加入登入驗證
+	        throw new CartException(CartErrorCode.ADM_001);
+	    }
         CartDTO cart = cartService.updateCartItemQuantity(memNo, proNo, proNum);
         
         return ResponseEntity.ok(cart);
@@ -92,6 +105,9 @@ public class CartController {
 	public ResponseEntity<String> clearCart(HttpServletRequest request) {
 		
 		Integer memNo = (Integer) request.getAttribute("currentId");
+		if (memNo == null) {  // 加入登入驗證
+	        throw new CartException(CartErrorCode.ADM_001);
+	    }
 		cartService.clearCart(memNo);
 		
 		return ResponseEntity.ok("購物車已清空");
@@ -117,5 +133,31 @@ public class CartController {
         CartStatisticsResponse response = cartService.getCartStatistics();
         return ResponseEntity.ok(response);
     }
+	
+	
+	// ========== 查詢產品庫存 ============ //
+	@GetMapping("/api/admin/cart/stock/{productId}")
+	public ResponseEntity<StockInfoResponse> getProductStock(@PathVariable Integer productId) {
+	    
+	    StockInfoResponse response = cartService.getStockInfo(productId);
+	    if (response == null) {
+	        return ResponseEntity.notFound().build();
+	    }
+	    return ResponseEntity.ok(response);
+	}
+
+	// ========== 設定預購商品庫存 ============ //
+	@PostMapping("/api/admin/cart/stock/preorder/{productId}")
+	public ResponseEntity<String> setPreOrderStock(
+	        @PathVariable Integer productId,
+	        @RequestParam Integer stock) {
+	    
+	    try {
+	        cartService.setPreOrderStock(productId, stock);
+	        return ResponseEntity.ok("預購產品庫存設定成功");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(500).body("設定失敗: " + e.getMessage());
+	    }
+	}
 	
 }

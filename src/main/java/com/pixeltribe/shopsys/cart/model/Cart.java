@@ -33,16 +33,23 @@ public class Cart {
 
 		private Boolean available;  // 確認產品是否缺貨
 		
+		private String proStatus;        // 商品狀態（預購/上架）
+	    private Boolean hasStockIssue;   // 是否有庫存問題
+	    private String stockWarning;     // 庫存警告訊息
+		
 		// 計算方法
 		public void calculateTotal() {
 			if (this.proPrice != null && this.proNum != null) {
 				this.subtotal = this.proPrice * this.proNum;
-			}
+			}else {
+		        this.subtotal = 0;  // 建議加入這行，處理異常情況
+		    }
 		}
 		
 		// 建構子
 		public CartItem() {
-			this.available = true; // 預設可購買
+			this.available = true;      // 預設可購買
+	        this.hasStockIssue = false; //加入預設值
 		}
 		
 		public CartItem(Integer proNo, String proName, Integer proPrice, Integer proNum) {
@@ -86,11 +93,14 @@ public class Cart {
 	// 計算購物車總數量：取得每個商品的proNum並加總
 	this.totalQuantity = item.stream().mapToInt(CartItem::getProNum).sum();
 	// 計算購物車總價格：取得每個產品的subtotal並加總
-	this.totalPrice = item.stream().mapToInt(CartItem::getSubtotal).sum();
+	this.totalPrice = item.stream()
+			.mapToInt(CartItem::getSubtotal)
+			.sum();
 	
 	// 計算實用的狀態資訊
 	this.isEmpty = item.isEmpty();
 	this.unavailableCount = (int) item.stream()
+			.filter(cartItem -> cartItem.getSubtotal() != null)
 			.filter(cartItem -> !cartItem.getAvailable())
 			.count();
 	this.hasUnavailableItems = this.unavailableCount > 0;
@@ -136,7 +146,7 @@ public class Cart {
 
 	//*****   更新產品數量  ***** //
 	public void updateItemQuantity(Integer proNo, Integer newQuantity) {
-		if (item != null) {
+		if (item != null && proNo != null && newQuantity != null && newQuantity > 0) {
 			CartItem targetItem = item.stream()
 					.filter(cartItem -> cartItem.getProNo().equals(proNo))
 					.findFirst()
@@ -208,7 +218,7 @@ public class Cart {
 		this.item = new ArrayList<>();
 	}
 	
-	public Cart(Integer id) {
+	public Cart(Integer memNo) {
 		this();
 		this.memNo = memNo;
 	}
@@ -230,6 +240,10 @@ public class Cart {
 				dtoItem.setProPrice(voItem.getProPrice());
 				dtoItem.setProNum(voItem.getProNum());
 				dtoItem.setSubtotal(voItem.getSubtotal());
+				dtoItem.setProStatus(voItem.getProStatus());
+	            dtoItem.setHasStockIssue(voItem.getHasStockIssue());
+	            dtoItem.setStockWarning(voItem.getStockWarning());
+
 				dtoItems.add(dtoItem);
 			}
 			dto.setItem(dtoItems);
@@ -256,6 +270,12 @@ public class Cart {
 				voItem.setProPrice(dtoItem.getProPrice());
 				voItem.setProNum(dtoItem.getProNum());
 				voItem.setSubtotal(dtoItem.getSubtotal());
+				
+				voItem.setProStatus(dtoItem.getProStatus());
+		        voItem.setHasStockIssue(dtoItem.getHasStockIssue());
+		        voItem.setStockWarning(dtoItem.getStockWarning());
+		        
+				
 				voItems.add(voItem);
 			}
 			vo.setItem(voItems);
