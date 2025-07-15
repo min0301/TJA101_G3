@@ -3,6 +3,7 @@ package com.pixeltribe.newssys.newslike.controller;
 import com.pixeltribe.newssys.newslike.model.NewsLikeDTO;
 import com.pixeltribe.newssys.newslike.model.NewsLikeService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,7 +36,17 @@ public class NewsLikeController {
         return newsLikeService.getAllNewsLikeByMember(id);
     }
 
-    @PostMapping("NewsLike/add")
+    @GetMapping("/NewsLikeByMember")
+    @Operation(summary = "獲得某會員對某新聞的讚/倒讚")
+    public ResponseEntity<NewsLikeDTO> getAllNewsLikeByMember(@RequestParam Integer memNoId,
+                                                    @RequestParam Integer ncomNoId) {
+
+        NewsLikeDTO dto = newsLikeService.getUserLikeStatus(memNoId, ncomNoId);
+        return ResponseEntity.ok(dto);
+    }
+
+
+    @PostMapping("/NewsLike/add")
     @Operation(summary = "新增/修改評論讚/倒讚/中立")
     public NewsLikeDTO addNewsLike(@RequestBody NewsLikeDTO newsLikeDTO) {
         Integer commendId = newsLikeDTO.getNcomNoId();

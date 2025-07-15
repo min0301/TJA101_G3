@@ -21,7 +21,7 @@ public class NewsLike {
     @Column(name = "NLIKE_NO", nullable = false)
     private Integer id;
 
-    /** 1:正常 2:讚 3:倒讚 */
+    /* 1:正常 2:讚 3:倒讚 */
     @NotNull
     @Column(name = "NLIKE_STATUS", nullable = false)
     private Character nlikeStatus;

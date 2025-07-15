@@ -105,7 +105,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         // Fetch and render news (case-sensitive endpoint)
         console.log('Fetching news...');
-        fetch('/api/News/allAll?page=0&size=5')
+        fetch('/api/News/all?page=0&size=5')
             .then(r => r.ok ? r.json() : Promise.reject(`Status ${r.status}`))
             .then(async page => {
                 console.log('News page:', page);
@@ -171,6 +171,7 @@
 <script src="/assets/js/main.js"></script>
 <script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
 <script src="/assets/vendors/aos/aos.js"></script>
+<script src="/js/dynamicHeaderInfo.js" ></script>
 <script>
     // Initialize AOS animations
     document.addEventListener('DOMContentLoaded', () => {

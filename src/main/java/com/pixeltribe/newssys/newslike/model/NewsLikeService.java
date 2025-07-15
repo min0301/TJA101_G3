@@ -59,4 +59,15 @@ public class NewsLikeService {
 
         return newsLikeRepository.findAllByMemNo_Id(id);
     }
+
+    public NewsLikeDTO getUserLikeStatus(Integer memNoId, Integer ncomNoId) {
+        NewsLike like = newsLikeRepository.findByMemNo_IdAndNcomNo_Id(memNoId, ncomNoId);
+
+        if (like == null) {
+            // 回傳中立狀態（你可以決定中立用 '1' 或其他值）
+            return new NewsLikeDTO(null, '1', memNoId, ncomNoId);
+        }
+
+        return new NewsLikeDTO(like.getId(), like.getNlikeStatus(), memNoId, ncomNoId);
+    }
 }

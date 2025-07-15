@@ -20,7 +20,7 @@ public interface NewsCommentRepository extends JpaRepository<NewsComment, Intege
                         n.ncomLikeLc,
                         n.ncomLikeDlc) from NewsComment n
                         where n.newsNo.id=:newsNo and n.ncomStatus='1'
-                        order by n.ncomCre
+                        order by n.ncomCre desc
             """)
     List<NewsCommentDTO> getNewsCommentsByNewsNo(Integer newsNo);
 

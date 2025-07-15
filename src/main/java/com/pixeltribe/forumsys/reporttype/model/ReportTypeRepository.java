@@ -8,4 +8,6 @@ public interface ReportTypeRepository extends JpaRepository<ReportType, Integer>
 
     Optional<ReportType> findByRpiType(String rpiType);
 
+
+
 }

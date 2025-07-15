@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
@@ -33,9 +35,8 @@ public class NewsComReport {
     @JoinColumn(name = "REPORT_TYPE", nullable = false)
     private ReportType reportType;
 
-    @NotNull
     @ColumnDefault("'0'")
-    @Column(name = "NEWS_COM_REPORT_STATUS", nullable = false)
+    @Column(name = "NEWS_COM_REPORT_STATUS", nullable = false,insertable = false)
     private Character newsComReportStatus;
 
     @NotNull
@@ -44,11 +45,12 @@ public class NewsComReport {
     @JsonIgnore
     private NewsComment ncomNo;
 
-    @NotNull
+    @CreationTimestamp
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "CREATE_TIME", nullable = false, updatable = false)
+    @Column(name = "CREATE_TIME", nullable = false, updatable = false,insertable = false)
     private Instant createTime;
 
+    @UpdateTimestamp
     @Column(name = "FINISH_TIME")
     private Instant finishTime;
 

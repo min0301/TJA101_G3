@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class ReportTypeController {
@@ -52,4 +54,11 @@ public class ReportTypeController {
         return ReportTypeDTO.convertToReportTypeDTO(reportTypeService.getOneReportType(rpiNo));
     }
 
+    @GetMapping("/allreport-type")
+    @Operation(
+            summary = "查所有檢舉類型"
+    )
+    public List<ReportTypeDTO> findAllReportType() {
+        return reportTypeService.getAllReportType();
+    }
 }
