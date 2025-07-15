@@ -1555,7 +1555,7 @@ CREATE TABLE ARTICLE_REPORT
     `REPORTER`       INT COMMENT '檢舉者編號',
     `RPI_NO`         INT COMMENT '檢舉類型編號',
     `POST_NO`        INT COMMENT '文章編號',
-    `ART_REP_STATUS` CHAR(1)            NOT NULL DEFAULT '0' COMMENT '處理狀態',
+    `ART_REP_STATUS` CHAR(1)NOT NULL DEFAULT '0' COMMENT '處理狀態',
     `CREATE_TIME`    DATETIME                    DEFAULT CURRENT_TIMESTAMP COMMENT '建立時間',
     `FINISH_TIME`    DATETIME,
     FOREIGN KEY (`REPORTER`) REFERENCES MEMBER (`MEM_NO`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -1734,25 +1734,25 @@ CREATE TABLE POST_COLLECT
 ) COMMENT '文章收藏';
 
 -- 新增 文章收藏 資料  --
-INSERT INTO `POST_COLLECT`(`MEM_NO`, `POST_NO`)
-VALUES (2, 47),
-       (3, 47),
-       (2, 48),
-       (3, 49),
-       (6, 49),
-       (7, 53),
-       (11, 51),
-       (21, 33),
-       (4, 47),
-       (13, 53),
-       (23, 49),
-       (33, 48),
-       (23, 46),
-       (11, 55),
-       (2, 44),
-       (5, 49),
-       (5, 47),
-       (8, 47);
+INSERT INTO `POST_COLLECT`(`MEM_NO`, `POST_NO`,`POST_COLLECT_STATUS`)
+VALUES (2, 47,'COLLECT'),
+       (3, 47,'COLLECT'),
+       (2, 48,'COLLECT'),
+       (3, 49,'COLLECT'),
+       (6, 49,'COLLECT'),
+       (7, 53,'COLLECT'),
+       (11, 51,'COLLECT'),
+       (21, 33,'COLLECT'),
+       (4, 47,'COLLECT'),
+       (13, 53,'COLLECT'),
+       (23, 49,'COLLECT'),
+       (33, 48,'COLLECT'),
+       (23, 46,'COLLECT'),
+       (11, 55,'COLLECT'),
+       (2, 44,'COLLECT'),
+       (5, 49,'COLLECT'),
+       (5, 47,'COLLECT'),
+       (8, 47,'COLLECT');
 
 
 -- 建立 文章留言檢舉 表格 --
