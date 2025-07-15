@@ -187,6 +187,8 @@ async function fetchAndPopulateCategories() {
 document.addEventListener('DOMContentLoaded', () => {
     const hotTab = document.getElementById('hot-tab');
     const categoryTab = document.getElementById('category-tab');
+    const listContainer = document.getElementById('forum-list-container'); // << 確保在此處獲取
+    const categorySelectContainer = document.getElementById('category-select-container'); // << 確保在此處獲取
 
     hotTab.addEventListener('click', () => {
         categorySelectContainer.style.display = 'none';
@@ -206,6 +208,43 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchAndRenderForums('category', lastSelectedCategoryId);
         }
     });
+
+    if (listContainer) {
+        // 使用「事件委派」，監聽整個列表容器的點擊事件
+        listContainer.addEventListener('click', function (event) {
+
+            // 判斷點擊的是否為一個 .forum-link 元素
+            const clickedLink = event.target.closest('.forum-link');
+
+            // 如果點的不是連結，則不執行任何動作
+            if (!clickedLink) {
+                return;
+            }
+
+            // 阻止 <a> 連結的預設跳轉行為 (如果你的 .forum-link 是 <a>)
+            event.preventDefault();
+
+            // 1. 移除所有兄弟連結的 'active' class
+            const allLinks = listContainer.querySelectorAll('.forum-link');
+            allLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // 2. 只在當前被點擊的連結上加上 'active' class
+            clickedLink.classList.add('active');
+
+            // 3. 從點擊的連結上取得 data-forum-id
+            const forumId = clickedLink.dataset.forumId;
+
+            // 4. 呼叫在 forumindex.html 中定義的函式來載入右側內容
+            //    (這個函式應由 allForum.js 提供)
+            if (typeof showPostListView === 'function') {
+                showPostListView(forumId);
+            } else {
+                console.error('錯誤：showPostListView 函式未定義，請檢查 allForum.js 是否正確載入。');
+            }
+        });
+    }
 
     // 預設載入熱門排行
     fetchAndRenderForums('hot');

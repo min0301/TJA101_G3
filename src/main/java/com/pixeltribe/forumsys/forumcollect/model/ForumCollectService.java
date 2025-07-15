@@ -27,10 +27,10 @@ public class ForumCollectService {
     }
 
     @Transactional
-    public ForumCollectDTO addForumCollect(Integer memberId, Integer forNo, ForumCollectUpdateDTO forumCollectUpdateDTO) {
+    public ForumCollectDTO addForumCollect(Integer memberId, Integer forNo) {
 
         Member member = memRepository.findById(memberId)
-                .orElseThrow(() -> new ResourceNotFoundException("找不到會員, 編號: " + forumCollectUpdateDTO.getMemberNo()));
+                .orElseThrow(() -> new ResourceNotFoundException("找不到會員, 編號: " + memberId));
         Forum forum = forumRepository.findById(forNo)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到論壇文章, 編號: " + forNo));
 

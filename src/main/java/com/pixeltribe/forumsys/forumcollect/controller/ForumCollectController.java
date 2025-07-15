@@ -2,13 +2,10 @@ package com.pixeltribe.forumsys.forumcollect.controller;
 
 import com.pixeltribe.forumsys.forumcollect.model.ForumCollectDTO;
 import com.pixeltribe.forumsys.forumcollect.model.ForumCollectService;
-import com.pixeltribe.forumsys.forumcollect.model.ForumCollectUpdateDTO;
 import com.pixeltribe.membersys.security.MemberDetails;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,14 +22,13 @@ public class ForumCollectController {
 
     @PutMapping("/forums/{forno}/collect")
     @Operation(
-            summary = "討論區收藏"
+            summary = "切換討論區收藏狀態"
     )
     public ResponseEntity<ForumCollectDTO> updateForumCollect(
             @PathVariable("forno") Integer forNo,
-            @Valid @RequestBody ForumCollectUpdateDTO forumCollectUpdateDTO,
             @AuthenticationPrincipal MemberDetails currentUser) {
         Integer memberId = currentUser.getMemberId();
-        ForumCollectDTO forumCollectDTO = forumCollectService.addForumCollect(memberId, forNo, forumCollectUpdateDTO);
+        ForumCollectDTO forumCollectDTO = forumCollectService.addForumCollect(memberId, forNo);
         return ResponseEntity.ok(forumCollectDTO);
 
     }

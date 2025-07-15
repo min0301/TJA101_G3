@@ -100,9 +100,6 @@ function createForumElement(forum, rank) {
                 ${hotScore.toLocaleString()}
             </small>
         </div>
-        <div class="ms-auto">
-            <i class="bi bi-heart hot-item-like"></i>
-        </div>
     `;
 
     return cardLink;
