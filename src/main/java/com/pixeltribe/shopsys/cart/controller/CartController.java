@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +25,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 
 @RestController
+@RequestMapping("/api")
 public class CartController {
 	
 	@Autowired
@@ -31,7 +33,7 @@ public class CartController {
 	
 	// ******** 前台API (會員對購物車的操作) ******** //
 	// ==========  將商品加到購物車 ============ //
-	@PostMapping("/api/cart/add")
+	@PostMapping("/cart/add")
 	public ResponseEntity<CartDTO> addToCart(
 			@RequestParam Integer proNo,
 			@RequestParam Integer proNum,
@@ -52,7 +54,7 @@ public class CartController {
 	
 	
 	// ==========  查詢購物車 ============ //
-	@GetMapping("/api/cart/{memNo}")
+	@GetMapping("/cart/{memNo}")
 	public ResponseEntity<CartDTO> getCart(@PathVariable Integer memNo,
 											HttpServletRequest request) {
 	
@@ -68,7 +70,7 @@ public class CartController {
 	
 	
 	// ========== 移除購物車商品 ============ //
-	@DeleteMapping("/api/cart/remove/{proNo}")
+	@DeleteMapping("/cart/remove/{proNo}")
 	public ResponseEntity<CartDTO> removeFromCart(
             @PathVariable Integer proNo,
             HttpServletRequest request) {
@@ -84,7 +86,7 @@ public class CartController {
 	
 	
 	// ========== 更新商品數量 ============ //
-	@PutMapping("/api/cart/update/{proNo}")
+	@PutMapping("/cart/update/{proNo}")
 	public ResponseEntity<CartDTO> updateQuantity(
             @PathVariable Integer proNo,
             @RequestParam Integer proNum,
@@ -101,7 +103,7 @@ public class CartController {
 	
 	
 	// ========== 清空購物車 ============ //
-	@PostMapping("/api/cart/clear")
+	@PostMapping("/cart/clear")
 	public ResponseEntity<String> clearCart(HttpServletRequest request) {
 		
 		Integer memNo = (Integer) request.getAttribute("currentId");
@@ -116,7 +118,7 @@ public class CartController {
 	
 	// ******** 後台API (管理員查看數據) ******** //
 	// ========== 查詢所有購物車 ============ //
-	@GetMapping("/api/admin/cart/all")
+	@GetMapping("/admin/cart/all")
 	public ResponseEntity<AdminCartListResponse> getAllCarts( 
 		@RequestParam(defaultValue = "1") Integer page,
 		@RequestParam(defaultValue = "10") Integer size,
@@ -127,7 +129,7 @@ public class CartController {
 	}
 	
 	// ========== 購物車統計 ============ //
-	@GetMapping("/api/admin/cart/statistics")
+	@GetMapping("/admin/cart/statistics")
     public ResponseEntity<CartStatisticsResponse> getCartStatistics() {
         
         CartStatisticsResponse response = cartService.getCartStatistics();
@@ -136,7 +138,7 @@ public class CartController {
 	
 	
 	// ========== 查詢產品庫存 ============ //
-	@GetMapping("/api/admin/cart/stock/{productId}")
+	@GetMapping("/admin/cart/stock/{productId}")
 	public ResponseEntity<StockInfoResponse> getProductStock(@PathVariable Integer productId) {
 	    
 	    StockInfoResponse response = cartService.getStockInfo(productId);
@@ -147,7 +149,7 @@ public class CartController {
 	}
 
 	// ========== 設定預購商品庫存 ============ //
-	@PostMapping("/api/admin/cart/stock/preorder/{productId}")
+	@PostMapping("/admin/cart/stock/preorder/{productId}")
 	public ResponseEntity<String> setPreOrderStock(
 	        @PathVariable Integer productId,
 	        @RequestParam Integer stock) {
