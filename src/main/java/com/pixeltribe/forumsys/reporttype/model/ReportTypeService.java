@@ -5,6 +5,9 @@ import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service("reportTypeService")
 public class ReportTypeService {
 
@@ -47,4 +50,11 @@ public class ReportTypeService {
                 .orElseThrow(() -> new ResourceNotFoundException("找不到檢舉類型，ID: " + rpiNo));
     }
 
+    public List<ReportTypeDTO> getAllReportType() {
+        List<ReportType> reportTypes = reportTypeRepository.findAll();
+
+        return reportTypes.stream()
+                .map(rt -> new ReportTypeDTO(rt.getId(), rt.getRpiType()))
+                .collect(Collectors.toList());
+    }
 }

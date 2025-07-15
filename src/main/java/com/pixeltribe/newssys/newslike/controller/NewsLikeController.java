@@ -3,6 +3,7 @@ package com.pixeltribe.newssys.newslike.controller;
 import com.pixeltribe.newssys.newslike.model.NewsLikeDTO;
 import com.pixeltribe.newssys.newslike.model.NewsLikeService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,14 +36,32 @@ public class NewsLikeController {
         return newsLikeService.getAllNewsLikeByMember(id);
     }
 
-    @PostMapping("NewsLike/add")
-    @Operation(summary = "新增/修改評論讚/倒讚/中立")
-    public NewsLikeDTO addNewsLike(@RequestBody NewsLikeDTO newsLikeDTO) {
+    @GetMapping("/NewsLikeByMember")
+    @Operation(summary = "獲得某會員對某新聞的讚/倒讚")
+    public ResponseEntity<NewsLikeDTO> getAllNewsLikeByMember(@RequestParam Integer memNoId,
+                                                    @RequestParam Integer ncomNoId) {
+
+        NewsLikeDTO dto = newsLikeService.getUserLikeStatus(memNoId, ncomNoId);
+        return ResponseEntity.ok(dto);
+    }
+// TODO 由 updateNewsLike() 接管
+//    @PostMapping("/NewsLike/add")
+//    @Operation(summary = "新增評論 讚/倒讚/中立")
+//    public NewsLikeDTO addNewsLike(@RequestBody NewsLikeDTO newsLikeDTO) {
+//        Integer commendId = newsLikeDTO.getNcomNoId();
+//        Integer memberId = newsLikeDTO.getMemNoId();
+//        Character status = newsLikeDTO.getNlikeStatus();
+//        return newsLikeService.addNewsLike(commendId,memberId,status);
+//    }
+
+    @PutMapping("/NewsLike/update")
+    @Operation(summary = "更新評論 讚/倒讚/中立")
+    public NewsLikeDTO updateNewsLike(@RequestBody NewsLikeDTO newsLikeDTO) {
         Integer commendId = newsLikeDTO.getNcomNoId();
         Integer memberId = newsLikeDTO.getMemNoId();
         Character status = newsLikeDTO.getNlikeStatus();
 
-        return newsLikeService.addNewsLike(commendId,memberId,status);
+        return newsLikeService.updateNewsLike(commendId,memberId,status);
     }
 
 }

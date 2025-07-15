@@ -19,7 +19,7 @@ public class NewsController {
     }
 
 
-    @GetMapping("allAll")
+    @GetMapping("all")
     @Operation(summary = "顯示所有前台新聞")
     public PageResponse<NewsDTO> findAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
         return newsSrv.findAll(page, size);

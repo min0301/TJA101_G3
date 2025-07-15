@@ -21,7 +21,7 @@ public class NewsLike {
     @Column(name = "NLIKE_NO", nullable = false)
     private Integer id;
 
-    /** 1:正常 2:讚 3:倒讚 */
+    /* 1:正常 2:讚 3:倒讚 */
     @NotNull
     @Column(name = "NLIKE_STATUS", nullable = false)
     private Character nlikeStatus;
@@ -33,14 +33,14 @@ public class NewsLike {
     @JsonIgnore
     private Member memNo;
 
-    @NotNull
+
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "NLIKE_UPDATE", nullable = false)
+    @Column(name = "NLIKE_UPDATE", nullable = false, insertable = false, updatable = false)
     private Instant nlikeUpdate;
 
-    @NotNull
+
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "NLIKE_CRDATE", nullable = false)
+    @Column(name = "NLIKE_CRDATE", nullable = false, insertable = false, updatable = false)
     private Instant nlikeCrdate;
 
     /*對應留言*/
