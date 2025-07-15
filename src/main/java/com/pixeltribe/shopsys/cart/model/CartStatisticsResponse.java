@@ -28,7 +28,18 @@ public class CartStatisticsResponse {
 	@Getter
 	@Setter
 	public static class StatisticsData {
-		private Integer totalCarts;         
+		private Integer totalCarts;
+		
+		private Integer totalActiveUsers;        // 有購物車的活躍用戶數
+	    private Integer totalProducts;           // 購物車中的商品總數量
+	    private Integer averageItemsPerCart;     // 平均每個購物車的商品數
+	    private Long totalCartValue;             // 所有購物車的總價值
+	    private Integer emptyCartsCount;         // 空購物車數量
+	    private Integer cartsWithStockIssues;    // 有庫存問題的購物車數
+	    
+	    // 商品狀態統計
+	    private Integer preOrderProductCount;    // 預購商品數量
+	    private Integer onShelfProductCount;     // 上架商品數量
 		
 		
 		
@@ -37,6 +48,11 @@ public class CartStatisticsResponse {
 		
 		public StatisticsData(Integer totalCarts) {
 			this.totalCarts = totalCarts;
+			
+
+			// 計算平均值
+			this.averageItemsPerCart = totalActiveUsers > 0 ? 
+			   totalProducts / totalActiveUsers : 0;
 		}
 	}
 }

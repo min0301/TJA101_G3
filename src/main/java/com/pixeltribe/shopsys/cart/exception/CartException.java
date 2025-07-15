@@ -2,6 +2,7 @@ package com.pixeltribe.shopsys.cart.exception;
 
 
 public class CartException extends RuntimeException {
+	private static final long serialVersionUID = 1L;
 	private CartErrorCode errorCode;
 	
 	public CartException(CartErrorCode errorCode) {
