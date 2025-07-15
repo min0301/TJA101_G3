@@ -105,14 +105,23 @@
 	<script>
 	document.addEventListener('DOMContentLoaded', function() {
 	    setTimeout(function() {
-	        // 檢查並初始化 MallTagManager
-	        if (window.mallTagManager && typeof window.mallTagManager.init === 'function') {
-	            window.mallTagManager.init();
-	        }
-	        
-	        // ProductDetailManager 會自動初始化
-	        if (window.productDetailManager) {
-	            console.log('ProductDetailManager 已自動初始化');
+	        try {
+	            console.log('頁面初始化檢查...');
+	            
+	            // 只在商品列表頁面初始化 MallTagManager
+	            if (!window.location.search.includes('id=')) {
+	                // 沒有商品ID參數，是商品列表頁面
+	                if (window.mallTagManager && typeof window.mallTagManager.init === 'function') {
+	                    console.log('初始化 MallTagManager...');
+	                    window.mallTagManager.init();
+	                }
+	            } else {
+	                // 有商品ID參數，是商品詳情頁面
+	                console.log('商品詳情頁面，由 ProductDetailManager 處理');
+	            }
+	            
+	        } catch (error) {
+	            console.error('初始化錯誤:', error);
 	        }
 	    }, 300);
 	});

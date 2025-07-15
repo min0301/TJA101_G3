@@ -66,6 +66,11 @@ public class ProductService {
 		List<Product> products = productRepository.findByMallTagAndMarket(mallTagNo, proIsMarket);
 		return productDTOMapper.toProductSearchDTOList(products);
 	}
+	
+	public List<ProductSearchDTO> findByMarket(Character proIsMarket) {
+		List<Product> products = productRepository.findByMarket(proIsMarket);
+		return productDTOMapper.toProductSearchDTOList(products);
+	}
 
 	public List<ProductSearchDTO> findByMallTagAllMarket(Integer mallTagNo) {
 		List<Product> products = productRepository.findByMallTagAndMarket(mallTagNo, null);
