@@ -230,11 +230,7 @@ public class PaymentService {
         }
 
     
-    	/* 
-    	 1. 定時任務：檢查預購商品是否上架 (每天晚上8點檢查)
-    	 2. 透過檢查 pro_serial_numbers 表中的序號庫存判斷商品是否可發貨
-    	 */
-    	
+    	// ****定時任務：檢查預購商品是否上架 (每天晚上8點檢查) 透過檢查 pro_serial_numbers 表中的序號庫存判斷商品是否可發貨 **** //
 	    @Scheduled(cron = "0 0 20 * * ?")   // 每天晚上8點執行
 	    public void checkPreOrderProductsAvailable() {
 	        try {
@@ -1078,6 +1074,695 @@ public class PaymentService {
 	            } catch (Exception e) {
 	                log.error("驗證綠界回調失敗", e);
 	                return false;
+	            }
+	        }
+	        
+	        
+	        // ========== <<前台使用的增刪改查>> ========== //
+	        // **** 用戶點擊付款 (權限驗證) *****//
+	        public String createPayment(Integer orderNo, Integer memNo) {
+	            try {
+	                log.info("用戶發起付款：orderNo={}, memNo={}", orderNo, memNo);
+	                
+	                // 驗證訂單所有權
+	                OrderDTO order = orderService.getOrderDetail(orderNo);
+	                if (!order.getMemNo().equals(memNo)) {
+	                    throw new IllegalArgumentException("無權限操作此訂單");
+	                }
+	                
+	                // 重用現有的付款邏輯
+	                return initiatePayment(orderNo);
+	                
+	            } catch (Exception e) {
+	                log.error("用戶發起付款失敗：orderNo={}, memNo={}", orderNo, memNo, e);
+	                throw new RuntimeException("發起付款失敗：" + e.getMessage());
+	            }
+	        }
+	        
+	        
+		    // **** 會員查付款紀錄 *****//
+	        public Map<String, Object> getMemberPaymentRecords(Integer memNo, Integer page, Integer size) {
+	            try {
+	                log.debug("查詢會員付款記錄：memNo={}", memNo);
+	                
+	                // 1. 查詢會員訂單 (重用 orderService)
+	                List<OrderDTO> allOrders = orderService.getmemOrders(memNo);
+	                
+	                // 2. 簡單分頁
+	                int startIndex = page * size;
+	                int endIndex = Math.min(startIndex + size, allOrders.size());
+	                List<OrderDTO> pagedOrders = allOrders.subList(startIndex, endIndex);
+	                
+	                // 3. 組裝付款記錄
+	                List<Map<String, Object>> paymentRecords = new ArrayList<>();
+	                for (OrderDTO order : pagedOrders) {
+	                    Map<String, Object> record = new HashMap<>();
+	                    record.put("orderNo", order.getOrderNo());
+	                    record.put("orderTotal", order.getOrderTotal());
+	                    record.put("orderStatus", order.getOrderStatus());
+	                    record.put("orderStatusInfo", order.getOrderStatusInfo());
+	                    record.put("orderDatetime", order.getOrderDatetime());
+	                    record.put("canRetryPayment", order.canRetryPayment());
+	                    record.put("canBeCancelled", order.canBeCancelled());
+	                    
+	                    // 從 Redis 查詢付款狀態 (重用現有方法)
+	                    Map<String, Object> paymentStatus = getPaymentStatus(order.getOrderNo());
+	                    if (paymentStatus != null) {
+	                        record.put("paymentInfo", paymentStatus);
+	                    } else {
+	                        record.put("paymentInfo", createDefaultPaymentInfo(order));
+	                    }
+	                    
+	                    paymentRecords.add(record);
+	                }
+	                
+	                // 4. 分頁資訊
+	                Map<String, Object> result = new HashMap<>();
+	                result.put("records", paymentRecords);
+	                result.put("currentPage", page);
+	                result.put("totalRecords", allOrders.size());
+	                result.put("totalPages", (int) Math.ceil((double) allOrders.size() / size));
+	                result.put("hasNext", endIndex < allOrders.size());
+	                result.put("hasPrevious", page > 0);
+	                
+	                return result;
+	                
+	            } catch (Exception e) {
+	                log.error("查詢會員付款記錄失敗：memNo={}", memNo, e);
+	                throw new RuntimeException("查詢付款記錄失敗：" + e.getMessage());
+	            }
+	        }
+	        
+	        
+	        // **** 前台查詢單筆訂單付款詳情(READ-詳細版) *****//
+	        public Map<String, Object> getOrderPaymentDetail(Integer orderNo, Integer memNo) {
+	            try {
+	                log.debug("查詢訂單付款詳情：orderNo={}, memNo={}", orderNo, memNo);
+	                
+	                // 1. 驗證權限
+	                OrderDTO order = orderService.getOrderDetail(orderNo);
+	                if (!order.getMemNo().equals(memNo)) {
+	                    throw new IllegalArgumentException("無權限查看此訂單");
+	                }
+	                
+	                // 2. 組裝詳細付款資訊
+	                Map<String, Object> detail = new HashMap<>();
+	                detail.put("orderInfo", order);
+	                detail.put("paymentStatus", getPaymentStatus(orderNo));
+	                detail.put("availableActions", getAvailablePaymentActions(order));
+	                
+	                // 3. 序號發放狀況 (如果有的話)
+	                if ("COMPLETED".equals(order.getOrderStatus()) || "SHIPPED".equals(order.getOrderStatus())) {
+	                    detail.put("serialInfo", getOrderSerialInfo(orderNo));
+	                }
+	                
+	                return detail;
+	                
+	            } catch (Exception e) {
+	                log.error("查詢訂單付款詳情失敗：orderNo={}, memNo={}", orderNo, memNo, e);
+	                throw new RuntimeException("查詢付款詳情失敗：" + e.getMessage());
+	            }
+	        }
+	        
+	        
+	        // **** 前台查詢付款進度(READ-即時狀態) *****//
+	        public Map<String, Object> getPaymentProgress(Integer orderNo, Integer memNo) {
+	            try {
+	                // 1. 驗證權限
+	                OrderDTO order = orderService.getOrderDetail(orderNo);
+	                if (!order.getMemNo().equals(memNo)) {
+	                    throw new IllegalArgumentException("無權限查看此訂單");
+	                }
+	                
+	                // 2. 組裝進度資訊
+	                Map<String, Object> progress = new HashMap<>();
+	                progress.put("orderNo", orderNo);
+	                progress.put("currentStatus", order.getOrderStatus());
+	                progress.put("statusInfo", order.getOrderStatusInfo());
+	                progress.put("paymentInfo", getPaymentStatus(orderNo));
+	                
+	                // 3. 進度步驟
+	                progress.put("progressSteps", createProgressSteps(order));
+	                
+	                // 4. 下一步操作
+	                progress.put("nextActions", getAvailablePaymentActions(order));
+	                
+	                return progress;
+	                
+	            } catch (Exception e) {
+	                log.error("查詢付款進度失敗：orderNo={}, memNo={}", orderNo, memNo, e);
+	                throw new RuntimeException("查詢付款進度失敗：" + e.getMessage());
+	            }
+	        }
+	        
+		    // **** 會員要重新付款 *****//
+	        public String retryPayment(Integer orderNo, Integer memNo) {
+	            try {
+	                log.info("用戶重新發起付款：orderNo={}, memNo={}", orderNo, memNo);
+	                return createPayment(orderNo, memNo); // 重用驗證邏輯
+	            } catch (Exception e) {
+	                log.error("重新發起付款失敗：orderNo={}, memNo={}", orderNo, memNo, e);
+	                throw new RuntimeException("重新付款失敗：" + e.getMessage());
+	            }
+	        }
+	        
+		    // **** 會員要取消付款 *****//
+	        public boolean cancelPayment(Integer orderNo, Integer memNo, String reason) {
+	            try {
+	                log.info("用戶取消付款：orderNo={}, memNo={}, reason={}", orderNo, memNo, reason);
+	                
+	                // 驗證權限
+	                OrderDTO order = orderService.getOrderDetail(orderNo);
+	                if (!order.getMemNo().equals(memNo)) {
+	                    throw new IllegalArgumentException("無權限操作此訂單");
+	                }
+	                
+	                // 檢查是否可以取消
+	                if (!order.canBeCancelled() && !"PAYING".equals(order.getOrderStatus())) {
+	                    log.warn("訂單狀態不允許取消：orderNo={}, status={}", orderNo, order.getOrderStatus());
+	                    return false;
+	                }
+	                
+	                // 如果正在付款中，先清理 Redis
+	                if ("PAYING".equals(order.getOrderStatus())) {
+	                    String redisKey = "payment:" + orderNo;
+	                    redisTemplate.delete(redisKey);
+	                    log.info("已清理付款中的 Redis 記錄：orderNo={}", orderNo);
+	                }
+	                
+	                // 重用 orderService 的取消邏輯
+	                return orderService.cancelOrder(orderNo, memNo, reason);
+	                
+	            } catch (Exception e) {
+	                log.error("取消付款失敗：orderNo={}, memNo={}", orderNo, memNo, e);
+	                return false;
+	            }
+	        }
+	        
+	        
+	        
+	        
+	        // ========== <<後台使用的增刪改查>> ========== //
+	        // **** 管理員查詢付款的<<統計>> *****//
+	        public Map<String, Object> getPaymentStatistics() {
+	            try {
+	                log.debug("計算付款統計資料");
+	                
+	                Map<String, Object> stats = new HashMap<>();
+	                
+	                // 今日訂單統計
+	                String todayOrdersSql = "SELECT COUNT(*) as count, COALESCE(SUM(order_total), 0) as total " +
+	                                       "FROM `order` WHERE DATE(order_datetime) = CURDATE()";
+	                Map<String, Object> todayOrders = jdbcTemplate.queryForMap(todayOrdersSql);
+	                
+	                // 今日成功付款統計
+	                String todaySuccessSql = "SELECT COUNT(*) as count, COALESCE(SUM(order_total), 0) as total " +
+	                                        "FROM `order` WHERE DATE(order_datetime) = CURDATE() " +
+	                                        "AND order_status IN ('COMPLETED', 'SHIPPED', 'PROCESSING')";
+	                Map<String, Object> todaySuccess = jdbcTemplate.queryForMap(todaySuccessSql);
+	                
+	                // 訂單狀態分布
+	                String statusSql = "SELECT order_status, COUNT(*) as count FROM `order` " +
+	                                  "WHERE order_datetime >= DATE_SUB(NOW(), INTERVAL 30 DAY) " +
+	                                  "GROUP BY order_status";
+	                List<Map<String, Object>> statusStats = jdbcTemplate.queryForList(statusSql);
+	                
+	                // 計算成功率
+	                Long totalToday = ((Number) todayOrders.get("count")).longValue();
+	                Long successToday = ((Number) todaySuccess.get("count")).longValue();
+	                Double successRate = totalToday > 0 ? (double) successToday / totalToday * 100 : 0.0;
+	                
+	                stats.put("todayOrders", todayOrders);
+	                stats.put("todaySuccess", todaySuccess);
+	                stats.put("statusDistribution", statusStats);
+	                stats.put("successRate", Math.round(successRate * 100.0) / 100.0);
+	                stats.put("generatedAt", LocalDateTime.now());
+	                
+	                return stats;
+	                
+	            } catch (Exception e) {
+	                log.error("計算付款統計失敗", e);
+	                throw new RuntimeException("計算付款統計失敗：" + e.getMessage());
+	            }
+	        }
+	        
+	        
+	        // **** 管理員重製卡單付款 *****//
+	        public boolean resetStuckPayment(Integer orderNo, String adminReason) {
+	            try {
+	                log.info("管理員重置卡單付款：orderNo={}, reason={}", orderNo, adminReason);
+	                
+	                // 檢查訂單是否在付款中
+	                OrderDTO order = orderService.getOrderDetail(orderNo);
+	                if (!"PAYING".equals(order.getOrderStatus())) {
+	                    log.warn("訂單不在付款中狀態：orderNo={}, status={}", orderNo, order.getOrderStatus());
+	                    return false;
+	                }
+	                
+	                // 重置為待付款狀態
+	                orderService.updateOrderStatus(orderNo, "PENDING");
+	                
+	                // 清理 Redis 付款狀態
+	                String redisKey = "payment:" + orderNo;
+	                redisTemplate.delete(redisKey);
+	                
+	                // 記錄管理員操作
+	                log.info("ADMIN_RESET_PAYMENT|orderNo={}|reason={}|timestamp={}", 
+	                        orderNo, adminReason, System.currentTimeMillis());
+	                
+	                return true;
+	                
+	            } catch (Exception e) {
+	                log.error("重置卡單付款失敗：orderNo={}", orderNo, e);
+	                return false;
+	            }
+	        }
+	        
+	        
+		    // **** 管理員查詢所有的付款紀錄 *****//
+	        public Map<String, Object> getAllPaymentRecords(Map<String, Object> filters, Integer page, Integer size) {
+	            try {
+	                log.debug("管理員查詢付款記錄：filters={}", filters);
+	                
+	                // 查詢所有訂單 (可加篩選)
+	                String sql = "SELECT o.*, m.mem_name, m.mem_email FROM `order` o " +
+	                            "LEFT JOIN member m ON o.mem_no = m.mem_no " +
+	                            "WHERE 1=1 ";
+	                
+	                List<Object> params = new ArrayList<>();
+	                
+	                // 動態添加篩選條件
+	                if (filters.get("orderStatus") != null) {
+	                    sql += "AND o.order_status = ? ";
+	                    params.add(filters.get("orderStatus"));
+	                }
+	                
+	                if (filters.get("startDate") != null) {
+	                    sql += "AND DATE(o.order_datetime) >= ? ";
+	                    params.add(filters.get("startDate"));
+	                }
+	                
+	                if (filters.get("endDate") != null) {
+	                    sql += "AND DATE(o.order_datetime) <= ? ";
+	                    params.add(filters.get("endDate"));
+	                }
+	                
+	                // 計算總數
+	                String countSql = "SELECT COUNT(*) FROM (" + sql + ") AS temp";
+	                Long totalCount = jdbcTemplate.queryForObject(countSql, Long.class, params.toArray());
+	                
+	                // 添加排序和分頁
+	                sql += "ORDER BY o.order_datetime DESC LIMIT ? OFFSET ?";
+	                params.add(size);
+	                params.add(page * size);
+	                
+	                // 執行查詢
+	                List<Map<String, Object>> orders = jdbcTemplate.queryForList(sql, params.toArray());
+	                
+	                // 為每個訂單添加付款狀態
+	                for (Map<String, Object> order : orders) {
+	                    Integer orderNo = (Integer) order.get("order_no");
+	                    Map<String, Object> paymentStatus = getPaymentStatus(orderNo);
+	                    order.put("paymentInfo", paymentStatus != null ? paymentStatus : createDefaultPaymentInfo(order));
+	                }
+	                
+	                // 組裝結果
+	                Map<String, Object> result = new HashMap<>();
+	                result.put("records", orders);
+	                result.put("currentPage", page);
+	                result.put("totalCount", totalCount);
+	                result.put("totalPages", (int) Math.ceil((double) totalCount / size));
+	                result.put("hasNext", (page + 1) * size < totalCount);
+	                result.put("hasPrevious", page > 0);
+	                
+	                return result;
+	                
+	            } catch (Exception e) {
+	                log.error("管理員查詢付款記錄失敗", e);
+	                throw new RuntimeException("查詢付款記錄失敗：" + e.getMessage());
+	            }
+	        }
+		    
+	        
+		    // **** 管理員批量清理過期付款紀錄 *****//
+	        public Map<String, Object> cleanupExpiredPayments(String adminId) {
+	            try {
+	                log.info("管理員清理過期付款記錄：admin={}", adminId);
+	                
+	                Set<String> paymentKeys = redisTemplate.keys("payment:*");
+	                if (paymentKeys == null || paymentKeys.isEmpty()) {
+	                    Map<String, Object> result = new HashMap<>();
+	                    result.put("clearedCount", 0);
+	                    result.put("message", "沒有找到付款記錄");
+	                    return result;
+	                }
+	                
+	                int clearedCount = 0;
+	                long currentTime = System.currentTimeMillis();
+	                
+	                for (String key : paymentKeys) {
+	                    try {
+	                        Map<Object, Object> paymentInfo = redisTemplate.opsForHash().entries(key);
+	                        if (paymentInfo.isEmpty()) continue;
+	                        
+	                        String status = (String) paymentInfo.get("status");
+	                        Long createdAt = (Long) paymentInfo.get("createdAt");
+	                        
+	                        // 清理 24 小時以上的非成功付款記錄
+	                        if (!"SUCCESS".equals(status) && 
+	                            createdAt != null && 
+	                            (currentTime - createdAt) > 86400000) { // 24小時
+	                            
+	                            redisTemplate.delete(key);
+	                            clearedCount++;
+	                        }
+	                        
+	                    } catch (Exception e) {
+	                        log.error("清理單個付款記錄失敗：key={}", key, e);
+	                    }
+	                }
+	                
+	                // 記錄管理員操作
+	                log.info("ADMIN_CLEANUP_PAYMENTS|admin={}|clearedCount={}|timestamp={}", 
+	                        adminId, clearedCount, System.currentTimeMillis());
+	                
+	                Map<String, Object> result = new HashMap<>();
+	                result.put("clearedCount", clearedCount);
+	                result.put("message", "批量清理完成");
+	                
+	                return result;
+	                
+	            } catch (Exception e) {
+	                log.error("管理員清理過期付款記錄失敗", e);
+	                throw new RuntimeException("批量清理失敗：" + e.getMessage());
+	            }
+	        }
+	        
+	        
+	        // **** 後台手動標記付款成功 (CREATE/UPDATE_特殊情況處理) *****//
+	        public boolean adminMarkPaymentSuccess(Integer orderNo, String adminId, String reason) {
+	            try {
+	                log.info("管理員手動標記付款成功：orderNo={}, admin={}, reason={}", orderNo, adminId, reason);
+	                
+	                // 1. 檢查訂單
+	                OrderDTO order = orderService.getOrderDetail(orderNo);
+	                if (order == null) {
+	                    throw new IllegalArgumentException("訂單不存在：" + orderNo);
+	                }
+	                
+	                // 2. 生成交易編號
+	                String tradeNo = "ADMIN_" + generateTradeNo(orderNo);
+	                
+	                // 3. 存儲到 Redis (模擬付款成功)
+	                Map<String, Object> paymentInfo = new HashMap<>();
+	                paymentInfo.put("orderNo", orderNo);
+	                paymentInfo.put("tradeNo", tradeNo);              //綠界的資訊
+	                paymentInfo.put("amount", order.getOrderTotal());
+	                paymentInfo.put("status", "SUCCESS");
+	                paymentInfo.put("method", "ADMIN_MANUAL");
+	                paymentInfo.put("createdAt", System.currentTimeMillis());
+	                paymentInfo.put("memNo", order.getMemNo());
+	                paymentInfo.put("adminCreated", true);
+	                paymentInfo.put("adminId", adminId);
+	                paymentInfo.put("adminReason", reason);
+	                
+	                String redisKey = "payment:" + orderNo;
+	                redisTemplate.opsForHash().putAll(redisKey, paymentInfo);
+	                redisTemplate.expire(redisKey, 24, TimeUnit.HOURS);    //一天清一次
+	                
+	                // 4. 更新訂單狀態為處理中
+	                orderService.updateOrderStatus(orderNo, "PROCESSING");
+	                
+	                // 5. 觸發後續處理 (序號發放等)
+	                triggerOrderProcessing(order);
+	                
+	                // 6. 記錄管理員操作
+	                log.info("ADMIN_MANUAL_PAYMENT_SUCCESS|orderNo={}|admin={}|reason={}|timestamp={}", 
+	                        orderNo, adminId, reason, System.currentTimeMillis());
+	                
+	                return true;
+	                
+	            } catch (Exception e) {
+	                log.error("管理員手動標記付款成功失敗：orderNo={}", orderNo, e);
+	                return false;
+	            }
+	        }
+	        
+	        
+	        // **** 後台查詢付款趨勢 (READ - 圖表數據) *****//
+	        public List<Map<String, Object>> getPaymentTrends(Integer days) {
+	            try {
+	                log.debug("查詢付款趨勢：days={}", days);
+	                
+	                String sql = "SELECT " +
+	                            "DATE(order_datetime) as payment_date, " +
+	                            "COUNT(*) as total_orders, " +
+	                            "SUM(CASE WHEN order_status IN ('COMPLETED', 'SHIPPED', 'PROCESSING') THEN 1 ELSE 0 END) as success_orders, " +
+	                            "SUM(CASE WHEN order_status IN ('COMPLETED', 'SHIPPED', 'PROCESSING') THEN order_total ELSE 0 END) as success_amount, " +
+	                            "SUM(CASE WHEN order_status = 'FAILED' THEN 1 ELSE 0 END) as failed_orders " +
+	                            "FROM `order` " +
+	                            "WHERE order_datetime >= DATE_SUB(NOW(), INTERVAL ? DAY) " +
+	                            "GROUP BY DATE(order_datetime) " +
+	                            "ORDER BY payment_date DESC";
+	                
+	                List<Map<String, Object>> trends = jdbcTemplate.queryForList(sql, days != null ? days : 30);
+	                
+	                // 計算每日成功率
+	                for (Map<String, Object> trend : trends) {
+	                    Long totalOrders = ((Number) trend.get("total_orders")).longValue();
+	                    Long successOrders = ((Number) trend.get("success_orders")).longValue();
+	                    Double successRate = totalOrders > 0 ? (double) successOrders / totalOrders * 100 : 0.0;
+	                    trend.put("success_rate", Math.round(successRate * 100.0) / 100.0);
+	                }
+	                
+	                return trends;
+	                
+	            } catch (Exception e) {
+	                log.error("查詢付款趨勢失敗", e);
+	                return new ArrayList<>();
+	            }
+	        }
+	        
+	        
+	        // **** 後台更新付款方式狀態 (UPDATE - 系統配置) *****//
+	        public boolean updatePaymentMethodStatus(String method, boolean enabled, String adminId) {
+	            try {
+	                log.info("管理員更新付款方式狀態：method={}, enabled={}, admin={}", method, enabled, adminId);
+	                
+	                // 這裡可以存到 Redis 或配置表
+	                String configKey = "payment:config:" + method;
+	                Map<String, Object> config = new HashMap<>();
+	                config.put("method", method);
+	                config.put("enabled", enabled);
+	                config.put("updatedBy", adminId);
+	                config.put("updatedAt", System.currentTimeMillis());
+	                
+	                redisTemplate.opsForHash().putAll(configKey, config);
+	                
+	                // 記錄管理員操作
+	                log.info("ADMIN_UPDATE_PAYMENT_METHOD|method={}|enabled={}|admin={}|timestamp={}", 
+	                        method, enabled, adminId, System.currentTimeMillis());
+	                
+	                return true;
+	                
+	            } catch (Exception e) {
+	                log.error("更新付款方式狀態失敗：method={}", method, e);
+	                return false;
+	            }
+	        }
+	        
+	        // **** 後台批量處理異常訂單 (UPDATE - 批量操作) *****//
+	        public Map<String, Object> batchProcessAbnormalOrders(List<Integer> orderNos, String action, String adminId) {
+	            try {
+	                log.info("管理員批量處理異常訂單：orderNos={}, action={}, admin={}", orderNos, action, adminId);
+	                
+	                int successCount = 0;
+	                int failureCount = 0;
+	                List<String> errors = new ArrayList<>();
+	                
+	                for (Integer orderNo : orderNos) {
+	                    try {
+	                        boolean success = false;
+	                        
+	                        switch (action) {
+	                            case "RESET_PAYMENT":
+	                                success = resetStuckPayment(orderNo, "批量重置 - " + adminId);
+	                                break;
+	                            case "MARK_SUCCESS":
+	                                success = adminMarkPaymentSuccess(orderNo, adminId, "批量標記成功");
+	                                break;
+	                            case "CLEANUP":
+	                                String redisKey = "payment:" + orderNo;
+	                                success = Boolean.TRUE.equals(redisTemplate.delete(redisKey));
+	                                break;
+	                            default:
+	                                errors.add("訂單 " + orderNo + " - 未知操作：" + action);
+	                                continue;
+	                        }
+	                        
+	                        if (success) {
+	                            successCount++;
+	                        } else {
+	                            failureCount++;
+	                            errors.add("訂單 " + orderNo + " - 操作失敗");
+	                        }
+	                        
+	                    } catch (Exception e) {
+	                        failureCount++;
+	                        errors.add("訂單 " + orderNo + " - 處理異常：" + e.getMessage());
+	                        log.error("批量處理單個訂單失敗：orderNo={}", orderNo, e);
+	                    }
+	                }
+	                
+	                // 記錄批量操作
+	                log.info("ADMIN_BATCH_PROCESS|action={}|admin={}|success={}|failure={}|timestamp={}", 
+	                        action, adminId, successCount, failureCount, System.currentTimeMillis());
+	                
+	                Map<String, Object> result = new HashMap<>();
+	                result.put("totalCount", orderNos.size());
+	                result.put("successCount", successCount);
+	                result.put("failureCount", failureCount);
+	                result.put("errors", errors);
+	                result.put("success", failureCount == 0);
+	                
+	                return result;
+	                
+	            } catch (Exception e) {
+	                log.error("批量處理異常訂單失敗：orderNos={}", orderNos, e);
+	                throw new RuntimeException("批量處理失敗：" + e.getMessage());
+	            }
+	        }
+	        
+
+	        
+	        // ========== 輔助方法 ========== //
+	        // ****** << 為 OrderDTO 建立預設付款資訊 >> ****** //
+	        private Map<String, Object> createDefaultPaymentInfo(OrderDTO order) {
+	            Map<String, Object> paymentInfo = new HashMap<>();
+	            paymentInfo.put("status", getPaymentStatusFromOrder(order.getOrderStatus()));
+	            paymentInfo.put("amount", order.getOrderTotal());
+	            paymentInfo.put("method", "N/A");
+	            paymentInfo.put("tradeNo", "N/A");
+	            return paymentInfo;
+	        }
+	        
+	        // ****** << 為 Map 建立預設付款資訊 >> ****** //
+	        private Map<String, Object> createDefaultPaymentInfo(Map<String, Object> orderMap) {
+	            Map<String, Object> paymentInfo = new HashMap<>();
+	            paymentInfo.put("status", getPaymentStatusFromOrder((String) orderMap.get("order_status")));
+	            paymentInfo.put("amount", (Integer) orderMap.get("order_total"));
+	            paymentInfo.put("method", "N/A");
+	            paymentInfo.put("tradeNo", "N/A");
+	            return paymentInfo;
+	        }
+	        
+	        
+	        // *** 根據訂單狀態推斷付款狀態 *** //
+	        private String getPaymentStatusFromOrder(String orderStatus) {
+	            switch (orderStatus) {
+	                case "PENDING":
+	                    return "UNPAID";
+	                case "PAYING":
+	                    return "PAYING";
+	                case "PROCESSING":
+	                case "SHIPPED":
+	                case "COMPLETED":
+	                    return "SUCCESS";
+	                case "FAILED":
+	                    return "FAILED";
+	                case "CANCELLED":
+	                    return "CANCELLED";
+	                default:
+	                    return "UNKNOWN";
+	            }
+	        }
+	        
+	        // *** 取得可用的付款操作 *** //
+	        private List<String> getAvailablePaymentActions(OrderDTO order) {
+	            List<String> actions = new ArrayList<>();
+	            
+	            if (order.canRetryPayment()) {
+	                actions.add("RETRY_PAYMENT");
+	            }
+	            
+	            if (order.canBeCancelled() || "PAYING".equals(order.getOrderStatus())) {
+	                actions.add("CANCEL_PAYMENT");
+	            }
+	            
+	            if ("PENDING".equals(order.getOrderStatus()) || "FAILED".equals(order.getOrderStatus())) {
+	                actions.add("VIEW_PAYMENT_OPTIONS");
+	            }
+	            
+	            return actions;
+	        }
+	        
+	        
+	        // *** 建立進度步驟 *** //
+	        private List<Map<String, Object>> createProgressSteps(OrderDTO order) {
+	            List<Map<String, Object>> steps = new ArrayList<>();
+	            
+	            // 步驟 1: 訂單建立
+	            Map<String, Object> step1 = new HashMap<>();
+	            step1.put("name", "訂單建立");
+	            step1.put("status", "completed");
+	            step1.put("time", order.getOrderDatetime());
+	            steps.add(step1);
+	            
+	            // 步驟 2: 付款處理
+	            Map<String, Object> step2 = new HashMap<>();
+	            step2.put("name", "付款處理");
+	            if ("PENDING".equals(order.getOrderStatus())) {
+	                step2.put("status", "waiting");
+	            } else if ("PAYING".equals(order.getOrderStatus())) {
+	                step2.put("status", "processing");
+	            } else if ("FAILED".equals(order.getOrderStatus()) || "CANCELLED".equals(order.getOrderStatus())) {
+	                step2.put("status", "failed");
+	            } else {
+	                step2.put("status", "completed");
+	            }
+	            steps.add(step2);
+	            
+	            // 步驟 3: 訂單處理
+	            Map<String, Object> step3 = new HashMap<>();
+	            step3.put("name", "訂單處理");
+	            if ("PROCESSING".equals(order.getOrderStatus())) {
+	                step3.put("status", "processing");
+	            } else if ("SHIPPED".equals(order.getOrderStatus()) || "COMPLETED".equals(order.getOrderStatus())) {
+	                step3.put("status", "completed");
+	            } else {
+	                step3.put("status", "waiting");
+	            }
+	            steps.add(step3);
+	            
+	            // 步驟 4: 完成
+	            Map<String, Object> step4 = new HashMap<>();
+	            step4.put("name", "交易完成");
+	            step4.put("status", "COMPLETED".equals(order.getOrderStatus()) ? "completed" : "waiting");
+	            steps.add(step4);
+	            
+	            return steps;
+	        }
+	        
+	        
+	        // *** 取得訂單序號資訊 *** //
+	        private Map<String, Object> getOrderSerialInfo(Integer orderNo) {
+	            try {
+	                String sql = "SELECT oi.pro_name, psn.product_sn " +
+	                            "FROM order_item oi " +
+	                            "LEFT JOIN pro_serial_numbers psn ON oi.order_item_no = psn.order_item_no " +
+	                            "WHERE oi.order_no = ?";
+	                
+	                List<Map<String, Object>> serialInfo = jdbcTemplate.queryForList(sql, orderNo);
+	                
+	                Map<String, Object> result = new HashMap<>();
+	                result.put("serialNumbers", serialInfo);
+	                result.put("hasSerials", !serialInfo.isEmpty());
+	                
+	                return result;
+	                
+	            } catch (Exception e) {
+	                log.error("查詢訂單序號資訊失敗：orderNo={}", orderNo, e);
+	                return new HashMap<>();
 	            }
 	        }
 	    
