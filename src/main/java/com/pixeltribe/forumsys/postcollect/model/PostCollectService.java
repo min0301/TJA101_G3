@@ -1,17 +1,14 @@
 package com.pixeltribe.forumsys.postcollect.model;
 
 import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
-import com.pixeltribe.forumsys.forumcollect.model.ForumCollectDTO;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import com.pixeltribe.forumsys.forumpost.model.ForumPostRepository;
 import com.pixeltribe.forumsys.shared.PostCollectStatus;
 import com.pixeltribe.membersys.member.model.MemRepository;
 import com.pixeltribe.membersys.member.model.Member;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

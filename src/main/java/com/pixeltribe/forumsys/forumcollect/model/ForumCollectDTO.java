@@ -27,6 +27,7 @@ public class ForumCollectDTO {
 
 
 
+
     public static ForumCollectDTO convertToForumCollectDTO(ForumCollect forumCollect) {
         return ForumCollectDTO.builder()
                 .id(forumCollect.getId())
