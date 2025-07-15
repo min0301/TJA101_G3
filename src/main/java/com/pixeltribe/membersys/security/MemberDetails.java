@@ -21,6 +21,10 @@ public class MemberDetails implements UserDetails {
         return this.member.getId();
     }
 
+    public String getRole() {
+        return "ROLE_USER";
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // 從 Member 物件中取得角色字串，並包裝成 GrantedAuthority 物件
