@@ -11,10 +11,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -28,11 +30,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
+    private final UserDetailsService adminUserDetailsService;
 
-
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(
+            JwtUtil jwtUtil,
+            @Qualifier("memberUserDetailsService") UserDetailsService userDetailsService,
+            @Qualifier("adminUserDetailsService") UserDetailsService adminUserDetailsService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.adminUserDetailsService = adminUserDetailsService;
     }
 
 
@@ -57,44 +63,57 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 【【【新增的 try-catch 區塊，捕獲所有 JWT 相關的異常】】】
         try {
             username = jwtUtil.extractUsername(token); // 從 token 解析帳號
-
+            String role = jwtUtil.extractRole(token);
             // 【診斷日誌 2】檢查從 Token 中解析出的使用者名稱
-            log.debug("從token中提取的使用者名稱: {}", username);
-
+            log.debug("從 token 中取出 username={} role={}", username, role);
 
             // 2. 判斷 token 合法
+//            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+//
+//                //載入完整的 UserDetails
+//                // 說明：這是最核心的修正。我們不再只滿足於從 Token 拿到 username 字串，
+//                // 而是利用 UserDetailsService 去資料庫把包含所有資訊的 MemberDetails 物件撈出來。
+//                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+//
+//                // 【【【核心修改點：加入日誌來追蹤 validateToken 的結果】】】
+//                boolean isTokenValid = jwtUtil.validateToken(token); // 先將結果存到變數中
+//                // 【診斷日誌 3】印出 Token 驗證結果
+//                log.debug("token 對使用者是否有效 '{}'? {}", username, String.valueOf(isTokenValid));
+//
+//                if (isTokenValid) {
+//                    // 【診斷日誌 4】如果驗證成功，印出訊息
+//                    log.info("Token 有效。正在 SecurityContext 中設定身份驗證。");
+//
+//                    // 可選：可進一步查詢會員資料
+//                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+//                            userDetails,
+//                            null,
+//                            userDetails.getAuthorities()
+//                    );
+//                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+//                    SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//                } else {
+//                    // 【診斷日誌 5】如果驗證失敗，印出訊息
+//                    log.debug("Token 驗證失敗。不會設定身份驗證。");
+//                }
+//
+//            }
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = switch (role) {
+                    case "ROLE_ADMIN" -> adminUserDetailsService.loadUserByUsername(username);
+                    case "ROLE_USER" -> userDetailsService.loadUserByUsername(username);
+                    default -> throw new UsernameNotFoundException("未知的角色: " + role);
+                };
 
-                //載入完整的 UserDetails
-                // 說明：這是最核心的修正。我們不再只滿足於從 Token 拿到 username 字串，
-                // 而是利用 UserDetailsService 去資料庫把包含所有資訊的 MemberDetails 物件撈出來。
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-
-                // 【【【核心修改點：加入日誌來追蹤 validateToken 的結果】】】
-                boolean isTokenValid = jwtUtil.validateToken(token); // 先將結果存到變數中
-                // 【診斷日誌 3】印出 Token 驗證結果
-                log.debug("token 對使用者是否有效 '{}'? {}", username, String.valueOf(isTokenValid));
-
-
-                if (isTokenValid) {
-
-                    // 【診斷日誌 4】如果驗證成功，印出訊息
-                    log.info("Token 有效。正在 SecurityContext 中設定身份驗證。");
-
-                    // 可選：可進一步查詢會員資料
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                } else {
-                    // 【診斷日誌 5】如果驗證失敗，印出訊息
-                    log.debug("Token 驗證失敗。不會設定身份驗證。");
+                if (jwtUtil.validateToken(token)) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }else {
+                    log.debug("Token 驗證失敗，不進行身份設定");
                 }
-
             }
         } catch (ExpiredJwtException e) {
             log.warn("JWT Token 已過期", e);

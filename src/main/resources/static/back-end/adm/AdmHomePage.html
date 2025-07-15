@@ -10,6 +10,8 @@
           rel="stylesheet">
 
     <link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="/assets/vendors/bootstrap/bootstrap.min.css">
+<!--    <link rel="stylesheet" href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">-->
 
     <style>
 
@@ -495,14 +497,17 @@
                     <a href="#" class="submenu-item" onclick="renderContent('news', 'dashboard', event)">
                         <i class="bi bi-pie-chart-fill item-icon"></i>儀表板
                     </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('news', 'edit', event)">
-                        <i class="bi bi-pencil-fill item-icon"></i>新聞編輯
+                    <a href="#" class="submenu-item" onclick="renderContent('news', 'categories', event)">
+                        <i class="bi bi-pencil-fill item-icon"></i>新聞類別管理
+                    </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('news', 'management', event)">
+                        <i class="bi bi-pencil-fill item-icon"></i>新聞管理
                     </a>
                     <a href="#" class="submenu-item" onclick="renderContent('news', 'comments', event)">
                         <i class="bi bi-chat-dots-fill item-icon"></i>新聞評論管理
                     </a>
                     <a href="#" class="submenu-item" onclick="renderContent('news', 'reports', event)">
-                        <i class="bi bi-shield-check item-icon"></i>審核檢舉
+                        <i class="bi bi-shield-check item-icon"></i>新聞評論審核檢舉
                     </a>
                 </div>
             </li>
@@ -557,6 +562,7 @@
     <main class="content-card" id="content-area">
     </main>
 </div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
     // 【常數】將內容區域的 DOM 物件提出來，避免重複選取
     const contentArea = document.getElementById('content-area');
@@ -578,6 +584,7 @@
         'forum-edit-category': '../forumsys/category/editCategory.html',
         'forum-comments': '../forumsys/message/allMessages.html',
         'forum-reports': '../forumsys/messagereport/allReports.html',
+        'news-management':'../newssys/listAllNews.html'
         // 在此處繼續添加其他頁面...
         // 'member-query': '../membersys/query/allMember.html',
     };

@@ -21,7 +21,7 @@ public interface NewsImageRepository extends JpaRepository<NewsImage, Integer> {
                 select min(sub.id)
                 from NewsImage sub
                 group by sub.newsNo.id
-            )
+            )and n.isShowed = true
             order by n.newsCrdate desc
             """)
     List<NewsImageIndexDTO> getTopFiveImage();
