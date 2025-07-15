@@ -775,8 +775,12 @@
             
             // 同時載入訂單資訊和訂單項目
             Promise.all([
-                fetch(`/api/orders/${orderNo}`),  // 載入訂單基本資訊
-                fetch(`/api/orderitems/orderno/${orderNo}`)  // 載入訂單項目
+                fetch(`/api/orders/${orderNo}`, {    // 載入訂單基本資訊
+                	credentials: 'include'
+                }), 
+                fetch(`/api/admin/orderitem/order/${orderNo}`,{  // 載入訂單項目
+                	credentials: 'include' 
+                }) 
             ])
             .then(responses => {
                 // 檢查所有回應是否成功

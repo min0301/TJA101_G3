@@ -83,9 +83,12 @@ class SecurityConfig {
                                         "/api/forums",              // 討論區列表API
                                         "/api/forums/*",            // 單一討論區API
                                         "/api/forums/hot",          // 熱門討論區API
-                                        "/api/posts/collect/me"     // 取得會員收藏文章列表API
+                                        "/api/posts/collect/me",     // 取得會員收藏文章列表API
                                         //========新聞========
                                         //========商城========
+                                        "/api/orders/**",                 // ← 新增：訂單相關 API
+                                        "/api/orderitem/**",                 // ← 新增：前台訂單明細 API
+                                        "/api/admin/orderitem/**"           // ← 新增：後台訂單明細 API
                                         //========會員========
 
                                 ).permitAll()
@@ -93,9 +96,11 @@ class SecurityConfig {
                                 // 2. 設定需要登入才能訪問的端點
                                 .requestMatchers(HttpMethod.PUT, "/api/forums/*/collect").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/forums/collect/me").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/api/admin/orderitem/**").authenticated()
 
                                 // 3. 設定需要特定權限(角色)的端點，例如管理員
 //                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/api/admin/orderitem/**").hasRole("joanna.yu0820@gmail.com")
 
                                 // 4. 兜底規則：除了上面允許的，其他所有請求都需要登入
                                 .anyRequest().authenticated()
