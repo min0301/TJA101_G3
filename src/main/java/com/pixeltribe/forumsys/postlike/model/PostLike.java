@@ -1,8 +1,8 @@
-package com.pixeltribe.forumsys.entity;
+package com.pixeltribe.forumsys.postlike.model;
 
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
+import com.pixeltribe.forumsys.shared.LikeStatus;
 import com.pixeltribe.membersys.member.model.Member;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,10 +30,11 @@ public class PostLike {
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "PLIKE_UPDATE")
-    private Instant flikeUpdate;
+    private Instant plikeUpdate;
 
     @Column(name = "PLIKE_STATUS")
-    private Character plikeStatus;
+    @Enumerated(EnumType.STRING)
+    private LikeStatus plikeStatus;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "PLIKE_CRDATE")
