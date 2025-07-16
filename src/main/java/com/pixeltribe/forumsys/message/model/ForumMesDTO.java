@@ -31,6 +31,8 @@ public class ForumMesDTO {
     private Integer memberId;
     @Schema(description = "會員名稱")
     private String memberName;
+    @Schema(description = "會員暱稱")
+    private String memberNickName;
 
     public static ForumMesDTO convertToForumMesDTO(ForumMes forumMes) {
         return ForumMesDTO.builder()
@@ -44,6 +46,7 @@ public class ForumMesDTO {
                 .postId(forumMes.getPostNo().getId() == null ? null : forumMes.getPostNo().getId())
                 .memberId(forumMes.getMemNo().getId() == null ? null : forumMes.getMemNo().getId())
                 .memberName(forumMes.getMemNo().getMemName() == null ? null : forumMes.getMemNo().getMemName())
+                .memberNickName(forumMes.getMemNo().getMemNickName() == null ? null : forumMes.getMemNo().getMemNickName())
                 .build();
 
 

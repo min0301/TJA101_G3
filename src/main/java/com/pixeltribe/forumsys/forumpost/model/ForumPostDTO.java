@@ -22,6 +22,7 @@ public class ForumPostDTO {
     private String forumName;
     private Integer memberId;
     private String memberName;
+    private String memberNickName;
     private Integer forumTagId;
     private String forumTagName;
 
@@ -49,6 +50,7 @@ public class ForumPostDTO {
         if (forumPost.getMemNo() != null) {
             this.memberId = forumPost.getMemNo().getId();
             this.memberName = forumPost.getMemNo().getMemName();
+            this.memberNickName = forumPost.getMemNo().getMemNickName();
         }
         if (forumPost.getFtagNo() != null) {
             this.forumTagId = forumPost.getFtagNo().getId();
