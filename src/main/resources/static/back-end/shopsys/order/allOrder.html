@@ -458,6 +458,42 @@
             margin-right: 2px;
         }
         
+        /* ===== 修復 Modal 背景遮罩問題 ===== */
+		.order-management-container .modal-backdrop {
+		    display: none !important;
+		}
+		
+		/* 確保 Modal 層級高於背景遮罩 */
+		.order-management-container .modal {
+		    z-index: 9999 !important;
+		}
+		
+		.order-management-container .modal-content {
+		    z-index: 10000 !important;
+		    pointer-events: auto !important;
+		}
+		
+		.order-management-container .modal-body {
+		    pointer-events: auto !important;
+		    background: white !important;
+		    color: #333 !important;
+		}
+		
+		/* 確保 Modal 內容文字清楚 */
+		.order-management-container .detail-item span {
+		    color: #333 !important;
+		}
+		
+		.order-management-container .modal-body .table th {
+		    background-color: #f8f9fa !important;
+		    color: #333 !important;
+		}
+		
+		.order-management-container .modal-body .table td {
+		    background: white !important;
+		    color: #333 !important;
+		}
+        
     </style>
     
 </head>
@@ -579,8 +615,23 @@
          * @modification 使用 async/await 提高可讀性
          */
         async function loadOrders() {
+        	const token = localStorage.getItem('authToken');
+            if (!token) {
+                console.error('JWT Token 不存在，請重新登入');
+                window.location.href = '/login.html';
+                return;
+            }
+        	
             try {
-                const response = await fetch(apiUrl);
+            	const response = await fetch(apiUrl, {
+            	    credentials: 'include',
+            	    headers: {
+            	        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            	        'Content-Type': 'application/json'
+            	    }
+            	});
+            	
+            	
                 if (!response.ok) {
                     throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
                 }
@@ -757,6 +808,15 @@
         
      // 顯示訂單明細
         function showOrderDetail(orderNo) {
+        	// Token檢查
+    	 	const token = localStorage.getItem('authToken');
+    		if (!token) {
+        		console.error('JWT Token 不存在，請重新登入');
+        		window.location.href = '/login.html';
+        		return;
+    		}
+    	 
+    	 
             // 顯示 Modal
             const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
             modal.show();
@@ -775,13 +835,21 @@
             
             // 同時載入訂單資訊和訂單項目
             Promise.all([
-                fetch(`/api/orders/${orderNo}`, {    // 載入訂單基本資訊
-                	credentials: 'include'
-                }), 
-                fetch(`/api/admin/orderitem/order/${orderNo}`,{  // 載入訂單項目
-                	credentials: 'include' 
-                }) 
-            ])
+    			fetch(`/api/orders/${orderNo}`, {    // 載入訂單基本資訊
+        			credentials: 'include',
+        			headers: {
+            			'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            			'Content-Type': 'application/json'
+        			}
+    			}), 
+    			fetch(`/api/admin/orderitem/order/${orderNo}`,{  // 載入訂單項目
+        			credentials: 'include',
+        			headers: {
+            			'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            			'Content-Type': 'application/json'
+        			}
+    			}) 
+			])
             .then(responses => {
                 // 檢查所有回應是否成功
                 responses.forEach(response => {

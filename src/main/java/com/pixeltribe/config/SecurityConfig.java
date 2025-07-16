@@ -101,11 +101,11 @@ class SecurityConfig {
                                 // 2. 設定需要登入才能訪問的端點
                                 .requestMatchers(HttpMethod.PUT, "/api/forums/*/collect").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/forums/collect/me").authenticated()
-                                .requestMatchers(HttpMethod.GET, "/api/admin/orderitem/**").authenticated()
+//                                .requestMatchers(HttpMethod.GET, "/api/admin/orderitem/**").authenticated()
 
                                 // 3. 設定需要特定權限(角色)的端點，例如管理員
 //                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                .requestMatchers("/api/admin/orderitem/**").hasRole("joanna.yu0820@gmail.com")
+//                                .requestMatchers("/api/admin/orderitem/**").hasRole("ADMIN")
 
                                 // 4. 兜底規則：除了上面允許的，其他所有請求都需要登入
                                 .anyRequest().authenticated()

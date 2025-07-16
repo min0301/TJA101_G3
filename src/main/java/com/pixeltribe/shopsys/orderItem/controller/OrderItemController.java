@@ -18,7 +18,9 @@ import com.pixeltribe.shopsys.orderItem.model.CommentRequest;
 import com.pixeltribe.shopsys.orderItem.model.OrderItemDTO;
 import com.pixeltribe.shopsys.orderItem.model.OrderItemService;
 import com.pixeltribe.shopsys.orderItem.model.OrderItemService.ProductCommentStatistics;
+import com.pixeltribe.util.JwtUtil;
 
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
@@ -31,6 +33,9 @@ public class OrderItemController {
 	
 	@Autowired
     private OrderItemService orderItemService;
+	
+	@Autowired
+	private JwtUtil jwtUtil;
 	
 	
 	// ========== 訂單明細查詢 ========== //
@@ -137,15 +142,61 @@ public class OrderItemController {
     //** 從 HTTP 請求中取得當前登入會員的編號 **//
     
     private Integer getCurrentMemberNo(HttpServletRequest request) {
-    	// 用session 
-    	Integer memNo = (Integer) request.getSession().getAttribute("currentId");
-        
-        if (memNo == null) {
-            throw new RuntimeException("會員未登入");
+    	// 從 JWT Token 中獲取 
+    	// 方法 1：從 JWT Token 中獲取
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            try {
+                // 檢查 Token 是否有效
+                if (!jwtUtil.validateToken(token)) {
+                    throw new RuntimeException("Token 已過期或無效");
+                }
+                
+                // 取得角色
+                String role = jwtUtil.extractRole(token);
+                
+                if ("ROLE_USER".equals(role)) {
+                    // 一般會員 - 提取會員 ID
+                    Integer memId = extractMemberIdFromToken(token);
+                    if (memId != null) {
+                        return memId;
+                    }
+                } else if ("ROLE_ADMIN".equals(role)) {
+                    // 管理員可以訪問，但返回 null（讓 Service 處理）
+                    return null;
+                }
+                
+            } catch (Exception e) {
+                if (e instanceof RuntimeException) {
+                    throw e;
+                }
+                throw new RuntimeException("Token 解析失敗: " + e.getMessage());
+            }
         }
         
-        return memNo;
-    
+        // 方法 2：備案 - 從 Session 獲取
+        Integer sessionMemNo = (Integer) request.getSession().getAttribute("currentId");
+        if (sessionMemNo != null) {
+            return sessionMemNo;
+        }
+        
+        throw new RuntimeException("會員未登入或認證信息無效");
     }
+    
+    
+    // 添加這個輔助方法
+    private Integer extractMemberIdFromToken(String token) {
+        try {
+            return Jwts.parser()
+                    .setSigningKey("PPPPPIIIIIXXXXXEEEEELLLLL_TTTTTRRRRRIIIIIBBBBBEEEEE".getBytes())
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("memId", Integer.class);
+        } catch (Exception e) {
+            throw new RuntimeException("無法從 Token 中獲取會員 ID");
+        }
+    }
+    
      
 }
