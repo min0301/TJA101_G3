@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>像素部落 - 商城</title>
+<meta name="description" content="像素部落, Pixel Tribe, 虛擬遊戲商城">
+<meta name="keywords" content="遊戲商城, 電競, 遊戲玩家, 優惠活動, 商品購買">
+<meta name="robots" content="all,follow">
+
+<script>
+	//Check local storage
+	let localS = localStorage.getItem('theme')
+	themeToSet = localS
+
+	// If local storage is not set, we check the OS preference
+	if (!localS) {
+		themeToSet = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+	}
+
+	//Set the correct theme
+	document.documentElement.setAttribute('data-theme', themeToSet)
+</script>
+
+<link rel="stylesheet" href="../../assets/vendors/bootstrap/bootstrap.min.css">
+<link rel="stylesheet" href="../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+<link rel="stylesheet" href="../../assets/vendors/simplebar/simplebar.min.css">
+<link rel="stylesheet" href="../../assets/vendors/aos/aos.css">
+<link rel="stylesheet" href="../../assets/css/style.css">
+<link rel="stylesheet" href="../../assets/css/responsive.css">
+<link rel="stylesheet" href="../../assets/css/custom-style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+	<div class="switcher switcher-show" id="theme-switcher">
+		<i id="switcher-icon" class="bi bi-moon"></i>
+	</div>
+
+	<a href="#" id="back-to-top"></a>
+
+	<div class="vine-wrapper">
+
+		<div id="header-placeholder"></div>
+
+		<section class="vine-hero-2 bg-img-1">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="hero-content" data-aos="fade-down" data-aos-easing="linear">
+							<h1>像素部落(Pixel Tribe)</h1>
+							<p>遊戲愛好者的聚集地</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="vine-main">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-3 pe-lg-3 border-end">
+						<div class="position-sticky" style="top: 100px;">
+
+							<div id="mall-list-container">
+								<!-- 功能按鈕列表 -->
+								<div class="jumbotron p-4 mb-3">
+									<div class="d-grid gap-2">
+										<button class="btn btn-outline-primary mall-function-btn" data-function="order" data-type="page">
+											<i class="bi bi-receipt me-2"></i>訂單查詢
+										</button>
+										<button class="btn btn-outline-primary mall-function-btn" data-function="coupon" data-type="page">
+											<i class="bi bi-ticket-perforated me-2"></i>優惠券
+										</button>
+										<button class="btn btn-outline-primary mall-function-btn" data-function="product" data-type="page">
+											<i class="bi bi-grid me-2"></i>所有產品
+										</button>
+										<button class="btn btn-outline-primary mall-function-btn" data-function="favorite" data-type="page">
+											<i class="bi bi-heart me-2"></i>我的最愛
+										</button>
+										<button class="btn btn-outline-success mall-function-btn" data-function="cart" data-type="page">
+											<i class="bi bi-cart3 me-2"></i>購物車
+										</button>
+									</div>
+								</div>
+								
+								<!-- 商品瀏覽按鈕 (動態載入到右側) -->
+								<div class="jumbotron p-4 mb-3">
+									<h6 class="mb-3 text-muted">快速搜尋</h6>
+									<div class="d-grid gap-2">
+										<input type="text" class="form-control" id="quick-search" placeholder="搜尋商品..." onkeyup="window.productListManager.quickSearch(this.value)">
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+
+					<div class="col-lg-9 ps-lg-5">
+						<div id="dynamic-content-container">
+							<!-- 商品列表會自動載入到這裡 -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<div id="footer-placeholder"></div>
+
+	</div>
+
+	<!-- 訂單查詢 Modal -->
+	<div class="modal fade order-modal" id="orderModal" tabindex="-1">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">我的訂單</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<div id="order-list">
+						<!-- 訂單列表會在這裡顯示 -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script src="/js/dynamicHeaderInfo.js" ></script>
+	<script src="../../assets/vendors/jquery/jquery.min.js"></script>
+	<script src="../../assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+	<script src="../../assets/vendors/popper/popper.min.js"></script>
+	<script src="../../assets/vendors/simplebar/simplebar.min.js"></script>
+	<script src="../../assets/vendors/aos/aos.js"></script>
+	<script src="../../assets/js/main.js"></script>
+	<script src="../../assets/js/global-loader.js"></script>
+	<script src="productList.js"></script>
+	<script>
+		/**
+		 * 商城功能按鈕點擊事件
+		 */
+		document.addEventListener('DOMContentLoaded', function () {
+			const functionButtons = document.querySelectorAll('.mall-function-btn');
+			const dynamicContainer = document.getElementById('dynamic-content-container');
+			
+			// 頁面跳轉對應表 - 修正為正確的絕對路徑
+			const pageMap = {
+				order: '/order.html',
+				coupon: '/coupon.html', 
+				product: './product.html',     // 跳轉到完整的商品頁面
+				favorite: '/favorite.html',
+				cart: '/cart.html'
+			};
+
+			functionButtons.forEach(btn => {
+				btn.addEventListener('click', () => {
+					const functionName = btn.dataset.function;
+					const actionType = btn.dataset.type;
+					
+					// 移除其他按鈕的 active 狀態
+					functionButtons.forEach(b => b.classList.remove('active'));
+					// 設定當前按鈕為 active
+					btn.classList.add('active');
+					
+					if (actionType === 'page') {
+						// 跳轉到獨立頁面
+						if (pageMap[functionName]) {
+							console.log('跳轉到:', pageMap[functionName]);
+							window.location.href = pageMap[functionName];
+						} else {
+							console.warn(`無對應頁面：${functionName}`);
+						}
+					}
+				});
+			});
+			
+			// 自動載入商品列表
+			if (dynamicContainer && typeof showProductList === 'function') {
+				console.log('自動載入商品列表...');
+				showProductList(dynamicContainer);
+			} else {
+				console.error('無法載入商品列表功能');
+			}
+		});
+	</script>
+</body>
+</html>

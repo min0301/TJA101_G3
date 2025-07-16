@@ -105,7 +105,7 @@ class ProductDetailManager {
         if (!id || isNaN(id) || parseInt(id) <= 0) {
             // 沒有有效的商品ID，直接跳轉
             console.log('沒有有效的商品ID，跳轉到商品列表頁');
-            window.location.replace('productindex.html');
+            window.location.replace('product.html');
             return;
         }
         
@@ -276,9 +276,9 @@ class ProductDetailManager {
                 
                 // 在商品詳情頁面點擊分類時，跳轉回商品列表頁面
                 if (tagId === 'all') {
-                    window.location.href = 'productindex.html';
+                    window.location.href = 'product.html';
                 } else {
-                    window.location.href = `productindex.html?category=${tagId}`;
+                    window.location.href = `product.html?category=${tagId}`;
                 }
             };
         }
@@ -530,7 +530,7 @@ class ProductDetailManager {
      * 返回商品列表頁面
      */
     goBackToList() {
-        window.location.href = 'productindex.html';
+        window.location.href = 'product.html';
     }
 
     /**
