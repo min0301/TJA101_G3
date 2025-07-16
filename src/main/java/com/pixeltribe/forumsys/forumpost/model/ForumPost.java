@@ -2,13 +2,12 @@ package com.pixeltribe.forumsys.forumpost.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.pixeltribe.forumsys.entity.PostLike;
-import com.pixeltribe.forumsys.postcollect.model.PostCollect;
-import com.pixeltribe.forumsys.postlike.model.PostLike;
 import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.forumsys.forumimage.model.ForumImage;
 import com.pixeltribe.forumsys.forumtag.model.ForumTag;
 import com.pixeltribe.forumsys.message.model.ForumMes;
+import com.pixeltribe.forumsys.postcollect.model.PostCollect;
+import com.pixeltribe.forumsys.postlike.model.PostLike;
 import com.pixeltribe.membersys.member.model.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

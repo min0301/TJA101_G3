@@ -2,6 +2,7 @@ package com.pixeltribe.forumsys.articlecomreport.model;
 
 import com.pixeltribe.forumsys.exception.ConflictException;
 import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
+import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import com.pixeltribe.forumsys.message.model.ForumMes;
 import com.pixeltribe.forumsys.message.model.ForumMesRepository;
 import com.pixeltribe.forumsys.reporttype.model.ReportTypeRepository;
@@ -63,6 +64,8 @@ public class ArticleComReportService {
             ForumMes messageToUpdate = articleComReport.getMesNo();
             if (messageToUpdate != null) {
                 messageToUpdate.setMesStatus('1');
+                ForumPost forumPost = messageToUpdate.getPostNo();
+                forumPost.setMesNumbers(forumPost.getMesNumbers() - 1);
             }
         }
 
