@@ -5,8 +5,8 @@ import com.pixeltribe.forumsys.message.model.ForumMesRepository;
 import com.pixeltribe.forumsys.shared.LikeStatus;
 import com.pixeltribe.membersys.member.model.MemRepository;
 import com.pixeltribe.membersys.member.model.Member;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
