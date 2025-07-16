@@ -38,16 +38,17 @@ public class ForumService {
     private final ForumRepository forumRepository;
     private final ForumCategoryRepository forumCategoryRepository;
     private final ForumCollectRepository forumCollectRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public ForumService(ForumRepository forumRepository, ForumCategoryRepository forumCategoryRepository, ForumCollectRepository forumCollectRepository) {
+    public ForumService(ForumRepository forumRepository, ForumCategoryRepository forumCategoryRepository, ForumCollectRepository forumCollectRepository, RedisTemplate<String, Object> redisTemplate) {
 
         this.forumRepository = forumRepository;
         this.forumCategoryRepository = forumCategoryRepository;
         this.forumCollectRepository = forumCollectRepository;
+        this.redisTemplate = redisTemplate;
     }
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+
 
     private static final String HOT_FORUMS_KEY = "forums:hot";
 
@@ -266,7 +267,6 @@ public class ForumService {
         // 我們設定 2 小時過期，比定時任務的 1 小時長，確保資料不會在更新前就失效。
         redisTemplate.opsForValue().set(HOT_FORUMS_KEY, hotForumDTOs, 2, TimeUnit.HOURS);
 
-//        System.out.println("====== 熱門看板快取更新完成 ======");
     }
 
 
