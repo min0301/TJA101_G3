@@ -214,21 +214,21 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     List<OrderItem> findCommentsByDateRange(@Param("startDate") java.time.Instant startDate, 
                                            @Param("endDate") java.time.Instant endDate);
     
-    // *** 查詢高分評價（4星以上 *** //
+    // *** 查詢高分評價（4星以上，分頁）*** //
     @Query(value = "SELECT * FROM order_item " +
                    "WHERE pro_star >= 4 " +
                    "AND pro_com_status = '1' " +
                    "ORDER BY product_comment_crdate DESC", 
            nativeQuery = true)
-    List<OrderItem> findHighRatingComments();
-    
-    // *** 查詢低分評價（2星以下）*** //
+    Page<OrderItem> findHighRatingCommentsWithPage(Pageable pageable);
+
+    // *** 查詢低分評價（2星以下，分頁）*** //
     @Query(value = "SELECT * FROM order_item " +
                    "WHERE pro_star <= 2 " +
                    "AND pro_com_status = '1' " +
                    "ORDER BY product_comment_crdate DESC", 
            nativeQuery = true)
-    List<OrderItem> findLowRatingComments();
+    Page<OrderItem> findLowRatingCommentsWithPage(Pageable pageable);
     
     // *** 搜尋評價內容（關鍵字搜尋）*** //
     @Query(value = "SELECT * FROM order_item " +
