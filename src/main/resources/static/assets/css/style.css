@@ -269,12 +269,12 @@ img, svg {
     text-align: center;
 }
 
-.switcher.switcher-show {
-    visibility: visible;
-    opacity: 1;
-    -webkit-transform: translateY(0%);
-    transform: translateY(0%);
-}
+/*.switcher.switcher-show {*/
+/*    visibility: visible;*/
+/*    opacity: 1;*/
+/*    -webkit-transform: translateY(0%);*/
+/*    transform: translateY(0%);*/
+/*}*/
 
 .switcher i {
     font-weight: 900;
