@@ -47,6 +47,8 @@ public class ForumPost {
 
     @Size(max = 50)
     @Column(name = "POST_TITLE", length = 50)
+    // 註解中的正規表達式，由於 DTO 中會進行驗證，Entity 層可選擇性保留或移除
+//    @Pattern(regexp = "^[一-龥-a-zA-Z0-9_]{2,10}$", message = "文章標題: 只能是中、英文字母、數字和_ , 且長度必需在2到10之間")
     private String postTitle;
 
     @Size(max = 5000)
