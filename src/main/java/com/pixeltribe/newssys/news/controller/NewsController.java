@@ -21,7 +21,9 @@ public class NewsController {
 
     @GetMapping("all")
     @Operation(summary = "顯示所有前台新聞")
-    public PageResponse<NewsDTO> findAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+    public PageResponse<NewsDTO> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
         return newsSrv.findAll(page, size);
     }
 
@@ -33,8 +35,12 @@ public class NewsController {
 
     @GetMapping("admin/allNews")
     @Operation(summary = "顯示所有新聞")
-    public PageResponse<NewsAdminDTO> findAllAdminNews(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
-        return newsSrv.findAllAdminNews(page, size);
+    public PageResponse<NewsAdminDTO> findNewsAdminPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(required = false) String keyword) {
+
+        return newsSrv.findAllAdminNews(keyword, page, size);
     }
 
     @PostMapping("admin/create")
@@ -49,6 +55,5 @@ public class NewsController {
         nauDTO.setId(id);
         return newsSrv.updateNews(nauDTO);
     }
-
 
 }
