@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>編輯新聞</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .news-management-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-title-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .page-title-header h2 {
+            font-family: 'Karla', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .page-title-header .item-icon {
+            margin-right: 10px;
+        }
+
+        .form-wrapper {
+            background: var(--component-bg);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #34495e;
+            font-size: 16px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+            background: var(--primary-bg);
+            color: var(--text-color);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--brand-green);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--brand-green-light);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-actions {
+            text-align: right;
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .action-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .action-btn.btn-submit {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+            color: white;
+        }
+
+        .action-btn.btn-submit:hover {
+            background-color: var(--brand-green-hover);
+        }
+
+        .action-btn.btn-submit:disabled {
+            background-color: #95a5a6;
+            border-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        #message-area {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 6px;
+            display: none;
+            font-weight: bold;
+            border: 1px solid transparent;
+        }
+
+        #message-area.success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        #message-area.error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+<div class="news-management-container">
+    <div class="page-title-header">
+        <h2><i class="bi bi-newspaper item-icon"></i> 編輯新聞</h2>
+    </div>
+
+    <div class="form-wrapper">
+        <form id="edit-news-form">
+            <input type="hidden" id="newsId" name="newsId">
+
+            <div class="form-group">
+                <label for="newsTit">標題</label>
+                <input type="text" id="newsTit" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="newsTags">分類 (可複選)</label>
+                <select id="newsTags" class="form-control" multiple required></select>
+            </div>
+
+            <div class="form-group">
+                <label for="newsCon">內容</label>
+                <textarea id="newsCon" class="form-control"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label><input type="checkbox" id="isShowed"> 是否顯示</label>
+            </div>
+
+            <div class="form-actions">
+                <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/listAllNews.html')"
+                   class="action-btn btn-cancel">返回列表</a>
+                <button type="submit" class="action-btn btn-submit">儲存修改</button>
+            </div>
+        </form>
+        <div id="message-area"></div>
+    </div>
+</div>
+
+<!--<script>-->
+<!--    async function loadCss(url) {-->
+<!--        return new Promise((resolve, reject) => {-->
+<!--            const link = document.createElement('link');-->
+<!--            link.rel = 'stylesheet';-->
+<!--            link.href = url;-->
+<!--            link.onload = () => resolve();-->
+<!--            link.onerror = () => reject(new Error('CSS 載入失敗：' + url));-->
+<!--            document.head.appendChild(link);-->
+<!--        });-->
+<!--    }-->
+
+<!--    async function loadJs(url) {-->
+<!--        return new Promise((resolve, reject) => {-->
+<!--            const script = document.createElement('script');-->
+<!--            script.src = url;-->
+<!--            script.onload = resolve;-->
+<!--            script.onerror = () => reject(new Error('JS 載入失敗：' + url));-->
+<!--            document.body.appendChild(script);-->
+<!--        });-->
+<!--    }-->
+
+<!--    (async function () {-->
+<!--        const contentArea = parent.document.getElementById('content-area');-->
+<!--        const search = contentArea?.dataset?.pageParams;-->
+<!--        const queryParams = new URLSearchParams(search);-->
+<!--        const newsId = queryParams.get('newsId');-->
+
+<!--        if (!newsId) {-->
+<!--            alert("缺少新聞 ID！");-->
+<!--            return;-->
+<!--        }-->
+
+<!--        const token = localStorage.getItem('jwt');-->
+<!--        const authHeader = token ? { Authorization: 'Bearer ' + token } : {};-->
+
+<!--        try {-->
+<!--            // 載入資源-->
+<!--            await loadCss('/assets/vendors/summernote/summernote-lite.min.css');-->
+<!--            await loadJs('/assets/vendors/jquery/jquery.min.js');-->
+<!--            await loadJs('/assets/vendors/summernote/summernote-lite.min.js');-->
+
+<!--            $('#newsCon').summernote({-->
+<!--                height: 300,-->
+<!--                lang: 'zh-TW',-->
+<!--                toolbar: [-->
+<!--                    ['style', ['bold', 'italic', 'underline', 'clear']],-->
+<!--                    ['para', ['ul', 'ol', 'paragraph']],-->
+<!--                    ['insert', ['link', 'picture']],-->
+<!--                    ['view', ['codeview']]-->
+<!--                ],-->
+<!--                callbacks: {-->
+<!--                    onImageUpload: function (files) {-->
+<!--                        for (const file of files) {-->
+<!--                            const formData = new FormData();-->
+<!--                            formData.append('file', file);-->
+<!--                            fetch('/api/news/image/temp-image', {-->
+<!--                                method: 'POST',-->
+<!--                                body: formData,-->
+<!--                                headers: authHeader-->
+<!--                            })-->
+<!--                                .then(r => r.json())-->
+<!--                                .then(d => $('#newsCon').summernote('insertImage', d.url))-->
+<!--                                .catch(err => alert('圖片上傳失敗：' + err.message));-->
+<!--                        }-->
+<!--                    }-->
+<!--                }-->
+<!--            });-->
+
+<!--            // 載入分類-->
+<!--            const tagRes = await fetch('/api/admin/allNewsCategories');-->
+<!--            const tagData = await tagRes.json();-->
+<!--            const tagSel = document.getElementById('newsTags');-->
+<!--            tagSel.innerHTML = '';-->
+<!--            tagData.forEach(tag => {-->
+<!--                const opt = document.createElement('option');-->
+<!--                opt.value = tag.id;-->
+<!--                opt.textContent = tag.ncatName;-->
+<!--                tagSel.appendChild(opt);-->
+<!--            });-->
+
+<!--            // 載入新聞資料-->
+<!--            const token = localStorage.getItem('jwt');-->
+<!--            const authHeader = token ? { Authorization: 'Bearer ' + token } : {};-->
+<!--            const newsRes = await fetch(`/api/news/${newsId}`, {-->
+<!--                headers: authHeader-->
+<!--            });-->
+
+<!--            const news = await newsRes.json();-->
+<!--            document.getElementById('newsId').value = news.newsId;-->
+<!--            document.getElementById('newsTit').value = news.title;-->
+<!--            $('#newsCon').summernote('code', news.content);-->
+<!--            document.getElementById('isShowed').checked = !!news.isShowed;-->
+
+<!--            const selectedTagIds = news.categories?.map(c => String(c.id)) || [];-->
+<!--            [...tagSel.options].forEach(opt => {-->
+<!--                if (selectedTagIds.includes(opt.value)) {-->
+<!--                    opt.selected = true;-->
+<!--                }-->
+<!--            });-->
+
+<!--        } catch (e) {-->
+<!--            showMessage("初始化失敗：" + e.message, 'error');-->
+<!--        }-->
+
+<!--        document.getElementById('edit-news-form').addEventListener('submit', async e => {-->
+<!--            e.preventDefault();-->
+<!--            const title = document.getElementById('newsTit').value.trim();-->
+<!--            const content = $('#newsCon').summernote('code');-->
+<!--            const tags = Array.from(document.getElementById('newsTags').selectedOptions).map(o => +o.value);-->
+<!--            const isShowed = document.getElementById('isShowed').checked ? 1 : 0;-->
+
+<!--            const payload = { newsTit: title, newsCon: content, tags, isShowed };-->
+
+<!--            try {-->
+
+<!--                const res = await fetch(`/api/News/admin/${newsId}`, {-->
+<!--                    method: 'PUT',-->
+<!--                    headers: { 'Content-Type': 'application/json', ...authHeader },-->
+<!--                    body: JSON.stringify(payload)-->
+<!--                });-->
+<!--                if (!res.ok) throw new Error((await res.json()).errorMessage || '更新失敗');-->
+
+<!--                showMessage('更新成功！2 秒後返回列表', 'success');-->
+<!--                setTimeout(() => {-->
+<!--                    if (parent.loadExternalPage) {-->
+<!--                        parent.loadExternalPage('../newssys/listAllNews.html');-->
+<!--                    }-->
+<!--                }, 2000);-->
+
+<!--            } catch (err) {-->
+<!--                showMessage(err.message, 'error');-->
+<!--            }-->
+<!--        });-->
+
+<!--        function showMessage(msg, type) {-->
+<!--            const area = document.getElementById('message-area');-->
+<!--            area.textContent = msg;-->
+<!--            area.className = type;-->
+<!--            area.style.display = 'block';-->
+<!--        }-->
+<!--    })();-->
+<!--</script>-->
+
+
+<script>
+    async function loadCss(url) {
+        return new Promise((resolve, reject) => {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = url;
+            link.onload = () => resolve();
+            link.onerror = () => reject(new Error('CSS 載入失敗：' + url));
+            document.head.appendChild(link);
+        });
+    }
+
+    async function loadJs(url) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = url;
+            script.onload = resolve;
+            script.onerror = () => reject(new Error('JS 載入失敗：' + url));
+            document.body.appendChild(script);
+        });
+    }
+
+    (async function () {
+        const contentArea = parent.document.getElementById('content-area') || parent.document.getElementById('contentArea');
+        const search = contentArea?.dataset?.pageParams;
+        const queryParams = new URLSearchParams(search);
+        const newsId = queryParams.get('newsId');
+
+        if (!newsId) {
+            alert("❗ 缺少新聞 ID！");
+            return;
+        }
+
+        const token = localStorage.getItem('jwt');
+        const authHeader = token ? {Authorization: 'Bearer ' + token} : {};
+
+        try {
+            // 載入分類
+            const tagRes = await fetch('/api/admin/allNewsCategories', {headers: authHeader});
+            const tagData = await tagRes.json();
+            const tagSel = document.getElementById('newsTags');
+            tagSel.innerHTML = '';
+            tagData.forEach(tag => {
+                const opt = document.createElement('option');
+                opt.value = tag.id;
+                opt.textContent = tag.ncatName;
+                tagSel.appendChild(opt);
+            });
+
+            // 取得新聞資料
+            const newsRes = await fetch(`/api/News/${newsId}`, {headers: authHeader});
+            if (!newsRes.ok) throw new Error(`新聞讀取失敗 (${newsRes.status})`);
+
+            const news = await newsRes.json();
+
+            // Summernote 載入
+            if (!window.jQuery) {
+                await loadJs('/assets/vendors/jquery/jquery.min.js');
+            }
+            if (!window.Summernote && !document.querySelector('link[href*="summernote-lite.min.css"]')) {
+                await loadCss('/assets/vendors/summernote/summernote-lite.min.css');
+                await loadJs('/assets/vendors/summernote/summernote-lite.min.js');
+            }
+
+
+            if ($('#newsCon').next('.note-editor').length) {
+                $('#newsCon').summernote('destroy'); // 確保只存在一個
+                $('#newsCon').val(''); // 避免重複渲染殘影
+            }
+
+            $('#newsCon').summernote({
+                height: 300,
+                lang: 'zh-TW',
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link', 'picture']],
+                    ['view', ['codeview']]
+                ],
+                callbacks: {
+                    onImageUpload: function (files) {
+                        for (const file of files) {
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            fetch('/api/news/image/temp-image', {
+                                method: 'POST',
+                                body: formData,
+                                headers: authHeader
+                            })
+                                .then(r => r.json())
+                                .then(d => $('#newsCon').summernote('insertImage', d.url))
+                                .catch(err => alert('圖片上傳失敗：' + err.message));
+                        }
+                    }
+                }
+            });
+
+            // 填入表單欄位
+            document.getElementById('newsId').value = news.id;
+            document.getElementById('newsTit').value = news.newsTit;
+            $('#newsCon').summernote('code', news.newsCon);
+            document.getElementById('isShowed').checked = !!news.isShowed;
+
+            // 比對分類名稱（注意不是 id，而是名稱）
+            const selectedNames = news.categoryTags || [];
+            [...tagSel.options].forEach(opt => {
+                if (selectedNames.includes(opt.textContent)) {
+                    opt.selected = true;
+                }
+            });
+
+        } catch (e) {
+            showMessage("初始化失敗：" + e.message, 'error');
+        }
+
+        document.getElementById('edit-news-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const title = document.getElementById('newsTit').value.trim();
+            const content = $('#newsCon').summernote('code');
+            const tags = Array.from(document.getElementById('newsTags').selectedOptions).map(o => +o.value);
+            const isShowed = document.getElementById('isShowed').checked ? 1 : 0;
+
+            const payload = {
+                id: Number(newsId),
+                newsTit: title,
+                newsCon: content,
+                tags,
+                isShowed
+            };
+
+            try {
+                const res = await fetch(`/api/News/admin/update/${newsId}`, {
+                    method: 'PATCH',
+                    headers: {'Content-Type': 'application/json', ...authHeader},
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) throw new Error((await res.text()) || '更新失敗');
+
+                showMessage('✅ 更新成功！2 秒後返回列表', 'success');
+                setTimeout(() => {
+                    if (parent.loadExternalPage) {
+                        parent.loadExternalPage('../newssys/listAllNews.html');
+                    }
+                }, 2000);
+            } catch (err) {
+                showMessage(err.message, 'error');
+            }
+        });
+
+        function showMessage(msg, type) {
+            const area = document.getElementById('message-area');
+            area.textContent = msg;
+            area.className = type;
+            area.style.display = 'block';
+        }
+    })();
+</script>
+</body>
+</html>
