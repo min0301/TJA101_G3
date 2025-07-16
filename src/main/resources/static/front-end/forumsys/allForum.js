@@ -1,6 +1,8 @@
-// allForum.js (SPA功能 + 您偏好的文章列表樣式 最終整合版)
+// allForum.js (SPA功能 + 整合聊天室 最終版)
 
 // --- 全域變數 ---
+// 可變：變數名稱 dynamicContentContainer 可依需求自行命名，但需確保與 HTML 中的 ID 一致。
+// 不可變：document.getElementById 是固定的 DOM API。
 const dynamicContentContainer = document.getElementById('dynamic-content-container');
 
 // --- 初始化與路由管理 ---
@@ -59,10 +61,11 @@ function showInitialView() {
 }
 
 /**
- * 顯示指定討論區的文章列表 (【【採用您偏好的樣式】】)
+ * 顯示指定討論區的文章列表 (並整合聊天室)
  * @param {string} forumId - 討論區 ID
  */
 window.showPostListView = async function (forumId) {
+    // 可變：變數名稱 forumId 可自行命名，代表傳入的討論區ID。
     dynamicContentContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>`;
     if (window.innerWidth > 992) {
         window.scrollTo({top: 0, behavior: 'smooth'});
@@ -87,10 +90,54 @@ window.showPostListView = async function (forumId) {
         const forum = await forumRes.json();
         const posts = await postsRes.json();
 
-        // 依序渲染您喜歡的 Header 和文章列表樣式
+        // 【主要修改區域】
+        // 1. 首先渲染 Header
         renderForumHeader(dynamicContentContainer, forum);
+
+        // 2. 接著渲染聊天室 (從底部移到此處)
+        // 2.1. 每次切換討論區，都先嘗試斷開舊的聊天連線
+        if (window.chatManager && typeof window.chatManager.disconnect === 'function') {
+            window.chatManager.disconnect();
+        }
+
+        // 2.2. 建立聊天室的 UI 容器並插入頁面
+        const chatRoomContainer = document.createElement('div');
+        chatRoomContainer.id = 'chat-room-container';
+        // 【註解】此處 className 從 'mt-5' 改為 'mb-4'，讓聊天室和下方文章列表間距更協調
+        chatRoomContainer.className = 'mb-4';
+        chatRoomContainer.innerHTML = `
+            <div class="chat-room card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-chat-dots-fill me-2"></i>即時聊天室</h5>
+                    <span id="chat-status" class="badge bg-secondary">未連接</span>
+                </div>
+                <div class="card-body">
+                    <div id="chat-messages" class="chat-messages mb-3">
+                        </div>
+                    <form id="chat-form" class="d-flex gap-2">
+                        <input type="text" id="chat-message-input" class="form-control" placeholder="輸入訊息..." autocomplete="off" disabled>
+                        <button type="submit" class="btn btn-primary" disabled><i class="bi bi-send-fill"></i></button>
+                    </form>
+                </div>
+            </div>
+        `;
+        dynamicContentContainer.appendChild(chatRoomContainer);
+
+        // 2.3. 檢查登入狀態並連接到新的聊天室
+        const memberInfo = JSON.parse(localStorage.getItem('memberInfo') || '{}');
+        if (token && memberInfo.memNickName && window.chatManager) {
+            window.chatManager.connect(forumId, memberInfo.memNickName, memberInfo.id);
+        } else {
+            const chatMessagesDiv = document.getElementById('chat-messages');
+            if (chatMessagesDiv) {
+                chatMessagesDiv.innerHTML = '<p class="text-muted text-center p-3">您需要<a href="/front-end/mem/MemberLogin.html">登入</a>才能使用聊天室。</p>';
+            }
+        }
+
+        // 3. 最後渲染文章列表
         renderPosts(dynamicContentContainer, posts);
 
+        // 更新瀏覽器歷史紀錄
         history.pushState({forumId: forumId}, ``, `?forumId=${forumId}`);
 
         // 初始化 AOS 動畫
@@ -107,10 +154,11 @@ window.showPostListView = async function (forumId) {
 
 
 /**
- * 顯示單一文章的詳細內容與留言 (功能不變)
+ * 顯示單一文章的詳細內容與留言
  * @param {string} postId - 文章 ID
  */
 async function showPostDetailView(postId) {
+    // 可變：變數名稱 postId 可自行命名。
     dynamicContentContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border" role="status"></div></div>`;
 
     try {
@@ -129,10 +177,9 @@ async function showPostDetailView(postId) {
     }
 }
 
-// --- 組件渲染輔助函式 (採用您偏好的樣式) ---
+// --- 組件渲染輔助函式 ---
 
 /**
- * 【【替換為您偏好的樣式】】
  * 渲染帶有橫幅圖片、標題、描述以及收藏按鈕的討論區頂部。
  */
 function renderForumHeader(container, forum) {
@@ -169,7 +216,6 @@ function renderForumHeader(container, forum) {
 }
 
 /**
- * 【【替換為您偏好的樣式，並修改連結以適應 SPA】】
  * 渲染文章列表。
  */
 function renderPosts(container, posts) {
@@ -184,7 +230,6 @@ function renderPosts(container, posts) {
             const postImageUrl = `/api/forumpost/image/${post.id}`;
             const title = post.postTitle || "（無標題）";
             const content = post.postCon || "";
-            // 【注意】這裡假設後端回傳的 post 物件包含 memberId 欄位
             const memberId = post.memberId;
 
             const postCardHTML = `
@@ -208,7 +253,7 @@ function renderPosts(container, posts) {
                                              alt="author avatar" 
                                              style="width: 24px; height: 24px; object-fit: cover;" 
                                              onerror="this.src='/images/memberAvatar/defaultmem.png'">
-                                        <small>樓主: ${post.memberName || '匿名'}</small> 
+                                        <small>樓主: ${post.memberNickName || '匿名'}</small> 
                                     </div>
                                     <div class="post-stats">
                                         <span class="me-3" title="留言數"><i class="bi bi-chat-dots-fill"></i> ${post.mesNumbers || 0}</span>
@@ -227,10 +272,8 @@ function renderPosts(container, posts) {
     container.appendChild(postsContainer);
 }
 
-// --- 以下為 SPA 功能所需的所有函式 (保持不變) ---
 
 /**
- * 【【新增的函式】】
  * 為收藏按鈕綁定點擊事件。
  */
 function addCollectButtonListener(forumId) {
@@ -280,7 +323,6 @@ function renderPostDetail(post) {
     const postDate = new Date(post.postCrDate).toLocaleString('zh-TW');
     const postImageUrl = `/api/forumpost/image/${post.id}`;
     const fallbackImageUrl = '../../assets/img/categories/1.jpg';
-    // 【新增】從 post 物件取得 memberId
     const memberId = post.memberId;
 
     const detailHTML = `
@@ -294,7 +336,7 @@ function renderPostDetail(post) {
                          alt="author avatar"
                          style="width: 32px; height: 32px; object-fit: cover;"
                          onerror="this.src='/images/memberAvatar/defaultmem.png'">
-                    <span>樓主：${post.memberName || '匿名'}</span>
+                    <span>樓主：${post.memberNickName || '匿名'}</span>
                 </div>
                 <span class="mx-2">|</span>
                 <span>發布時間：${postDate}</span>
@@ -332,10 +374,8 @@ async function loadAndRenderComments(postId) {
             return;
         }
 
-        // 【修改】此處迴圈，為每則留言加上頭像
         listContainer.innerHTML = comments.map(comment => {
             const mesDate = new Date(comment.mesCrdate).toLocaleString('zh-TW');
-            // 【注意】這裡假設後端回傳的 comment 物件包含 memberId 欄位
             const memberId = comment.memberId;
             return `
                 <div class="card mb-3" id="comment-${comment.id}">
@@ -346,7 +386,7 @@ async function loadAndRenderComments(postId) {
                                      class="rounded-circle" width="50" height="50" style="object-fit: cover;"
                                      onerror="this.src='/images/memberAvatar/defaultmem.png'">
                                 <div>
-                                    <h6 class="card-title fw-bold mb-0">${comment.memberName || '匿名'}</h6>
+                                    <h6 class="card-title fw-bold mb-0">${comment.memberNickName || '匿名'}</h6>
                                     <small class="text-muted">${mesDate}</small>
                                 </div>
                             </div>
@@ -384,13 +424,10 @@ function setupCommentForm(container, postId) {
         return;
     }
 
-    // 【新增】從 localStorage 讀取會員資訊以顯示頭像
-    // 【注意】這裡假設登入後，localStorage 會有名為 'memberInfo' 的項目
     const rawMemberInfo = localStorage.getItem('memberInfo');
     const memberInfo = JSON.parse(rawMemberInfo || '{}');
-    const memberId = memberInfo.id; // 從物件中取得 id
+    const memberId = memberInfo.id;
 
-    // 【修改】重新設計留言框，加入頭像
     container.innerHTML = `
         <form id="comment-form" class="d-flex gap-3 align-items-start">
             <img src="/images/memberAvatar/mem${memberId}.png" alt="Your Avatar"
@@ -489,7 +526,6 @@ async function handleLikeAction(commentId, action, buttonElement) {
         });
         if (!response.ok) throw new Error('操作失敗');
 
-        // 刷新留言來更新計數，這是最可靠的方式
         const currentPostId = new URLSearchParams(window.location.search).get('postId');
         if (currentPostId) {
             loadAndRenderComments(currentPostId);
@@ -498,8 +534,6 @@ async function handleLikeAction(commentId, action, buttonElement) {
     } catch (error) {
         console.error('按讚/倒讚失敗:', error);
         alert('操作失敗，請稍後再試。');
-    } finally {
-        // 因為是整個列表重繪，所以不需要手動恢復按鈕狀態
     }
 }
 
