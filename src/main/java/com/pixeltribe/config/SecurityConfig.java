@@ -87,6 +87,7 @@ class SecurityConfig {
                                         "/api/forums/*",            // 單一討論區API
                                         "/api/forums/hot",          // 熱門討論區API
                                         "/api/posts/collect/me",     // 取得會員收藏文章列表API
+                                        "ws/**",                // WebSocket 端點
                                         //========新聞========
                                         "/api/News/admin/redis/create",
                                         "/api/news/image/temp-images",
