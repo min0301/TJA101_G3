@@ -62,7 +62,7 @@ function showInitialView() {
  * 顯示指定討論區的文章列表 (【【採用您偏好的樣式】】)
  * @param {string} forumId - 討論區 ID
  */
-window.showPostListView = async function(forumId) {
+window.showPostListView = async function (forumId) {
     dynamicContentContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>`;
     if (window.innerWidth > 992) {
         window.scrollTo({top: 0, behavior: 'smooth'});
@@ -91,7 +91,7 @@ window.showPostListView = async function(forumId) {
         renderForumHeader(dynamicContentContainer, forum);
         renderPosts(dynamicContentContainer, posts);
 
-        history.pushState({ forumId: forumId }, ``, `?forumId=${forumId}`);
+        history.pushState({forumId: forumId}, ``, `?forumId=${forumId}`);
 
         // 初始化 AOS 動畫
         setTimeout(() => {
@@ -121,7 +121,7 @@ async function showPostDetailView(postId) {
         renderPostDetail(post);
         await loadAndRenderComments(postId);
 
-        history.pushState({ postId: postId }, ``, `?postId=${postId}`);
+        history.pushState({postId: postId}, ``, `?postId=${postId}`);
 
     } catch (error) {
         console.error('載入文章詳細頁出錯:', error);
@@ -184,6 +184,9 @@ function renderPosts(container, posts) {
             const postImageUrl = `/api/forumpost/image/${post.id}`;
             const title = post.postTitle || "（無標題）";
             const content = post.postCon || "";
+            // 【注意】這裡假設後端回傳的 post 物件包含 memberId 欄位
+            const memberId = post.memberId;
+
             const postCardHTML = `
                 <div class="post-box d-flex mb-3" data-aos="fade-up">
                     <div class="card w-100">
@@ -199,7 +202,14 @@ function renderPosts(container, posts) {
                                     <p class="card-text post-summary">${content.substring(0, 80)}...</p>
                                 </div>
                                 <div class="mt-auto d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">樓主: ${post.memberName || '匿名'}</small>
+                                    <div class="d-flex align-items-center gap-2 text-muted">
+                                        <img src="/images/memberAvatar/mem${memberId}.png" 
+                                             class="rounded-circle" 
+                                             alt="author avatar" 
+                                             style="width: 24px; height: 24px; object-fit: cover;" 
+                                             onerror="this.src='/images/memberAvatar/defaultmem.png'">
+                                        <small>樓主: ${post.memberName || '匿名'}</small> 
+                                    </div>
                                     <div class="post-stats">
                                         <span class="me-3" title="留言數"><i class="bi bi-chat-dots-fill"></i> ${post.mesNumbers || 0}</span>
                                         <span class="me-3" title="喜歡"><i class="bi bi-hand-thumbs-up-fill text-success"></i> ${post.postLikeCount || 0}</span>
@@ -270,13 +280,22 @@ function renderPostDetail(post) {
     const postDate = new Date(post.postCrDate).toLocaleString('zh-TW');
     const postImageUrl = `/api/forumpost/image/${post.id}`;
     const fallbackImageUrl = '../../assets/img/categories/1.jpg';
+    // 【新增】從 post 物件取得 memberId
+    const memberId = post.memberId;
 
     const detailHTML = `
         <article class="post-content">
             <a href="#" class="btn btn-outline-secondary btn-sm mb-4 back-to-list-btn"><i class="bi bi-arrow-left"></i> 返回文章列表</a>
             <h1 class="display-6 fw-bold mb-3">${post.postTitle}</h1>
-            <div class="d-flex align-items-center text-muted mb-4">
-                <span>作者：${post.memberName || '匿名'}</span>
+            <div class="d-flex align-items-center text-muted mb-4 gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <img src="/images/memberAvatar/mem${memberId}.png"
+                         class="rounded-circle"
+                         alt="author avatar"
+                         style="width: 32px; height: 32px; object-fit: cover;"
+                         onerror="this.src='/images/memberAvatar/defaultmem.png'">
+                    <span>樓主：${post.memberName || '匿名'}</span>
+                </div>
                 <span class="mx-2">|</span>
                 <span>發布時間：${postDate}</span>
             </div>
@@ -313,15 +332,23 @@ async function loadAndRenderComments(postId) {
             return;
         }
 
+        // 【修改】此處迴圈，為每則留言加上頭像
         listContainer.innerHTML = comments.map(comment => {
             const mesDate = new Date(comment.mesCrdate).toLocaleString('zh-TW');
+            // 【注意】這裡假設後端回傳的 comment 物件包含 memberId 欄位
+            const memberId = comment.memberId;
             return `
                 <div class="card mb-3" id="comment-${comment.id}">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="card-title fw-bold mb-0">${comment.memberName || '匿名'}</h6>
-                                <small class="text-muted">${mesDate}</small>
+                            <div class="d-flex gap-3 align-items-start">
+                                <img src="/images/memberAvatar/mem${memberId}.png" alt="User Avatar"
+                                     class="rounded-circle" width="50" height="50" style="object-fit: cover;"
+                                     onerror="this.src='/images/memberAvatar/defaultmem.png'">
+                                <div>
+                                    <h6 class="card-title fw-bold mb-0">${comment.memberName || '匿名'}</h6>
+                                    <small class="text-muted">${mesDate}</small>
+                                </div>
                             </div>
                             <button class="btn btn-sm btn-outline-secondary report-btn" 
                                     data-bs-toggle="modal" data-bs-target="#reportModal" 
@@ -356,12 +383,25 @@ function setupCommentForm(container, postId) {
         container.innerHTML = `<div class="alert alert-info">您需要 <a href="/front-end/mem/MemberLogin.html">登入</a> 才能留言。</div>`;
         return;
     }
+
+    // 【新增】從 localStorage 讀取會員資訊以顯示頭像
+    // 【注意】這裡假設登入後，localStorage 會有名為 'memberInfo' 的項目
+    const rawMemberInfo = localStorage.getItem('memberInfo');
+    const memberInfo = JSON.parse(rawMemberInfo || '{}');
+    const memberId = memberInfo.id; // 從物件中取得 id
+
+    // 【修改】重新設計留言框，加入頭像
     container.innerHTML = `
-        <form id="comment-form">
-            <div class="mb-3">
+        <form id="comment-form" class="d-flex gap-3 align-items-start">
+            <img src="/images/memberAvatar/mem${memberId}.png" alt="Your Avatar"
+                 class="rounded-circle" width="50" height="50" style="object-fit: cover;"
+                 onerror="this.src='/images/memberAvatar/defaultmem.png'">
+            <div class="flex-grow-1">
                 <textarea id="comment-content" class="form-control" rows="3" placeholder="輸入您的留言..." required></textarea>
+                <div class="text-end mt-2">
+                    <button type="submit" class="btn btn-primary">送出留言</button>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">送出留言</button>
         </form>
     `;
 
@@ -375,8 +415,8 @@ function setupCommentForm(container, postId) {
         try {
             const response = await fetch(`/api/posts/${postId}/messages/`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ mesCon: content })
+                headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+                body: JSON.stringify({mesCon: content})
             });
             if (response.status !== 202) throw new Error('留言失敗');
             document.getElementById('comment-content').value = '';
@@ -416,7 +456,7 @@ function setupEventListeners() {
     });
 
     const reportModal = document.getElementById('reportModal');
-    if(reportModal) {
+    if (reportModal) {
         reportModal.addEventListener('show.bs.modal', (event) => {
             const button = event.relatedTarget;
             const commentId = button.dataset.commentId;
@@ -444,14 +484,14 @@ async function handleLikeAction(commentId, action, buttonElement) {
     try {
         const response = await fetch(`/api/posts/message/${commentId}/like`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ fmlikeStatus: action })
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({fmlikeStatus: action})
         });
         if (!response.ok) throw new Error('操作失敗');
 
         // 刷新留言來更新計數，這是最可靠的方式
         const currentPostId = new URLSearchParams(window.location.search).get('postId');
-        if(currentPostId) {
+        if (currentPostId) {
             loadAndRenderComments(currentPostId);
         }
 
@@ -469,12 +509,18 @@ async function handleLikeAction(commentId, action, buttonElement) {
 async function handleReportSubmit(event) {
     event.preventDefault();
     const token = localStorage.getItem('jwt');
-    if (!token) { alert('請先登入！'); return; }
+    if (!token) {
+        alert('請先登入！');
+        return;
+    }
 
     const form = event.target;
     const messageId = form.querySelector('#report-message-id').value;
     const reportTypeId = form.querySelector('#report-type').value;
-    if (!reportTypeId) { alert('請選擇檢舉原因！'); return; }
+    if (!reportTypeId) {
+        alert('請選擇檢舉原因！');
+        return;
+    }
 
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
@@ -482,7 +528,7 @@ async function handleReportSubmit(event) {
     try {
         const response = await fetch('/api/posts/message/report', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify({
                 messageNo: parseInt(messageId, 10),
                 reportTypeNo: parseInt(reportTypeId, 10)
