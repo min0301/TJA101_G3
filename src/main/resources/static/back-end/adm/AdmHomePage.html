@@ -761,7 +761,7 @@
             'shipping': '產品發貨管理',
             'reviews': '訂單評論管理',
             'coupons': '優惠券管理',
-            'dashboard': '儀表板', // 通用儀表板標題
+            'dashboard': '儀表板', 
             'news-edit': '新聞編輯',
             'comments': '新聞評論管理',
             'reports': '審核檢舉',
@@ -791,8 +791,9 @@
     }
 
     function handleLogout() {
-        // [提醒] 這裡的路徑是固定的，根據專案部署位置可能需要調整
         window.location.href = '/back-end/adm/AdmLogin.html';
+        localStorage.removeItem('memberInfo');
+        localStorage.removeItem('jwt');
     }
 
     function loadMainDashboard(event) {
