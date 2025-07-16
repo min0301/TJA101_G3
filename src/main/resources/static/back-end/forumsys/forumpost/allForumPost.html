@@ -692,8 +692,8 @@
                 }) : '無日期';
 
                 // 判斷是否有圖片URL，如果有則顯示縮圖
-                const postImageHtml = post.postCoverImageUrl ?
-                    `<a href="../${post.postCoverImageUrl}" target="_blank"><img src="${post.postCoverImageUrl}" alt="封面" class="forum-thumbnail"></a>` :
+                const postImageHtml = post.postImageUrl ?
+                    `<a href="${post.postImageUrl}" target="_blank"><img src="${post.postImageUrl}" alt="封面" class="forum-thumbnail"></a>` :
 
                     '無圖片';
 
@@ -928,17 +928,17 @@
                 const defaultImageForCurrentTag = DEFAULT_IMAGE_MAP[post.forumTagId];
                 const expectedDefaultImageUrl = defaultImageForCurrentTag ? DEFAULT_IMAGE_BASE_PATH + defaultImageForCurrentTag : '';
 
-                if (post.postCoverImageUrl && post.postCoverImageUrl === expectedDefaultImageUrl) {
+                if (post.postImageUrl && post.postImageUrl === expectedDefaultImageUrl) {
                     // 如果文章的圖片 URL 等於該類別的預設圖片 URL
                     modalUseDefaultImageRadio.checked = true;
-                    modalDefaultImagePreview.src = post.postCoverImageUrl;
+                    modalDefaultImagePreview.src = post.postImageUrl;
                     modalDefaultImagePreview.style.display = 'block';
                     modalPostImageFileInput.style.display = 'none'; // 隱藏文件輸入
                     currentPostImage.style.display = 'none'; // 隱藏「當前封面圖片」
-                } else if (post.postCoverImageUrl) {
+                } else if (post.postImageUrl) {
                     // 如果文章有圖片 URL，且不是預設圖片（或沒有匹配的預設圖片），則顯示為自訂圖片
                     modalUploadCustomImageRadio.checked = true;
-                    currentPostImage.src = post.postCoverImageUrl; // 顯示實際文章圖片
+                    currentPostImage.src = post.postImageUrl; // 顯示實際文章圖片
                     currentPostImage.style.display = 'block';
                     modalPostImageFileInput.style.display = 'block'; // 顯示文件輸入，讓用戶可以選擇新圖片
                     modalDefaultImagePreview.style.display = 'none'; // 隱藏預設預覽圖
