@@ -4,11 +4,9 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>像素部落 - 商城</title>
-<meta name="description"
-	content="Forum & Community Discussions HTML Template">
-<meta name="keywords"
-	content="bootstrap 5, forum, community, support, social, q&a, mobile, html">
+<title>像素部落 - 商城 - 所有產品</title>
+<meta name="description" content="像素部落, Pixel Tribe, 虛擬遊戲商城 - 所有產品">
+<meta name="keywords" content="遊戲商城, 電競, 遊戲玩家, 優惠活動, 商品購買, 所有產品">
 <meta name="robots" content="all,follow">
 
 <script>
@@ -18,29 +16,23 @@
 
 	// If local storage is not set, we check the OS preference
 	if (!localS) {
-		themeToSet = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark'
-				: 'light'
+		themeToSet = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 	}
 
 	//Set the correct theme
 	document.documentElement.setAttribute('data-theme', themeToSet)
 </script>
 
-
-<link rel="stylesheet"
-	href="../../assets/vendors/bootstrap/bootstrap.min.css">
-<link rel="stylesheet"
-	href="../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
-<link rel="stylesheet"
-	href="../../assets/vendors/simplebar/simplebar.min.css">
+<link rel="stylesheet" href="../../assets/vendors/bootstrap/bootstrap.min.css">
+<link rel="stylesheet" href="../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+<link rel="stylesheet" href="../../assets/vendors/simplebar/simplebar.min.css">
 <link rel="stylesheet" href="../../assets/vendors/aos/aos.css">
 <link rel="stylesheet" href="../../assets/css/style.css">
 <link rel="stylesheet" href="../../assets/css/responsive.css">
+<link rel="stylesheet" href="../../assets/css/custom-style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Karla&display=swap"
-	rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet">
 
 </head>
 
@@ -59,10 +51,9 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-lg-12">
-						<div class="hero-content" data-aos="fade-down"
-							data-aos-easing="linear">
+						<div class="hero-content" data-aos="fade-down" data-aos-easing="linear">
 							<h1>像素部落(Pixel Tribe)</h1>
-							<p>遊戲愛好者的聚集地</p>
+							<p>遊戲愛好者的聚集地 - 所有產品</p>
 						</div>
 					</div>
 				</div>
@@ -77,18 +68,28 @@
 							<div class="mall-category-sidebar">
 								<h5 class="mb-3">平台分類</h5>
 								<div id="malltag-list">
-									<!-- 分類項目 -->
+									<!-- 分類項目會由 malltag.js 動態載入 -->
+								</div>
+								
+								<!-- 返回商城首頁按鈕 -->
+								<div class="mt-4">
+									<a href="./shopindex.html" class="btn btn-outline-primary w-100">
+										<i class="bi bi-house me-2"></i>返回商城首頁
+									</a>
 								</div>
 							</div>
 						</div>
 					</div>
 
 					<div class="col-lg-9 ps-lg-5">
-						<div id="dynamic-content-container"></div>
+						<div id="dynamic-content-container">
+							<!-- 商品列表會由 malltag.js 動態載入到這裡 -->
+						</div>
 					</div>
 				</div>
 			</div>
 		</section>
+		
 		<div id="footer-placeholder"></div>
 
 	</div>
@@ -101,27 +102,38 @@
 	<script src="../../assets/js/main.js"></script>
 	<script src="../../assets/js/global-loader.js"></script>
 	<script src="malltag.js"></script>
-	<script src="productDetail.js"></script>
+	<!-- <script src="productDetail.js"></script> -->
 	<script>
+	/**
+	 * 頁面初始化 - 簡化版，讓 malltag.js 完全接管
+	 */
 	document.addEventListener('DOMContentLoaded', function() {
 	    setTimeout(function() {
 	        try {
-	            console.log('頁面初始化檢查...');
+	            console.log('商品列表頁面初始化...');
 	            
-	            // 只在商品列表頁面初始化 MallTagManager
-	            if (!window.location.search.includes('id=')) {
-	                // 沒有商品ID參數，是商品列表頁面
-	                if (window.mallTagManager && typeof window.mallTagManager.init === 'function') {
-	                    console.log('初始化 MallTagManager...');
-	                    window.mallTagManager.init();
-	                }
+	            // 檢查 URL 參數
+	            const urlParams = new URLSearchParams(window.location.search);
+	            const productId = urlParams.get('id');
+	            
+	            if (productId) {
+	                // 有商品ID，顯示商品詳情（由 productDetail.js 處理）
+	                console.log('顯示商品詳情，ID:', productId);
+	                // productDetail.js 會自動處理
 	            } else {
-	                // 有商品ID參數，是商品詳情頁面
-	                console.log('商品詳情頁面，由 ProductDetailManager 處理');
+	                // 沒有商品ID，顯示商品列表（由 malltag.js 處理）
+	                console.log('顯示商品列表，初始化 MallTagManager...');
+	                
+	                // 只初始化 MallTagManager，讓它完全接管頁面
+	                if (window.mallTagManager && typeof window.mallTagManager.init === 'function') {
+	                    window.mallTagManager.init();
+	                } else {
+	                    console.warn('MallTagManager 未找到');
+	                }
 	            }
 	            
 	        } catch (error) {
-	            console.error('初始化錯誤:', error);
+	            console.error('頁面初始化錯誤:', error);
 	        }
 	    }, 300);
 	});

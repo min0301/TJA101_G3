@@ -737,7 +737,7 @@ class MallTagManager {
 
 		return `
 	        <div class="product-card" data-product-id="${product.id}">
-	            <div class="product-clickable-area" onclick="window.location.href='product.html?id=${product.id}'">
+	            <div class="product-clickable-area" onclick="window.location.href='./product.html?id=${product.id}'">
 	                <img src="${this.apiBaseUrl}/product/cover/${product.id}" 
 	                     alt="${this.escapeHtml(product.proName)}" 
 	                     class="product-image"
@@ -887,7 +887,7 @@ class MallTagManager {
 // 全域函數 - 處理商品點擊（與 HTML 中的 handleProductClick 保持一致）
 window.handleProductClick = function(productId) {
 	console.log('跳轉到商品詳情頁面，ID:', productId);
-	window.location.href = `product.html?id=${productId}`;
+	window.location.href = `./product.html?id=${productId}`;
 };
 
 // 臨時的購物車功能（先顯示提示，後續可以擴展）
