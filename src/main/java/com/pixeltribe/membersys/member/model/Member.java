@@ -17,13 +17,12 @@ import com.pixeltribe.forumsys.forumcollect.model.ForumCollect;
 
 import com.pixeltribe.forumsys.message.model.ForumMes;
 
-import com.pixeltribe.forumsys.entity.PostLike;
+import com.pixeltribe.forumsys.postlike.model.PostLike;
 
 
 import com.pixeltribe.forumsys.messagelike.model.ForumMesLike;
 import com.pixeltribe.forumsys.postcollect.model.PostCollect;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
-import com.pixeltribe.forumsys.postcollect.model.PostCollect;
 import com.pixeltribe.membersys.friendlist.model.FriendList;
 import com.pixeltribe.membersys.memberloginlog.model.MemberLoginLog;
 import com.pixeltribe.membersys.privatechatroom.model.PrivateChatroom;
