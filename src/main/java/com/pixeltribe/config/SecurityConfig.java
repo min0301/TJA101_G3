@@ -70,8 +70,8 @@ class SecurityConfig {
                                         "/js/**",
                                         "/out-statics/**",
                                         "/templates/**",
-                                        "/front-end/shopsys/**",
-                                        "/front-end/shopsys/product.html",
+                                        "/front-end/**",
+                                       
                                         "/index.html",
                                         "/indexstatic.html",
                                         "/swagger-ui/**",
