@@ -114,11 +114,10 @@ public class NewsService {
         news.setNewsCon(nauDTO.getNewsCon());
         news.setIsShowed(nauDTO.getIsShowed());
 
-
         return nauDTO;
-
     }
 
+    @Transactional
     public ResponseEntity<?> createAdmin(@Valid @RequestBody NewsCreationDTO dto, HttpServletRequest req) throws JsonProcessingException {
         Integer adminId = jwtUtil.getAdminIdFromJWT(req); // ✅ 建議改名一致
 
@@ -143,7 +142,8 @@ public class NewsService {
 
         for (Object obj : rawList) {
             Map<String, String> data = objectMapper.readValue(
-                    obj.toString(), new TypeReference<Map<String, String>>() {});
+                    obj.toString(), new TypeReference<Map<String, String>>() {
+                    });
             NewsImage img = new NewsImage();
             img.setNewsNo(news);
             img.setImgUrl(data.get("url"));
