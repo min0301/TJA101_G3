@@ -359,7 +359,7 @@ function showReportModal(commentId) {
 
 async function loadReportReasons() {
     try {
-        const res = await fetch('/api/allreport-type');
+        const res = await fetch('/api/report-types');
         const types = await res.json();
         const select = document.getElementById('reportReasonSelect');
         types.forEach(t => {
