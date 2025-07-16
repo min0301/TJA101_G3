@@ -73,6 +73,7 @@ class SecurityConfig {
                                         "/index.html",
                                         "/indexstatic.html",
                                         "/swagger-ui/**",
+                                        "/uploads/**",              //上傳圖片的位置
                                         //========靜態公開資源========
                                         "/webjars/**",
                                         "/css/**",

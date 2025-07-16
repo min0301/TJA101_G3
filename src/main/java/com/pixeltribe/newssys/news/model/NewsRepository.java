@@ -76,6 +76,30 @@ public interface NewsRepository extends JpaRepository<News, Integer> {
             """)
     Page<NewsAdminDTO> findAdminPageNews(Pageable p);
 
+    @Query("""
+            select new com.pixeltribe.newssys.news.model.NewsAdminDTO(
+                n.id as id,
+                n.newsTit,
+                n.newsCon,
+                n.newsUpdate,
+                n.newsCrdate,
+                n.isShowed,
+                cast( size(n.newsImages) as long),
+                cast(function('GROUP_CONCAT', c.ncatName) as string),
+                n.adminNo.id,
+                n.adminNo.admName
+            )
+            from News n
+            left join n.newContentClassifications cc
+            left join cc.ncatNo c
+            where (:tit is null or n.newsTit like concat('%', :tit, '%'))
+            group by n.id, n.newsTit, n.newsCon, n.newsUpdate,
+                     n.newsCrdate, n.isShowed, n.adminNo.id, n.adminNo.admName
+            order by n.newsCrdate desc
+            """)
+    Page<NewsAdminDTO> findAdminPageNewsByTitle(@Param("tit") String tit, Pageable pageable);
+
+
 //    public NewsCreationDTO save(@Valid @RequestBody News news);
 
 }

@@ -4,18 +4,23 @@ fetch('/api/news/image/index')
         const inner = document.querySelector('#newsCarousel .carousel-inner');
         const modalContainer = document.getElementById('newsLightboxes');
 
+        const origin = location.origin;
+
         data.forEach((n, idx) => {
+            // 如果是相對路徑，就補上 origin
+            const imgUrl = n.imgUrl.startsWith('http') ? n.imgUrl : origin + n.imgUrl;
+
             const item = document.createElement('div');
             item.className = 'carousel-item' + (idx === 0 ? ' active' : '');
 
             item.innerHTML = `
-        <a data-bs-toggle="modal" data-bs-target="#lightbox-${n.newsNoId}">
-          <img src="${n.imgUrl}" class="d-block w-100" alt="${n.newsNoNewsTit}">
-        </a>
-        <div class="carousel-caption">
-          <a href="/front-end/newspage/NewsDetail.html?newsId=${n.newsNoId}" class="stretched-link text-white">${n.newsNoNewsTit}</a>
-        </div>
-      `;
+      <a data-bs-toggle="modal" data-bs-target="#lightbox-${n.newsNoId}">
+        <img src="${imgUrl}" class="d-block w-100" alt="${n.newsNoNewsTit}">
+      </a>
+      <div class="carousel-caption">
+        <a href="/front-end/newspage/NewsDetail.html?newsId=${n.newsNoId}" class="stretched-link text-white">${n.newsNoNewsTit}</a>
+      </div>
+    `;
             inner.appendChild(item);
 
             const modal = document.createElement('div');
@@ -25,14 +30,15 @@ fetch('/api/news/image/index')
             modal.setAttribute('aria-hidden', 'true');
 
             modal.innerHTML = `
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-          <div class="modal-content bg-transparent border-0">
-            <img src="${n.imgUrl}" class="w-100 rounded-3" alt="${n.newsNoNewsTit}">
-          </div>
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-transparent border-0">
+          <img src="${imgUrl}" class="w-100 rounded-3" alt="${n.newsNoNewsTit}">
         </div>
-      `;
+      </div>
+    `;
             modalContainer.appendChild(modal);
         });
+
     })
     .catch(err => {
         console.error("載入首頁輪播失敗：", err);

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
     <title>新增新聞 - 新聞管理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             background-color: #f8f9fa;
@@ -138,34 +138,34 @@
 <body>
 <div class="news-management-container">
     <div class="page-title-header">
-        <h2><i class="bi bi-plus-circle-fill item-icon"></i>新增新聞</h2>
+        <i class="bi bi-plus-circle-fill item-icon"></i>
+        <h2>新增新聞</h2>
     </div>
 
     <div class="form-wrapper">
         <form id="newsForm">
             <div class="form-group">
                 <label for="newsTit">標題</label>
-                <input type="text" id="newsTit" name="newsTit" class="form-control" required>
+                <input type="text" id="newsTit" class="form-control" required>
             </div>
 
             <div class="form-group">
                 <label for="newsCon">內容</label>
-                <textarea id="newsCon" name="newsCon" class="form-control" required></textarea>
+                <textarea id="newsCon" class="form-control" required></textarea>
             </div>
 
             <div class="form-group">
                 <label for="newsTags">分類 (可複選)</label>
-                <select id="newsTags" name="tags" class="form-control" multiple required></select>
+                <select id="newsTags" class="form-control" multiple required></select>
             </div>
 
             <div class="form-group">
-                <label>
-                    <input type="checkbox" id="isShowed" checked> 前台顯示
-                </label>
+                <label><input type="checkbox" id="isShowed" checked> 前台顯示</label>
             </div>
 
             <div class="form-actions">
-                <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/listAllNews.html')" class="action-btn btn-cancel">返回列表</a>
+                <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/listAllNews.html')"
+                   class="action-btn btn-cancel">返回列表</a>
                 <button type="submit" class="action-btn btn-submit">確認新增</button>
             </div>
         </form>
@@ -174,78 +174,157 @@
 </div>
 
 <script>
-    (function () {
-        const form = document.getElementById('newsForm');
-        const categorySelect = document.getElementById('newsTags');
-        const messageArea = document.getElementById('message-area');
-        const token = sessionStorage.getItem('accessToken');
+    async function loadCss(url) {
+        return new Promise((resolve, reject) => {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = url;
+            link.onload = () => resolve();
+            link.onerror = () => reject(new Error('載入 CSS 失敗: ' + url));
+            document.head.appendChild(link);
+        });
+    }
 
-        const adminNo = (() => {
+    async function loadJs(url) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = url;
+            script.onload = resolve;
+            script.onerror = () => reject(new Error('載入 JS 失敗: ' + url));
+            document.body.appendChild(script);
+        });
+    }
+
+    async function loadJQuery(versionOrUrl = '3.7.1') {
+        if (window.jQuery) return Promise.resolve();
+        const url = versionOrUrl.startsWith('http') || versionOrUrl.startsWith('/')
+            ? versionOrUrl
+            : `https://cdn.jsdelivr.net/npm/jquery@${versionOrUrl}/dist/jquery.min.js`;
+        return loadJs(url);
+    }
+
+
+    (async function () {
+        const token = localStorage.getItem('jwt');
+        // let adminNo = 2;
+
+        if (token && token.split('.').length === 3) {
             try {
                 const payload = JSON.parse(atob(token.split('.')[1]));
-                return payload.adminNo || 2;
-            } catch {
-                return 2;
-            }
-        })();
-
-        async function loadCategories() {
-            try {
-                const res = await fetch('/api/admin/allNewsCategories');
-                const data = await res.json();
-                categorySelect.innerHTML = '';
-                data.forEach(cat => {
-                    const opt = document.createElement('option');
-                    opt.value = cat.id;
-                    opt.textContent = cat.ncatName;
-                    categorySelect.appendChild(opt);
-                });
-            } catch (err) {
-                showMessage('載入分類失敗', 'error');
+                if (payload.admId) {
+                    adminNo = payload.admId;
+                }
+            } catch (e) {
+                console.warn("解析 JWT 失敗", e);
             }
         }
 
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
+        try {
+            // 載入 CSS / JS 資源
+            await loadCss('/assets/vendors/summernote/summernote-lite.min.css');
+            await loadJQuery('/assets/vendors/jquery/jquery.min.js');
+            await loadJs('/assets/vendors/summernote/summernote-lite.min.js');
 
-            const newsTit = document.getElementById('newsTit').value.trim();
-            const newsCon = document.getElementById('newsCon').value.trim();
-            const tags = Array.from(categorySelect.selectedOptions).map(opt => +opt.value);
+            // 初始化 Summernote
+            $('#newsCon').summernote({
+                height: 300,
+                lang: 'zh-TW',
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link', 'picture']],
+                    ['view', ['codeview']]
+                ],
+                callbacks: {
+                    onImageUpload: function (files) {
+                        for (const file of files) {
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            fetch('/api/news/image/upload/temp', {
+                                method: 'POST',
+                                body: formData,
+                                headers: token ? {Authorization: 'Bearer ' + token} : {}
+                            })
+                                .then(res => res.json())
+                                .then(data => $('#newsCon').summernote('insertImage', data.url))
+                                .catch(err => alert('圖片上傳失敗: ' + err.message));
+                        }
+                    }
+                }
+            });
+
+        } catch (err) {
+            alert('初始化失敗：' + err.message);
+            return;
+        }
+
+        // 載入分類
+        try {
+            const res = await fetch('/api/admin/allNewsCategories');
+            const data = await res.json();
+            const sel = document.getElementById('newsTags');
+            sel.innerHTML = '';
+            data.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.id;
+                opt.textContent = cat.ncatName;
+                sel.appendChild(opt);
+            });
+        } catch {
+            showMessage('載入分類失敗', 'error');
+        }
+
+        // 提交表單
+        document.getElementById('newsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('newsTit').value.trim();
+            const content = $('#newsCon').summernote('code');
+            const tagIds = Array.from(document.getElementById('newsTags').selectedOptions).map(opt => +opt.value);
             const isShowed = document.getElementById('isShowed').checked ? 1 : 0;
 
-            if (!newsTit || !newsCon || tags.length === 0) {
-                showMessage('請填寫所有欄位', 'error');
-                return;
+            if (!title || !content || tagIds.length === 0) {
+                return showMessage('請填寫所有必填欄位', 'error');
             }
 
-            const payload = { newsTit, newsCon, tags, isShowed, adminNo };
+            const payload = {
+                newsTit: title,
+                newsCon: content,
+                tags: tagIds,
+                isShowed: isShowed,
+                adminNo: adminNo
+            };
 
             try {
                 const res = await fetch('/api/News/admin/create', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        ...(token && { 'Authorization': `Bearer ${token}` })
+                        ...(token && {Authorization: `Bearer ${token}`})
                     },
                     body: JSON.stringify(payload)
                 });
 
-                if (!res.ok) throw new Error('伺服器錯誤');
+                if (!res.ok) throw new Error('新增失敗');
+                showMessage('新增成功！2 秒後跳轉', 'success');
+                setTimeout(() => {
+                    if (typeof loadExternalPage === 'function') {
+                        loadExternalPage('../newssys/listAllNews.html');
+                    } else {
+                        window.location.href = '/back-end/adm/AdmHomePage.html?page=newssys/listAllNews.html';
+                    }
+                }, 2000);
 
-                showMessage('新增成功！2秒後返回', 'success');
-                setTimeout(() => window.location.href = '/back-end/newssys/listAllNews.html', 2000);
             } catch (err) {
-                showMessage('新增失敗：' + err.message, 'error');
+                showMessage(err.message || '新增失敗', 'error');
             }
         });
 
         function showMessage(msg, type) {
-            messageArea.textContent = msg;
-            messageArea.className = type;
-            messageArea.style.display = 'block';
+            const area = document.getElementById('message-area');
+            area.textContent = msg;
+            area.className = type;
+            area.style.display = 'block';
         }
-
-        loadCategories();
     })();
 </script>
 </body>

@@ -13,6 +13,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,8 +81,10 @@ public class NewsService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<NewsAdminDTO> findAllAdminNews(int page, int size) {
-        Page<NewsAdminDTO> pageData = newsRepository.findAdminPageNews(PageRequest.of(page, size));
+    public PageResponse<NewsAdminDTO> findAllAdminNews(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<NewsAdminDTO> pageData = newsRepository.findAdminPageNewsByTitle(keyword, pageable);
         return PageResponseFactory.fromPage(pageData);
     }
 

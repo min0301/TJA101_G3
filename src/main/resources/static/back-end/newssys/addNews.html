@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>新增新聞 - 新聞管理</title>
     <style>
@@ -159,13 +159,20 @@
             </div>
 
             <div class="form-group">
+                <label for="imageUpload">新聞圖片（可多選）</label>
+                <input type="file" id="imageUpload" class="form-control" accept="image/*" multiple>
+                <div id="imagePreviewArea" style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;"></div>
+            </div>
+
+            <div class="form-group">
                 <label>
                     <input type="checkbox" id="isShowed" checked> 前台顯示
                 </label>
             </div>
 
             <div class="form-actions">
-                <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/listAllNews.html')" class="action-btn btn-cancel">返回列表</a>
+                <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/listAllNews.html')"
+                   class="action-btn btn-cancel">返回列表</a>
                 <button type="submit" class="action-btn btn-submit">確認新增</button>
             </div>
         </form>
@@ -178,12 +185,12 @@
         const form = document.getElementById('newsForm');
         const categorySelect = document.getElementById('newsTags');
         const messageArea = document.getElementById('message-area');
-        const token = sessionStorage.getItem('accessToken');
+        const token = localStorage.getItem('jwt');
 
         const adminNo = (() => {
             try {
                 const payload = JSON.parse(atob(token.split('.')[1]));
-                return payload.adminNo || 2;
+                return payload.admId || 2;
             } catch {
                 return 2;
             }
@@ -218,22 +225,48 @@
                 return;
             }
 
-            const payload = { newsTit, newsCon, tags, isShowed, adminNo };
+            const payload = {newsTit, newsCon, tags, isShowed, adminNo};
 
             try {
+                // 表單送出事件中
                 const res = await fetch('/api/News/admin/create', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        ...(token && { 'Authorization': `Bearer ${token}` })
+                        ...(token && {'Authorization': `Bearer ${token}`})
                     },
                     body: JSON.stringify(payload)
                 });
 
-                if (!res.ok) throw new Error('伺服器錯誤');
+                if (!res.ok) throw new Error('新增失敗');
 
-                showMessage('新增成功！2秒後返回', 'success');
-                setTimeout(() => window.location.href = '/back-end/newssys/listAllNews.html', 2000);
+// === 步驟一：拿到 newsId
+                const createdNews = await res.json();
+                const newsId = createdNews.id || createdNews.newsNo; // 根據你後端回傳格式調整
+
+// === 步驟二：處理圖片上傳
+                const files = document.getElementById('imageUpload').files;
+                for (const file of files) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    await fetch(`/api/news/image/upload/${newsId}`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: token ? {'Authorization': 'Bearer ' + token} : {}
+                    });
+                }
+
+// === 步驟三：顯示訊息並跳轉
+                showMessage('新增成功並已上傳圖片，2 秒後返回', 'success');
+                setTimeout(() => {
+                    if (typeof loadExternalPage === 'function') {
+                        loadExternalPage('../newssys/listAllNews.html');
+                    } else {
+                        window.location.href = '/back-end/adm/AdmHomePage.html?page=newssys/listAllNews.html';
+                    }
+                }, 2000);
+
             } catch (err) {
                 showMessage('新增失敗：' + err.message, 'error');
             }
@@ -246,6 +279,28 @@
         }
 
         loadCategories();
+
+        // 圖片預覽功能
+        document.getElementById('imageUpload').addEventListener('change', function (e) {
+            const previewArea = document.getElementById('imagePreviewArea');
+            previewArea.innerHTML = '';
+            const files = e.target.files;
+            for (const file of files) {
+                if (!file.type.startsWith('image/')) continue;
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.style.maxWidth = '150px';
+                    img.style.maxHeight = '150px';
+                    img.style.border = '1px solid #ccc';
+                    img.style.borderRadius = '8px';
+                    img.style.objectFit = 'cover';
+                    previewArea.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     })();
 </script>
 </body>
