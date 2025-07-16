@@ -88,6 +88,8 @@ class SecurityConfig {
                                         "/api/forums/hot",          // 熱門討論區API
                                         "/api/posts/collect/me",     // 取得會員收藏文章列表API
                                         //========新聞========
+                                        "/api/News/admin/redis/create",
+                                        "api/news/image/temp-images",
                                         //========商城========
                                         "/api/orders/**",                 // ← 新增：訂單相關 API
                                         "/api/orderitem/**",                 // ← 新增：前台訂單明細 API
