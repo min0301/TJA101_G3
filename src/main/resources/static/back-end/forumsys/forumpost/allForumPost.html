@@ -1071,7 +1071,10 @@
                     if (response.status === 400) { // Bad Request, 通常是驗證錯誤
                         showModalError('資料驗證失敗，請檢查輸入。', errorData); // errorData 可能直接是 fieldErrors map
                     } else if (response.status === 404) { // Not Found
-                        showModalError(`更新失敗！ ${errorData.message || '找不到資源'}`, errorData.details);
+                        showModalError(`更新失敗！請聯繫管理員! ${errorData.message || '找不到資源'}`, errorData.details);
+                    } else if (response.status === 403) { // 處理 403 Forbidden 錯誤
+                        // 這裡解析後端 CustomAccessDeniedHandler 返回的訊息
+                        showModalError(`權限不足！無法操作! ${errorData.message || '您沒有權限執行此操作。'}`, errorData.details);
                     } else {
                         showModalError(`更新失敗！ 狀態: ${response.status}, 訊息: ${errorData.message || errorData.details || response.statusText || '未知錯誤'}`);
                     }
