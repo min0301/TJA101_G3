@@ -296,7 +296,6 @@
 
             let filtered = [...allNewsData];
 
-            // 若選了特定狀態才篩選
             if (selectedStatus === "true") {
                 filtered = filtered.filter(n => n.isShowed === true);
             } else if (selectedStatus === "false") {

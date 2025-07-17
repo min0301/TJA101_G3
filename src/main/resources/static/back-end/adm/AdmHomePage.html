@@ -567,7 +567,6 @@
     // 【常數】將內容區域的 DOM 物件提出來，避免重複選取
     const contentArea = document.getElementById('content-area');
 
-
     // =================================================================================
     // 【核心修改】頁面路由設定：未來新增頁面，只需在此處增加一行對應
     // 格式：'主選單Key-子選單Key': '對應的 HTML 檔案路徑'
@@ -584,6 +583,8 @@
         'forum-edit-category': '../forumsys/category/editCategory.html',
         'forum-comments': '../forumsys/message/allMessages.html',
         'forum-reports': '../forumsys/messagereport/allReports.html',
+        'news-management':'../newssys/listAllNews.html',
+		'member-query':'../memsys/ListAllMem.html',
         'news-management':'../newssys/news/listAllNews.html',
         'news-categories': '../newssys/category/allNewsCategory.html',
         'news-add-category': '../newssys/category/addNewsCategory.html',
@@ -798,7 +799,7 @@
 
     function handleLogout() {
         window.location.href = '/back-end/adm/AdmLogin.html';
-        localStorage.removeItem('memberInfo');
+        localStorage.removeItem('adminInfo');
         localStorage.removeItem('jwt');
     }
 
