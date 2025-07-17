@@ -208,7 +208,7 @@
                     <option value="false">隱藏</option>
                 </select>
             </div>
-            \
+\
             <div>
                 <label for="searchInput">搜尋：</label>
                 <input id="searchInput" type="text" class="form-control-sm" placeholder="標題關鍵字">
@@ -296,6 +296,7 @@
 
             let filtered = [...allNewsData];
 
+            // 若選了特定狀態才篩選
             if (selectedStatus === "true") {
                 filtered = filtered.filter(n => n.isShowed === true);
             } else if (selectedStatus === "false") {

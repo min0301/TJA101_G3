@@ -9,9 +9,16 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.pixeltribe.common.PageResponse;
 import com.pixeltribe.membersys.login.model.MemForgetPasswordService;
+import com.pixeltribe.membersys.member.dto.MemberAdminDto;
 import com.pixeltribe.membersys.member.dto.MemberProfileDto;
 
 @Service
@@ -24,11 +31,13 @@ public class MemService {
     private MemForgetPasswordService memForgetPasswordService;
 
     // 新增
+    @Transactional
     public void addMem(Member member) {
         memrepository.save(member);
     }
 
     // 修改
+    @Transactional
     public void updateMem(Member member) {
         memrepository.save(member);
     }
@@ -64,6 +73,7 @@ public class MemService {
     }
 
     // 忘記密碼用驗證碼重設密碼
+    @Transactional
     public Map<String, Object> resetPasswordByVcode(String email, String password, String passwordConfirm, String vcode) {
         Map<String, Object> result = new HashMap<>();
         if (email == null || password == null || passwordConfirm == null || vcode == null) {
@@ -104,6 +114,7 @@ public class MemService {
     }
 
     // 會員中心重設密碼
+    @Transactional
     public Map<String, Object> resetPassword(String oldPassword, String newPassword, String newPasswordConfirm, String Id) {
         Map<String, Object> result = new HashMap<>();
         Member member = memrepository.findById(Integer.parseInt(Id)).orElse(null);
@@ -144,6 +155,7 @@ public class MemService {
     }
 
     // 註冊會員
+    @Transactional
     public Map<String, Object> registerMember(Map<String, String> payload) {
         Map<String, Object> result = new HashMap<>();
         try {
@@ -195,7 +207,8 @@ public class MemService {
 
         return dto;
     }
-
+    
+    @Transactional
 	public boolean updateProfile(Integer id, Map<String, String> payload) {
 		Optional<Member> opt = memrepository.findById(id);
 		if (opt.isEmpty()) return false;
@@ -211,4 +224,5 @@ public class MemService {
 		
 		return true;
 	}
+    
 }
