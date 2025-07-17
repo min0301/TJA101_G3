@@ -10,10 +10,11 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/News")
 public class NewsController {
-
 
     private final NewsService newsSrv;
 
@@ -37,6 +38,12 @@ public class NewsController {
         return newsSrv.getOneNews(newsId);
     }
 
+    @GetMapping("admin/{newsId}")
+    @Operation(summary = "後台查詢某一則新聞")
+    public NewsAdminDTO findOneAdmin(@PathVariable Integer newsId) {
+        return newsSrv.findOneAdmin(newsId);
+    }
+
     @GetMapping("admin/allNews")
     @Operation(summary = "顯示所有新聞")
     public PageResponse<NewsAdminDTO> findNewsAdminPage(
@@ -55,7 +62,10 @@ public class NewsController {
 
     @PatchMapping("admin/update/{id}")
     @Operation(summary = "修改某則新聞")
-    public NewsAdminUpdateDto updateNews(@PathVariable Integer id, @Valid @RequestBody NewsAdminUpdateDto nauDTO) {
+    public NewsAdminUpdateDto updateNews(
+            @PathVariable Integer id,
+            @Valid @RequestBody NewsAdminUpdateDto nauDTO) {
+
         nauDTO.setId(id);
         return newsSrv.updateNews(nauDTO);
     }
@@ -69,6 +79,15 @@ public class NewsController {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @PutMapping("admin/updateShowStatus/{id}")
+    @Operation(summary = "更新新聞顯示狀態")
+    public NewsAdminUpdateDto updateShowStatus(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Boolean> requestBody) {
+        Boolean isShowed = requestBody.get("isShowed");
+        return newsSrv.updateShowStatus(id, isShowed);
     }
 
 }

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>編輯新聞分類</title>
+    <style>
+        /* 延用表單樣式 */
+        .news-management-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto
+        }
+
+        .page-title-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color)
+        }
+
+        .page-title-header h2 {
+            font-family: 'Karla', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0
+        }
+
+        .form-wrapper {
+            background: var(--component-bg);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .05)
+        }
+
+        .form-group {
+            margin-bottom: 25px
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #34495e;
+            font-size: 16px
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+            background: var(--primary-bg);
+            color: var(--text-color);
+            transition: border-color .2s, box-shadow .2s
+        }
+
+        .form-control:focus {
+            border-color: var(--brand-green);
+            outline: 0;
+            box-shadow: 0 0 0 3px var(--brand-green-light)
+        }
+
+        .form-actions {
+            text-align: right;
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px
+        }
+
+        .action-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all .2s;
+            font-weight: 700;
+            font-size: 16px
+        }
+
+        .action-btn:hover {
+            background: #f2f2f2;
+            border-color: #adadad
+        }
+
+        .action-btn.btn-save {
+            background: var(--brand-green);
+            border-color: var(--brand-green);
+            color: #fff
+        }
+
+        .action-btn.btn-save:hover {
+            background: var(--brand-green-hover);
+            border-color: var(--brand-green-hover)
+        }
+
+        #message-area {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 6px;
+            display: none;
+            font-weight: 700;
+            border: 1px solid transparent
+        }
+
+        #message-area.success {
+            color: #155724;
+            background: #d4edda;
+            border-color: #c3e6cb
+        }
+
+        #message-area.error {
+            color: #721c24;
+            background: #f8d7da;
+            border-color: #f5c6cb
+        }
+    </style>
+</head>
+<body>
+<div class="news-management-container">
+    <div class="page-title-header"><h2><i class="bi bi-pencil-square item-icon"></i>編輯新聞分類</h2></div>
+    <div class="form-wrapper">
+        <form id="edit-newsCat-form">
+            <input type="hidden" id="categoryId"/>
+            <div class="form-group"><label for="categoryName">分類名稱</label><input id="categoryName"
+                                                                                     class="form-control" required/>
+            </div>
+            <div class="form-actions">
+                <a href="#"
+                   onclick="event.preventDefault();loadExternalPage('../newssys/category/allNewsCategory.html')"
+                   class="action-btn">返回列表</a>
+                <button id="saveBtn" class="action-btn btn-save">儲存修改</button>
+            </div>
+        </form>
+    </div>
+    <div id="message-area"></div>
+</div>
+<script>
+    (() => {
+        const params = new URLSearchParams(parent.document.getElementById('content-area')?.dataset?.pageParams || location.search);
+        const id = params.get('id');
+        const apiGet = `http://localhost:8080/api/admin/NewsCategory/${id}`;
+        const apiPatch = `http://localhost:8080/api/admin/NewsCategory/update/${id}`;
+        const token = localStorage.getItem('jwt');
+        const nameInput = document.getElementById('categoryName');
+        const idInput = document.getElementById('categoryId');
+        const msg = document.getElementById('message-area');
+        const save = document.getElementById('saveBtn');
+        if (!id) {
+            msg.textContent = '缺少 ID';
+            msg.className = 'error';
+            msg.style.display = 'block';
+            save.disabled = true;
+            return;
+        }
+        load();
+
+        async function load() {
+            try {
+                const res = await fetch(apiGet, {headers: {Authorization: 'Bearer ' + token}});
+                if (!res.ok) throw new Error(res.status);
+                const data = await res.json();
+                idInput.value = data.id ?? data.categoryId;
+                nameInput.value = data.ncatName || data.categoryName || '';
+            } catch (e) {
+                show('載入失敗: ' + e.message, 'error');
+                save.disabled = true;
+            }
+        }
+
+        document.getElementById('edit-newsCat-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            save.disabled = true;
+            save.textContent = '儲存中...';
+            msg.style.display = 'none';
+            try {
+                const res = await fetch(apiPatch, {
+                    method: 'PATCH',
+                    headers: {'Content-Type': 'application/json', Authorization: 'Bearer ' + token},
+                    body: JSON.stringify({categoryName: nameInput.value.trim()})
+                });
+                if (!res.ok) throw new Error(await res.text() || res.status);
+                show('更新成功！2 秒後返回', 'success');
+                setTimeout(() => loadExternalPage('../newssys/category/allNewsCategory.html'), 2000);
+            } catch (err) {
+                show('失敗: ' + err.message, 'error');
+                save.disabled = false;
+                save.textContent = '儲存修改';
+            }
+        });
+
+        function show(t, type) {
+            msg.textContent = t;
+            msg.className = type;
+            msg.style.display = 'block';
+        }
+    })();
+</script>
+</body>
+</html>

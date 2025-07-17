@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>新增新聞分類</title>
+    <style>
+        /* 共用表單樣式，同 addCategory.html */
+        .news-management-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto
+        }
+
+        .page-title-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color)
+        }
+
+        .page-title-header h2 {
+            font-family: 'Karla', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0
+        }
+
+        .item-icon {
+            margin-right: 10px
+        }
+
+        .form-wrapper {
+            background: var(--component-bg);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .05)
+        }
+
+        .form-group {
+            margin-bottom: 25px
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #34495e;
+            font-size: 16px
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+            background: var(--primary-bg);
+            color: var(--text-color);
+            transition: border-color .2s, box-shadow .2s
+        }
+
+        .form-control:focus {
+            border-color: var(--brand-green);
+            outline: 0;
+            box-shadow: 0 0 0 3px var(--brand-green-light)
+        }
+
+        .form-actions {
+            text-align: right;
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px
+        }
+
+        .action-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all .2s
+        }
+
+        .action-btn:hover {
+            background: #f2f2f2;
+            border-color: #adadad
+        }
+
+        .action-btn.btn-submit {
+            background: var(--brand-green);
+            border-color: var(--brand-green);
+            color: #fff
+        }
+
+        .action-btn.btn-submit:hover {
+            background: var(--brand-green-hover);
+            border-color: var(--brand-green-hover)
+        }
+
+        #message-area {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 6px;
+            display: none;
+            font-weight: 700;
+            border: 1px solid transparent
+        }
+
+        #message-area.success {
+            color: #155724;
+            background: #d4edda;
+            border-color: #c3e6cb
+        }
+
+        #message-area.error {
+            color: #721c24;
+            background: #f8d7da;
+            border-color: #f5c6cb
+        }
+    </style>
+</head>
+<body>
+<div class="news-management-container">
+    <div class="page-title-header">
+        <h2><i class="bi bi-plus-circle-fill item-icon"></i>新增新聞分類</h2>
+    </div>
+    <div class="form-wrapper">
+        <form id="add-newsCat-form">
+            <div class="form-group">
+                <label for="categoryName">分類名稱</label>
+                <input id="categoryName" class="form-control" required/>
+            </div>
+            <div class="form-actions">
+                <a href="#"
+                   onclick="event.preventDefault(); loadExternalPage('../newssys/category/allNewsCategory.html')"
+                   class="action-btn">返回列表</a>
+                <button type="submit" id="submitBtn" class="action-btn btn-submit">確認新增</button>
+            </div>
+        </form>
+    </div>
+    <div id="message-area"></div>
+</div>
+<script>
+    (() => {
+        const form = document.getElementById('add-newsCat-form');
+        const nameInput = document.getElementById('categoryName');
+        const msg = document.getElementById('message-area');
+        const btn = document.getElementById('submitBtn');
+        const api = 'http://localhost:8080/api/admin/NewsCategories/add';
+        const token = localStorage.getItem('jwt');
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            btn.disabled = true;
+            btn.textContent = '新增中...';
+            msg.style.display = 'none';
+            try {
+                const res = await fetch(api, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', Authorization: 'Bearer ' + token},
+                    body: JSON.stringify({categoryName: nameInput.value.trim()})
+                });
+                if (!res.ok) throw new Error(await res.text() || '新增失敗');
+                show('新增成功！2 秒後返回', 'success');
+                setTimeout(() => loadExternalPage('../newssys/newsCategory/allNewsCategory.html'), 2000);
+            } catch (err) {
+                show('失敗: ' + err.message, 'error');
+                btn.disabled = false;
+                btn.textContent = '確認新增';
+            }
+        });
+
+        function show(t, type) {
+            msg.textContent = t;
+            msg.className = type;
+            msg.style.display = 'block';
+        }
+    })();
+</script>
+</body>
+</html>

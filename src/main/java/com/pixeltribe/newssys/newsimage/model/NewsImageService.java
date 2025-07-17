@@ -25,7 +25,10 @@ public class NewsImageService {
     private final NewsRepository newsRepository;
     private final Path storageRoot;
     private final String baseUrl;
-    private static final List<String> ALLOWED = List.of("image/jpeg", "image/png", "image/webp");
+    private static final List<String> ALLOWED = List.of(
+            "image/jpeg",
+            "image/png",
+            "image/webp");
 
     public NewsImageService(NewsImageRepository newsImageRepository,
                             NewsRepository newsRepository,
@@ -33,7 +36,8 @@ public class NewsImageService {
                             @Value("${file.base-url}") String baseUrl) {
         this.newsImageRepository = newsImageRepository;
         this.newsRepository = newsRepository;
-        this.storageRoot = Paths.get(storageRoot).toAbsolutePath().normalize();
+        this.storageRoot = Paths.get("static", "uploads").toAbsolutePath().normalize();
+
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
     }
 
@@ -47,6 +51,7 @@ public class NewsImageService {
         return newsImageRepository.findNewsImageByNewsNo_Id(id);
     }
 
+    @Transactional
     public String uploadAndGetUrl(MultipartFile file, Integer newsId) {
 
         News news = newsRepository.findById(newsId)
@@ -71,7 +76,7 @@ public class NewsImageService {
             Path target = storageRoot.resolve(fileName);
             Files.copy(input, target, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
-            throw new RuntimeException("Error while uploading news image " + newsId, ex);
+            throw new RuntimeException("無法儲存圖片至路徑：" + storageRoot + "，新聞 ID：" + newsId, ex);
         }
 
         NewsImage newsImage = new NewsImage();
@@ -82,6 +87,7 @@ public class NewsImageService {
 
         return newsImage.getImgUrl();
     }
+
     @Transactional(readOnly = true)
     public List<NewsImageIndexDTO> getImage5() {
         return newsImageRepository.getTopFiveImage();

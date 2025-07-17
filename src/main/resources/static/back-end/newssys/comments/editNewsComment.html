@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!-- ../newssys/comments/editNewsComment.html -->
+<div class="news-comment-edit-wrapper">
+    <h2 class="mb-4">編輯留言</h2>
+
+    <form id="editForm" class="needs-validation" novalidate>
+        <div class="mb-3">
+            <label class="form-label">留言 ID</label>
+            <input id="id" class="form-control" readonly>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">新聞</label>
+            <input id="news" class="form-control" readonly>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">會員</label>
+            <input id="member" class="form-control" readonly>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">內容</label>
+            <textarea id="content" class="form-control" rows="6" required></textarea>
+            <div class="invalid-feedback">內容必填</div>
+        </div>
+        <div class="form-check form-switch mb-4">
+            <input class="form-check-input" type="checkbox" id="hiddenSwitch">
+            <label class="form-check-label" for="hiddenSwitch">隱藏留言</label>
+        </div>
+        <button class="btn btn-primary">儲存</button>
+        <button type="button" class="btn btn-secondary ms-2" onclick="backToList()">返回列表</button>
+    </form>
+
+    <div id="msg" class="alert mt-4" style="display:none"></div>
+</div>
+
+<script>
+    /* ====== 常量 ====== */
+    const API_BASE_URL = window.location.origin;
+    const DETAIL_API = id => `/api/admin/NewsComment/${id}`;
+    const UPDATE_API = '/api/admin/NewsComment/update';     // 目前後端定義
+    const HIDE_API = id => `/api/admin/NewsComment/${id}/hide`;
+    const LIST_PAGE = '../newssys/comments/allNewsComment.html';
+
+    /* ====== 讀取查詢參數 ====== */
+    function getSearchParams() {
+        const area = document.querySelector('#content-area');
+        const qs = area ? (area.dataset.pageParams || '') : location.search;
+        return new URLSearchParams(qs);
+    }
+
+    (async function init() {
+        const id = getSearchParams().get('id');
+        if (!id) {
+            showMsg('缺少 id', 'danger');
+            return;
+        }
+        try {
+            const res = await fetch(API_BASE_URL + DETAIL_API(id));
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const d = await res.json();
+            qs('#id').value = id;
+            qs('#news').value = `${d.newsId} - ${d.newsTitle || ''}`;
+            qs('#member').value = `${d.memberId} - ${d.memberName || ''}`;
+            qs('#content').value = d.content || d.ncomCon || '';
+            qs('#hiddenSwitch').checked = d.ncomStatus === '2';
+        } catch (e) {
+            showMsg('載入失敗：' + e.message, 'danger');
+        }
+    })();
+
+    /* ====== 表單送出 ====== */
+    document.getElementById('editForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        e.target.classList.add('was-validated');
+        if (!e.target.checkValidity()) return;
+
+        const id = qs('#id').value;
+        const hidden = qs('#hiddenSwitch').checked;
+        const content = qs('#content').value.trim();
+
+        /* 1. 更新內容 -------------------------------------------------- */
+        const dto = {id, ncomCon: content, ncomStatus: hidden ? '2' : '1', newsNoId: null, memNoId: null};
+        try {
+            const token = localStorage.getItem('jwt');
+            const res = await fetch(`${API_BASE_URL}${UPDATE_API}?${new URLSearchParams({dto: JSON.stringify(dto)})}`,{headers:{'Authorization': `Bearer ${token}`}}, {method: 'PATCH'});
+            if (!res.ok) throw new Error('內容更新失敗');
+
+            /* 2. 切換隱藏(如需要) -------------------------------------- */
+            const hideRes = await fetch(API_BASE_URL + HIDE_API(id), {
+                method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({hidden})
+            });
+            if (!hideRes.ok) throw new Error('隱藏切換失敗');
+
+            showMsg('儲存成功！');
+            setTimeout(backToList, 800);
+        } catch (err) {
+            showMsg(err.message, 'danger');
+        }
+    });
+
+    function backToList() {
+        if (typeof loadExternalPage === 'function') {
+            loadExternalPage(LIST_PAGE);
+        } else {
+            window.location.href = LIST_PAGE;
+        }
+    }
+
+    /* ====== 工具 ====== */
+    function qs(sel) {
+        return document.querySelector(sel);
+    }
+
+    function showMsg(txt, type = 'success') {
+        const m = qs('#msg');
+        m.className = 'alert alert-' + type;
+        m.textContent = txt;
+        m.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
