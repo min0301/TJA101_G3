@@ -3,10 +3,7 @@ package com.pixeltribe.newssys.news.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pixeltribe.common.PageResponse;
-import com.pixeltribe.membersys.administrator.model.AdmRepository;
-import com.pixeltribe.membersys.administrator.model.Administrator;
 import com.pixeltribe.newssys.news.model.*;
-import com.pixeltribe.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -21,7 +18,7 @@ public class NewsController {
     private final NewsService newsSrv;
 
 
-    public NewsController(NewsService newsSrv, JwtUtil jwtUtil, AdmRepository admRepository) {
+    public NewsController(NewsService newsSrv) {
         this.newsSrv = newsSrv;
     }
 
@@ -68,7 +65,7 @@ public class NewsController {
     public ResponseEntity<?> createNews(@Valid @RequestBody NewsCreationDTO dto,
                                         HttpServletRequest req) {
         try {
-            return newsSrv.createAdmin(dto,req);
+            return newsSrv.createAdmin(dto, req);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
