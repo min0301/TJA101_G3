@@ -584,7 +584,12 @@
         'forum-edit-category': '../forumsys/category/editCategory.html',
         'forum-comments': '../forumsys/message/allMessages.html',
         'forum-reports': '../forumsys/messagereport/allReports.html',
-        'news-management':'../newssys/listAllNews.html',
+        'news-management':'../newssys/news/listAllNews.html',
+        'news-categories': '../newssys/category/allNewsCategory.html',
+        'news-add-category': '../newssys/category/addNewsCategory.html',
+        'news-edit-category': '../newssys/category/editNewsCategory.html',
+        'news-comments': '../newssys/comments/allNewsComment.html',
+        'news-edit-comments': '../newssys/comments/editNewsComment.html',
 
         // 在此處繼續添加其他頁面...
         // 'member-query': '../membersys/query/allMember.html',
@@ -637,6 +642,10 @@
      */
     async function loadExternalPage(url) {
         try {
+            // --- 去重：同一頁就不再 reload ---
+            if (contentArea.dataset.current === url) return;
+            contentArea.dataset.current = url;
+
             contentArea.innerHTML = `<div class="sys-block" style="text-align: center; font-size: 20px;">載入中...</div>`;
 
             // [不可變] 這是修正的核心：建立一個完整的 URL 物件來解析傳入的相對路徑與參數。

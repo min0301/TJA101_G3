@@ -1,11 +1,12 @@
 package com.pixeltribe.newssys.newscomment.controller;
 
-import com.pixeltribe.newssys.newscomment.model.NewsCommentCreationDTO;
-import com.pixeltribe.newssys.newscomment.model.NewsCommentDTO;
-import com.pixeltribe.newssys.newscomment.model.NewsCommentService;
-import com.pixeltribe.newssys.newscomment.model.NewsCommentUpdateDTO;
+import com.pixeltribe.newssys.newscomment.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,5 +45,25 @@ class NewsCommentController {
         return newsCommentService.save(dto);
     }
 
+    @GetMapping("admin/NewsComment")
+    @Operation(summary = "後台取得評論清單")
+    public Page<AdminNewsCommentPageDTO> getComments(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) Integer newsId,
+            @RequestParam(required = false) Integer memberId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String keyword) {
+        Character st = (status == null || status.isBlank()) ? null : status.charAt(0);
+        Pageable p = PageRequest.of(page, size, Sort.by("ncomCre").descending());
+        return newsCommentService.findAdminPage(p, newsId, memberId, st, keyword);
+    }
+
+    @PatchMapping("/admin/NewsComment/{id}/hide")
+    @Operation(summary = "後台切換評論隱藏狀態")
+    public CommentHideDTO toggleHide(@PathVariable Integer id, @RequestBody CommentHideDTO req) {
+
+        return newsCommentService.toggleHide(id, req.getNcomStatus());
+    }
 
 }

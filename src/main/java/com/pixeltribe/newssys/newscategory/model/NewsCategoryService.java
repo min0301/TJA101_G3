@@ -69,4 +69,15 @@ public class NewsCategoryService {
 
         return returnedNewsCategoryDTO;
     }
+
+    public NewsCategoryDTO getNewsCategoryById(int id) {
+        NewsCategory newsCategory = newsCategoryRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("CategoryId: " + id));
+
+        NewsCategoryDTO newsCategoryDTO = new NewsCategoryDTO();
+        newsCategoryDTO.setCategoryId(newsCategory.getId());
+        newsCategoryDTO.setCategoryName(newsCategory.getNcatName());
+
+        return newsCategoryDTO;
+    }
 }
