@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>像素部落 - 商城</title>
+<meta name="description"
+	content="Forum & Community Discussions HTML Template">
+<meta name="keywords"
+	content="bootstrap 5, forum, community, support, social, q&a, mobile, html">
+<meta name="robots" content="all,follow">
+
+<script src="/js/dynamicHeaderInfo.js"></script>
+<script>
+	//Check local storage
+	let localS = localStorage.getItem('theme')
+	themeToSet = localS
+
+	// If local storage is not set, we check the OS preference
+	if (!localS) {
+		themeToSet = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark'
+				: 'light'
+	}
+
+	//Set the correct theme
+	document.documentElement.setAttribute('data-theme', themeToSet)
+</script>
+
+
+<link rel="stylesheet"
+	href="../../assets/vendors/bootstrap/bootstrap.min.css">
+<link rel="stylesheet"
+	href="../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+<link rel="stylesheet"
+	href="../../assets/vendors/simplebar/simplebar.min.css">
+<link rel="stylesheet" href="../../assets/vendors/aos/aos.css">
+<link rel="stylesheet" href="../../assets/css/style.css">
+<link rel="stylesheet" href="../../assets/css/responsive.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Karla&display=swap"
+	rel="stylesheet">
+
+
+</head>
+
+<body>
+	<div class="switcher switcher-show" id="theme-switcher">
+		<i id="switcher-icon" class="bi bi-moon"></i>
+	</div>
+
+	<a href="#" id="back-to-top"></a>
+
+	<div class="vine-wrapper">
+
+		<div id="header-placeholder"></div>
+
+		<section class="vine-hero-2 bg-img-1">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="hero-content" data-aos="fade-down"
+							data-aos-easing="linear">
+							<h1>像素部落(Pixel Tribe)</h1>
+							<p>遊戲愛好者的聚集地</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="vine-main">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-3 pe-lg-3 border-end">
+						<div class="position-sticky" style="top: 100px;">
+							<div class="mall-category-sidebar">
+								<h5 class="mb-3">平台分類</h5>
+								<div id="malltag-list">
+									<!-- 分類項目 -->
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-9 ps-lg-5">
+						<div id="dynamic-content-container"></div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<div id="footer-placeholder"></div>
+
+	</div>
+
+	<script src="../../assets/vendors/jquery/jquery.min.js"></script>
+	<script src="../../assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+	<script src="../../assets/vendors/popper/popper.min.js"></script>
+	<script src="../../assets/vendors/simplebar/simplebar.min.js"></script>
+	<script src="../../assets/vendors/aos/aos.js"></script>
+	<script src="../../assets/js/main.js"></script>
+	<script src="../../assets/js/global-loader.js"></script>
+	<script src="malltag.js"></script>
+	<script src="productDetail.js"></script>
+	<script>
+	document.addEventListener('DOMContentLoaded', function() {
+	    setTimeout(function() {
+	        // 檢查並初始化 MallTagManager
+	        if (window.mallTagManager && typeof window.mallTagManager.init === 'function') {
+	            window.mallTagManager.init();
+	        }
+	        
+	        // ProductDetailManager 會自動初始化
+	        if (window.productDetailManager) {
+	            console.log('ProductDetailManager 已自動初始化');
+	        }
+	    }, 300);
+	});
+	</script>
+</body>
+</html>

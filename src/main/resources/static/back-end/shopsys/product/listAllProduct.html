@@ -389,8 +389,8 @@
   <div class="page-title-header">
     <h2><i class="bi bi-card-list item-icon"></i>商品管理</h2>
     <div style="display: flex; gap: 15px;">
-      <a href="addProduct.html" class="action-btn btn-add">+新增商品</a>
-      <a href="/back-end/shopsys/productsn/addProductsn.html" class="action-btn btn-addproductsn">+新增商品序號</a>
+      <a href="#" onclick="event.preventDefault(); loadExternalPage('../shopsys/product/addProduct.html')" class="action-btn btn-add">+新增商品</a>
+      <a href="#" onclick="event.preventDefault(); loadExternalPage('../shopsys/productsn/addProductsn.html')" class="action-btn btn-addproductsn">+新增商品序號</a>
     </div>
   </div>
 
@@ -594,7 +594,7 @@
             <button class="btn-offline" data-id="${product.id}" data-action="offline" ${product.proIsmarket == '1' ? 'disabled' : ''}>下架</button>
           </td>
           <td>
-            <a href="/back-end/shopsys/product/updateProduct.html?id=${product.id}" class="action-btn">修改</a>
+            <a href="#" onclick="event.preventDefault(); loadExternalPage('../shopsys/product/updateProduct.html?id=${product.id}')" class="action-btn">修改</a>
           </td>
         `;
         tableBody.appendChild(row);

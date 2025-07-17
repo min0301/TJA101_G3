@@ -289,7 +289,7 @@
 <div class="update-product-container">
   <div class="page-title-header">
     <h2><i class="bi bi-pencil-square item-icon"></i>商品修改</h2>
-    <a href="/back-end/adm/AdmHomePage.html" class="action-btn btn-home">回後台首頁</a>
+    <a href="AdmHomePage.html" class="action-btn btn-home">回管理首頁</a>
   </div>
 
   <div id="error-message"></div>
@@ -322,7 +322,7 @@
       </div>
       
       <div class="form-group">
-        <label for="product_date" required>發售日</label>
+        <label for="product_date">發售日</label>
         <input type="date" id="product_date" name="proDate">
       </div>
       
@@ -335,12 +335,12 @@
       
       <div class="form-group">
         <label for="product_details">描述</label>
-        <textarea id="product_details" name="proDetails" required placeholder="請輸入商品描述"></textarea>
+        <textarea id="product_details" name="proDetails" placeholder="請輸入商品描述"></textarea>
       </div>
       
       <div class="form-group">
         <label for="product_include">內容物</label>
-        <textarea id="product_include" name="proInclude" required placeholder="請輸入商品內容物"></textarea>
+        <textarea id="product_include" name="proInclude" placeholder="請輸入商品內容物"></textarea>
       </div>
     
       <div class="form-group">
@@ -359,7 +359,7 @@
       </div>
       
       <div class="button-group">
-        <a href="listAllProduct.html" class="action-btn">返回列表</a>
+        <a href="#" onclick="event.preventDefault(); loadExternalPage('../shopsys/product/listAllProduct.html')" class="action-btn">返回列表</a>
         <button type="submit" class="action-btn btn-save">儲存修改</button>
       </div>
     </form>
@@ -395,8 +395,10 @@
     const loadingOverlay = document.getElementById('loadingOverlay');
 
     // 從 URL 讀取要編輯的商品 ID
-    const urlParams = new URLSearchParams(window.location.search);
-    let productId = urlParams.get('id');
+    const contentArea = document.getElementById('content-area');
+	const pageParamsString = contentArea ? contentArea.getAttribute('data-page-params') : '';
+	const urlParams = new URLSearchParams(pageParamsString);
+	let productId = urlParams.get('id');
 
     // --- 核心功能函式 ---
 
@@ -414,17 +416,20 @@
     /**
      * @description 顯示載入狀態
      */
-    function showLoading() {
-      loadingOverlay.style.display = 'flex';
-    }
+     function showLoading() {
+    	  if (loadingOverlay) {
+    	    loadingOverlay.style.display = 'flex';
+    	  }
+    	}
 
     /**
      * @description 隱藏載入狀態
      */
-    function hideLoading() {
-      loadingOverlay.style.display = 'none';
-    }
-
+     function hideLoading() {
+    	  if (loadingOverlay) {
+    	    loadingOverlay.style.display = 'none';
+    	  }
+    	}
     /**
      * @description 初始化頁面，獲取所有必要資料
      */
@@ -562,7 +567,11 @@
 
         // 成功提示
         alert('更新成功！');
-        window.location.href = 'listAllProduct.html';
+        if (typeof loadExternalPage === 'function') {
+        	  loadExternalPage('../shopsys/product/listAllProduct.html');
+        	} else {
+        	  window.location.href = 'listAllProduct.html';
+        	}
 
       } catch(error) {
         showError(`儲存失敗: ${error.message}`);
