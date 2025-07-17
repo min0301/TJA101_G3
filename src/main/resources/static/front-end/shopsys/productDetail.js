@@ -331,201 +331,353 @@ class ProductDetailManager {
     /**
      * 載入商品詳情
      */
-    async loadProductDetail(productId) {
-        try {
-            this.currentProductId = productId;
-            
-            // 顯示載入狀態
-            this.showLoading();
-            
-            // 更新頁面標題
-            document.title = `商品詳情 - 像素部落`;
-            
-            // 請求商品資料
-            const url = `${this.apiBaseUrl}/product/${productId}/search`;
-            console.log('請求商品詳情:', url);
-            
-            const response = await fetch(url);
-            
-            console.log('Response status:', response.status);
-            console.log('Response headers:', response.headers);
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Error response:', errorText);
-                
-                if (response.status === 404) {
-                    throw new Error('商品不存在');
-                } else if (response.status === 500) {
-                    throw new Error('服務器錯誤');
-                } else {
-                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-                }
-            }
-            
-            const responseData = await response.json();
-            console.log('收到商品資料:', responseData);
-            
-            // 處理回應資料：如果是陣列，取第一個；如果是物件，直接使用
-            let productData;
-            if (Array.isArray(responseData)) {
-                if (responseData.length > 0) {
-                    productData = responseData[0]; // 取陣列的第一個商品
-                    console.log('從陣列中取得商品資料:', productData);
-                } else {
-                    throw new Error('商品不存在');
-                }
-            } else {
-                productData = responseData; // 直接使用物件
-            }
-            
-            // 確認商品資料有效
-            if (!productData || !productData.id) {
-                throw new Error('商品資料無效');
-            }
-            
-            // 更新頁面標題為商品名稱
-            document.title = `${productData.proName} - 像素部落`;
-            
-            // 顯示商品詳情
-            this.displayProductDetail(productData);
-            
-            // 高亮對應的左側標籤
-            this.highlightCorrespondingTag(productData.mallTagNo);
-            
-        } catch (error) {
-            console.error('載入商品詳情失敗:', error);
-            
-            if (error.message === '商品不存在' || error.message === '商品資料無效') {
-                this.showProductNotFound();
-            } else {
-                this.showError('載入商品詳情失敗，請稍後再試');
-            }
-        }
-    }
+	/**
+	 * 載入商品詳情
+	 */
+	async loadProductDetail(productId) {
+	    try {
+	        this.currentProductId = productId;
+	        
+	        // 顯示載入狀態
+	        this.showLoading();
+	        
+	        // 更新頁面標題
+	        document.title = `商品詳情 - 像素部落`;
+	        
+	        // 請求商品資料
+	        const url = `${this.apiBaseUrl}/product/${productId}/search`;
+	        console.log('請求 URL:', url);
+	        
+	        const response = await fetch(url);
+	        console.log('API 回應狀態:', response.status);
+	        
+	        if (!response.ok) {
+	            const errorText = await response.text();
+	            
+	            if (response.status === 404) {
+	                throw new Error('商品不存在');
+	            } else if (response.status === 500) {
+	                throw new Error('服務器錯誤');
+	            } else {
+	                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+	            }
+	        }
+	        
+	        const responseData = await response.json();
+	        console.log('API 完整回應:', responseData);
 
+	        let productData;
+	        let inventoryData;
+
+	        if (Array.isArray(responseData)) {
+	            console.log('處理陣列格式回應');
+	            if (responseData.length > 0) {
+	                // 如果是陣列，取第一個元素
+	                const firstItem = responseData[0];
+	                productData = firstItem.product;
+	                inventoryData = firstItem.inventory;
+	            } else {
+	                throw new Error('商品不存在');
+	            }
+	        } else {
+	            console.log('處理物件格式回應');
+	            // 如果是物件，從物件中取得 product 和 inventory
+	            productData = responseData.product;
+	            inventoryData = responseData.inventory;
+	        }
+
+	        console.log('解析後的商品資料:', productData);
+	        console.log('解析後的庫存資料:', inventoryData);
+
+	        // 檢查資料是否存在
+	        if (!productData) {
+	            throw new Error('商品資料不存在');
+	        }
+	        
+	        // 確認商品資料有效
+	        if (!productData || !productData.id) {
+	            throw new Error('商品資料無效');
+	        }
+	        
+	        // 更新頁面標題為商品名稱
+	        document.title = `${productData.proName} - 像素部落`;
+	        
+	        // 🔥 重要修改：同時傳遞商品資料和庫存資料
+	        this.displayProductDetail(productData, inventoryData);
+	        
+	        // 高亮對應的左側標籤
+	        this.highlightCorrespondingTag(productData.mallTagNo);
+	        
+	    } catch (error) {
+	        console.error('載入商品詳情失敗:', error);
+	        
+	        if (error.message === '商品不存在' || error.message === '商品資料無效') {
+	            this.showProductNotFound();
+	        } else {
+	            this.showError('載入商品詳情失敗，請稍後再試');
+	        }
+	    }
+	}
     /**
      * 顯示商品詳情
      */
-    displayProductDetail(product) {
-        if (!this.mainContainer) {
-            console.error('主容器不存在');
-            return;
-        }
+	/**
+	 * 顯示商品詳情
+	 * @param {Object} product - 商品資料
+	 * @param {Object} inventoryData - 庫存資料
+	 */
+	displayProductDetail(product, inventoryData = null) {
+	    console.log('=== displayProductDetail 被呼叫 ===');
+	    console.log('接收到的商品資料:', product);
+	    console.log('接收到的庫存資料:', inventoryData);
+	    
+	    if (!this.mainContainer) {
+	        console.error('主容器不存在');
+	        return;
+	    }
 
-        // 驗證商品資料
-        if (!product || !product.id) {
-            console.error('商品資料無效:', product);
-            this.showError('商品資料無效');
-            return;
-        }
+	    // 驗證商品資料
+	    if (!product || !product.id) {
+	        console.error('商品資料無效:', product);
+	        this.showError('商品資料無效');
+	        return;
+	    }
 
-        console.log('顯示商品詳情:', product);
+	    console.log('顯示商品詳情:', product);
 
-        const detailHtml = `
-            <div class="product-detail-page">
-                <!-- 返回按鈕 -->
-                <div class="page-header mb-4">
-                    <button class="back-button" onclick="window.productDetailManager.goBackToList()">
-                        <i class="bi bi-arrow-left"></i> 返回商品列表
-                    </button>
-                </div>
+	    // 生成庫存區域 HTML
+	    console.log('=== 生成庫存區域 ===');
+	    const inventoryHtml = this.generateInventorySection(inventoryData);
+	    console.log('生成的庫存 HTML:', inventoryHtml);
 
-                <!-- 主要商品詳情區域 -->
-                <div class="product-main-section">
-                    <div class="product-main-content">
-                        <!-- 左側：商品圖片 -->
-                        <div class="product-image-section">
-                            <div class="product-image-wrapper">
-                                <img src="${this.apiBaseUrl}/product/cover/${product.id}" 
-                                     alt="${this.escapeHtml(product.proName || '商品')}" 
-                                     class="product-main-image"
-                                     onerror="this.src='${this.generatePlaceholderImage()}'">
-                            </div>
-                        </div>
-                        
-                        <!-- 右側：商品資訊 -->
-                        <div class="product-info-main">
-                            <h1 class="product-title">${this.escapeHtml(product.proName || '未知商品')}</h1>
-                            <div class="product-price-display">NT$ ${this.formatPrice(product.proPrice || 0)}</div>
-                            
-                            <!-- 商品基本資訊 -->
-                            <div class="product-specs">
-                                <div class="spec-item">
-                                    <span class="spec-label">狀態</span>
-                                    <span class="spec-value">${this.escapeHtml(product.proStatus || '未知')}</span>
-                                </div>
-                                
-                                <div class="spec-item">
-                                    <span class="spec-label">版本</span>
-                                    <span class="spec-value">${this.escapeHtml(product.proVersion || '標準版')}</span>
-                                </div>
-                                
-                                <div class="spec-item">
-                                    <span class="spec-label">發布日期</span>
-                                    <span class="spec-value">${this.formatDate(product.proDate)}</span>
-                                </div>
-                            </div>
-                            
-                            <!-- 操作按鈕區域 -->
-                            <div class="action-section">
-                                <div class="action-buttons">
-                                    <button class="btn-add-cart" onclick="window.productDetailManager.addToCart('${product.id}')">
-                                        <i class="bi bi-cart-plus"></i> 加入購物車
-                                    </button>
-                                    <button class="btn-buy-now" onclick="window.productDetailManager.buyNow('${product.id}')">
-                                        <i class="bi bi-lightning-fill"></i> 立即購買
-                                    </button>
-                                    <button class="btn-share" onclick="window.productDetailManager.copyLink()" title="分享商品">
-                                        <i class="bi bi-share"></i>
-                                    </button>
-                                </div>
-                                
-                                <!-- 隱藏的分享URL輸入框 -->
-                                <input type="text" class="share-url-hidden" readonly 
-                                       value="${window.location.href}" 
-                                       id="shareUrl" style="position: absolute; left: -9999px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+	    // 生成操作按鈕區域 HTML
+	    console.log('=== 生成操作按鈕區域 ===');
+	    const actionHtml = this.generateActionSection(product, inventoryData);
+	    console.log('生成的操作按鈕 HTML:', actionHtml);
 
-                <!-- 商品詳細內容區域 -->
-                <div class="product-content-section">
-                    <!-- 商品內容 -->
-                    <div class="content-block">
-                        <h3 class="content-title">商品內容：</h3>
-                        <div class="content-text">
-                            ${this.escapeHtml(product.proInclude || '商品內容資訊暫未提供')}
-                        </div>
-                    </div>
+	    const detailHtml = `
+	        <div class="product-detail-page">
+	            <!-- 返回按鈕 -->
+	            <div class="page-header mb-4">
+	                <button class="back-button" onclick="window.productDetailManager.goBackToList()">
+	                    <i class="bi bi-arrow-left"></i> 返回商品列表
+	                </button>
+	            </div>
 
-                    <!-- 遊戲簡介 -->
-                    <div class="content-block">
-                        <h3 class="content-title">遊戲簡介：</h3>
-                        <div class="content-text">
-                            ${this.escapeHtml(product.proDetails || '遊戲簡介暫未提供')}
-                        </div>
-                    </div>
-                </div>
+	            <!-- 主要商品詳情區域 -->
+	            <div class="product-main-section">
+	                <div class="product-main-content">
+	                    <!-- 左側：商品圖片 -->
+	                    <div class="product-image-section">
+	                        <div class="product-image-wrapper">
+	                            <img src="${this.apiBaseUrl}/product/cover/${product.id}" 
+	                                 alt="${this.escapeHtml(product.proName || '商品')}" 
+	                                 class="product-main-image"
+	                                 onerror="this.src='${this.generatePlaceholderImage()}'">
+	                        </div>
+	                    </div>
+	                    
+	                    <!-- 右側：商品資訊 -->
+	                    <div class="product-info-main">
+	                        <h1 class="product-title">${this.escapeHtml(product.proName || '未知商品')}</h1>
+	                        <div class="product-price-display">NT$ ${this.formatPrice(product.proPrice || 0)}</div>
+	                        
+	                        <!-- 商品基本資訊 -->
+	                        <div class="product-specs">
+	                            <div class="spec-item">
+	                                <span class="spec-label">狀態</span>
+	                                <span class="spec-value">${this.escapeHtml(product.proStatus || '未知')}</span>
+	                            </div>
+	                            
+	                            <div class="spec-item">
+	                                <span class="spec-label">版本</span>
+	                                <span class="spec-value">${this.escapeHtml(product.proVersion || '標準版')}</span>
+	                            </div>
+	                            
+	                            <div class="spec-item">
+	                                <span class="spec-label">發布日期</span>
+	                                <span class="spec-value">${this.formatDate(product.proDate)}</span>
+	                            </div>
+	                        </div>
+	                        
+	                        <!-- 庫存顯示區域 - 動態生成 -->
+	                        ${inventoryHtml}
+	                        
+	                        <!-- 操作按鈕區域 - 動態生成 -->
+	                        ${actionHtml}
+	                    </div>
+	                </div>
+	            </div>
 
-                <!-- 遊戲畫面展示區域 -->
-                <div class="game-gallery-section">
-                    <div class="game-screenshots">
-                        <!-- 這裡可以添加遊戲截圖輪播 -->
-                        <div class="screenshot-placeholder">
-                            <p>遊戲畫面展示區域</p>
-                            <small>此功能可在後續開發中擴展</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+	            <!-- 商品詳細內容區域 -->
+	            <div class="product-content-section">
+	                <!-- 商品內容 -->
+	                <div class="content-block">
+	                    <h3 class="content-title">商品內容：</h3>
+	                    <div class="content-text">
+	                        ${this.escapeHtml(product.proInclude || '商品內容資訊暫未提供')}
+	                    </div>
+	                </div>
 
-        this.mainContainer.innerHTML = detailHtml;
-        console.log('商品詳情顯示完成');
-    }
+	                <!-- 遊戲簡介 -->
+	                <div class="content-block">
+	                    <h3 class="content-title">遊戲簡介：</h3>
+	                    <div class="content-text">
+	                        ${this.escapeHtml(product.proDetails || '遊戲簡介暫未提供')}
+	                    </div>
+	                </div>
+	            </div>
 
+	            <!-- 遊戲畫面展示區域 -->
+	            <div class="game-gallery-section">
+	                <div class="game-screenshots">
+	                    <!-- 這裡可以添加遊戲截圖輪播 -->
+	                    <div class="screenshot-placeholder">
+	                        <p>遊戲畫面展示區域</p>
+	                        <small>此功能可在後續開發中擴展</small>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    `;
+
+	    this.mainContainer.innerHTML = detailHtml;
+	    console.log('=== 商品詳情顯示完成 ===');
+	}
+	
+	displayInventoryInfo(inventoryData) {
+	       if (!inventoryData) {
+	           this.showInventoryError();
+	           return;
+	       }
+	       
+	       const statusBadge = document.getElementById('statusBadge');
+	       const inventoryCount = document.getElementById('inventoryCount');
+	       const inventoryText = document.getElementById('inventoryText');
+	       const buyButton = document.getElementById('buyButton');
+	       
+	       // 顯示商品狀態
+	       statusBadge.textContent = inventoryData.proStatus || '未知狀態';
+	       
+	       // 顯示庫存數量
+	       inventoryCount.textContent = `庫存：${inventoryData.inventory || 0} 件`;
+	       
+	       // 顯示庫存狀態文字
+	       inventoryText.textContent = inventoryData.displayText || '庫存狀態未知';
+	       
+	       // 根據商品狀態設置樣式
+	       this.setInventoryStyle(inventoryData, statusBadge, buyButton);
+	   }
+	   setInventoryStyle(inventoryData, statusBadge, buyButton) {
+	           // 清除之前的樣式
+	           statusBadge.classList.remove('preorder', 'released', 'unavailable');
+	           buyButton.classList.remove('available', 'unavailable');
+	           
+	           // 根據商品狀態設置樣式
+	           switch (inventoryData.proStatus) {
+	               case '預購中':
+	                   statusBadge.classList.add('preorder');
+	                   break;
+	               case '已發售':
+	                   statusBadge.classList.add('released');
+	                   break;
+	               default:
+	                   statusBadge.classList.add('unavailable');
+	           }
+	           
+	           // 根據可用性設置購買按鈕
+	           if (inventoryData.isAvailable && inventoryData.inventory > 0) {
+	               buyButton.classList.add('available');
+	               buyButton.disabled = false;
+	               buyButton.textContent = inventoryData.proStatus === '預購中' ? '立即預購' : '加入購物車';
+	           } else {
+	               buyButton.classList.add('unavailable');
+	               buyButton.disabled = true;
+	               buyButton.textContent = this.getUnavailableButtonText(inventoryData);
+	           }
+	       }
+		   getUnavailableButtonText(inventoryData) {
+		           switch (inventoryData.proStatus) {
+		               case '預購中':
+		                   return '預購已滿';
+		               case '已發售':
+		                   return '暫時缺貨';
+		               default:
+		                   return '無法購買';
+		           }
+		       }
+		       
+		       showInventoryError() {
+		           document.getElementById('statusBadge').textContent = '狀態未知';
+		           document.getElementById('inventoryCount').textContent = '庫存：-- 件';
+		           document.getElementById('inventoryText').textContent = '無法取得庫存資訊';
+		           
+		           const buyButton = document.getElementById('buyButton');
+		           buyButton.classList.add('unavailable');
+		           buyButton.disabled = true;
+		           buyButton.textContent = '無法購買';
+		       }
+			   
+			   /**
+			    * 生成庫存區域 HTML (簡化版)
+			    */
+			   generateInventorySection(inventoryData) {
+			       console.log('生成庫存區域，資料:', inventoryData);
+			       
+			       if (!inventoryData) {
+			           return `
+			               <div class="inventory-info">
+			                   <div class="inventory-count no-stock">庫存：-- 件</div>
+			                   <div class="inventory-text no-stock">無法取得庫存資訊</div>
+			               </div>
+			           `;
+			       }
+
+			       // 判斷是否有庫存 (庫存數量大於 0)
+			       const hasStock = inventoryData.inventory > 0;
+			       const stockClass = hasStock ? 'has-stock' : 'no-stock';
+			       
+			       console.log(`庫存數量: ${inventoryData.inventory}, 有庫存: ${hasStock}, CSS類別: ${stockClass}`);
+
+			       return `
+			           <div class="inventory-info">
+			               <div class="inventory-text ${stockClass}">${this.escapeHtml(inventoryData.displayText || '庫存狀態未知')}</div>
+						   <div class="inventory-count ${stockClass}">庫存：${inventoryData.inventory || 0} 件</div>
+						</div>
+			       `;
+			   }
+
+			   /**
+			    * 生成操作按鈕區域 HTML (簡化版)
+			    */
+			   generateActionSection(product, inventoryData) {
+			       // 判斷是否有庫存
+			       const hasStock = inventoryData && inventoryData.inventory > 0;
+			       const buttonClass = hasStock ? 'available' : 'unavailable';
+			       const buttonDisabled = hasStock ? '' : 'disabled';
+
+			       return `
+			           <div class="action-section">
+			               <div class="action-buttons">
+			                   <button class="btn-add-cart ${buttonClass}" ${buttonDisabled}
+			                           onclick="window.productDetailManager.addToCart('${product.id}')">
+			                       <i class="bi bi-cart-plus"></i> 加入購物車
+			                   </button>
+			                   <button class="btn-buy-now ${buttonClass}" ${buttonDisabled}
+			                           onclick="window.productDetailManager.buyNow('${product.id}')">
+			                       <i class="bi bi-lightning-fill"></i> 立即購買
+			                   </button>
+			                   <button class="btn-share" onclick="window.productDetailManager.copyLink()" title="分享商品">
+			                       <i class="bi bi-share"></i>
+			                   </button>
+			               </div>
+			               
+			               <input type="text" class="share-url-hidden" readonly 
+			                      value="${window.location.href}" 
+			                      id="shareUrl" style="position: absolute; left: -9999px;">
+			           </div>
+			       `;
+			   }
     /**
      * 返回商品列表頁面
      */
@@ -704,18 +856,15 @@ class ProductDetailManager {
     /**
      * 獲取狀態樣式類別
      */
-    getStatusClass(status) {
-        if (!status) return 'unknown';
-        
-        const statusLower = status.toLowerCase();
-        if (statusLower.includes('已發售') || statusLower.includes('available')) {
-            return 'available';
-        } else if (statusLower.includes('預購') || statusLower.includes('preorder')) {
-            return 'preorder';
-        } else if (statusLower.includes('缺貨') || statusLower.includes('sold')) {
-            return 'soldout';
-        }
-        return 'unknown';
+    getStatusClass(proStatus) {
+		switch (proStatus) {
+		        case '預購中':
+		            return 'preorder';
+		        case '已發售':
+		            return 'released';
+		        default:
+		            return 'unavailable';
+		    }
     }
 
     /**
@@ -872,10 +1021,6 @@ class ProductDetailManager {
             }
 
             /* 商品規格 */
-            .product-specs {
-                margin-bottom: 2rem;
-            }
-
             .spec-item {
                 display: flex;
                 justify-content: space-between;
@@ -1153,7 +1298,50 @@ class ProductDetailManager {
                     gap: 0.5rem;
                 }
             }
-        `;
+			
+			/*庫存樣式*/
+
+			.inventory-count {
+			    font-weight: bold;
+			    font-size: 14px;
+			    margin-bottom: 1px;  /* 減少間距 */
+			}
+
+			.inventory-text {
+			    font-size: 16px;
+			}
+
+			/* 有庫存 - 綠色文字 */
+			.inventory-count.has-stock,
+			.inventory-text.has-stock {
+			    color: #4CAF50;
+			}
+
+			/* 無庫存 - 紅色文字 */
+			.inventory-count.no-stock,
+			.inventory-text.no-stock {
+			    color: #f44336;
+			}
+
+			/* 按鈕狀態樣式保持不變 */
+			.btn-add-cart.available, .btn-buy-now.available {
+			    opacity: 1;
+			    cursor: pointer;
+			}
+
+			.btn-add-cart.unavailable, .btn-buy-now.unavailable {
+			    background-color: #ccc !important;
+			    color: #666 !important;
+			    cursor: not-allowed;
+			    opacity: 0.6;
+			}
+
+			.btn-add-cart.unavailable:hover, .btn-buy-now.unavailable:hover {
+			    background-color: #ccc !important;
+			    transform: none !important;
+			    box-shadow: none !important;
+			}
+			`;
 
         document.head.appendChild(style);
     }
