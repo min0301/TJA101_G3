@@ -1,14 +1,13 @@
 package com.pixeltribe.forumsys.message.model;
 
 import com.pixeltribe.forumsys.articlecomreport.model.ArticleComReport;
-import com.pixeltribe.forumsys.messagelike.model.ForumMesLike;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
+import com.pixeltribe.forumsys.messagelike.model.ForumMesLike;
+import com.pixeltribe.membersys.member.model.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
-
-import com.pixeltribe.membersys.member.model.Member;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;

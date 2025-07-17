@@ -89,7 +89,10 @@ public class OrderController {
 	
 	@GetMapping("/orders/{orderNo}")
 	public Map<String, Object> getOrderByNo(@PathVariable Integer orderNo) {
-	    // 根據訂單編號查詢訂單
+	    
+		System.out.println("=== OrderController.getOrderByNo 被調用，orderNo=" + orderNo + " ===");
+		
+		// 根據訂單編號查詢訂單
 	    Order order = orderRepository.findByOrderNo(orderNo);
 	    
 	    if (order == null) {
@@ -182,7 +185,10 @@ public class OrderController {
 	// ***** 查詢訂單詳情 ***** //
 	@GetMapping("/orders/{orderNo}/detail")
     public ResponseEntity<OrderDTO> getOrderDetail(@PathVariable Integer orderNo) {
-        try {
+        
+		System.out.println("=== getOrderDetail 被調用，orderNo=" + orderNo + " ===");
+		
+		try {
             log.info("查詢訂單詳情：orderNo={}", orderNo);
             OrderDTO order = orderService.getOrderDetail(orderNo);
             return ResponseEntity.ok(order);
@@ -196,7 +202,10 @@ public class OrderController {
 	// ***** 查詢會員的所有訂單 ***** //
 	@GetMapping("/member/{memNo}")
     public ResponseEntity<List<OrderDTO>> getMemberOrders(@PathVariable Integer memNo) {
-        try {
+        
+		System.out.println("=== getMemberOrders 被調用，memNo=" + memNo + " ===");
+		
+		try {
             log.info("查詢會員訂單：memNo={}", memNo);
             List<OrderDTO> orders = orderService.getmemOrders(memNo);
             return ResponseEntity.ok(orders);

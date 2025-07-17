@@ -4551,3 +4551,145 @@ input, select {
     color: var(--white) !important;
 }
 
+/* style.css */
+
+/* ========================================================= */
+/* 可收合側邊欄功能 (Collapsible Sidebar Functionality)       */
+/* ========================================================= */
+
+/* --- 基礎設定與過渡動畫 --- */
+#left-sidebar, #right-content-area {
+    /* 【不可變】: 動畫效果的核心，確保寬度變化平滑。*/
+    transition: flex-basis 0.3s ease-in-out, max-width 0.3s ease-in-out;
+}
+
+#left-sidebar .position-sticky {
+    /* 【不可變】: 為了讓內部的絕對定位按鈕有參考點。*/
+    position: relative !important;
+}
+
+/* --- 切換按鈕樣式 --- */
+#sidebar-toggle-btn {
+    position: absolute;
+    top: 5px; /* 【可變】: 按鈕與頂部的距離，可依喜好調整。*/
+    right: 5px; /* 【可變】: 按鈕與右側的距離，可依喜好調整。*/
+    width: 32px;
+    height: 32px;
+    background-color: var(--bg-icons);
+    color: var(--text-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-color); /* 新增: 加上細邊框，增加立體感 */
+}
+
+#sidebar-toggle-btn:hover {
+    background-color: var(--green-color);
+    color: var(--white);
+    transform: scale(1.1); /* 新增: 滑鼠懸停時放大，提升互動感 */
+}
+
+/* 【核心修改】: 使用 CSS 的 content 屬性直接定義圖示 */
+#sidebar-toggle-btn i::before {
+    font-family: "bootstrap-icons";
+    font-weight: 900 !important;
+    content: "\F479"; /* 修改這裡: bi-layout-sidebar-reverse */
+    transition: all 0.3s ease-in-out;
+}
+
+/* --- 收合狀態下的樣式 --- */
+#left-sidebar.collapsed {
+    /* 【不可變】: 覆寫 Bootstrap Grid 的 class，將側邊欄寬度縮小。*/
+    flex: 0 0 50px;
+    max-width: 50px;
+    border-right: none !important;
+}
+
+#left-sidebar.collapsed .position-sticky > *:not(#sidebar-toggle-btn) {
+    /* 【不可變】: 收合時，隱藏側邊欄中除了按鈕以外的所有內容。*/
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.1s ease;
+}
+
+/* 【核心修改】: 當側邊欄收合時，更換圖示 */
+#left-sidebar.collapsed #sidebar-toggle-btn i::before {
+    content: "\F479"; /* 修改這裡: bi-layout-sidebar */
+}
+
+/* 當側邊欄收合時，讓右側內容區展開 */
+#left-sidebar.collapsed + #right-content-area {
+    /* 【不可變】: 讓右側內容區填滿剩餘空間。*/
+    flex: 0 0 calc(100% - 50px);
+    max-width: calc(100% - 50px);
+}
+
+/* ========================================================= */
+/* 即時聊天室樣式 (Real-time Chatroom Styles)                */
+/* ========================================================= */
+.chat-room .card-body {
+    display: flex;
+    flex-direction: column;
+    height: 250px; /* 【可變】: 可依喜好調整聊天室高度 */
+}
+
+.chat-messages {
+    flex-grow: 1;
+    overflow-y: auto; /* 訊息過多時可滾動 */
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-color);
+}
+
+.chat-message {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.chat-message p {
+    margin-bottom: 0;
+    font-size: 0.9rem; /* 【可變】: 訊息字體大小 */
+}
+
+.chat-message strong {
+    display: block;
+    font-size: 0.8rem;
+    margin-bottom: 4px;
+    color: var(--bs-secondary);
+}
+
+/* 別人的訊息 */
+.other-message {
+    background-color: var(--theme-white);
+    align-self: flex-start;
+    border: 1px solid var(--border-color);
+}
+
+/* 自己的訊息 */
+.my-message {
+    background-color: var(--green-color); /* 【可變】: 可改成您喜歡的主題色 */
+    color: var(--white);
+    margin-left: auto; /* 靠右對齊 */
+    text-align: right;
+}
+
+.my-message strong {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* 系統事件訊息 (加入/離開) */
+.event-message {
+    text-align: center;
+    font-size: 0.8rem;
+    font-style: italic;
+    background: transparent;
+    padding: 2px 0;
+}

@@ -1,10 +1,11 @@
 package com.pixeltribe.forumsys.message.model;
 
 import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
+import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import com.pixeltribe.forumsys.forumpost.model.ForumPostRepository;
 import com.pixeltribe.membersys.member.model.MemRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -63,13 +64,20 @@ public class ForumMesService {
 
     @Transactional
     public ForumMesDTO addMessageFromTask(ForumMesUpdateDTO forumMesUpdateDTO) {
+        ForumPost post = forumPostRepository.findById(forumMesUpdateDTO.getPostId())
+                .orElseThrow(() -> new ResourceNotFoundException("找不到文章ID: " + forumMesUpdateDTO.getPostId()));
+
         ForumMes forumMes = new ForumMes();
-        forumMes.setPostNo(forumPostRepository.findById(forumMesUpdateDTO.getPostId())
-                .orElseThrow(() -> new ResourceNotFoundException("找不到文章ID: " + forumMesUpdateDTO.getPostId())));
         forumMes.setMemNo(memRepository.findById(forumMesUpdateDTO.getMemId())
                 .orElseThrow(() -> new ResourceNotFoundException("找不到會員ID: " + forumMesUpdateDTO.getMemId())));
         forumMes.setMesCon(forumMesUpdateDTO.getMesCon());
-        return ForumMesDTO.convertToForumMesDTO(forumMesRepository.save(forumMes));
+
+        forumMes.setPostNo(post);
+        post.setMesNumbers(post.getMesNumbers() + 1);
+
+        ForumMes savedMessage = forumMesRepository.save(forumMes);
+
+        return ForumMesDTO.convertToForumMesDTO(savedMessage);
     }
 
     @Transactional

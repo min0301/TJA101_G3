@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>像素部落 - 訂單詳情</title>
+<meta name="description" content="像素部落, Pixel Tribe, 訂單詳情">
+<meta name="keywords" content="訂單詳情, 購買記錄, 評價產品">
+<meta name="robots" content="all,follow">
+
+<script>
+    // Check local storage for theme
+    let localS = localStorage.getItem('theme')
+    themeToSet = localS
+
+    // If local storage is not set, we check the OS preference
+    if (!localS) {
+        themeToSet = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+
+    // Set the correct theme
+    document.documentElement.setAttribute('data-theme', themeToSet)
+</script>
+
+<!-- CSS Files -->
+<link rel="stylesheet" href="../../../assets/vendors/bootstrap/bootstrap.min.css">
+<link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+<link rel="stylesheet" href="../../../assets/vendors/simplebar/simplebar.min.css">
+<link rel="stylesheet" href="../../../assets/vendors/aos/aos.css">
+<link rel="stylesheet" href="../../../assets/css/style.css">
+<link rel="stylesheet" href="../../../assets/css/responsive.css">
+<link rel="stylesheet" href="../../../assets/css/custom-style.css">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+    <!-- Theme Switcher -->
+    <div class="switcher switcher-show" id="theme-switcher">
+        <i id="switcher-icon" class="bi bi-moon"></i>
+    </div>
+
+    <!-- Back to Top -->
+    <a href="#" id="back-to-top"></a>
+
+    <div class="vine-wrapper">
+
+        <!-- Header -->
+        <div id="header-placeholder"></div>
+
+        <!-- Hero Section -->
+        <section class="vine-hero-2 bg-img-1">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="hero-content" data-aos="fade-down" data-aos-easing="linear">
+                            <h1>訂單詳情</h1>
+                            <p>查看您的訂單詳細資訊</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <section class="vine-main">
+            <div class="container">
+                <!-- 返回按鈕 -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <a href="order-list.html" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>返回訂單列表
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 載入狀態 -->
+                <div id="loading-container" class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">載入中...</span>
+                    </div>
+                    <p class="mt-3 text-muted">正在載入訂單詳情...</p>
+                </div>
+
+                <!-- 錯誤狀態 -->
+                <div id="error-container" class="d-none">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>載入失敗！</strong>
+                        <span id="error-message">無法載入訂單詳情，請稍後再試。</span>
+                        <button class="btn btn-outline-danger btn-sm ms-3" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>重新載入
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 主要內容 -->
+                <div id="order-detail-container" class="d-none">
+                    <div class="row">
+                        <!-- 左側：訂單資訊 -->
+                        <div class="col-lg-8">
+                            <!-- 訂單基本資訊 -->
+                            <div id="order-info-section">
+                                <!-- 動態載入訂單資訊 -->
+                            </div>
+
+                            <!-- 訂單產品明細 -->
+                            <div id="order-items-section" class="mt-4">
+                                <div class="card" data-aos="fade-up">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">
+                                            <i class="bi bi-box me-2"></i>產品明細
+                                        </h5>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div id="order-items-container">
+                                            <!-- 動態載入產品明細 -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 評價區域 (已完成訂單才顯示) -->
+                            <div id="comment-section" class="d-none mt-4">
+                                <div class="card" data-aos="fade-up">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">
+                                            <i class="bi bi-star me-2"></i>產品評價
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="comments-container">
+                                            <!-- 動態載入評價內容 -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右側：訂單進度與操作 -->
+                        <div class="col-lg-4">
+                            <!-- 訂單進度 -->
+                            <div class="card mb-4" data-aos="fade-up">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-list-check me-2"></i>訂單進度
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="order-progress">
+                                        <!-- 動態載入進度條 -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 操作按鈕 -->
+                            <div class="card" data-aos="fade-up">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-gear me-2"></i>訂單操作
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <!-- 付款按鈕 -->
+                                        <button id="payment-btn" class="btn btn-warning d-none">
+                                            <i class="bi bi-credit-card me-2"></i>立即付款
+                                        </button>
+
+                                        <!-- 取消按鈕 -->
+                                        <button id="cancel-btn" class="btn btn-outline-danger d-none" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                                            <i class="bi bi-x-circle me-2"></i>取消訂單
+                                        </button>
+
+                                        <!-- 列印按鈕 -->
+                                        <button id="print-btn" class="btn btn-outline-secondary">
+                                            <i class="bi bi-printer me-2"></i>列印訂單
+                                        </button>
+
+                                        <!-- 再次購買 -->
+                                        <button class="btn btn-outline-primary reorder-btn">
+                                            <i class="bi bi-arrow-repeat me-2"></i>再次購買
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <div id="footer-placeholder"></div>
+
+    </div>
+
+    <!-- 取消訂單 Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-exclamation-triangle me-2 text-warning"></i>
+                        取消訂單
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>注意：</strong>取消訂單後將無法恢復，請確認您的決定。
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="cancel-reason" class="form-label">取消原因 <span class="text-danger">*</span></label>
+                        <select id="cancel-reason" class="form-select" required>
+                            <option value="">請選擇取消原因</option>
+                            <option value="不想要了">不想要了</option>
+                            <option value="價格太高">價格太高</option>
+                            <option value="找到更便宜的">找到更便宜的</option>
+                            <option value="付款問題">付款問題</option>
+                            <option value="其他原因">其他原因</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="cancel-note" class="form-label">補充說明</label>
+                        <textarea id="cancel-note" class="form-control" rows="3" placeholder="請簡述取消原因（選填）"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i>保留訂單
+                    </button>
+                    <button type="button" class="btn btn-danger" id="confirm-cancel-btn">
+                        <i class="bi bi-check-lg me-1"></i>確認取消訂單
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 評價 Modal -->
+    <div class="modal fade" id="commentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-star me-2"></i>評價產品
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 評價內容會由 comment-modal.js 動態生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="/js/dynamicHeaderInfo.js"></script>
+    <script src="../../../assets/vendors/jquery/jquery.min.js"></script>
+    <script src="../../../assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+    <script src="../../../assets/vendors/popper/popper.min.js"></script>
+    <script src="../../../assets/vendors/simplebar/simplebar.min.js"></script>
+    <script src="../../../assets/vendors/aos/aos.js"></script>
+    <script src="../../../assets/js/main.js"></script>
+    <script src="../../../assets/js/global-loader.js"></script>
+    
+    <!-- 訂單功能相關 JS -->
+    <script src="api-client.js"></script>
+    <script src="order-detail.js"></script>
+    <script src="comment-modal.js"></script>
+
+    <script>
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 檢查登入狀態
+            if (!OrderApiClient.isLoggedIn()) {
+                window.location.href = '/front-end/mem/MemberLogin.html?redirect=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+
+            // 從 URL 取得訂單編號
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderNo = urlParams.get('orderNo');
+            
+            if (!orderNo) {
+                document.getElementById('error-message').textContent = '缺少訂單編號參數';
+                document.getElementById('loading-container').classList.add('d-none');
+                document.getElementById('error-container').classList.remove('d-none');
+                return;
+            }
+
+            // 初始化訂單詳情管理器
+            OrderDetailManager.init(orderNo);
+        });
+    </script>
+
+</body>
+</html>

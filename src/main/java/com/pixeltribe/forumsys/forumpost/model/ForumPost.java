@@ -2,17 +2,15 @@ package com.pixeltribe.forumsys.forumpost.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.pixeltribe.forumsys.postcollect.model.PostCollect;
-import com.pixeltribe.forumsys.entity.PostLike;
 import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.forumsys.forumimage.model.ForumImage;
 import com.pixeltribe.forumsys.forumtag.model.ForumTag;
 import com.pixeltribe.forumsys.message.model.ForumMes;
 import com.pixeltribe.forumsys.postcollect.model.PostCollect;
+import com.pixeltribe.forumsys.postlike.model.PostLike;
 import com.pixeltribe.membersys.member.model.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,8 +47,6 @@ public class ForumPost {
 
     @Size(max = 50)
     @Column(name = "POST_TITLE", length = 50)
-    // 註解中的正規表達式，由於 DTO 中會進行驗證，Entity 層可選擇性保留或移除
-    @Pattern(regexp = "^[一-龥-a-zA-Z0-9_]{2,10}$", message = "文章標題: 只能是中、英文字母、數字和_ , 且長度必需在2到10之間")
     private String postTitle;
 
     @Size(max = 5000)

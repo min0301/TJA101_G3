@@ -148,6 +148,7 @@ public class ForumPostService {
      * @param postId       文章 ID。
      * @param forumPostDTO 包含更新文章文字資訊的 DTO。
      * @param imageFile    文章封面圖片檔案 (可選)。
+     * @param defaultImageUrlFromFrontend 前端傳來的預設圖片 URL (如果選擇使用預設圖片)。
      * @return 更新後的 ForumPostDTO。
      */
     @Transactional
@@ -178,10 +179,24 @@ public class ForumPostService {
             existingPost.setFtagNo(forumTag);
         }
 
-        // 處理圖片更新
-        String imageUrl = processImageFile(imageFile, "forumsys/forumpost");
-        if (imageUrl != null && !imageFile.isEmpty()) { // 如果有新圖片上傳，則更新 URL
+        // 處理圖片更新邏輯：
+        if (imageFile != null && !imageFile.isEmpty()) {
+            // 情況 1: 有上傳新的自訂圖片
+            String imageUrl = processImageFile(imageFile, "forumsys/forumpost");
             existingPost.setPostImageUrl(imageUrl);
+        } else if (defaultImageUrlFromFrontend != null && !defaultImageUrlFromFrontend.isEmpty()) {
+            // 情況 2: 沒有上傳自訂圖片，但前端傳來了預設圖片的 URL (表示選了「使用預設圖片」)
+            existingPost.setPostImageUrl(defaultImageUrlFromFrontend);
+        } else {
+            // 情況 3: 兩者都沒有，但可能使用者從「自訂圖片」切換回「使用預設圖片」
+            // 這種情況下，如果 `defaultImageUrlFromFrontend` 為空或 null (表示前端未傳遞預設圖片 URL)
+            // 且沒有上傳新圖片，則應該根據新的 `ftagNoId` 再次獲取預設圖片。
+            // 否則，如果前端明確傳遞了空字串，可能意味著清除圖片。
+            // 為了簡化，如果沒有新圖片且沒有預設圖片 URL，則保留現有圖片 URL (existingPost.getPostImageUrl())
+            // 或者，如果您希望沒有上傳圖片且沒有選預設圖片時，圖片被「清空」，可以設定為 null。
+            // 這裡採用的是，如果沒有自訂圖片也沒有明確指定預設圖片URL，就根據新的 ftagNoId 獲取預設圖片作為備用方案。
+            // 這也處理了使用者從「自訂圖片」模式切換回「使用預設圖片」模式，但未傳遞 defaultImageUrl 的情況
+            existingPost.setPostImageUrl(getCategoryDefaultImageUrl(forumPostDTO.getFtagNoId())); // `forumPostDTO` 不可變，理由同上
         }
 
         ForumPost updatedPost = forumPostRepository.save(existingPost);

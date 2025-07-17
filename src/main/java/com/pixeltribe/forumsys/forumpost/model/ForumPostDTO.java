@@ -17,11 +17,12 @@ public class ForumPostDTO {
     private Integer mesNumbers;
     private Integer postLikeCount;
     private Integer postLikeDlc;
-    private String postCoverImageUrl; // 新增圖片 URL 欄位，取代 byte[]
+    private String postImageUrl; // 新增圖片 URL 欄位，取代 byte[]
     private Integer forumId;
     private String forumName;
     private Integer memberId;
     private String memberName;
+    private String memberNickName;
     private Integer forumTagId;
     private String forumTagName;
 
@@ -39,7 +40,7 @@ public class ForumPostDTO {
         this.postLikeDlc = forumPost.getPostLikeDlc();
         // 假設 ForumPost Entity 中存在 getPostCoverImageUrl() 方法來獲取圖片 URL
         // 如果您原本是 byte[]，需要將其轉換為 URL 儲存後才能使用此欄位
-        this.postCoverImageUrl = forumPost.getPostImageUrl(); // 請根據實際圖片儲存方式調整
+        this.postImageUrl = forumPost.getPostImageUrl(); // 請根據實際圖片儲存方式調整
 
         // 處理關聯實體，避免 N+1 問題及 LazyInitializationException
         if (forumPost.getForNo() != null) {
@@ -49,6 +50,7 @@ public class ForumPostDTO {
         if (forumPost.getMemNo() != null) {
             this.memberId = forumPost.getMemNo().getId();
             this.memberName = forumPost.getMemNo().getMemName();
+            this.memberNickName = forumPost.getMemNo().getMemNickName();
         }
         if (forumPost.getFtagNo() != null) {
             this.forumTagId = forumPost.getFtagNo().getId();

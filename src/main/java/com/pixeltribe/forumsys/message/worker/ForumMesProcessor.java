@@ -22,7 +22,9 @@ public class ForumMesProcessor {
     public ForumMesProcessor(RedisTemplate<String, String> redisTemplate, ForumMesService forumMesSvc) {
         this.redisTemplate = redisTemplate;
         this.forumMesSvc = forumMesSvc;
+
     }
+
 
     @Scheduled(fixedDelay = 200)
     public void processMessageQueue() {
@@ -39,7 +41,8 @@ public class ForumMesProcessor {
             ForumMesDTO createdMessage = forumMesSvc.addMessageFromTask(task);
             System.out.println("成功處理一則留言任務：" + createdMessage);
         } catch (Exception e) {
-            System.err.println("處理留言任務失敗: " + taskJson + " | 錯誤: " + e.getMessage());
+            System.err.println("處理留言任務失敗: " + taskJson);
+            e.printStackTrace();
         }
     }
 

@@ -25,7 +25,6 @@ public class NewsCreationDTO implements Serializable {
 //    @PositiveOrZero
 //    Integer imgCount;
 
-    @NotNull
     @PositiveOrZero
     Integer adminNo;
 

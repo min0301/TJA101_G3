@@ -33,8 +33,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet">
-
-
 </head>
 
 <body>
@@ -64,8 +62,12 @@
     <section class="vine-main">
         <div class="container">
             <div class="row">
-                <div class="col-lg-3 pe-lg-3 border-end">
+                <div id="left-sidebar" class="col-lg-3 pe-lg-3 border-end">
                     <div class="position-sticky" style="top: 100px;">
+
+                        <div id="sidebar-toggle-btn">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </div>
 
                         <ul class="nav nav-tabs nav-fill mb-3" id="forum-view-tabs" role="tablist">
                             <li class="nav-item" role="presentation">
@@ -92,7 +94,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-9 ps-lg-5">
+                <div id="right-content-area" class="col-lg-9 ps-lg-5">
                     <div id="dynamic-content-container">
                         <div class="original-content text-center p-5 bg-light rounded">
                             <i class="bi bi-arrow-left-circle-fill fs-1 text-muted"></i>
@@ -138,6 +140,8 @@
 
 <script src="../../assets/vendors/jquery/jquery.min.js"></script>
 <script src="../../assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script src="../../assets/vendors/popper/popper.min.js"></script>
 <script src="../../assets/vendors/simplebar/simplebar.min.js"></script>
 <script src="../../assets/vendors/aos/aos.js"></script>
@@ -145,7 +149,8 @@
 <script src="../../assets/js/global-loader.js"></script>
 <script src="forumListManager.js"></script>
 <script src="allForum.js"></script>
-<script src="/js/dynamicHeaderInfo.js" ></script>
+<script src="chatManager.js"></script>
+<script src="/js/dynamicHeaderInfo.js"></script>
 <script>
     /**
      * 當頁面載入完成後，根據 URL 決定要顯示的內容
@@ -204,6 +209,67 @@
                 container.appendChild(originalContent);
                 container.style.display = 'block';
             }
+        }
+    });
+</script>
+
+
+
+<script>
+    // 確保在整個頁面載入完成後才執行，避免抓不到元素
+    document.addEventListener('DOMContentLoaded', function () {
+        // --- 1. 獲取需要的 HTML 元素 ---
+        const sidebar = document.getElementById('left-sidebar');
+        const contentArea = document.getElementById('right-content-area');
+        const toggleBtn = document.getElementById('sidebar-toggle-btn');
+        const toggleIcon = toggleBtn.querySelector('i');
+
+        // 【不可變】: 這些是上面 CSS 定義的 class 名稱，JS 和 CSS 必須一致
+        const collapsedClass = 'collapsed';
+
+        // --- 2. 定義切換功能的函式 ---
+        function toggleSidebar() {
+            // 切換 sidebar 的 class
+            sidebar.classList.toggle(collapsedClass);
+
+            // 檢查側邊欄當前是否為收合狀態
+            const isCollapsed = sidebar.classList.contains(collapsedClass);
+
+            // 根據狀態更新圖示（這是 UX 細節）
+            // bi-chevron-double-left 是 Bootstrap Icons 的圖示 class
+            if (isCollapsed) {
+                toggleIcon.classList.remove('bi-chevron-double-left');
+                toggleIcon.classList.add('bi-chevron-double-right');
+            } else {
+                toggleIcon.classList.remove('bi-chevron-double-right');
+                toggleIcon.classList.add('bi-chevron-double-left');
+            }
+
+            // 【進階】: 將狀態存入 localStorage，下次刷新頁面時會記住
+            // 【可變】: 'sidebarState' 是儲存的 key 名稱，可以自訂
+            localStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+        }
+
+        // --- 3. 頁面載入時，檢查並恢復上次的狀態 ---
+        function applyInitialState() {
+            const savedState = localStorage.getItem('sidebarState');
+
+            if (savedState === 'collapsed') {
+                // 如果上次是收合的，直接執行一次切換來恢復狀態
+                // (注意：這裡不直接加 class，而是呼叫函式，確保圖示等狀態也同步更新)
+                toggleSidebar();
+            }
+        }
+
+        // --- 4. 綁定事件並執行 ---
+        if (sidebar && contentArea && toggleBtn) {
+            // 為切換按鈕加上點擊事件監聽
+            toggleBtn.addEventListener('click', toggleSidebar);
+
+            // 執行初始狀態恢復
+            applyInitialState();
+        } else {
+            console.error('側邊欄功能初始化失敗：找不到必要的 HTML 元素。');
         }
     });
 </script>

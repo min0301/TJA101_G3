@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pixeltribe.shopsys.malltag.model.MallTag;
@@ -36,8 +37,10 @@ public class ProductService {
 	
 
 	public Product add(Product product) {
-		return productRepository.save(product);
-	}
+        return productRepository.save(product);
+    }
+//		return productRepository.save(product);
+//	}
 
 	public Product update(Product product) {
 		return productRepository.save(product);
@@ -76,11 +79,10 @@ public class ProductService {
 		List<Product> products = productRepository.findByMallTagAndMarket(mallTagNo, null);
 		return productDTOMapper.toProductSearchDTOList(products);
 	}
+	
+	   /*---------------------庫存相關-------------------------*/
 	public void setPreorderInventory(Integer proNo, Integer quantity) {
-        if (proNo == null || quantity == null) {
-            return;
-        }
-        redisTemplate.opsForValue().set(proNo.toString(), quantity);
+		 redisTemplate.opsForValue().set(proNo.toString(), quantity);
     }
 
     public Integer getPreorderInventory(Integer proNo) {
@@ -97,7 +99,11 @@ public class ProductService {
         }
     }
     
-   /*---------------------庫存相關-------------------------*/
+    public List<ProductInventoryDTO> getAllInventory(List<Integer> proNo) {
+        return proNo.stream()
+            .map(this::getProductInventoryDisplay)
+            .collect(Collectors.toList());
+    }
 
     public ProductInventoryDTO getProductInventoryDisplay(Integer proNo) {
         // 1. 查詢商品基本信息
@@ -131,12 +137,12 @@ public class ProductService {
         Integer preorderStock = getPreorderInventory(proNo);
 
         if (preorderStock == null || preorderStock == 0) {
-            // 情況1：Redis中沒有數據或數量為0
+            // Redis中沒有數據或數量為0
             display.setInventory(0);
             display.setIsAvailable(false);
             display.setDisplayText("預購已滿");
         } else {
-            // 情況2：有預購庫存
+            // 有預購庫存
             display.setInventory(preorderStock);
             display.setIsAvailable(preorderStock > 0);
             display.setDisplayText("預購中");
@@ -157,4 +163,5 @@ public class ProductService {
             display.setDisplayText("暫時缺貨");
         }
     }
+
 }
