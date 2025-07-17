@@ -191,6 +191,8 @@
             // 【核心修改 1】獲取文章檢舉詳情
             const reportData = await fetchData(`${apiBaseUrl}/articlereports/${reportId}`);
             // 【核心修改 2】獲取被檢舉文章詳情，使用 reportData.postNo 並調用正確的文章 API 路徑
+            // 原問題是這行：const messageData = await fetchData(`${apiBaseUrl}/posts/${reportData.messageNo}`);
+            // 修正為：
             const postData = await fetchData(`${apiBaseUrl}/forumpost/${reportData.postNo}`);
 
             renderPostPanel(postData); // 傳入文章資料

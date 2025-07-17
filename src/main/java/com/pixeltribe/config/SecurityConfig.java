@@ -55,6 +55,8 @@ class SecurityConfig {
                 .cors(Customizer.withDefaults()) // 建議使用預設或自訂的 CORS 設定，而不是 disable()
 
                 .authorizeHttpRequests(auth -> auth
+                                // 【最重要】首先允許所有 OPTIONS 預檢請求通過
+//                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 如果測試完都OK刪掉
                                 // 1. 設定公開端點 (任何人都可以訪問)
                                 //    - 登入/註冊 API
                                 //    - 靜態資源 (css, js, images...)
@@ -88,6 +90,18 @@ class SecurityConfig {
                                         "/api/forums/hot",          // 熱門討論區API
                                         "/api/posts/collect/me",     // 取得會員收藏文章列表API
                                         "ws/**",                // WebSocket 端點
+                                        //========論壇文章相關API (確保是GET方法)========
+                                        "/api/forumposts/all",
+                                        "/api/forumpost/{id}",
+                                        "/api/forum/{forNo}/posts",
+                                        "/api/forumtag/**", // 文章類別
+                                        "/api/forum/**",
+                                        "/api/forumpost/**",
+                                        "/api/forumposts/**",
+                                        "/api/category/**",// 查單一討論區類別
+                                        "/api/categorys", // 查全部討論區類別
+                                        "/api/forumtag", // 查全部文章類別
+                                        //===========================================
                                         //========新聞========
                                         "/api/News/admin/redis/create",
                                         "/api/news/image/temp-images",
