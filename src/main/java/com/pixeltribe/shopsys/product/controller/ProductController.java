@@ -36,6 +36,7 @@ import com.pixeltribe.shopsys.product.model.ProductEditDTO;
 import com.pixeltribe.shopsys.product.model.ProductInventoryDTO;
 import com.pixeltribe.shopsys.product.model.ProductIsmarketDTO;
 import com.pixeltribe.shopsys.product.model.ProductManageDTO;
+import com.pixeltribe.shopsys.product.model.ProductPreorderService;
 import com.pixeltribe.shopsys.product.model.ProductSearchDTO;
 import com.pixeltribe.shopsys.product.model.ProductService;
 
@@ -52,6 +53,8 @@ public class ProductController {
 		ProductService productService;
 		@Autowired
 		ProductDTOMapper productDTOMapper;
+		@Autowired
+		ProductPreorderService proudctPreorderService;
 		
 		@GetMapping("product")
 		public List<ProductManageDTO> getAllProducts() {
@@ -136,37 +139,6 @@ public class ProductController {
 			        
 			    } 
 		    }
-//		 @Transactional
-//		 @PutMapping("/admin/product/{id}")
-//		    public ResponseEntity<?> updateProduct(
-//		            @PathVariable Integer id,
-//		            @RequestPart("ProductEditDTO") @Valid ProductEditDTO productEditDTO,
-//		            @RequestPart(value = "imageFile", required = false) MultipartFile[] imageFile,
-//		            BindingResult result) throws IOException{
-//			 	productEditDTO.setId(id); 
-//		        if (result.hasErrors()) {
-//		            // 如果 JSON 資料驗證失敗，回傳 400 錯誤
-//		            return ResponseEntity.badRequest().body("輸入資料有誤！");
-//		        }
-//		        
-//		        result = removeFieldError(productEditDTO, result, "upFiles");
-//				if (imageFile[0].isEmpty()) { // 使用者未選擇要上傳的新圖片時
-//					byte[] upFiles = productService.getOneProduct(id).getProCover();
-//					productEditDTO.setProCover(upFiles);
-//				} else {
-//					for (MultipartFile multipartFile : imageFile) {
-//						byte[] upFiles = multipartFile.getBytes();
-//						productEditDTO.setProCover(upFiles);
-//					}
-//				}
-//				if (result.hasErrors()) {
-//					System.out.println("error");
-//				}
-//
-//			    Product updateProduct = productService.update(productDTOMapper.peDTOToProduct(productEditDTO));
-//
-//		        return ResponseEntity.ok(updateProduct);
-//		    }
 		
 		@GetMapping("/product/{id}")
 		public ProductEditDTO getOneProduct(@Parameter
@@ -178,7 +150,7 @@ public class ProductController {
 		public ResponseEntity<?> searchOneProduct(@Parameter
 										@PathVariable Integer id) {
 			ProductDisplayDTO product = productDTOMapper.toProductDisplayDTO(productService.getOneProduct(id));
-			ProductInventoryDTO inventory = productService.getProductInventoryDisplay(id);
+			ProductInventoryDTO inventory = proudctPreorderService.getProductInventoryDisplay(id);
 			Map<String, Object> result = new HashMap<>();
 			result.put("product", product);
 			result.put("inventory", inventory);
@@ -218,18 +190,12 @@ public class ProductController {
 	        try {
 	            boolean success = productService.updateMarketStatus(proNo, request.getProIsmarket());
 	            
-	            if (success) {
 	                response.put("success", true);
 	                response.put("message", "狀態更新成功");
 	                response.put("proNo", proNo);
 	                response.put("proIsmarket", request.getProIsmarket());
 	                return ResponseEntity.ok(response);
-	            } else {
-	                response.put("success", false);
-	                response.put("message", "更新失敗，商品可能不存在");
-	                return ResponseEntity.badRequest().body(response);
-	            }
-	            
+	           
 	        }catch (ProductIncompleteException e) {
 	        	response.put("success", false);
 	            response.put("message", e.getMessage());
