@@ -8,7 +8,7 @@ public class MemLoginReturn {
     private String message; // "帳號不存在", "密碼錯誤", "登入成功"
     private String token;
     private MemberBasicDto memberInfo;
-    
+    private Character Status;
     //Constructor
     
     public MemLoginReturn(boolean success, String message) {
@@ -57,6 +57,13 @@ public class MemLoginReturn {
 	public void setMemberInfo(MemberBasicDto memberInfo) {
 		this.memberInfo = memberInfo;
 	}
-    
-    
+
+	public Character getStatus() {
+		return Status;
+	}
+
+	public void setStatus(Character status) {
+		Status = status;
+	}
+	
 }
