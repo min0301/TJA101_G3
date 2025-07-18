@@ -1,8 +1,11 @@
 package com.pixeltribe.forumsys.forum.controller;
 
-import com.pixeltribe.forumsys.forum.model.*;
+import com.pixeltribe.forumsys.forum.model.ForumDetailDTO;
+import com.pixeltribe.forumsys.forum.model.ForumService;
+import com.pixeltribe.forumsys.forum.model.ForumUpdateDTO;
 import com.pixeltribe.membersys.security.MemberDetails;
-import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

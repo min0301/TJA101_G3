@@ -10,9 +10,10 @@ import com.pixeltribe.forumsys.shared.CollectStatus;
 import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.membersys.security.MemberDetails;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,19 +40,22 @@ public class ForumService {
     private final ForumCategoryRepository forumCategoryRepository;
     private final ForumCollectRepository forumCollectRepository;
     private final RedisTemplate<String, Object> redisTemplate;
+    //    註解掉kafka，避免錯誤
+//    private final KafkaTemplate<String, Integer> kafkaTemplate;
 
-    public ForumService(ForumRepository forumRepository, ForumCategoryRepository forumCategoryRepository, ForumCollectRepository forumCollectRepository, RedisTemplate<String, Object> redisTemplate) {
+    public ForumService(ForumRepository forumRepository, ForumCategoryRepository forumCategoryRepository, ForumCollectRepository forumCollectRepository, RedisTemplate<String, Object> redisTemplate, KafkaTemplate<String, Integer> kafkaTemplate) {
 
         this.forumRepository = forumRepository;
         this.forumCategoryRepository = forumCategoryRepository;
         this.forumCollectRepository = forumCollectRepository;
         this.redisTemplate = redisTemplate;
+        //    註解掉kafka，避免錯誤
+//        this.kafkaTemplate = kafkaTemplate;
     }
 
 
-
     private static final String HOT_FORUMS_KEY = "forums:hot";
-
+    private static final String FORUM_CATEGORY_UPDATE_TOPIC = "forum-category-update-topic";
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -65,6 +69,8 @@ public class ForumService {
         Forum saveOrUpdateForum = saveOrUpdateForum(forum, forumUpdateDTO, imageFile);
 
         this.refreshHotForumsInRedis();
+        //    註解掉kafka，避免錯誤
+//        kafkaTemplate.send(FORUM_CATEGORY_UPDATE_TOPIC, saveOrUpdateForum.getCatNo().getId());
 
         return convertToForumDetailDTO(saveOrUpdateForum);
     }
@@ -74,8 +80,16 @@ public class ForumService {
 
         Forum forum = forumRepository.findById(forNo)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到討論區編號: " + forNo));
+        //    註解掉kafka，避免錯誤
+//        Integer oldCategoryId = forum.getCatNo().getId();
+//        if (!oldCategoryId.equals(forumUpdateDTO.getCategoryId())) {
+//            kafkaTemplate.send(FORUM_CATEGORY_UPDATE_TOPIC, oldCategoryId);
+//        }
+
         Forum saveOrUpdateForum = saveOrUpdateForum(forum, forumUpdateDTO, imageFile);
         this.refreshHotForumsInRedis();
+        //    註解掉kafka，避免錯誤
+//        kafkaTemplate.send(FORUM_CATEGORY_UPDATE_TOPIC, saveOrUpdateForum.getCatNo().getId());
         return convertToForumDetailDTO(saveOrUpdateForum);
     }
 
@@ -108,7 +122,7 @@ public class ForumService {
                 .toList();
     }
 
-
+    @Cacheable(value = "forumsByCategory", key = "#catNO")
     public List<ForumDetailDTO> getForumsByCategory(Integer catNO) {
         List<Forum> forums = forumRepository.findByCatNo_Id(catNO);
 
@@ -230,12 +244,10 @@ public class ForumService {
     @Scheduled(fixedRate = 3_600_000)
     @Transactional
     public void refreshHotForumsInRedis() {
-//        System.out.println("====== 開始更新熱門看板快取 ======");
         List<Forum> forums = forumRepository.findAllByForStatusOrderByForUpdateDesc('0');
         if (forums.isEmpty()) {
             // 如果沒有任何討論區，也更新一個空列表到快取，避免前端拿到舊資料
             redisTemplate.opsForValue().set(HOT_FORUMS_KEY, List.of(), 2, TimeUnit.HOURS);
-//            System.out.println("====== 熱門看板快取更新完成（無資料） ======");
             return;
         }
         Instant since = Instant.now().minus(30, ChronoUnit.DAYS);
