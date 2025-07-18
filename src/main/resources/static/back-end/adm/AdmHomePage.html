@@ -538,6 +538,9 @@
                     <a href="#" class="submenu-item" onclick="renderContent('forum', 'reports', event)">
                         <i class="bi bi-shield-check item-icon"></i>文章留言檢舉審核
                     </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'article-reports', event)">
+                        <i class="bi bi-shield-check item-icon"></i>文章檢舉審核
+                    </a>
                 </div>
             </li>
             <li class="menu-item" id="menu-member">
@@ -572,8 +575,8 @@
     // 格式：'主選單Key-子選單Key': '對應的 HTML 檔案路徑'
     // =================================================================================
     const pageMappings = {
-    	'store-management':'../shopsys/product/listAllProduct.html',
-    	'store-malltag':'../shopsys/malltag/listAllMallTag.html',
+        'store-management':'../shopsys/product/listAllProduct.html',
+        'store-malltag':'../shopsys/malltag/listAllMallTag.html',
         'store-orders': '../shopsys/order/allOrder.html',
         'forum-forums': '../forumsys/forum/allForum.html',
         'forum-add': '../forumsys/forum/addForum.html',
@@ -583,6 +586,7 @@
         'forum-edit-category': '../forumsys/category/editCategory.html',
         'forum-comments': '../forumsys/message/allMessages.html',
         'forum-reports': '../forumsys/messagereport/allReports.html',
+        'forum-article-reports': '../forumsys/articlereport/allArticleReports.html', // [新增] 文章檢舉列表頁面
         'news-management':'../newssys/listAllNews.html',
 		'member-query':'../memsys/ListAllMem.html',
         'news-management':'../newssys/news/listAllNews.html',
@@ -591,6 +595,9 @@
         'news-edit-category': '../newssys/category/editNewsCategory.html',
         'news-comments': '../newssys/comments/allNewsComment.html',
         'news-edit-comments': '../newssys/comments/editNewsComment.html',
+        'forum-posts': '../forumsys/forumpost/allForumPost.html', // [新增] 文章列表頁面
+        'forum-add-post': '../forumsys/forumpost/addForumPost.html', // [新增] 新增文章頁面
+        'forum-edit-post': '../forumsys/forumpost/forumPost.html', // [新增] 編輯文章頁面
 
         // 在此處繼續添加其他頁面...
     };
@@ -767,7 +774,7 @@
             'shipping': '產品發貨管理',
             'reviews': '訂單評論管理',
             'coupons': '優惠券管理',
-            'dashboard': '儀表板', 
+            'dashboard': '儀表板',
             'news-edit': '新聞編輯',
             'comments': '新聞評論管理',
             'reports': '審核檢舉',
@@ -777,7 +784,8 @@
             'official': '發布官方文章',
             'categories': '討論區類別管理',
             'query': '會員資料查詢',
-            'suspend': '會員停權'
+            'suspend': '會員停權',
+            'article-reports': '文章檢舉審核' // 新增的子選單標題
         };
 
         const title = pageTitles[pageKey] || '系統';

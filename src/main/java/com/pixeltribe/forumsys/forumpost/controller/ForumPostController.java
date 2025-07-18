@@ -74,6 +74,18 @@ public class ForumPostController {
         return ResponseEntity.ok(posts);
     }
 
+    /**
+     * 獲取所有討論區的列表 (用於前端篩選)
+     * @return 所有討論區的 DTO 列表
+     */
+    @GetMapping("/forums/all") // 【新增】API 路徑
+    @Operation(summary = "查所有討論區", description = "獲取所有討論區的列表 (用於前端篩選)")
+    public ResponseEntity<List<Map<String, Object>>> listAllForums() { // 【新增】方法
+        List<Map<String, Object>> forums = forumPostSvc.getAllForumsForFilter(); // 調用 Service 方法
+        return ResponseEntity.ok(forums);
+    }
+
+
 //    /**
 //     * 獲取特定討論區下的單篇文章
 //     * @param forNo 討論區編號

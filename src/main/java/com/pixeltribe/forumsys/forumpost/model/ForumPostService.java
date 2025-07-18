@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class ForumPostService {
 
     private final ForumPostRepository forumPostRepository;
-    private final ForumRepository forumRepository;
+    private final ForumRepository forumRepository; // 需要 ForumRepository 來獲取所有討論區
     private final ForumTagRepository forumTagRepository;
     private final MemRepository memRepository;
 
@@ -192,9 +192,7 @@ public class ForumPostService {
             // 這種情況下，如果 `defaultImageUrlFromFrontend` 為空或 null (表示前端未傳遞預設圖片 URL)
             // 且沒有上傳新圖片，則應該根據新的 `ftagNoId` 再次獲取預設圖片。
             // 否則，如果前端明確傳遞了空字串，可能意味著清除圖片。
-            // 為了簡化，如果沒有新圖片且沒有預設圖片 URL，則保留現有圖片 URL (existingPost.getPostImageUrl())
-            // 或者，如果您希望沒有上傳圖片且沒有選預設圖片時，圖片被「清空」，可以設定為 null。
-            // 這裡採用的是，如果沒有自訂圖片也沒有明確指定預設圖片URL，就根據新的 ftagNoId 獲取預設圖片作為備用方案。
+            // 為了簡化，如果沒有自訂圖片也沒有明確指定預設圖片URL，就根據新的 ftagNoId 獲取預設圖片作為備用方案。
             // 這也處理了使用者從「自訂圖片」模式切換回「使用預設圖片」模式，但未傳遞 defaultImageUrl 的情況
             existingPost.setPostImageUrl(getCategoryDefaultImageUrl(forumPostDTO.getFtagNoId())); // `forumPostDTO` 不可變，理由同上
         }
@@ -268,6 +266,23 @@ public class ForumPostService {
     public Optional<ForumPostDTO> getPostByIdAndForumId(Integer postId, Integer forumId) { // 方法名稱 `getPostByIdAndForumId` 可變
         return forumPostRepository.findByIdAndForNoId(postId, forumId)
                 .map(ForumPostDTO::new);
+    }
+
+    /**
+     * 獲取所有討論區的 ID 和名稱列表 (用於前端篩選)。
+     *
+     * @return 包含討論區 ID 和名稱的 Map 列表。
+     */
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getAllForumsForFilter() { // 【新增】方法
+        return forumRepository.findAll().stream()
+                .map(forum -> {
+                    Map<String, Object> forumMap = new HashMap<>();
+                    forumMap.put("id", forum.getId());
+                    forumMap.put("name", forum.getForName());
+                    return forumMap;
+                })
+                .collect(Collectors.toList());
     }
 
     /**

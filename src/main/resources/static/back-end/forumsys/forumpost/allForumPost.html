@@ -3,1161 +3,858 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>論壇文章管理後台</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+    <title>文章管理後台</title>
     <style>
-        /* CSS 樣式區 - 定義頁面外觀 */
+        /* 從 allForum.html 複製並調整，確保風格一致 */
+        :root {
+            /* 假設您有定義這些變數，確保它們在實際環境中存在 */
+            --border-color: #e0e0e0;
+            --text-color: #333;
+            --light-text-color: #666; /* 新增用於提示文字 */
+            --component-bg: #ffffff;
+            --primary-bg: #f5f5f5;
+            --brand-green: #28a745;
+            --brand-green-light: #e6f5ea;
+            --brand-green-hover: #218838;
+            --box-shadow-light: rgba(0, 0, 0, 0.08) 0px 4px 12px; /* 柔和陰影 */
+            --box-shadow-hover: rgba(0, 0, 0, 0.12) 0px 6px 16px; /* 懸停陰影 */
+            --dark-gray: #495057; /* 篩選標籤顏色 */
+        }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 設定通用字體 */
-            margin: 0 auto; /* 頁面內容居中 */
-            max-width: 1400px; /* 最大寬度限制 */
-            padding: 20px; /* 內邊距 */
-            background-color: #f4f7f6; /* 背景顏色 */
-            color: #333; /* 預設文字顏色 */
+            font-family: 'Segoe UI', 'Microsoft JhengHei', 'PingFang SC', sans-serif; /* 優先中文字體 */
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 30px 20px; /* 增加整體邊距，讓內容有更多呼吸空間 */
         }
 
-        .header-container {
-            display: flex; /* 使用 Flexbox 排列子元素 */
-            justify-content: space-between; /* 子元素分開對齊 */
-            align-items: center; /* 子元素垂直居中 */
-            margin-bottom: 20px; /* 底部外邊距 */
-            flex-wrap: wrap; /* 內容過長時換行 */
+        .forumpost-management-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 25px; /* 增加容器內邊距 */
+            box-sizing: border-box;
+            background-color: var(--component-bg); /* 將背景色應用到容器，形成一個卡片 */
+            border-radius: 12px;
+            box-shadow: var(--box-shadow-light); /* 為整個容器添加陰影 */
         }
 
-        .header-left {
-            display: flex; /* 使用 Flexbox 排列左側元素 */
-            align-items: center; /* 垂直居中 */
-            gap: 20px; /* 標題和按鈕的間距 */
+        .page-title-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px; /* 增加標題下方間距 */
+            padding-bottom: 20px; /* 增加標題下邊線的間距 */
+            border-bottom: 1px solid var(--border-color);
         }
 
-        h1 {
-            color: #2c3e50; /* 標題顏色 */
-            margin: 0; /* 移除預設外邊距 */
+        .page-title-header h2 {
+            font-family: 'Karla', sans-serif; /* 標題字體不變 */
+            font-size: 28px;
+            color: var(--dark-gray); /* 標題顏色可以更深一點 */
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
         }
 
-        /* 表格樣式 */
-        table {
-            width: 100%; /* 寬度佔滿父容器 */
-            border-collapse: collapse; /* 合併邊框 */
-            margin-top: 20px; /* 頂部外邊距 */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 陰影效果 */
+        .page-title-header h2 .item-icon { /* 假設 bi bi-file-text-fill 是圖標 */
+            margin-right: 10px;
+            color: var(--brand-green);
         }
 
-        th, td {
-            border: 1px solid #ddd; /* 邊框 */
-            padding: 12px 15px; /* 內邊距 */
-            text-align: center; /* 文字居中 */
-            vertical-align: middle; /* 垂直居中 */
+
+        .control-bar {
+            background: var(--component-bg); /* 保持背景色，但去掉原本的邊框和陰影 */
+            padding: 20px 25px; /* 增加內邊距 */
+            border-radius: 10px;
+            margin-bottom: 25px; /* 增加下方間距 */
+            /* border: 1px solid var(--border-color); */ /* 移除邊框 */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px; /* 增加間距 */
         }
 
-        thead {
-            background-color: #3498db; /* 表頭背景色 */
-            color: #ffffff; /* 表頭文字顏色 */
+        .filter-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 25px; /* 增加篩選器之間間距 */
         }
 
-        tbody tr:nth-child(even) {
-            background-color: #f2f2f2;
+        .filter-group label {
+            color: var(--dark-gray); /* 篩選標籤顏色 */
+            font-weight: 500;
         }
 
-        /* 偶數行背景色 */
-        tbody tr:hover {
-            background-color: #e8f4fd;
+        .filter-select {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 9px 15px; /* 稍微增加 padding */
+            background: var(--component-bg); /* 背景色改為白色 */
+            color: var(--text-color);
+            transition: border-color 0.2s, box-shadow 0.2s; /* 增加陰影過渡 */
+            min-width: 140px; /* 稍微增加最小寬度 */
+            appearance: none; /* 移除默認箭頭 */
+            background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23333%22%3E%3Cpath%20d%3D%22M7%2C10L12%2C15L17%2C10H7Z%22%2F%3E%3C%2Fsvg%3E'); /* 自定義下拉箭頭 */
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 18px;
         }
 
-        /* 滑鼠懸停時的背景色 */
-
-        /* 分頁容器樣式 */
-        .pagination-container {
-            display: flex; /* 使用 Flexbox */
-            justify-content: space-between; /* 子元素分開對齊 */
-            align-items: center; /* 垂直居中 */
-            margin-top: 25px; /* 頂部外邊距 */
-            flex-wrap: wrap; /* 內容過長時換行 */
+        .filter-select:focus {
+            border-color: var(--brand-green);
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25); /* Focus 時的柔和陰影 */
+            outline: none;
         }
 
-        /* 分頁控制按鈕樣式 */
-        .pagination-controls button {
-            background-color: #fff; /* 背景色 */
-            border: 1px solid #ddd; /* 邊框 */
-            color: #3498db; /* 文字顏色 */
-            padding: 8px 12px; /* 內邊距 */
-            margin: 0 2px; /* 外邊距 */
-            cursor: pointer; /* 滑鼠指針樣式 */
-            border-radius: 4px; /* 圓角 */
+        .table-container {
+            background: var(--component-bg);
+            border-radius: 12px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px; /* 表格容器的輕微陰影 */
         }
 
-        .pagination-controls button:hover:not(:disabled) {
-            background-color: #e8f4fd;
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+            min-width: 1200px; /* 根據欄位數量和內容，調整為一個更合理的最小寬度 */
         }
 
-        /* 滑鼠懸停效果 */
-        .pagination-controls button.active {
-            background-color: #3498db; /* 啟用時的背景色 */
-            color: white; /* 啟用時的文字顏色 */
-            border-color: #3498db; /* 啟用時的邊框顏色 */
+        .table thead {
+            background: var(--brand-green-light);
         }
 
-        .pagination-controls button:disabled {
-            color: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* 禁用時的樣式 */
-        /* 每頁顯示選擇器和分頁資訊樣式 */
-        .items-per-page-selector, .pagination-info {
-            font-size: 14px;
-            color: #555;
-        }
-
-        /* 錯誤訊息樣式 */
-        #error-message {
-            color: #e74c3c; /* 文字顏色 */
-            background-color: #fbecec; /* 背景顏色 */
-            border: 1px solid #e74c3c; /* 邊框 */
-            padding: 15px; /* 內邊距 */
-            margin-top: 20px; /* 頂部外邊距 */
-            border-radius: 5px; /* 圓角 */
-            display: none; /* 預設隱藏 */
-        }
-
-        /* 通用按鈕樣式 */
-        .btn {
-            display: inline-block; /* 行內區塊顯示 */
-            text-decoration: none; /* 移除底線 */
-            color: white; /* 文字顏色 */
-            padding: 8px 15px; /* 內邊距 */
-            border-radius: 5px; /* 圓角 */
-            font-weight: bold; /* 字體加粗 */
-            transition: opacity 0.3s; /* 過渡效果 */
-            text-align: center; /* 文字居中 */
-        }
-
-        .btn:hover {
-            opacity: 0.85;
-        }
-
-        /* 滑鼠懸停時的透明度 */
-        .btn-home {
-            background-color: #95a5a6;
-        }
-
-        /* 回到首頁按鈕顏色 */
-        .btn-add {
-            background-color: #2ecc71;
-        }
-
-        /* 新增按鈕顏色 */
-        .btn-edit {
-            background-color: #f39c12;
-        }
-
-        /* 修改按鈕顏色 */
-        .btn-delete {
-            background-color: #e74c3c;
-        }
-
-        /* 刪除按鈕顏色 */
-
-
-        /* 論壇縮圖樣式 (用於文章圖片，即使註解圖片功能，樣式仍可保留) */
-        .forum-thumbnail {
-            width: 100px; /* 圖片寬度 */
-            height: 75px; /* 圖片高度 */
-            object-fit: cover; /* 保持圖片比例並填充 */
-            border-radius: 4px; /* 圓角 */
-            vertical-align: middle; /* 垂直居中 */
-            transition: transform 0.2s ease-in-out; /* 過渡效果 */
-            cursor: pointer; /* 滑鼠指針樣式 */
-        }
-
-        /* 縮圖連結樣式 */
-        td a:has(.forum-thumbnail) {
-            text-decoration: none; /* 移除底線 */
-            display: inline-block; /* 讓連結變成行內區塊 */
-        }
-
-        /* 縮圖懸停效果 */
-        td a:has(.forum-thumbnail):hover .forum-thumbnail {
-            transform: scale(1.1); /* 放大效果 */
-            opacity: 0.9; /* 透明度變化 */
-        }
-
-        /* --- 燈箱 (Lightbox) 樣式 --- */
-        .lightbox {
-            display: none; /* 預設隱藏 */
-            position: fixed; /* 固定定位 */
-            z-index: 1000; /* 層級最高 */
-            left: 0;
+        .table th {
+            color: var(--brand-green);
+            font-weight: 700;
+            text-align: center;
+            vertical-align: middle;
+            padding: 18px 10px; /* 增加垂直 padding */
+            border: none;
+            position: sticky;
             top: 0;
-            width: 100%; /* 寬度全屏 */
-            height: 100%; /* 高度全屏 */
-            background-color: rgba(0, 0, 0, 0.85); /* 半透明黑色背景 */
-            justify-content: center; /* 內容水平居中 */
-            align-items: center; /* 內容垂直居中 */
-            animation: fadeIn 0.3s; /* 淡入動畫 */
+            background: var(--brand-green-light);
+            z-index: 10;
+            white-space: nowrap; /* 確保表頭文字不換行 */
         }
 
-        .lightbox-content {
-            max-width: 85%; /* 燈箱內容最大寬度 */
-            max-height: 85%; /* 燈箱內容最大高度 */
-            border-radius: 5px; /* 圓角 */
+        .table td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 15px 10px; /* 增加垂直 padding */
+            border-top: 1px solid var(--border-color);
+            color: var(--text-color);
         }
 
-        .lightbox-close {
-            position: absolute; /* 絕對定位 */
-            top: 20px; /* 距離頂部 */
-            right: 35px; /* 距離右側 */
-            color: #fff; /* 文字顏色 */
-            font-size: 40px; /* 字體大小 */
-            font-weight: bold; /* 字體加粗 */
-            cursor: pointer; /* 滑鼠指針樣式 */
-            transition: color 0.3s; /* 過渡效果 */
+        .table tbody tr:hover { /* 新增表格行懸停效果 */
+            background-color: var(--brand-green-light);
+            transition: background-color 0.15s ease-in-out;
         }
 
-        .lightbox-close:hover {
-            color: #bbb; /* 滑鼠懸停顏色 */
+        /* 圖片欄位 */
+        .table th:nth-child(1), .table td:nth-child(1) {
+            width: 100px; /* 稍微縮小圖片欄位寬度 */
+            min-width: 100px;
+            max-width: 100px;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            /* 從透明開始 */
-            to {
-                opacity: 1;
-            }
-            /* 到完全不透明 */
-        }
-        /* 封面圖片 (新增) */
-        thead th:nth-child(1) {
-            width: 10%;
+        /* ID 欄位 */
+        .table th:nth-child(2), .table td:nth-child(2) {
+            width: 60px; /* 固定 ID 欄位寬度 */
+            min-width: 60px;
+            max-width: 60px;
         }
 
-        /* 表格欄位寬度設定 */
-        thead th:nth-child(2) {
-            width: 5%;
+        /* 標題欄位 */
+        .table th:nth-child(3), .table td:nth-child(3) {
+            max-width: 250px; /* 允許標題更寬一點 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-align: left; /* 標題左對齊 */
+            padding-left: 20px; /* 增加左側 padding */
         }
 
-        /* 文章 ID */
-        thead th:nth-child(3) {
-            width: 20%;
+        /* 討論區欄位 */
+        .table th:nth-child(4), .table td:nth-child(4) {
+            width: 100px;
+            min-width: 100px;
+            max-width: 100px;
         }
 
-        /* 文章標題 */
-        thead th:nth-child(4) {
-            width: 10%;
+        /* 作者欄位 */
+        .table th:nth-child(5), .table td:nth-child(5) {
+            width: 100px;
+            min-width: 100px;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        /* 作者 */
-        thead th:nth-child(5) {
-            width: 15%;
+
+        /* 內容摘要欄位 */
+        .table th:nth-child(6), .table td:nth-child(6) {
+            max-width: 300px; /* 允許內容摘要更寬一點 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-align: left; /* 內容摘要左對齊 */
+            padding-left: 20px;
         }
 
-        /* 所屬討論區 */
-        thead th:nth-child(6) {
-            width: 15%;
+        /* 創建時間與更新時間 */
+        .table th:nth-child(7), .table td:nth-child(7),
+        .table th:nth-child(8), .table td:nth-child(8) {
+            white-space: nowrap;
+            width: 160px; /* 稍微增加固定寬度 */
+            min-width: 160px;
+            max-width: 160px;
         }
 
-        /* 發文時間 */
-        thead th:nth-child(7) {
-            width: 8%;
+        /* 留言數、按讚數 */
+        .table th:nth-child(9), .table td:nth-child(9),
+        .table th:nth-child(10), .table td:nth-child(10) {
+            width: 70px; /* 固定寬度 */
+            min-width: 70px;
+            max-width: 70px;
         }
 
-        /* 留言數 */
-        thead th:nth-child(8) {
-            width: 8%;
-        }
-
-        /* 讚數 */
-        thead th:nth-child(9) {
-            width: 8%;
-        }
-
-        /* 倒讚數 */
-        thead th:nth-child(10) {
-            width: 11%;
+        /* 狀態與置頂 */
+        .table th:nth-child(11), .table td:nth-child(11),
+        .table th:nth-child(12), .table td:nth-child(12) {
+            width: 80px; /* 固定寬度 */
+            min-width: 80px;
+            max-width: 80px;
         }
 
         /* 操作 */
+        .table th:nth-child(13), .table td:nth-child(13) {
+            width: 100px; /* 操作按鈕固定寬度 */
+            min-width: 100px;
+            max-width: 100px;
+        }
 
-        /* Modal 彈出視窗樣式 */
-        .modal {
-            display: none; /* 預設隱藏 */
-            position: fixed; /* 固定定位 */
-            z-index: 1001; /* 確保在燈箱之上 */
+
+        .status-badge {
+            padding: 6px 14px; /* 稍微增大 padding */
+            border-radius: 20px; /* 讓圓角更圓滑 */
+            font-size: 13px;
+            font-weight: 600; /* 加粗字體 */
+            display: inline-block;
+            white-space: nowrap;
+            min-width: 60px; /* 確保 badge 有最小寬度 */
+            text-align: center;
+        }
+
+        .status-normal {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-disabled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pinned {
+            background-color: #ffeeb2;
+            color: #b38b00;
+        }
+
+
+        .action-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: var(--component-bg); /* 背景色為白色 */
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 9px 18px; /* 增加 padding */
+            border-radius: 8px; /* 稍微增大圓角 */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            font-size: 15px; /* 稍微增大字體 */
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            background: var(--brand-green-light);
+            color: var(--brand-green);
+            border-color: var(--brand-green);
+            box-shadow: rgba(40, 167, 69, 0.1) 0px 2px 8px; /* 懸停陰影 */
+        }
+
+        .action-btn.btn-add {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+            color: white;
+            font-weight: bold;
+            padding: 10px 20px; /* 增加新增按鈕的 padding */
+            font-size: 16px; /* 增大新增按鈕字體 */
+            border-radius: 8px;
+        }
+
+        .action-btn.btn-add:hover {
+            background-color: var(--brand-green-hover);
+            border-color: var(--brand-green-hover);
+            box-shadow: rgba(40, 167, 69, 0.2) 0px 4px 12px; /* 新增按鈕懸停陰影 */
+        }
+
+        .pagination-controls {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 25px 0; /* 增加分頁上下間距 */
+        }
+
+        .pagination {
+            display: flex;
+            padding-left: 0;
+            list-style: none;
+            margin: 0;
+            box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px; /* 分頁條輕微陰影 */
+            border-radius: 8px; /* 圓角 */
+            overflow: hidden; /* 確保陰影和圓角正確顯示 */
+        }
+
+        .pagination-controls .page-item .page-link {
+            color: var(--brand-green);
+            background-color: var(--component-bg);
+            border: none; /* 移除單個按鈕邊框 */
+            border-right: 1px solid var(--border-color); /* 只保留右邊框 */
+            margin: 0; /* 移除間距 */
+            padding: 10px 16px; /* 增加 padding */
+            transition: all 0.2s;
+            text-decoration: none;
+            display: block;
+        }
+
+        .pagination-controls .page-item:first-child .page-link {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .pagination-controls .page-item:last-child .page-link {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+            border-right: none; /* 最後一個按鈕無右邊框 */
+        }
+
+        .pagination-controls .page-item.active .page-link {
+            z-index: 1;
+            color: #fff;
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+        }
+
+        .pagination-controls .page-item.disabled .page-link {
+            color: #b0b0b0; /* 禁用狀態顏色 */
+            pointer-events: none;
+            background-color: #f8f8f8; /* 禁用狀態背景色 */
+            border-color: var(--border-color);
+        }
+
+        .pagination-controls .page-item .page-link:hover:not(.active) {
+            background-color: var(--brand-green-light);
+            color: var(--brand-green);
+        }
+
+        /* 提示文字 */
+        .text-muted {
+            color: var(--light-text-color);
+            font-style: italic; /* 讓提示文字帶有斜體 */
+        }
+
+        #error-message {
+            color: #d8000c; /* 更明顯的錯誤顏色 */
+            background-color: #ffbaba; /* 更明顯的錯誤背景 */
+            border: 1px solid #d8000c;
+            padding: 15px;
+            margin-top: 20px;
+            margin-bottom: 20px; /* 增加下方間距 */
+            border-radius: 8px; /* 稍微增大圓角 */
+            display: none;
+            font-weight: 500;
+        }
+
+        /* 圖片與燈箱 (從 allForum.html 複製) */
+        .post-thumbnail {
+            width: 80px; /* 稍微縮小縮圖尺寸 */
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px; /* 圓角更柔和 */
+            vertical-align: middle;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s; /* 增加陰影過渡 */
+            cursor: pointer;
+            box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px; /* 縮圖輕微陰影 */
+        }
+
+        td a:has(.post-thumbnail) {
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        td a:has(.post-thumbnail):hover .post-thumbnail {
+            transform: scale(1.1);
+            box-shadow: rgba(0, 0, 0, 0.15) 0px 4px 12px; /* 懸停時明顯陰影 */
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto; /* 內容超出時可滾動 */
-            background-color: rgba(0, 0, 0, 0.6); /* 半透明黑色背景 */
-            align-items: center; /* 垂直居中 */
-            justify-content: center; /* 水平居中 */
-            animation: fadeIn 0.3s;
+            background-color: rgba(0, 0, 0, 0.88); /* 燈箱背景更深 */
+            justify-content: center;
+            align-items: center;
         }
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: auto; /* 自動外邊距實現居中 */
-            padding: 30px;
-            border: 1px solid #888;
-            width: 80%; /* 模態框寬度 */
-            max-width: 600px; /* 最大寬度 */
+        .lightbox-content {
+            max-width: 90%; /* 燈箱圖片更大 */
+            max-height: 90%;
             border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            position: relative; /* 為了關閉按鈕定位 */
+            box-shadow: rgba(0, 0, 0, 0.5) 0px 8px 24px; /* 燈箱圖片陰影 */
         }
 
-        .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
+        .lightbox-close {
             position: absolute;
-            top: 10px;
-            right: 20px;
-            cursor: pointer;
-        }
-
-        .close-button:hover,
-        .close-button:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .modal-form-group {
-            margin-bottom: 15px;
-        }
-
-        .modal-form-group label {
-            display: block;
-            margin-bottom: 5px;
+            top: 25px; /* 調整關閉按鈕位置 */
+            right: 40px;
+            color: #fff;
+            font-size: 45px; /* 稍微增大關閉按鈕尺寸 */
             font-weight: bold;
-            color: #555;
-        }
-
-        .modal-form-group input[type="text"],
-        .modal-form-group textarea,
-        .modal-form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 15px;
-        }
-        /* 新增 input[type="radio"] 的樣式，使其與 input[type="file"] 同行對齊 */
-        .modal-form-group input[type="radio"] {
-            width: auto; /* 取消 100% 寬度 */
-            margin-right: 5px; /* 與 label 間隔 */
-            vertical-align: middle; /* 垂直對齊 */
-        }
-        .modal-form-group label[for^="modalUse"], .modal-form-group label[for^="modalUpload"] {
-            display: inline-block; /* 讓 label 與 radio button 在同一行 */
-            margin-bottom: 0;
-            font-weight: normal;
-            vertical-align: middle;
-        }
-        .modal-form-group input[type="file"] { /* 新增 file 類型樣式 */
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 15px;
-            margin-top: 10px; /* 與上方 radio button 間隔 */
-        }
-
-
-        .modal-form-group textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .modal-button-group {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .modal-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
             cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
+            transition: color 0.3s;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* 增加文字陰影 */
         }
 
-        .modal-btn-primary {
-            background-color: #28a745; /* 綠色 */
-            color: white;
-        }
-
-        .modal-btn-primary:hover {
-            background-color: #218838;
-        }
-
-        .modal-btn-cancel {
-            background-color: #6c757d; /* 灰色 */
-            color: white;
-        }
-
-        .modal-btn-cancel:hover {
-            background-color: #5a6268;
-        }
-
-        .modal-error-feedback {
-            color: #e74c3c;
-            font-size: 0.9em;
-            margin-top: 5px;
-            display: block;
-        }
-        /* 在 allForumPost.html 的 <style> 標籤內添加以下樣式 */
-
-        .image-source-options {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .image-source-label {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s, border-color 0.2s;
-            flex-grow: 1;
-            justify-content: center;
-        }
-
-        .image-source-label:hover {
-            background-color: #f0f0f0;
-            border-color: #999;
-        }
-
-        .image-source-label input[type="radio"] {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border: 2px solid #aaa;
-            border-radius: 50%;
-            margin-right: 10px;
-            outline: none;
-            cursor: pointer;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .image-source-label input[type="radio"]:checked {
-            border-color: #27ae60;
-            background-color: #fff;
-        }
-
-        .image-source-label input[type="radio"]:checked::before {
-            content: '';
-            width: 10px;
-            height: 10px;
-            background-color: #27ae60;
-            border-radius: 50%;
-            display: block;
-        }
-
-        .image-source-label span {
-            font-weight: normal;
-            color: #333;
+        .lightbox-close:hover {
+            color: #ddd; /* 懸停顏色更亮 */
         }
     </style>
 </head>
 <body>
-<div class="header-container">
-    <div class="header-left">
-        <h1>論壇文章管理</h1> <a href="/back-end/forumsys/forum/allForum.html" class="btn btn-home">回到論壇首頁</a>
+
+<div class="forumpost-management-container">
+    <div class="page-title-header">
+        <h2><i class="bi bi-file-text-fill item-icon"></i>文章管理</h2>
     </div>
-    <div class="header-right">
-        <a href="/back-end/forumsys/forumpost/addForumPost.html" class="btn btn-add">＋ 新增文章</a>
-    </div>
-</div>
 
-<div id="error-message"></div>
-
-<table>
-    <thead>
-    <tr>
-        <th>文章封面圖</th>
-        <th>文章ID</th>
-        <th>文章標題</th>
-        <th>作者</th>
-        <th>所屬討論區</th>
-        <th>發文時間</th>
-        <th>留言數</th>
-        <th>讚數</th>
-        <th>倒讚數</th>
-        <th>操作</th>
-    </tr>
-    </thead>
-    <tbody id="posts-data-body">
-    <tr>
-        <td colspan="9" class="text-center text-muted">載入中...</td>
-    </tr>
-    </tbody>
-</table>
-
-<div class="pagination-container">
-    <div class="items-per-page-selector">
-        <label for="items-per-page">每頁顯示：</label>
-        <select id="items-per-page">
-            <option value="5">5 筆</option>
-            <option value="10" selected>10 筆</option>
-            <option value="20">20 筆</option>
-            <option value="50">50 筆</option>
-        </select>
-    </div>
-    <div id="pagination-info" class="pagination-info"></div>
-    <div id="pagination-controls" class="pagination-controls"></div>
-</div>
-
-<div id="lightbox" class="lightbox">
-    <span id="lightbox-close" class="lightbox-close">&times;</span>
-    <img id="lightbox-img" class="lightbox-content">
-</div>
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>編輯文章</h2>
-        <div id="modal-error-messages" style="color: #e74c3c; display: none; margin-bottom: 15px;"></div>
-
-        <form id="editForumPostModalForm">
-            <input type="hidden" id="modalPostId" name="id">
-            <input type="hidden" id="modalHiddenForNoId" name="forNoIdHidden">
-
-            <div class="modal-form-group">
-                <label for="modalPostTitle">文章標題:</label>
-                <input type="text" id="modalPostTitle" name="postTitle" required maxlength="50">
-                <span class="modal-error-feedback" id="modalPostTitleError"></span>
-            </div>
-
-            <div class="modal-form-group">
-                <label for="modalPostCon">文章內容:</label>
-                <textarea id="modalPostCon" name="postCon" rows="8" required minlength="10" maxlength="5000"></textarea>
-                <span class="modal-error-feedback" id="modalPostConError"></span>
-            </div>
-
-            <div class="modal-form-group">
-                <label for="modalForNoId">所屬討論區:</label>
-                <select id="modalForNoId" name="forNoId" required>
+    <div class="control-bar">
+        <div>
+            <a href="#" onclick="event.preventDefault(); loadExternalPage('../forumsys/forumpost/addForumPost.html')"
+               class="action-btn btn-add">＋ 新增文章</a>
+        </div>
+        <div class="filter-group">
+            <div>
+                <label for="itemsPerPageFilter">每頁顯示：</label>
+                <select id="itemsPerPageFilter" class="filter-select" onchange="changeItemsPerPage()">
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
                 </select>
-                <span class="modal-error-feedback" id="modalForNoIdError"></span>
             </div>
-
-            <div class="modal-form-group">
-                <label for="modalFtagNoId">文章類別:</label>
-                <select id="modalFtagNoId" name="ftagNoId" required>
+            <div>
+                <label for="forumFilter">篩選討論區：</label> <!-- 新增討論區篩選下拉選單 -->
+                <select id="forumFilter" class="filter-select" onchange="filterByForum()">
+                    <option value="">全部討論區</option>
+                    <!-- 討論區選項將由 JS 動態載入 -->
                 </select>
-                <span class="modal-error-feedback" id="modalFtagNoIdError"></span>
             </div>
+            <div>
+                <label for="statusFilter">篩選狀態：</label>
+                <select id="statusFilter" class="filter-select" onchange="filterByStatus()">
+                    <option value="">全部狀態</option>
+                    <option value="0">正常</option>
+                    <option value="1">停用</option>
+                </select>
+            </div>
+            <div>
+                <label for="pinFilter">置頂狀態：</label>
+                <select id="pinFilter" class="filter-select" onchange="filterByPin()">
+                    <option value="">全部狀態</option>
+                    <option value="0">未置頂</option>
+                    <option value="1">已置頂</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
-            <div class="modal-form-group">
-                <label>文章封面圖片:</label>
-                <div class="image-source-options"> <label class="image-source-label"> <input type="radio" id="modalUseDefaultImage" name="modalImageSource" value="default" checked>
-                    <span>使用預設圖片</span> </label>
-                    <label class="image-source-label"> <input type="radio" id="modalUploadCustomImage" name="modalImageSource" value="custom">
-                        <span>上傳自訂圖片</span>
-                    </label>
-                </div>
-                <img id="modalDefaultImagePreview" src="" alt="預設圖片預覽" style="max-width: 150px; margin-top: 10px; display: none;">
-                <input type="file" id="modalPostImageFile" name="imageFile" accept="image/*" style="display: none;">
-                <img id="currentPostImage" src="" alt="當前封面圖片" style="max-width: 150px; margin-top: 10px; display: none;">
-            </div>
+    <div id="error-message"></div>
 
-            <div class="modal-form-group">
-                <input type="checkbox" id="modalPostPin" name="postPin" value="1">
-                <label for="modalPostPin">置頂文章</label>
-            </div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>圖片</th>
+                <th>ID</th>
+                <th>標題</th>
+                <th>討論區</th>
+                <th>作者</th>
+                <th>內容摘要</th>
+                <th>創建時間</th>
+                <th>更新時間</th>
+                <th>留言數</th>
+                <th>按讚數</th>
+                <th>狀態</th>
+                <th>置頂</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="forumPostTableBody">
+            <tr>
+                <td colspan="13" style="text-align:center; padding: 40px;">載入中...</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-            <div class="modal-form-group">
-                <input type="checkbox" id="modalPostStatus" name="postStatus" value="1">
-                <label for="modalPostStatus">文章狀態 (公開/隱藏)</label>
-            </div>
+    <nav id="paginationContainer" class="pagination-controls"></nav>
 
-            <div class="modal-button-group">
-                <button type="submit" class="modal-btn modal-btn-primary">儲存修改</button>
-                <button type="button" class="modal-btn modal-btn-cancel" id="closeModalButton">取消</button>
-            </div>
-        </form>
+    <div id="lightbox" class="lightbox">
+        <span id="lightbox-close" class="lightbox-close">&times;</span>
+        <img id="lightbox-img" class="lightbox-content">
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous">
-</script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const tableBody = document.getElementById('posts-data-body');
+    (function () {
+        'use strict';
+
+        // --- 變數定義區 ---
+        // 【不可變】API 路徑，與 ForumPostController.java 對應
+        const allPostsApiUrl = 'http://localhost:8080/api/forumposts/all'; // 獲取所有文章
+        const allForumsApiUrl = 'http://localhost:8080/api/forums/all'; // 【新增】獲取所有討論區
+
+        // 【可變】這些是 DOM 元素的引用，名稱可依個人習慣修改，但要與 HTML 的 id 對應
+        const tableBody = document.getElementById('forumPostTableBody');
         const errorMessageDiv = document.getElementById('error-message');
-        const itemsPerPageSelect = document.getElementById('items-per-page');
-        const paginationControls = document.getElementById('pagination-controls');
-        const paginationInfo = document.getElementById('pagination-info');
+        const paginationContainer = document.getElementById('paginationContainer');
+        const itemsPerPageFilter = document.getElementById('itemsPerPageFilter');
+        const forumFilter = document.getElementById('forumFilter'); // 【新增】討論區篩選
+        const statusFilter = document.getElementById('statusFilter');
+        const pinFilter = document.getElementById('pinFilter');
 
-        let allPostsData = [];
+        // 【可變】應用程式狀態變數
+        let allForumPostsData = []; // 存放從 API 獲取的原始文章資料
         let currentPage = 1;
-        let itemsPerPage = parseInt(itemsPerPageSelect.value);
+        let itemsPerPage = 10;
 
-        function getUrlParameter(name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            var results = regex.exec(location.search);
-            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        }
+        // --- 核心功能函式 ---
 
-        const forumIdFromUrl = getUrlParameter('forNo'); // 從 URL 獲取的 forumId
-
-        // --- API URL 常量定義 ---
-        const API_BASE_URL = 'http://localhost:8080';
-        // Controller 的 @RequestMapping("/api") 已經是根路徑，所以這裡的變數只需要包含後面的部分
-        const API_FORUM_POST_SEGMENT = '/forumpost';
-        const API_FORUM_POSTS_SEGMENT = '/forumposts';
-        const API_FORUM_SEGMENT = '/forum';
-        const API_FORUM_TAG_SEGMENT = '/forumtag';
-
-        // 【新增】預設圖片映射與路徑 (與 addForumPost.html 保持一致)
-        const DEFAULT_IMAGE_BASE_PATH = 'http://localhost:8080/images/forumposttag_img/';
-        const DEFAULT_IMAGE_MAP = {
-            1: '01.jpg', 2: '02.jpg', 3: '03.jpg', 4: '04.jpg', 5: '05.jpg',
-            6: '06.jpg', 7: '07.jpg', 8: '08.jpg', 9: '09.jpg', 10: '10.jpg', 11: '11.jpg'
-        };
-
-
-
-        // 載入所有文章列表或特定論壇的文章列表
-        async function initialize() {
+        /**
+         * @description 初始化函式，從 API 獲取資料
+         */
+        async function loadForumPosts() {
             try {
-                let apiUrl = '';
-                if (forumIdFromUrl) {
-                    // 後端 @GetMapping("/forum/{forNo}/posts")
-                    apiUrl = `${API_BASE_URL}/api${API_FORUM_SEGMENT}/${forumIdFromUrl}/posts`; // 修改後的路徑
-                    console.log(`正在獲取論壇 ID ${forumIdFromUrl} 的文章... URL: ${apiUrl}`);
-                } else {
-                    // 後端 @GetMapping("/forumposts/all")
-                    apiUrl = `${API_BASE_URL}/api${API_FORUM_POSTS_SEGMENT}/all`; // 修改後的路徑
-                    console.log('正在獲取所有論壇文章... URL: ' + apiUrl);
+                // 同時載入文章資料和討論區資料
+                const [postsResponse, forumsResponse] = await Promise.all([
+                    fetch(allPostsApiUrl),
+                    fetch(allForumsApiUrl) // 【新增】載入所有討論區
+                ]);
+
+                if (!postsResponse.ok) {
+                    throw new Error(`文章資料 HTTP 錯誤！ 狀態: ${postsResponse.status}`);
+                }
+                if (!forumsResponse.ok) {
+                    throw new Error(`討論區資料 HTTP 錯誤！ 狀態: ${forumsResponse.status}`);
                 }
 
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
-                }
-                allPostsData = await response.json();
+                allForumPostsData = await postsResponse.json();
+                const forumsData = await forumsResponse.json(); // 獲取討論區資料
+
+                // 填充討論區篩選下拉選單
+                populateForumFilter(forumsData); // 【新增】填充討論區篩選
+
+                itemsPerPage = parseInt(itemsPerPageFilter.value) || 10;
                 currentPage = 1;
-                renderPage();
+                updateDisplay();
             } catch (error) {
                 showError(error);
             }
         }
 
-        function renderPage() {
-            renderTable();
-            renderPagination();
+        /**
+         * @description 填充討論區篩選下拉選單
+         * @param {Array} forums - 討論區資料列表 (包含 id 和 name)
+         */
+        function populateForumFilter(forums) { // 【新增】
+            forumFilter.innerHTML = '<option value="">全部討論區</option>'; // 預設選項
+            forums.forEach(forum => {
+                const option = document.createElement('option');
+                option.value = forum.id;
+                option.textContent = forum.name;
+                forumFilter.appendChild(option);
+            });
         }
 
-        function renderTable() {
-            tableBody.innerHTML = '';
+
+        /**
+         * @description 更新頁面顯示，包含表格和分頁
+         */
+        function updateDisplay() {
+            const currentForumFilter = forumFilter.value; // 【新增】獲取討論區篩選值
+            const currentStatusFilter = statusFilter.value;
+            const currentPinFilter = pinFilter.value;
+
+            // 根據討論區、狀態和置頂篩選資料
+            let filteredData = allForumPostsData.filter(post => {
+                const forumMatch = currentForumFilter ? post.forumId === parseInt(currentForumFilter) : true; // 【新增】討論區篩選邏輯
+                const statusMatch = currentStatusFilter ? post.postStatus === currentStatusFilter : true;
+                const pinMatch = currentPinFilter ? post.postPin === currentPinFilter : true;
+                return forumMatch && statusMatch && pinMatch; // 【修改】組合所有篩選條件
+            });
+
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
-            const itemsToShow = allPostsData.slice(startIndex, endIndex);
+            const paginatedData = filteredData.slice(startIndex, endIndex);
 
-            if (itemsToShow.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">目前沒有論壇文章。</td></tr>';
+            renderTableBody(paginatedData);
+            renderPaginationControls(filteredData.length);
+        }
+
+        /**
+         * @description 渲染表格內容
+         * @param {Array} posts - 要顯示在當前頁面的文章資料
+         */
+        function renderTableBody(posts) {
+            tableBody.innerHTML = ''; // 清空表格
+
+            if (!posts || posts.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding: 40px;"><span class="text-muted">找不到符合條件的文章</span></td></tr>`;
                 return;
             }
 
-            itemsToShow.forEach(post => {
+            posts.forEach(post => {
                 const row = document.createElement('tr');
-                const postCrdateFormatted = post.postCrdate ? new Date(post.postCrdate).toLocaleString('zh-TW', {
-                    year: 'numeric', month: '2-digit', day: '2-digit',
-                    hour: '2-digit', minute: '2-digit', second: '2-digit',
-                    hour12: false
-                }) : '無日期';
-
-                // 判斷是否有圖片URL，如果有則顯示縮圖
-                const postImageHtml = post.postImageUrl ?
-                    `<a href="${post.postImageUrl}" target="_blank"><img src="${post.postImageUrl}" alt="封面" class="forum-thumbnail"></a>` :
-
-                    '無圖片';
-
                 row.innerHTML = `
-                    <td>${postImageHtml}</td>
+                    <td>
+                      ${post.postImageUrl ?
+                    `<a href="${post.postImageUrl}">
+                           <img src="${post.postImageUrl}" alt="${post.postTitle} 的縮圖" class="post-thumbnail">
+                         </a>` :
+                    '<span class="text-muted">無圖片</span>'
+                }
+                    </td>
                     <td>${post.id}</td>
-                    <td>${post.postTitle || '無標題'}</td>
-                    <td>${post.memberName || '匿名'}</td>
-                    <td>${post.forumName || '未知討論區'}</td>
-                    <td>${postCrdateFormatted}</td>
+                    <td>${post.postTitle || '<span class="text-muted">無標題</span>'}</td>
+                    <td>${post.forumName || '<span class="text-muted">未知討論區</span>'}</td>
+                    <td>${post.memberNickName || post.memberName || '<span class="text-muted">匿名</span>'}</td>
+
+                    <td>${(post.postCon || '').substring(0, 50)}${post.postCon && post.postCon.length > 50 ? '...' : '<span class="text-muted">無內容</span>'}</td>
+                    <td>${formatDateTime(post.postCrdate)}</td>
+                    <td>${formatDateTime(post.postUpdate)}</td>
                     <td>${post.mesNumbers || 0}</td>
                     <td>${post.postLikeCount || 0}</td>
-                    <td>${post.postLikeDlc || 0}</td>
                     <td>
-                        <button class="btn btn-edit" data-post-id="${post.id}" data-for-no-id="${post.forumId}">編輯</button>
-                        </td>
+                        <span class="status-badge ${getStatusClass(post.postStatus)}">
+                            ${post.postStatus === '0' ? '正常' : '停用'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge ${getPinClass(post.postPin)}">
+                            ${post.postPin === '0' ? '未置頂' : '已置頂'}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="#"
+                           onclick="event.preventDefault(); loadExternalPage('../forumsys/forumpost/forumPost.html?id=${post.id}&forNo=${post.forumId}')"
+                           class="action-btn">修改</a>
+                    </td>
                 `;
                 tableBody.appendChild(row);
             });
-
-            // 為所有「編輯」按鈕添加事件監聽器
-            document.querySelectorAll('.btn-edit').forEach(button => {
-                button.addEventListener('click', function () {
-                    const postId = this.dataset.postId;
-                    const forNoId = this.dataset.forNoId; // 獲取 forNoId
-                    openEditModal(postId, forNoId); // 傳遞 postId 和 forNoId
-                });
-            });
         }
 
-        function renderPagination() {
-            paginationControls.innerHTML = '';
-            const totalItems = allPostsData.length;
+        /**
+         * @description 渲染分頁控制項
+         * @param {number} totalItems - 篩選後的總資料筆數
+         */
+        function renderPaginationControls(totalItems) {
             const totalPages = Math.ceil(totalItems / itemsPerPage);
 
             if (totalPages <= 1) {
-                paginationInfo.textContent = `共 ${totalItems} 筆資料`;
+                paginationContainer.innerHTML = '';
                 return;
             }
 
-            const startItem = (currentPage - 1) * itemsPerPage + 1;
-            const endItem = Math.min(currentPage * itemsPerPage, totalItems);
-            paginationInfo.textContent = `顯示 ${startItem} - ${endItem} 筆，共 ${totalItems} 筆`;
+            let paginationHTML = '<ul class="pagination">';
 
-            paginationControls.appendChild(
-                createPaginationButton('« 上一頁', () => changePage(currentPage - 1), currentPage === 1)
-            );
+            paginationHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="event.preventDefault(); changePage(${currentPage - 1})">上一頁</a>
+                </li>`;
 
-            for (let i = 1; i <= totalPages; i++) {
-                const pageButton = createPaginationButton(i, () => changePage(i));
-                if (i === currentPage) pageButton.classList.add('active');
-                paginationControls.appendChild(pageButton);
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+
+            if (startPage > 1) {
+                paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="event.preventDefault(); changePage(1)">1</a></li>`;
+                if (startPage > 2) {
+                    paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
             }
 
-            paginationControls.appendChild(
-                createPaginationButton('下一頁 »', () => changePage(currentPage + 1), currentPage === totalPages)
-            );
-        }
-
-        function createPaginationButton(text, clickHandler, disabled = false) {
-            const button = document.createElement('button');
-            button.textContent = text;
-            button.disabled = disabled;
-            button.addEventListener('click', clickHandler);
-            return button;
-        }
-
-        function changePage(newPage) {
-            const totalPages = Math.ceil(allPostsData.length / itemsPerPage);
-            if (newPage >= 1 && newPage <= totalPages) {
-                currentPage = newPage;
-                renderPage();
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="event.preventDefault(); changePage(${i})">${i}</a>
+                    </li>`;
             }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
+                paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="event.preventDefault(); changePage(${totalPages})">${totalPages}</a></li>`;
+            }
+
+
+            paginationHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="event.preventDefault(); changePage(${currentPage + 1})">下一頁</a>
+                </li>`;
+
+            paginationHTML += '</ul>';
+            paginationContainer.innerHTML = paginationHTML;
         }
 
+        // --- 事件處理函式 ---
+        // 【不可變】以下函式名稱需與 HTML 中的 onchange, onclick 對應，所以名稱是固定的
+        window.filterByStatus = function () {
+            currentPage = 1;
+            updateDisplay();
+        }
+
+        window.filterByPin = function () {
+            currentPage = 1;
+            updateDisplay();
+        }
+
+        window.filterByForum = function () { // 【新增】討論區篩選事件處理
+            currentPage = 1;
+            updateDisplay();
+        }
+
+        window.changeItemsPerPage = function () {
+            itemsPerPage = parseInt(itemsPerPageFilter.value);
+            currentPage = 1;
+            updateDisplay();
+        }
+
+        window.changePage = function (page) {
+            const currentForumFilter = forumFilter.value; // 【新增】
+            const currentStatusFilter = statusFilter.value;
+            const currentPinFilter = pinFilter.value;
+
+            const filteredData = allForumPostsData.filter(post => {
+                const forumMatch = currentForumFilter ? post.forumId === parseInt(currentForumFilter) : true; // 【新增】
+                const statusMatch = currentStatusFilter ? post.postStatus === currentStatusFilter : true;
+                const pinMatch = currentPinFilter ? post.postPin === currentPinFilter : true;
+                return forumMatch && statusMatch && pinMatch; // 【修改】
+            });
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+            if (page < 1 || page > totalPages) {
+                return;
+            }
+
+            currentPage = page;
+            updateDisplay();
+        }
+
+        // --- 輔助函式 ---
         function showError(error) {
-            console.error('資料載入失敗:', error);
+            console.error('無法獲取文章資料:', error);
             errorMessageDiv.style.display = 'block';
             errorMessageDiv.innerHTML = `<strong>資料載入失敗！</strong> 請檢查後端服務是否啟動及 CORS 設定。<br>詳細錯誤: ${error.message}`;
-            tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">載入文章失敗，請重新整理頁面。</td></tr>';
         }
 
-        itemsPerPageSelect.addEventListener('change', (event) => {
-            itemsPerPage = parseInt(event.target.value);
-            currentPage = 1;
-            renderPage();
-        });
-
-
-        // ===========================================
-        // 新增的 Modal (編輯彈出視窗) 邏輯
-        // ===========================================
-        const editModal = document.getElementById('editModal');
-        const closeModalButton = document.getElementById('closeModalButton');
-        const modalCloseButtonTop = document.querySelector('.modal .close-button'); // 頂部的 X 按鈕
-        const modalPostIdInput = document.getElementById('modalPostId');
-        const modalHiddenForNoId = document.getElementById('modalHiddenForNoId'); // 新增的 hidden input
-        const modalPostTitleInput = document.getElementById('modalPostTitle');
-        const modalPostConTextarea = document.getElementById('modalPostCon');
-        const modalForNoIdSelect = document.getElementById('modalForNoId');
-        const modalFtagNoIdSelect = document.getElementById('modalFtagNoId');
-        const modalPostPinCheckbox = document.getElementById('modalPostPin');
-        const modalPostStatusCheckbox = document.getElementById('modalPostStatus');
-
-        // 【新增】編輯模態框的圖片相關元素
-        const modalUseDefaultImageRadio = document.getElementById('modalUseDefaultImage');
-        const modalUploadCustomImageRadio = document.getElementById('modalUploadCustomImage');
-        const modalDefaultImagePreview = document.getElementById('modalDefaultImagePreview');
-        const modalPostImageFileInput = document.getElementById('modalPostImageFile'); // 檔案上傳 input
-
-        const currentPostImage = document.getElementById('currentPostImage'); // 當前圖片顯示 (用於顯示已存在的圖片)
-        const editForumPostModalForm = document.getElementById('editForumPostModalForm');
-        const modalErrorMessagesDiv = document.getElementById('modal-error-messages');
-
-        // 開啟編輯模態框
-        async function openEditModal(postId, forNoId) {
-            clearModalErrors(); // 打開前先清除錯誤
-            editModal.style.display = 'flex'; // 顯示模態框
-            modalHiddenForNoId.value = forNoId; // 設定隱藏的 forNoId
-
-            await loadModalSelectOptions(); // 載入下拉選單選項
-            await loadPostDataToModal(postId); // 載入文章資料到模態框
-        }
-
-        // 關閉編輯模態框
-        function closeEditModal() {
-            editModal.style.display = 'none';
-            editForumPostModalForm.reset(); // 重置表單
-            clearModalErrors(); // 清除錯誤訊息
-            currentPostImage.style.display = 'none'; // 隱藏已存在的圖片
-            currentPostImage.src = ''; // 清空已存在的圖片源
-
-            // 【新增】重置模態框圖片選擇狀態
-            modalUseDefaultImageRadio.checked = true; // 預設選中「使用預設圖片」
-            modalPostImageFileInput.style.display = 'none'; // 隱藏文件選擇
-            modalPostImageFileInput.value = ''; // 清空文件選擇
-            modalDefaultImagePreview.style.display = 'none'; // 隱藏預覽圖
-            modalDefaultImagePreview.src = ''; // 清空預覽圖源
-        }
-
-        // 處理模態框錯誤訊息
-        function showModalError(message, errors = {}) {
-            modalErrorMessagesDiv.innerHTML = `<strong>錯誤:</strong> ${message}<br>`;
-            // 遍歷錯誤物件，顯示具體字段錯誤
-            for (const key in errors) {
-                // 將鍵名轉換為匹配HTML元素ID的格式，例如：postTitle -> modalPostTitleError
-                const errorElementId = `modal${key.charAt(0).toUpperCase() + key.slice(1)}Error`;
-                const errorElement = document.getElementById(errorElementId);
-                if (errorElement) {
-                    errorElement.textContent = errors[key];
-                    errorElement.style.display = 'block';
-                } else {
-                    // 如果沒有找到對應的錯誤元素，則添加到通用錯誤訊息中
-                    modalErrorMessagesDiv.innerHTML += `<li>${key}: ${errors[key]}</li>`;
-                }
-            }
-            modalErrorMessagesDiv.style.display = 'block';
-        }
-
-        // 清除模態框錯誤訊息
-        function clearModalErrors() {
-            modalErrorMessagesDiv.style.display = 'none';
-            modalErrorMessagesDiv.innerHTML = '';
-            document.querySelectorAll('.modal-error-feedback').forEach(el => {
-                el.textContent = '';
-                el.style.display = 'none';
-            });
-        }
-
-        // 載入討論區和文章類別到模態框的下拉選單
-        async function loadModalSelectOptions() {
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return '<span class="text-muted">-</span>';
             try {
-                // 載入討論區
-                const forumResponse = await fetch(`${API_BASE_URL}/api/forums`);
-                if (!forumResponse.ok) {
-                    throw new Error(`載入討論區失敗: ${forumResponse.statusText} (HTTP ${forumResponse.status})`);
-                }
-                const forums = await forumResponse.json();
-                modalForNoIdSelect.innerHTML = '<option value="">請選擇討論區</option>';
-                forums.forEach(forum => {
-                    const option = document.createElement('option');
-                    // 確保這裡的屬性名與 ForumDetailDTO.java 中的屬性名一致
-                    option.value = forum.id; // ForumDetailDTO 中的 ID 屬性是 'id'
-                    option.textContent = forum.forName; // ForumDetailDTO 中的名稱屬性是 'forName'
-                    modalForNoIdSelect.appendChild(option);
-                });
+                const isoDateTimeStr = dateTimeStr.includes('T') ? dateTimeStr : dateTimeStr.replace(' ', 'T');
+                const date = new Date(isoDateTimeStr);
 
-                // 載入文章類別
-                // 根據您的 ForumTagController.java，獲取所有文章類別的 API 是 /api/forumtag
-                const ftagResponse = await fetch(`${API_BASE_URL}/api/forumtag`);
-                if (!ftagResponse.ok) {
-                    throw new Error(`載入文章類別失敗: ${ftagResponse.statusText} (HTTP ${ftagResponse.status})`);
+                if (isNaN(date.getTime())) {
+                    console.warn(`無法解析日期字串: ${dateTimeStr}`);
+                    return `<span class="text-muted">${dateTimeStr}</span>`;
                 }
-                const forumTags = await ftagResponse.json();
-                modalFtagNoIdSelect.innerHTML = '<option value="">請選擇文章類別</option>';
-                forumTags.forEach(tag => {
-                    const option = document.createElement('option');
-                    // 確保這裡的屬性名與 ForumTagDTO.java 中的屬性名一致
-                    option.value = tag.id; // ForumTagDTO 中的 ID 屬性是 'id'
-                    option.textContent = tag.ftagName; // ForumTagDTO 中的名稱屬性是 'ftagName'
-                    // 【新增】將預設圖片名存儲在 dataset
-                    option.dataset.defaultImage = DEFAULT_IMAGE_MAP[tag.id] || '';
-                    modalFtagNoIdSelect.appendChild(option);
-                });
-            } catch (error) {
-                showModalError(`載入選單選項失敗: ${error.message}`);
-                console.error('載入選單選項時發生錯誤:', error);
+
+                return date.toLocaleString('zh-TW', {hour12: false});
+            } catch (e) {
+                console.error('日期格式化錯誤:', e);
+                return `<span class="text-muted">${dateTimeStr}</span>`;
             }
         }
 
-        // 載入文章資料並填充模態框表單
-        async function loadPostDataToModal(postId) {
-            try {
-                // 後端 @GetMapping("/forumpost/{id}")
-                const response = await fetch(`${API_BASE_URL}/api${API_FORUM_POST_SEGMENT}/${postId}`); // 修改後的路徑
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`獲取文章資料失敗！狀態: ${response.status}, 訊息: ${errorText}`);
-                }
-                const post = await response.json();
 
-                modalPostIdInput.value = post.id;
-                modalHiddenForNoId.value = post.forumId; // 設置隱藏的 forNoId
-                modalPostTitleInput.value = post.postTitle;
-                modalPostConTextarea.value = post.postCon;
-
-                // 選擇下拉選單的正確值
-                modalForNoIdSelect.value = post.forumId || ''; // 使用 forumId
-                modalFtagNoIdSelect.value = post.forumTagId || ''; // 使用 forumTagId
-
-                // 【修正點 4：編輯時顯示預設圖片或現有圖片】
-                const defaultImageForCurrentTag = DEFAULT_IMAGE_MAP[post.forumTagId];
-                const expectedDefaultImageUrl = defaultImageForCurrentTag ? DEFAULT_IMAGE_BASE_PATH + defaultImageForCurrentTag : '';
-
-                if (post.postImageUrl && post.postImageUrl === expectedDefaultImageUrl) {
-                    // 如果文章的圖片 URL 等於該類別的預設圖片 URL
-                    modalUseDefaultImageRadio.checked = true;
-                    modalDefaultImagePreview.src = post.postImageUrl;
-                    modalDefaultImagePreview.style.display = 'block';
-                    modalPostImageFileInput.style.display = 'none'; // 隱藏文件輸入
-                    currentPostImage.style.display = 'none'; // 隱藏「當前封面圖片」
-                } else if (post.postImageUrl) {
-                    // 如果文章有圖片 URL，且不是預設圖片（或沒有匹配的預設圖片），則顯示為自訂圖片
-                    modalUploadCustomImageRadio.checked = true;
-                    currentPostImage.src = post.postImageUrl; // 顯示實際文章圖片
-                    currentPostImage.style.display = 'block';
-                    modalPostImageFileInput.style.display = 'block'; // 顯示文件輸入，讓用戶可以選擇新圖片
-                    modalDefaultImagePreview.style.display = 'none'; // 隱藏預設預覽圖
-                } else {
-                    // 如果文章沒有圖片 URL，預設選中「使用預設圖片」並顯示該類別的預設圖片
-                    modalUseDefaultImageRadio.checked = true;
-                    modalDefaultImagePreview.src = expectedDefaultImageUrl;
-                    modalDefaultImagePreview.style.display = 'block';
-                    modalPostImageFileInput.style.display = 'none';
-                    currentPostImage.style.display = 'none';
-                }
-                // 確保圖片選擇邏輯更新正確的顯示狀態
-                handleModalImageSourceChange(); // 呼叫這個函數來根據選中的 radio button 更新顯示
-
-                // 處理 Character 類型的布林值，確保它們能正確轉換為 JS 的 true/false
-                // 後端 DTO 中 postPin 和 postStatus 是 Character，這裡判斷 '1' 或 true
-                modalPostPinCheckbox.checked = (post.postPin === '1' || post.postPin === true);
-                modalPostStatusCheckbox.checked = (post.postStatus === '1' || post.postStatus === true);
-
-
-            } catch (error) {
-                showModalError(`載入文章資料失敗: ${error.message}`);
-                console.error('載入文章資料到模態框時發生錯誤:', error);
+        function getStatusClass(status) {
+            switch (status) {
+                case '0':
+                    return 'status-normal';
+                case '1':
+                    return 'status-disabled';
+                default:
+                    return '';
             }
         }
 
-        // 【新增】編輯模態框的圖片來源選擇處理函數
-        function handleModalImageSourceChange() {
-            if (modalUseDefaultImageRadio.checked) {
-                modalPostImageFileInput.style.display = 'none';
-                modalPostImageFileInput.value = ''; // 清空已選擇的自訂檔案
-                currentPostImage.style.display = 'none'; // 隱藏當前圖片 (因為要顯示預設圖片)
-                currentPostImage.src = '';
-
-                // 根據當前選擇的文章類別顯示預設圖片
-                const selectedOption = modalFtagNoIdSelect.options[modalFtagNoIdSelect.selectedIndex];
-                const defaultImageName = selectedOption ? selectedOption.dataset.defaultImage : '';
-                if (defaultImageName) {
-                    modalDefaultImagePreview.src = DEFAULT_IMAGE_BASE_PATH + defaultImageName;
-                    modalDefaultImagePreview.style.display = 'block';
-                } else {
-                    modalDefaultImagePreview.style.display = 'none';
-                    modalDefaultImagePreview.src = '';
-                }
-            } else { // modalUploadCustomImageRadio.checked
-                modalDefaultImagePreview.style.display = 'none';
-                modalDefaultImagePreview.src = ''; // 清空預設預覽圖片
-                modalPostImageFileInput.style.display = 'block'; // 顯示檔案上傳
-                // 這裡不清空 currentPostImage，因為用戶可能只是想「查看」現有圖片，然後再決定是否上傳新圖片
-                // currentPostImage.style.display 會在 loadPostDataToModal 中根據實際圖片是否存在而設定
+        function getPinClass(pinStatus) {
+            switch (pinStatus) {
+                case '0':
+                    return 'status-normal';
+                case '1':
+                    return 'status-pinned';
+                default:
+                    return '';
             }
         }
 
-        // 【新增】監聽編輯模態框的文章類別選擇變更
-        modalFtagNoIdSelect.addEventListener('change', handleModalImageSourceChange);
-        // 【新增】監聽編輯模態框的圖片來源電台按鈕變更
-        modalUseDefaultImageRadio.addEventListener('change', handleModalImageSourceChange);
-        modalUploadCustomImageRadio.addEventListener('change', handleModalImageSourceChange);
+        // --- 燈箱邏輯 (從 allForum.html 複製) ---
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxClose = document.getElementById('lightbox-close');
 
-
-        // 模態框表單提交事件
-        editForumPostModalForm.addEventListener('submit', async function (event) {
-            event.preventDefault();
-            clearModalErrors();
-
-            const postId = modalPostIdInput.value;
-            const forNoId = modalHiddenForNoId.value; // 從隱藏欄位獲取 forNoId
-
-            // 構建 FormData 以處理文件上傳和 JSON 數據
-            const formData = new FormData();
-
-            // 創建一個包含 ForumPostUpdateDTO 數據的物件
-            const forumPostUpdateDTO = {
-                forNoId: parseInt(modalForNoIdSelect.value),
-                ftagNoId: parseInt(modalFtagNoIdSelect.value),
-                postTitle: modalPostTitleInput.value,
-                postCon: modalPostConTextarea.value,
-                postPin: modalPostPinCheckbox.checked ? '1' : '0', // 轉換為 Character '1' 或 '0'
-                postStatus: modalPostStatusCheckbox.checked ? '1' : '0' // 轉換為 Character '1' 或 '0'
-            };
-
-            // 將 DTO 物件轉換為 JSON 字串並作為 Blob 添加到 FormData
-            formData.append('forumPostUpdate', new Blob([JSON.stringify(forumPostUpdateDTO)], { type: 'application/json' }));
-
-            // 【修正點 5：編輯時圖片上傳邏輯】
-            if (modalUploadCustomImageRadio.checked && modalPostImageFileInput.files.length > 0) {
-                // 如果用戶選擇了上傳自訂圖片，且確實選擇了檔案
-                formData.append('imageFile', modalPostImageFileInput.files[0]);
-            } else if (modalUseDefaultImageRadio.checked) {
-                // 如果用戶選擇了使用預設圖片，傳遞預設圖片 URL
-                const selectedOption = modalFtagNoIdSelect.options[modalFtagNoIdSelect.selectedIndex];
-                const defaultImageName = selectedOption ? selectedOption.dataset.defaultImage : '';
-                if (defaultImageName) {
-                    // 如果有預設圖片，就傳遞它的 URL
-                    formData.append('defaultImageUrl', DEFAULT_IMAGE_BASE_PATH + defaultImageName);
-                } else {
-                    // 如果選擇了預設圖片但該類別沒有預設圖片，可以考慮傳遞一個空字串或特定值，讓後端知道要清空圖片
-                    // 或者後端會根據沒有 imageFile 且沒有 defaultImageUrl 來決定不更新圖片或使用通用預設
-                    // 目前 Service 層 updateForumPost 沒有接收 defaultImageUrl 參數，這是一個需要注意的點
-                    // 如果後端需要知道「將圖片設為預設」，則此處需調整或後端調整
-                    // 目前的 Service 邏輯：有 imageFile 就更新，沒有就保留原圖
-                    // 因此，如果選擇預設圖片，但沒有傳遞 imageFile，則圖片不會變。若要變成預設，後端需額外判斷
-                    // 這裡先不傳遞 defaultImageUrl 給 update API，讓後端只處理 imageFile。
-                }
-            }
-            // else {
-            //     // 如果沒有選擇自訂圖片，且沒有選擇預設圖片 (即保留現有圖片)
-            //     // 則不傳遞 imageFile 或 defaultImageUrl，後端會保留原圖
-            // }
-
-
-            console.log("提交的 FormData:", forumPostUpdateDTO); // 打印 DTO 內容，FormData 無法直接打印
-
-            try {
-                // 後端 @PutMapping("/forum/{forNo}/posts/{postId}")
-                const response = await fetch(`${API_BASE_URL}/api${API_FORUM_SEGMENT}/${forNoId}/posts/${postId}`, { // 修改後的路徑
-                    method: 'PUT',
-                    // 當使用 FormData 時，fetch 會自動設置 Content-Type 為 multipart/form-data
-                    // 所以不需要手動設置 'Content-Type': 'application/json'
-                    body: formData
-                });
-
-                if (response.ok) {
-                    alert('文章更新成功！');
-                    closeEditModal(); // 關閉模態框
-                    initialize(); // 重新載入文章列表以顯示更新後的數據
-                } else {
-                    const errorData = await response.json().catch(() => ({ message: '未知錯誤', details: response.statusText }));
-                    console.error('後端返回錯誤:', errorData);
-                    if (response.status === 400) { // Bad Request, 通常是驗證錯誤
-                        showModalError('資料驗證失敗，請檢查輸入。', errorData); // errorData 可能直接是 fieldErrors map
-                    } else if (response.status === 404) { // Not Found
-                        showModalError(`更新失敗！請聯繫管理員! ${errorData.message || '找不到資源'}`, errorData.details);
-                    } else if (response.status === 403) { // 處理 403 Forbidden 錯誤
-                        // 這裡解析後端 CustomAccessDeniedHandler 返回的訊息
-                        showModalError(`權限不足！無法操作! ${errorData.message || '您沒有權限執行此操作。'}`, errorData.details);
-                    } else {
-                        showModalError(`更新失敗！ 狀態: ${response.status}, 訊息: ${errorData.message || errorData.details || response.statusText || '未知錯誤'}`);
-                    }
-                }
-            } catch (error) {
-                showModalError(`連線錯誤或後端服務異常: ${error.message}`);
-                console.error('更新文章時發生錯誤:', error);
+        tableBody.addEventListener('click', function (event) {
+            const img = event.target.closest('.post-thumbnail');
+            if (img) {
+                event.preventDefault();
+                const imageUrl = img.getAttribute('src');
+                openLightbox(imageUrl);
             }
         });
 
-        // 關閉模態框事件監聽器
-        closeModalButton.addEventListener('click', closeEditModal); // 取消按鈕
-        modalCloseButtonTop.addEventListener('click', closeEditModal); // 頂部 X 按鈕
-        // 點擊模態框背景關閉
-        editModal.addEventListener('click', function (event) {
-            if (event.target === editModal) {
-                closeEditModal();
-            }
-        });
-        // 【新增】為編輯模態框的圖片上傳 input 添加 change 事件監聽器
-        modalPostImageFile.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // 當選擇新圖片時，顯示它，並確保相關 radio 按鈕被選中
-                    currentPostImage.src = e.target.result; // 通常會用 currentPostImage 預覽新上傳的圖片
-                    currentPostImage.style.display = 'block';
-
-                    modalDefaultImagePreview.style.display = 'none'; // 隱藏預設圖片預覽
-                    modalDefaultImagePreview.src = ''; // 清空預設圖片來源
-
-                    modalUploadCustomImageRadio.checked = true; // 選中「上傳自訂圖片」
-                    // handleModalImageSourceChange(); // 這裡也可以呼叫，確保狀態同步
-                };
-                reader.readAsDataURL(this.files[0]);
-            } else {
-                // 如果取消選擇檔案
-                currentPostImage.src = '';
-                currentPostImage.style.display = 'none';
-
-                // 自動切換回「使用預設圖片」模式
-                modalUseDefaultImageRadio.checked = true;
-                handleModalImageSourceChange(); // 確保 UI 回到預設狀態
-            }
-        });
-
-        // 頁面初始化函數調用
-        initialize();
-    });
-
-
-    // ===========================================
-    // 刪除文章功能 (如果你決定啟用它)
-    // ===========================================
-    /*
-    window.deleteForumPost = async function(postId, forNoId) { // 新增 forNoId 參數
-        if (!confirm(`確定要刪除文章 ID: ${postId} 嗎？此操作不可逆！`)) {
-            return;
+        function openLightbox(imageUrl) {
+            lightboxImg.setAttribute('src', imageUrl);
+            lightbox.style.display = 'flex';
         }
 
-        try {
-            // 後端 @DeleteMapping("/forum/{forNo}/posts/{postId}")
-            const deleteApiUrl = `${API_BASE_URL}/api${API_FORUM_SEGMENT}/${forNoId}/posts/${postId}`; // 修改後的路徑
-            const response = await fetch(deleteApiUrl, {
-                method: 'DELETE'
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ message: '未知錯誤' }));
-                throw new Error(`刪除失敗！狀態: ${response.status}. 訊息: ${errorData.message || response.statusText}`);
-            }
-
-            alert(`文章 ID: ${postId} 已成功刪除！`);
-            initialize(); // 重新初始化，以反映資料的變化
-
-        } catch (error) {
-            console.error('刪除文章時發生錯誤:', error);
-            alert(`刪除文章失敗: ${error.message}`);
+        function closeLightbox() {
+            lightbox.style.display = 'none';
         }
-    };
-    */
-    // 如果你啟用刪除按鈕，請在 renderTable 中將 `<td><button class="btn btn-edit" ...`
-    // 改為 `<td><button class="btn btn-edit" data-post-id="${post.id}" data-for-no-id="${post.forumId}">編輯</button><button class="btn btn-delete" onclick="deleteForumPost(${post.id}, ${post.forumId})">刪除</button></td>`
+
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', e => (e.target === lightbox) && closeLightbox());
+        document.addEventListener('keydown', e => (e.key === 'Escape') && closeLightbox());
+
+        // --- 初始化頁面 ---
+        loadForumPosts();
+
+    })();
 </script>
+
 </body>
 </html>

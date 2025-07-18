@@ -31,20 +31,20 @@ public class ArticleReportController {
             @Valid @RequestBody ArticleReportCreateDTO articleReportCreateDTO,
             @AuthenticationPrincipal MemberDetails currentUser
     ) {
-                Integer memberId = currentUser.getMemberId();
-                return ResponseEntity.status(HttpStatus.CREATED).body(
-                    articleReportService.add(memberId, articleReportCreateDTO));
+        Integer memberId = currentUser.getMemberId();
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                articleReportService.add(memberId, articleReportCreateDTO));
     }
 
-    @PutMapping("/articlereports/{postsno}")
+    @PutMapping("/articlereports/{articleReportNo}") // 變數名稱改為 articleReportNo
     @Operation(
             summary = "文章檢舉處理"
     )
     public ResponseEntity<ArticleReportDTO> updatearticleReport(
-            @PathVariable("postsno") Integer postsno,
+            @PathVariable("articleReportNo") Integer articleReportNo, // 參數名稱改為 articleReportNo
             @Valid @RequestBody ArticleReportUpdateDTO articleReportUpdateDTO
-            ){
-        return ResponseEntity.ok(articleReportService.update(postsno,articleReportUpdateDTO));
+    ){
+        return ResponseEntity.ok(articleReportService.update(articleReportNo,articleReportUpdateDTO));
     }
     @GetMapping("/articlereports")
     @Operation(
@@ -54,15 +54,13 @@ public class ArticleReportController {
         return articleReportService.getAllArticleReport();
     }
 
-    @GetMapping("articlereports/{postsno}")
+    @GetMapping("articlereports/{articleReportNo}") // 路徑變數名稱改為 articleReportNo
     @Operation(
             summary = "查詢單筆文章檢舉"
     )
     public ArticleReportDTO getArticleReportById(
-            @PathVariable("postsNo") Integer postNo
+            @PathVariable("articleReportNo") Integer articleReportNo // 參數名稱改為 articleReportNo
     ){
-        return articleReportService.getoneArticleReport(postNo);
+        return articleReportService.getoneArticleReport(articleReportNo);
     }
-
-
 }

@@ -1,43 +1,59 @@
-package com.pixeltribe.forumsys.forumtag.controller; // 確保這個 package 名稱正確
+package com.pixeltribe.forumsys.forumtag.controller;
 
-import com.pixeltribe.forumsys.forumtag.model.ForumTagDTO;    // 確保有這個導入，你的 DTO
-import com.pixeltribe.forumsys.forumtag.model.ForumTagService; // 確保有這個導入，你的 Service
+import com.pixeltribe.forumsys.forumtag.model.ForumTagDTO;
+import com.pixeltribe.forumsys.forumtag.model.ForumTagService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;             // 確保有這個導入
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController; // 確保有這個導入
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController // 標註這是一個 RESTful API 控制器，會自動將方法返回值序列化為 JSON/XML
-@RequestMapping("/api/forumtag") // 【重要】這裡的基礎路徑要與前端請求的 `/api/forumtags` 相符
+@RestController
+@RequestMapping("/api")
 public class ForumTagController {
 
-    private final ForumTagService forumTagService; // 【私有 final 屬性】用於依賴注入
+    private final ForumTagService forumTagService;
 
-    // 【建構子注入】 Spring 會自動找到 ForumTagService 的實例並注入
     @Autowired
     public ForumTagController(ForumTagService forumTagService) {
         this.forumTagService = forumTagService;
     }
 
-    /**
-     * 處理獲取所有文章類別的 GET 請求。
-     * 對應前端的 `GET http://localhost:8080/api/forumtags`
-     *
-     * @return 包含 ForumTagDTO 列表的 ResponseEntity，如果成功則返回 200 OK
-     */
-    @GetMapping // 【重要】當請求到 `/api/forumtags` (即基礎路徑) 時，會調用這個方法
-    public ResponseEntity<List<ForumTagDTO>> getAllForumTags() { // `getAllForumTags` 是方法名，可變
-        List<ForumTagDTO> tags = forumTagService.getAllForumTags(); // 調用 Service 層獲取所有 ForumTag DTOs
-        return ResponseEntity.ok(tags); // 返回 200 OK 狀態碼和標籤列表
+    @GetMapping("/forumtag")
+    public ResponseEntity<List<ForumTagDTO>> getAllForumTags() {
+        List<ForumTagDTO> tags = forumTagService.getAllForumTags();
+        return ResponseEntity.ok(tags);
     }
 
-    // 如果你有其他與 ForumTag 相關的 API，例如根據 ID 獲取，可以繼續在這裡添加方法
-    // @GetMapping("/{id}")
-    // public ResponseEntity<ForumTagDTO> getForumTagById(@PathVariable Integer id) { ... }
+    /**
+     * @description 處理獲取特定文章類別「預設文章封面圖片 URL」的 GET 請求。
+     * 這個 API 返回的是 URL 字串，而不是圖片二進位資料。
+     * 對應前端的 `GET http://localhost:8080/api/forumtag/default-image/{ftagNoId}`
+     *
+     * @param ftagNoId 文章類別 ID
+     * @return 預設圖片的 URL 字串，如果找不到則返回 404 Not Found。
+     */
+    @GetMapping("/forumtag/default-image/{ftagNoId}") // 【不可變】路徑需與前端呼叫一致
+    public ResponseEntity<String> getDefaultImageUrlByTagId(@PathVariable Integer ftagNoId) { // `ftagNoId` 參數名可變
+        String defaultImageUrl = forumTagService.getDefaultImageUrl(ftagNoId); // 調用 Service 層獲取預設圖片 URL
+        if (defaultImageUrl != null && !defaultImageUrl.isEmpty()) {
+            return ResponseEntity.ok(defaultImageUrl); // 返回 200 OK 和 URL 字串
+        } else {
+            return ResponseEntity.notFound().build(); // 返回 404 Not Found
+        }
+    }
 
-    // @PostMapping
-    // public ResponseEntity<ForumTagDTO> addForumTag(@RequestBody ForumTagDTO tagDTO) { ... }
+    // 您之前提到的 getForumTagById 方法，如果需要可以保留，它返回的是 ForumTagDTO
+    @GetMapping("/forumtag/{id}")
+    public ResponseEntity<ForumTagDTO> getForumTagById(@PathVariable("id") Integer id) {
+        ForumTagDTO tagDTO = forumTagService.getForumTagById(id);
+        if (tagDTO != null) {
+            return ResponseEntity.ok(tagDTO);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
