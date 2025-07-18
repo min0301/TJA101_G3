@@ -23,7 +23,7 @@ public class MemLoginService {
 	public MemLoginReturn login(String memAccount, String memPassword) {
 		
 		Member member = memRepository.findByMemAccount(memAccount);
-		MemberBasicDto memberInfo = new MemberBasicDto(member.getId(),member.getMemAccount(),member.getMemNickName(),member.getMemName(),member.getMemEmail());
+		MemberBasicDto memberInfo = new MemberBasicDto(member.getId(),member.getMemAccount(),member.getMemNickName(),member.getMemName(),member.getMemEmail(),member.getRole());
 		
 		if (member == null) {
 			return new MemLoginReturn(false, "輸入的帳號不存在");
