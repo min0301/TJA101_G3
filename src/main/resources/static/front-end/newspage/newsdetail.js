@@ -281,9 +281,10 @@ function makeNewCommentBox(newsId) {
     wrap.id = 'new-comment';
     const memberInfo = localStorage.getItem('memberInfo');
     const mem = JSON.parse(memberInfo || '{}');
-
-    wrap.innerHTML = `
-        <img src="/images/memberAvatar/mem${mem.id}.png" alt="User" class="rounded-circle" width="60" height="60">
+    if (mem.id === undefined) {
+        wrap.innerHTML = `
+        <img src="/images/memberAvatar/defaultmem.png" alt="User" class="rounded-circle" width="60" height="60"
+        onerror="this.src='/images/memberAvatar/defaultmem.png'>
         <div class="flex-grow-1">
             <textarea class="form-control mb-2" rows="4" placeholder="發表你的看法…" id="c-input"></textarea>
             <div class="text-end">
@@ -291,6 +292,20 @@ function makeNewCommentBox(newsId) {
             </div>
         </div>
     `;
+    }else{
+        wrap.innerHTML = `
+        <img src="/images/memberAvatar/mem${mem.id}.png" alt="User" class="rounded-circle" width="60" height="60"
+        onerror="this.src='/images/memberAvatar/defaultmem.png'>
+        <div class="flex-grow-1">
+            <textarea class="form-control mb-2" rows="4" placeholder="發表你的看法…" id="c-input"></textarea>
+            <div class="text-end">
+                <button type="button" class="btn btn-primary btn-sm rounded-pill" id="c-send" disabled>送出</button>
+            </div>
+        </div>
+    `;
+    }
+
+
 
     const ta = $('#c-input', wrap), btn = $('#c-send', wrap);
 
