@@ -262,9 +262,15 @@
 
             try {
                 const response = await fetch(apiUrl, {method: 'POST', body: formData});
+
+                // 【修改點】處理非成功的 Response
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(errorText || `發生錯誤，狀態碼: ${response.status}`);
+                    // 【核心修改】從 .text() 改為 .json() 來解析 JSON 物件
+                    const errorData = await response.json();
+
+                    // 【核心修改】從解析後的物件中，只取出 message 屬性
+                    // errorData.message 的 'message' 對應 Spring Boot 預設錯誤 JSON 中的 "message" 欄位
+                    throw new Error(errorData.message || `發生未知錯誤，狀態碼: ${response.status}`);
                 }
                 showMessage('新增成功！2秒後將返回列表頁。', 'success');
                 setTimeout(() => {

@@ -51,7 +51,8 @@ public class ForumCategoryService {
 
     public ForumCategory getOneForumCategory(Integer catNo) {
         Optional<ForumCategory> optional = forumCategoryRepository.findById(catNo);
-        return optional.orElse(null);
+        return forumCategoryRepository.findById(catNo)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到類別編號: " + catNo));
     }
 
 

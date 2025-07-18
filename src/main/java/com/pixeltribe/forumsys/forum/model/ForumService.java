@@ -1,5 +1,6 @@
 package com.pixeltribe.forumsys.forum.model;
 
+import com.pixeltribe.forumsys.exception.ConflictException;
 import com.pixeltribe.forumsys.exception.FileStorageException;
 import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
 import com.pixeltribe.forumsys.forumcategory.model.ForumCategory;
@@ -13,7 +14,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
-//import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,7 +48,7 @@ public class ForumService {
                         RedisTemplate<String, Object> redisTemplate,
 //                        KafkaTemplate<String, Integer> kafkaTemplate,
                         ForumCollectRepository forumCollectRepository
-) {
+    ) {
 
         this.forumRepository = forumRepository;
         this.forumCategoryRepository = forumCategoryRepository;
@@ -69,6 +69,11 @@ public class ForumService {
 
     @Transactional
     public ForumDetailDTO add(ForumUpdateDTO forumUpdateDTO, MultipartFile imageFile) {
+
+        forumRepository.findByForName(forumUpdateDTO.getForName())
+                .ifPresent(existingForum -> {
+                    throw new ConflictException("討論區名稱：" + existingForum.getForName() + " 已經存在");
+                });
 
         Forum forum = new Forum();
         Forum saveOrUpdateForum = saveOrUpdateForum(forum, forumUpdateDTO, imageFile);
@@ -284,6 +289,22 @@ public class ForumService {
         // 我們設定 2 小時過期，比定時任務的 1 小時長，確保資料不會在更新前就失效。
         redisTemplate.opsForValue().set(HOT_FORUMS_KEY, hotForumDTOs, 2, TimeUnit.HOURS);
 
+    }
+
+    public List<ForumDetailDTO> searchForumsByKeyword(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return List.of();
+        }
+
+        Optional<List<Forum>> searchForum = forumRepository.searchForumsByKeyword(keyword);
+        if (searchForum.isEmpty()) {
+            return List.of();
+        }
+
+        List<Forum> forums = searchForum.get();
+        return forums.stream()
+                .map(ForumDetailDTO::convertToForumDetailDTO)
+                .collect(Collectors.toList());
     }
 
 

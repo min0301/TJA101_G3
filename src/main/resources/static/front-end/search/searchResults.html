@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜尋結果 - 像素部落</title>
+    <link rel="stylesheet" href="../../assets/vendors/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        /* 搜尋結果卡片的樣式 */
+        .search-result-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .search-result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .search-result-card .forum-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+<div class="vine-wrapper">
+    <div id="header-placeholder"></div>
+
+    <main class="vine-main main-content-pusher">
+        <div class="container">
+            <div id="search-title-container" class="mb-4"></div>
+            <div id="search-results-container"></div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+</div>
+
+<script src="../../assets/js/global-loader.js"></script>
+<script src="searchResults.js"></script>
+</body>
+</html>
