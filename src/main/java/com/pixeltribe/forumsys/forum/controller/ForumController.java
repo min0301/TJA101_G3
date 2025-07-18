@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class    ForumController {
+public class ForumController {
 
     private final ForumService forumSvc;
 
@@ -121,6 +121,17 @@ public class    ForumController {
     @Operation(summary = "查全部討論區(按熱度排序)")
     public List<ForumDetailDTO> findHotForums() {
         return forumSvc.getHotForumsRedis();
+    }
+
+    @GetMapping("/search/forums")
+    @Operation(
+            summary = "查詢討論區(按關鍵字)",
+            description = "根據關鍵字搜尋討論區"
+    )
+    public List<ForumDetailDTO> findHotForumsByKeyword(
+            @Parameter(description = "關鍵字", example = "魔物獵人")
+            @RequestParam String keyword) {
+        return forumSvc.searchForumsByKeyword(keyword);
     }
 
 

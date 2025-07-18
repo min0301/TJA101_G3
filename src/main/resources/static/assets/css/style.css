@@ -4693,3 +4693,11 @@ input, select {
     background: transparent;
     padding: 2px 0;
 }
+
+/*
+ * 修正 fixed-top header 蓋住內容的問題
+ * 這個 class 會為元素增加上方的內距 (padding)，把內容往下推
+*/
+.main-content-pusher {
+    padding-top: 90px; /* 這個數值可以根據你的 Header 實際高度進行微調 */
+}

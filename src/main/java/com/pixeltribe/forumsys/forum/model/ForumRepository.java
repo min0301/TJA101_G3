@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public interface ForumRepository extends JpaRepository<Forum, Integer> {
 
@@ -18,6 +19,7 @@ public interface ForumRepository extends JpaRepository<Forum, Integer> {
 
     List<Forum> findAllByForStatus(Character status);
 
+    Optional<Forum> findByForName(String forName);
 
     @Query("SELECT f.id, COUNT(m.id), MAX(m.mesCrdate) " +
             "FROM ForumMes m " +
@@ -26,4 +28,10 @@ public interface ForumRepository extends JpaRepository<Forum, Integer> {
             "WHERE m.mesCrdate >= :since " +
             "GROUP BY f.id")
     List<Object[]> findForumHotSince(@Param("since") Instant since);
+
+    @Query("SELECT f FROM Forum f " +
+            "WHERE LOWER (f.forName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(f.forDes) LIKE LOWER(CONCAT('%', :keyword, '%')) ")
+    Optional<List<Forum>> searchForumsByKeyword(@Param("keyword") String keyword);
+
 }
