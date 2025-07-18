@@ -13,7 +13,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.kafka.core.KafkaTemplate;
+//import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,7 +43,12 @@ public class ForumService {
     //    註解掉kafka，避免錯誤
 //    private final KafkaTemplate<String, Integer> kafkaTemplate;
 
-    public ForumService(ForumRepository forumRepository, ForumCategoryRepository forumCategoryRepository, ForumCollectRepository forumCollectRepository, RedisTemplate<String, Object> redisTemplate, KafkaTemplate<String, Integer> kafkaTemplate) {
+    public ForumService(ForumRepository forumRepository,
+                        ForumCategoryRepository forumCategoryRepository,
+                        RedisTemplate<String, Object> redisTemplate,
+//                        KafkaTemplate<String, Integer> kafkaTemplate,
+                        ForumCollectRepository forumCollectRepository
+) {
 
         this.forumRepository = forumRepository;
         this.forumCategoryRepository = forumCategoryRepository;

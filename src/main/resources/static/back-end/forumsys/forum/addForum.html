@@ -207,7 +207,7 @@
         const submitButton = document.getElementById('submit-button');
         const messageArea = document.getElementById('message-area');
         const imageFileInput = document.getElementById('imageFile');
-        const apiUrl = 'http://localhost:8080/api/admin/forum';
+        const apiUrl = '/api/admin/forum';
 
         /**
          * @description 動態從後端 API 載入所有分類並填充至下拉選單
@@ -215,7 +215,7 @@
         async function loadCategories() {
             try {
                 // 為避免瀏覽器快取，可以增加一個 cache: 'no-cache' 選項
-                const response = await fetch('http://localhost:8080/api/categorys', {cache: 'no-cache'});
+                const response = await fetch('/api/categorys', {cache: 'no-cache'});
                 if (!response.ok) {
                     throw new Error('無法載入分類資料，請檢查後端服務');
                 }
