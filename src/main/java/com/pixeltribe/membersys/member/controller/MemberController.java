@@ -4,9 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.data.domain.Sort;
+
 import com.pixeltribe.membersys.member.dto.MemberAdminDto;
 import com.pixeltribe.membersys.member.dto.MemberProfileDto;
 import com.pixeltribe.membersys.member.model.MemService;
@@ -99,8 +100,9 @@ public class MemberController {
     // 會員分頁查詢
     @GetMapping("/admin/allMembers")
     public Page<MemberAdminDto> findAllMembers(
-            @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
-        return memService.findAllAdminMembers(pageable);
+            @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.ASC) Pageable pageable, 
+    		@RequestParam(required = false) String keyword) {
+        return memService.findAllAdminMembers(keyword, pageable);
     }
     
     // 停權狀態切換
