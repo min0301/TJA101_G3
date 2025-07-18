@@ -132,14 +132,7 @@ public class ProSerialNumberController {
                      if ("預購中".equals(productStatus)) {
                          // 產品狀態為預購中，查詢預購數量
                          Integer preorderQuantity = productPreorderService.getPreorderInventory(proNo.toString());
-                         
-                         if (preorderQuantity != null && preorderQuantity > 0) {
-                             // 有預購庫存，返回預購資訊
-                             stockMap.put(proNo, preorderQuantity);
-                         } else {
-                             // 預購中但沒有設定預購數量
-                             stockMap.put(proNo, 0);
-                         }
+                         stockMap.put(proNo, preorderQuantity);
                      }
                  }
             }
