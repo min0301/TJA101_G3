@@ -34,7 +34,7 @@ public class ProductPreorderService {
            return null;
        }
        Object value = redisTemplate.opsForValue().get(proNo);
-       return value != null ? (Integer) value : null;
+       return value != null ? (Integer) value : 0;
    }
 
    public void deletePreorderInventory(String proNo) {

@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.pixeltribe.shopsys.malltag.model.MallTag;
 import com.pixeltribe.shopsys.malltag.model.MallTagRepository;
+import com.pixeltribe.shopsys.proSerialNumber.model.ProSerialNumberRepository;
 import com.pixeltribe.shopsys.proSerialNumber.model.ProSerialNumberService;
 import com.pixeltribe.shopsys.product.exception.ProductExistException;
 import com.pixeltribe.shopsys.product.exception.ProductIncompleteException;
@@ -34,8 +35,10 @@ public class ProductService {
 	ProductDTOMapper productDTOMapper;
 	@Autowired
 	MallTagRepository mallTagRepository;
+	@Autowired 
+	ProSerialNumberRepository proSerialNumberRepository;
 	@Autowired
-	ProSerialNumberService proSerialNumberService;
+	ProductPreorderService productPreorderService;
 	
 
 	public Product add(Product product) {
@@ -45,9 +48,13 @@ public class ProductService {
 
 	public Product update(Product product) {
 		isExistProduct(product);
+		Integer proNo = product.getId();
 		if(product.getProIsmarket().charValue() == '0') {
 			if(product.getProCover()==null||product.getProDate()==null||product.getProDetails()==null||product.getProInclude()==null) {
 				throw new ProductIncompleteException("商品資料不完整，上架前請先更新");
+			}
+			if(proSerialNumberRepository.countStock(proNo) == 0 && productPreorderService.getPreorderInventory(proNo.toString()) == 0) {
+				throw new ProductIncompleteException("商品庫存不足");
 			}
 		}
 		return productRepository.save(product);
@@ -74,6 +81,9 @@ public class ProductService {
 			 	if(p.getProCover() == null || p.getProDate()== null|| p.getProDetails() == null || p.getProInclude() == null) {
 			 		throw new ProductIncompleteException("商品資料不完整，上架前請先更新");
 		        }
+			 	if(proSerialNumberRepository.countStock(proNo) == 0 && productPreorderService.getPreorderInventory(proNo.toString()) == 0) {
+					throw new ProductIncompleteException("商品庫存不足");
+				}
 		   }
 		 Integer updatedRows = productRepository.updateMarketStatus(proNo, proIsMarket);
 		 return updatedRows > 0;
