@@ -26,11 +26,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pixeltribe.forumsys.forum.model.ForumDetailDTO;
+import com.pixeltribe.shopsys.product.exception.ProductExistException;
+import com.pixeltribe.shopsys.product.exception.ProductIncompleteException;
 import com.pixeltribe.shopsys.product.model.Product;
 import com.pixeltribe.shopsys.product.model.ProductAddDTO;
 import com.pixeltribe.shopsys.product.model.ProductDTOMapper;
 import com.pixeltribe.shopsys.product.model.ProductDisplayDTO;
 import com.pixeltribe.shopsys.product.model.ProductEditDTO;
+import com.pixeltribe.shopsys.product.model.ProductInventoryDTO;
 import com.pixeltribe.shopsys.product.model.ProductIsmarketDTO;
 import com.pixeltribe.shopsys.product.model.ProductManageDTO;
 import com.pixeltribe.shopsys.product.model.ProductSearchDTO;
@@ -63,8 +66,7 @@ public class ProductController {
 		            ) throws IOException{
 		    if (result.hasErrors()) {
 		        return ResponseEntity.badRequest().body("輸入資料有誤！");
-		    }
-		        
+		    }     
 			if (imageFile[0].isEmpty()) { // 使用者未選擇要上傳的新圖片時
 					
 			} else {
@@ -78,10 +80,23 @@ public class ProductController {
 				System.out.println("error");
 			}
 
-			Product addProduct = productService.add(productDTOMapper.paDTOToProduct(productAddDTO));
 			
-		    return ResponseEntity.ok(addProduct);
+			try {
+				productAddDTO.setProIsmarket('1');
+		        Product addProduct = productService.add(productDTOMapper.paDTOToProduct(productAddDTO));
+		        return ResponseEntity.ok(addProduct);
+		        
+		    } catch (ProductExistException e) {
+		        return ResponseEntity.status(HttpStatus.CONFLICT)
+		            .body(e.getMessage());
+		            
+		    } catch (Exception e) {
+		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		            .body(e.getMessage());
+		    }
+		  
 		 }
+
 		 @Transactional
 		 @PutMapping("/admin/product/{id}")
 		    public ResponseEntity<?> updateProduct(
@@ -105,14 +120,53 @@ public class ProductController {
 						productEditDTO.setProCover(upFiles);
 					}
 				}
-				if (result.hasErrors()) {
-					System.out.println("error");
-				}
-
-			    Product updateProduct = productService.update(productDTOMapper.peDTOToProduct(productEditDTO));
-
-		        return ResponseEntity.ok(updateProduct);
+				try {
+					Product updateProduct = productService.update(productDTOMapper.peDTOToProduct(productEditDTO));
+			        return ResponseEntity.ok(updateProduct);
+			        
+			    } catch (ProductExistException e) {
+					  
+			        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());        
+			        
+			    } catch (ProductIncompleteException e) {
+			        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+			        
+			    }catch (Exception e) {
+			        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+			        
+			    } 
 		    }
+//		 @Transactional
+//		 @PutMapping("/admin/product/{id}")
+//		    public ResponseEntity<?> updateProduct(
+//		            @PathVariable Integer id,
+//		            @RequestPart("ProductEditDTO") @Valid ProductEditDTO productEditDTO,
+//		            @RequestPart(value = "imageFile", required = false) MultipartFile[] imageFile,
+//		            BindingResult result) throws IOException{
+//			 	productEditDTO.setId(id); 
+//		        if (result.hasErrors()) {
+//		            // 如果 JSON 資料驗證失敗，回傳 400 錯誤
+//		            return ResponseEntity.badRequest().body("輸入資料有誤！");
+//		        }
+//		        
+//		        result = removeFieldError(productEditDTO, result, "upFiles");
+//				if (imageFile[0].isEmpty()) { // 使用者未選擇要上傳的新圖片時
+//					byte[] upFiles = productService.getOneProduct(id).getProCover();
+//					productEditDTO.setProCover(upFiles);
+//				} else {
+//					for (MultipartFile multipartFile : imageFile) {
+//						byte[] upFiles = multipartFile.getBytes();
+//						productEditDTO.setProCover(upFiles);
+//					}
+//				}
+//				if (result.hasErrors()) {
+//					System.out.println("error");
+//				}
+//
+//			    Product updateProduct = productService.update(productDTOMapper.peDTOToProduct(productEditDTO));
+//
+//		        return ResponseEntity.ok(updateProduct);
+//		    }
 		
 		@GetMapping("/product/{id}")
 		public ProductEditDTO getOneProduct(@Parameter
@@ -121,9 +175,14 @@ public class ProductController {
 		 }
 		
 		@GetMapping("/product/{id}/search")
-		public ProductDisplayDTO searchOneProduct(@Parameter
+		public ResponseEntity<?> searchOneProduct(@Parameter
 										@PathVariable Integer id) {
-		   return productDTOMapper.toProductDisplayDTO(productService.getOneProduct(id));
+			ProductDisplayDTO product = productDTOMapper.toProductDisplayDTO(productService.getOneProduct(id));
+			ProductInventoryDTO inventory = productService.getProductInventoryDisplay(id);
+			Map<String, Object> result = new HashMap<>();
+			result.put("product", product);
+			result.put("inventory", inventory);
+			return ResponseEntity.ok(result);
 		 }
 		 
 		@GetMapping("/product/cover/{id}")
@@ -171,6 +230,10 @@ public class ProductController {
 	                return ResponseEntity.badRequest().body(response);
 	            }
 	            
+	        }catch (ProductIncompleteException e) {
+	        	response.put("success", false);
+	            response.put("message", e.getMessage());
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 	        } catch (Exception e) {
 	            response.put("success", false);
 	            response.put("message", "系統錯誤：" + e.getMessage());
