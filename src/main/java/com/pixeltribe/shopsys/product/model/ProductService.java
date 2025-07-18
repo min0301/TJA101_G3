@@ -7,9 +7,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pixeltribe.shopsys.malltag.model.MallTag;
 import com.pixeltribe.shopsys.malltag.model.MallTagRepository;
 import com.pixeltribe.shopsys.proSerialNumber.model.ProSerialNumberService;
+import com.pixeltribe.shopsys.product.exception.ProductExistException;
+import com.pixeltribe.shopsys.product.exception.ProductIncompleteException;
 
 @Service
 public class ProductService {
@@ -37,12 +41,17 @@ public class ProductService {
 	
 
 	public Product add(Product product) {
-        return productRepository.save(product);
+		isExistProduct(product);
+		return productRepository.save(product);
     }
-//		return productRepository.save(product);
-//	}
 
 	public Product update(Product product) {
+		isExistProduct(product);
+		if(product.getProIsmarket().charValue() == '0') {
+			if(product.getProCover()==null||product.getProDate()==null||product.getProDetails()==null||product.getProInclude()==null) {
+				throw new ProductIncompleteException("商品資料不完整，上架前請先更新");
+			}
+		}
 		return productRepository.save(product);
 	}
 
@@ -61,8 +70,15 @@ public class ProductService {
 	}
 
 	public boolean updateMarketStatus(Integer proNo, Character proIsMarket) {
-		Integer updatedRows = productRepository.updateMarketStatus(proNo, proIsMarket);
-		return updatedRows > 0;
+		 Optional<Product> product = productRepository.findById(proNo);
+		 Product p = product.get();
+		 if (proIsMarket.charValue() == '0') {
+			 	if(p.getProCover() == null || p.getProDate()== null|| p.getProDetails() == null || p.getProInclude() == null) {
+			 		throw new ProductIncompleteException("商品資料不完整，上架前請先更新");
+		        }
+		   }
+		 Integer updatedRows = productRepository.updateMarketStatus(proNo, proIsMarket);
+		 return updatedRows > 0;
 	}
 
 	public List<ProductSearchDTO> findByMallTagAndMarket(Integer mallTagNo, Character proIsMarket) {
@@ -80,6 +96,14 @@ public class ProductService {
 		return productDTOMapper.toProductSearchDTOList(products);
 	}
 	
+	private Boolean isExistProduct(Product product) {
+		Integer exist = productRepository.isExistProduct(product.getProName(), product.getProVersion(), product.getMallTagNo().getId());
+		if(product.getId() == null || exist != product.getId()) {
+			throw new ProductExistException("商品已存在，請重新確認");
+		}else {
+			return false;
+		}
+	}
 	   /*---------------------庫存相關-------------------------*/
 	public void setPreorderInventory(Integer proNo, Integer quantity) {
 		 redisTemplate.opsForValue().set(proNo.toString(), quantity);
@@ -164,4 +188,5 @@ public class ProductService {
         }
     }
 
+    
 }

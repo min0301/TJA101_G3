@@ -25,7 +25,6 @@ public class ProductAddDTO {
     private String proInclude;
     @NotNull(message = "商城標籤：需拉選")
     private Integer mallTagNo;
-    @NotNull(message = "上下架：需拉選")
     private Character proIsmarket;
 	
 }

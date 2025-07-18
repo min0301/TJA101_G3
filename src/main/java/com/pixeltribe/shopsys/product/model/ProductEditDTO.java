@@ -4,13 +4,14 @@ import java.time.LocalDate;
 
 import org.springframework.stereotype.Component;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class ProductEditDTO {
-	
+
 	private Integer id;
     private String proName;
     private Integer proPrice;

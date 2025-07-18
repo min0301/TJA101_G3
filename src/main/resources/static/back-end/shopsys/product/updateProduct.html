@@ -375,9 +375,7 @@
   // 使用 IIFE (Immediately Invoked Function Expression) 避免污染全域範疇
   (function() {
     // --- 變數定義區 ---
-    const apiBaseUrl = 'http://localhost:8080/api'; // 不可變：後端 API 端點
-
-    // 可變：這些是 DOM 元素的引用，名稱可依個人習慣修改，但要與 HTML 的 id 對應
+    // 這些是 DOM 元素的引用，名稱可依個人習慣修改，但要與 HTML 的 id 對應
     const form = document.getElementById('edit-form');
     const productIdInput = document.getElementById('productId');
     const nameInput = document.getElementById('product_name');
@@ -441,8 +439,8 @@
         
         // 使用 Promise.all 平行發送請求，提高效率
         const [malltagData, productData] = await Promise.all([
-          fetch(`${apiBaseUrl}/malltag`).then(handleResponse),
-          fetch(`${apiBaseUrl}/product/${productId}`).then(handleResponse)
+          fetch(`/api/malltag`).then(handleResponse),
+          fetch(`/api/product/${productId}`).then(handleResponse)
         ]);
 
         // 填充表單內容
@@ -536,9 +534,9 @@
           proPrice: priceInput.value,
           proStatus: statusSelect.value,
           proVersion: versionInput.value,
-          proDate: dateInput.value,
-          proDetails: detailsTextarea.value,
-          proInclude: includeTextarea.value,
+          proDate: dateInput.value || null,
+          proDetails: detailsTextarea.value || null,
+          proInclude: includeTextarea.value || null,
           mallTagNo: parseInt(malltagSelect.value),
           proIsmarket: ismarketSelect.value
         };
@@ -555,14 +553,34 @@
         }
 
         // 5. 發送請求
-        const response = await fetch(`${apiBaseUrl}/admin/product/${productId}`, {
+        const response = await fetch(`/api/admin/product/${productId}`, {
           method: 'PUT',
           body: formData,
         });
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ message: '更新失敗，且無法解析錯誤訊息。' }));
-          throw new Error(errorData.message || '更新失敗');
+            const responseText = await response.text();
+            console.log('錯誤回應內容:', responseText);
+            
+            let errorMessage = '新增失敗';
+            
+            // 檢查不同的狀態碼
+            if (response.status === 409) {
+                errorMessage = responseText || '商品已存在';
+            } else if (response.status === 400) {
+                errorMessage = responseText || '輸入資料有誤';
+            } else if (response.status === 500) {
+                errorMessage = responseText || '伺服器內部錯誤';
+            } else {
+                try {
+                    const errorData = JSON.parse(responseText);
+                    errorMessage = errorData.message || errorMessage;
+                } catch (e) {
+                    errorMessage = responseText || errorMessage;
+                }
+            }
+            
+            throw new Error(errorMessage);
         }
 
         // 成功提示
@@ -600,7 +618,7 @@
      */
     function validateForm() {
       let isValid = true;
-      const requiredFields = [nameInput, priceInput, versionInput, dateInput, detailsTextarea, includeTextarea];
+      const requiredFields = [nameInput, priceInput, versionInput];
       
       requiredFields.forEach(field => {
         const formGroup = field.closest('.form-group');
