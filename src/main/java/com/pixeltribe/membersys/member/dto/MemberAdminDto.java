@@ -1,7 +1,7 @@
 package com.pixeltribe.membersys.member.dto;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public class MemberAdminDto {
 
@@ -13,12 +13,12 @@ public class MemberAdminDto {
 	private String memAddr;
 	private String memPhone;
 	private LocalDate memBirthday;
-	private LocalDateTime memCreate;
-	private Boolean memStatus;
+	private Instant memCreate;
+	private Character memStatus;
 
 	// Constructor
 	public MemberAdminDto(Integer id, String memName, String memNickName, String memAccount, String memEmail, String memAddr,
-			String memPhone, LocalDate memBirthday, LocalDateTime memCreate, Boolean memStatus) {
+			String memPhone, LocalDate memBirthday, Instant memCreate, Character memStatus) {
 		this.id = id;
 		this.memName = memName;
 		this.memNickName = memNickName;
@@ -30,7 +30,7 @@ public class MemberAdminDto {
 		this.memCreate = memCreate;
 		this.memStatus = memStatus;
 	}
-
+	
 	public Integer getId() {
 		return id;
 	}
@@ -95,22 +95,19 @@ public class MemberAdminDto {
 		this.memBirthday = memBirthday;
 	}
 
-	public LocalDateTime getMemCreate() {
+	public Instant getMemCreate() {
 		return memCreate;
 	}
 
-	public void setMemCreate(LocalDateTime memCreate) {
+	public void setMemCreate(Instant memCreate) {
 		this.memCreate = memCreate;
 	}
 
-	public Boolean getMemStatus() {
+	public Character getMemStatus() {
 		return memStatus;
 	}
 
-	public void setMemStatus(Boolean memStatus) {
+	public void setMemStatus(Character memStatus) {
 		this.memStatus = memStatus;
 	}
-	
-	
-	
 }

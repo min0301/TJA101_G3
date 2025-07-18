@@ -5,67 +5,69 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.data.domain.Sort;
+import com.pixeltribe.membersys.member.dto.MemberAdminDto;
 import com.pixeltribe.membersys.member.dto.MemberProfileDto;
-import com.pixeltribe.membersys.member.model.MemRepository;
 import com.pixeltribe.membersys.member.model.MemService;
-import com.pixeltribe.membersys.member.model.Member;
+
+
 
 @RestController
 @RequestMapping("/api/members")
 public class MemberController {
 
 	@Autowired
-	private MemService memberService;
-	@Autowired
-	private MemRepository memRepository;
+	private MemService memService;
 
 	// 寄出認證信
 	@PostMapping("/forgot-password")
 	public Map<String, Object> sendForgotPasswordMail(@RequestBody Map<String, String> payload) {
-		return memberService.sendForgotPasswordMail(payload.get("email"));
+		return memService.sendForgotPasswordMail(payload.get("email"));
 	}
 
 	// 用驗證碼重設密碼(忘記密碼時)
 	@PostMapping("/reset-passwordV")
 	public Map<String, Object> resetPasswordV(@RequestBody Map<String, String> payload) {
-		return memberService.resetPasswordByVcode(payload.get("email"), payload.get("password"),
+		return memService.resetPasswordByVcode(payload.get("email"), payload.get("password"),
 				payload.get("passwordConfirm"), payload.get("Vcode"));
 	}
 
 	// 會員中心重設密碼
 	@PostMapping("/reset-password")
 	public Map<String, Object> resetPassword(@RequestBody Map<String, String> payload) {
-		return memberService.resetPassword(payload.get("oldPassword"), payload.get("newPassword"),
+		return memService.resetPassword(payload.get("oldPassword"), payload.get("newPassword"),
 				payload.get("newPasswordConfirm"), payload.get("id"));
 	}
 
 	// 註冊時檢查email重複
 	@PostMapping("/check-email")
 	public Map<String, Object> registerMailCheck(@RequestBody Map<String, String> payload) {
-		return memberService.checkEmail(payload.get("email"));
+		return memService.checkEmail(payload.get("email"));
 	}
 
 	// 註冊
 	@PostMapping("/register")
 	public Map<String, Object> memRegister(@RequestBody Map<String, String> payload) {
-		return memberService.registerMember(payload);
+		return memService.registerMember(payload);
 	}
 
 	// 查詢個人資料，JWT 需驗證
 	@GetMapping("/profile/{id}")
 	public ResponseEntity<MemberProfileDto> getProfile(@PathVariable Integer id,
 			@RequestHeader("Authorization") String authorizationHeader) {
-		MemberProfileDto dto = memberService.getProfileDtoById(id);
+		MemberProfileDto dto = memService.getProfileDtoById(id);
 		if (dto == null) {
 			return ResponseEntity.notFound().build();
 		}
@@ -78,7 +80,7 @@ public class MemberController {
 
 		Map<String, Object> result = new HashMap<>();
 		try {
-			boolean success = memberService.updateProfile(id, payload);
+			boolean success = memService.updateProfile(id, payload);
 			if (success) {
 				result.put("success", true);
 				result.put("message", "會員資料已更新");
@@ -94,8 +96,24 @@ public class MemberController {
 		return result;
 	}
 
-	@GetMapping("/admin/allMembers")
-	public Page<Member> findAllMembers(Pageable pageable) {
-	    return memRepository.findAll(pageable);
-	}
+    // 會員分頁查詢
+    @GetMapping("/admin/allMembers")
+    public Page<MemberAdminDto> findAllMembers(
+            @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+        return memService.findAllAdminMembers(pageable);
+    }
+    
+    // 停權狀態切換
+    @PutMapping("/admin/allMembers/status/{id}")
+    public ResponseEntity<?> updateMemberStatus(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Object> payload) {
+        Object statusObj = payload.get("status");
+        if (statusObj == null) {
+            return ResponseEntity.badRequest().body("缺少 status");
+        }
+        Character newStatus = statusObj.toString().charAt(0); // 假設 '1'=正常、'0'=停權
+        memService.updateMemberStatus(id, newStatus);
+        return ResponseEntity.ok().build();
+    }
 }

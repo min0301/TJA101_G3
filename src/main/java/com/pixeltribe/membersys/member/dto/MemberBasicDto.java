@@ -7,18 +7,20 @@ public class MemberBasicDto {
 	private String memNickName;
 	private String memName;
 	private String memEmail;
+	private String role;
 	
 	//Constructor
 	public MemberBasicDto() {
 		
 	}
 	
-	public MemberBasicDto(Integer Id, String memAccount, String memNickName, String memName, String memEmail) {
+	public MemberBasicDto(Integer Id, String memAccount, String memNickName, String memName, String memEmail, String role) {
 		this.Id = Id;
 		this.memAccount = memAccount;
 		this.memNickName = memNickName;
 		this.memName = memName;
 		this.memEmail = memEmail;
+		this.role = role;
 	}
 
 	//Getter & Setter
@@ -55,5 +57,13 @@ public class MemberBasicDto {
 	public void setMemEmail(String memEmail) {
 		this.memEmail = memEmail;
 	}
-	
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+		
 }

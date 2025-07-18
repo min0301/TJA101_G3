@@ -20,7 +20,7 @@ public class AdmLoginService {
 	
 	public AdmLoginReturn login(String admAccount, String admPassword) {
         Administrator admin = admRepository.findByAdmAccount(admAccount);
-        AdminBasicDto adminInfo = new AdminBasicDto(admin.getId(),admin.getAdmAccount(),admin.getAdmName());
+        AdminBasicDto adminInfo = new AdminBasicDto(admin.getId(),admin.getAdmAccount(),admin.getAdmName(),admin.getRole());
         if (admin == null) {
             return new AdmLoginReturn(false, "該管理員帳號不存在");
         }
