@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
 <title>像素部落 - 我的訂單</title>
 <meta name="description" content="像素部落, Pixel Tribe, 訂單查詢">
 <meta name="keywords" content="訂單查詢, 購買記錄, 評價商品">
@@ -23,14 +27,14 @@
     document.documentElement.setAttribute('data-theme', themeToSet)
 </script>
 
-<!-- CSS Files -->
-<link rel="stylesheet" href="../../../assets/vendors/bootstrap/bootstrap.min.css">
-<link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
-<link rel="stylesheet" href="../../../assets/vendors/simplebar/simplebar.min.css">
-<link rel="stylesheet" href="../../../assets/vendors/aos/aos.css">
-<link rel="stylesheet" href="../../../assets/css/style.css">
-<link rel="stylesheet" href="../../../assets/css/responsive.css">
-<link rel="stylesheet" href="../../../assets/css/custom-style.css">
+<!-- CSS Files -->      <!-- 統一使用絕對路徑方式 -->
+<link rel="stylesheet" href="/assets/vendors/bootstrap/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">
+<link rel="stylesheet" href="/assets/vendors/simplebar/simplebar.min.css">
+<link rel="stylesheet" href="/assets/vendors/aos/aos.css">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/responsive.css">
+<link rel="stylesheet" href="/assets/css/custom-style.css">
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,9 +45,10 @@
 
 <body>
     <!-- Theme Switcher -->
-    <div class="switcher switcher-show" id="theme-switcher">
+      <div class="switcher switcher-show" id="theme-switcher">
         <i id="switcher-icon" class="bi bi-moon"></i>
     </div>
+   
 
     <!-- Back to Top -->
     <a href="#" id="back-to-top"></a>
@@ -108,8 +113,9 @@
                             <div class="jumbotron p-4">
                                 <h6 class="mb-3 text-muted">快捷操作</h6>
                                 <div class="d-grid gap-2">
-                                    <a href="./shopindex.html" class="btn btn-outline-primary">
-                                        <i class="bi bi-shop me-2"></i>繼續購物
+                                <!-- 統一使用絕對路徑 -->
+                                    <a href="/front-end/shopsys/shopindex.html" class="btn btn-outline-primary">
+                                        <i class="bi bi-shop me-2"></i>商城首頁
                                     </a>
                                     <a href="/front-end/mem/MemberCenter.html?tab=profile" class="btn btn-outline-secondary">
                                         <i class="bi bi-person me-2"></i>會員中心
@@ -148,7 +154,8 @@
                             </div>
                             <h4 class="text-muted">還沒有訂單記錄</h4>
                             <p class="text-muted">快去挑選您喜歡的商品吧！</p>
-                            <a href="./shopindex.html" class="btn btn-primary">
+                            <!-- 統一使用絕對路徑 -->
+                            <a href="/front-end/shopsys/product.html" class="btn btn-primary">
                                 <i class="bi bi-shop me-2"></i>開始購物
                             </a>
                         </div>
@@ -194,19 +201,19 @@
     
     <!-- 這裡不再需要評價 Modal -->
 
-    <!-- JavaScript Files -->
+    <!-- JavaScript Files -->  <!-- 統一使用絕對路徑 -->
     <script src="/js/dynamicHeaderInfo.js"></script>
-    <script src="../../../assets/vendors/jquery/jquery.min.js"></script>
-    <script src="../../../assets/vendors/bootstrap/bootstrap.bundle.js"></script>
-    <script src="../../../assets/vendors/popper/popper.min.js"></script>
-    <script src="../../../assets/vendors/simplebar/simplebar.min.js"></script>
-    <script src="../../../assets/vendors/aos/aos.js"></script>
-    <script src="../../../assets/js/main.js"></script>
-    <script src="../../../assets/js/global-loader.js"></script>
+    <script src="/assets/vendors/jquery/jquery.min.js"></script>
+    <script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+    <script src="/assets/vendors/popper/popper.min.js"></script>
+    <script src="/assets/vendors/simplebar/simplebar.min.js"></script>
+    <script src="/assets/vendors/aos/aos.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/global-loader.js"></script>
     
     <!-- 訂單功能相關 JS -->
-    <script src="api-client.js"></script>
-    <script src="order-list.js"></script>
+    <script src="/front-end/shopsys/order/api-client.js"></script>
+    <script src="/front-end/shopsys/order/order-list.js"></script>
 
     <script>
         // 頁面載入完成後初始化

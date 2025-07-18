@@ -5,7 +5,9 @@
 
 class MallTagManager {
 	constructor() {
-		this.apiBaseUrl = 'http://localhost:8080/api'; // 根據您的後端 API 調整
+		
+		// << 修正成使用動態API URL，自動適應環境
+		this.apiBaseUrl = `${location.origin}/api`;
 		this.malltagContainer = null;
 		this.productsContainer = null;
 		this.currentSelectedTag = null;
@@ -737,7 +739,7 @@ class MallTagManager {
 
 		return `
 	        <div class="product-card" data-product-id="${product.id}">
-	            <div class="product-clickable-area" onclick="window.location.href='./product.html?id=${product.id}'">
+	            <div class="product-clickable-area" onclick="window.location.href='/front-end/shopsys/product.html?id=${product.id}'">
 	                <img src="${this.apiBaseUrl}/product/cover/${product.id}" 
 	                     alt="${this.escapeHtml(product.proName)}" 
 	                     class="product-image"
@@ -887,7 +889,7 @@ class MallTagManager {
 // 全域函數 - 處理商品點擊（與 HTML 中的 handleProductClick 保持一致）
 window.handleProductClick = function(productId) {
 	console.log('跳轉到商品詳情頁面，ID:', productId);
-	window.location.href = `./product.html?id=${productId}`;
+	window.location.href = `/front-end/shopsys/product.html?id=${productId}`;
 };
 
 // 臨時的購物車功能（先顯示提示，後續可以擴展）

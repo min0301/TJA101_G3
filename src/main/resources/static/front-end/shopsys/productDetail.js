@@ -6,7 +6,9 @@
 
 class ProductDetailManager {
     constructor() {
-        this.apiBaseUrl = 'http://localhost:8080/api';
+		
+		// 修正使用動態 API URL
+        this.apiBaseUrl = `${location.origin}/api`;
         this.currentProductId = null;
         this.mainContainer = null;
         this.mallTagManager = null;
@@ -19,24 +21,48 @@ class ProductDetailManager {
     /**
      * 根據 mallTagNo 獲取平台名稱
      */
-    getPlatformName(mallTagNo) {
-        // 這裡可以根據 mallTagNo 返回對應的平台名稱
-        // 您可能需要根據實際的資料結構調整
-        if (mallTagNo && mallTagNo.malltagName) {
-            return mallTagNo.malltagName;
-        } else if (typeof mallTagNo === 'number') {
-            // 如果 mallTagNo 是數字，可以定義一個映射
-            const platformMap = {
-                1: 'Steam',
-                2: 'PlayStation',
-                3: 'Xbox',
-                4: 'Nintendo Switch',
-                5: 'Epic Games'
-            };
-            return platformMap[mallTagNo] || 'Unknown Platform';
-        }
-        return 'Steam'; // 默認值
-    }
+    getPlatformName(product) {
+		
+		console.log('=== 取得平台名稱 ===');
+		console.log('商品資料:', product);
+		console.log('mallTagNo:', product.mallTagNo);
+		console.log('mallTagNo 類型:', typeof product.mallTagNo);
+			
+        // 根據實際 MallTag Entity 結構平台名稱
+        
+		if (product.mallTagNo) {
+		        if (typeof product.mallTagNo === 'object') {
+		            console.log('mallTagNo 是物件，屬性有:', Object.keys(product.mallTagNo));
+		            
+		            if (product.mallTagNo.mallTagName) {
+		                console.log('從 mallTagName 取得平台:', product.mallTagNo.mallTagName);
+		                return product.mallTagNo.mallTagName;
+		            } else {
+		                console.log('mallTagName 不存在或為空');
+		                console.log('mallTagName 的值:', product.mallTagNo.mallTagName);
+		            }
+		        } else if (typeof product.mallTagNo === 'number') {
+		            console.log('mallTagNo 是數字，使用預設映射:', product.mallTagNo);
+		            const platformMap = {
+		                1: 'Steam',
+		                2: 'PlayStation',
+		                3: 'Xbox',
+		                4: 'Nintendo Switch',
+		                5: 'Epic Games'
+		            };
+		            const platformName = platformMap[product.mallTagNo] || `平台 ${product.mallTagNo}`;
+		            console.log('映射結果:', platformName);
+		            return platformName;
+		        } else {
+		            console.log('mallTagNo 類型不是物件也不是數字:', typeof product.mallTagNo);
+		        }
+		    } else {
+		        console.log('mallTagNo 不存在或為 null/undefined');
+		    }
+		    
+		    console.log('無法取得平台資訊，使用預設值: Steam');
+		    return 'Steam';
+		}
 
     /**
      * 高亮對應的左側標籤
@@ -53,9 +79,7 @@ class ProductDetailManager {
                 tagId = mallTagNo.id;
             } else if (typeof mallTagNo === 'number') {
                 tagId = mallTagNo;
-            } else if (mallTagNo && mallTagNo.malltagId) {
-                tagId = mallTagNo.malltagId;
-            }
+            } 
             
             if (tagId) {
                 // 高亮對應的標籤
@@ -217,20 +241,20 @@ class ProductDetailManager {
             }
             
             // 覆蓋 MallTagManager 的商品顯示方法，讓它不執行
-            const originalDisplayProducts = this.mallTagManager.displayProducts;
+            //const originalDisplayProducts = this.mallTagManager.displayProducts;
             this.mallTagManager.displayProducts = function(products) {
                 console.log('MallTagManager 的商品顯示被阻止，因為當前在商品詳情頁面');
                 // 不執行任何操作
             };
             
             // 覆蓋搜尋方法
-            const originalSearchAllProducts = this.mallTagManager.searchAllProducts;
+            //const originalSearchAllProducts = this.mallTagManager.searchAllProducts;
             this.mallTagManager.searchAllProducts = function() {
                 console.log('MallTagManager 的搜尋被阻止，因為當前在商品詳情頁面');
                 // 不執行任何操作
             };
             
-            const originalSearchProducts = this.mallTagManager.searchProducts;
+            //const originalSearchProducts = this.mallTagManager.searchProducts;
             this.mallTagManager.searchProducts = function() {
                 console.log('MallTagManager 的搜尋被阻止，因為當前在商品詳情頁面');
                 // 不執行任何操作
@@ -267,7 +291,7 @@ class ProductDetailManager {
      */
     modifyMallTagBehavior() {
         if (this.mallTagManager) {
-            const originalHandleClick = this.mallTagManager.handleMalltagClick;
+            //const originalHandleClick = this.mallTagManager.handleMalltagClick;
             this.mallTagManager.handleMalltagClick = (malltagItem) => {
                 const tagId = malltagItem.dataset.malltagId;
                 const tagName = malltagItem.dataset.malltagName;
@@ -276,16 +300,16 @@ class ProductDetailManager {
                 
                 // 在商品詳情頁面點擊分類時，跳轉回商品列表頁面
                 if (tagId === 'all') {
-                    window.location.href = 'product.html';
+                    window.location.href = '/front-end/shopsys/product.html';
                 } else {
-                    window.location.href = `product.html?category=${tagId}`;
+                    window.location.href = `/front-end/shopsys/product.html?category=${tagId}`;
                 }
             };
         }
 
         // 確保全域的商品點擊函數正確
         window.handleProductClick = function(productId) {
-            window.location.href = `product.html?id=${productId}`;
+            window.location.href = `/front-end/shopsys/product.html?id=${productId}`;
         };
     }
 
@@ -331,21 +355,14 @@ class ProductDetailManager {
     /**
      * 載入商品詳情
      */
-	/**
-	 * 載入商品詳情
-	 */
 	async loadProductDetail(productId) {
 	    try {
 	        this.currentProductId = productId;
-	        
-	        // 顯示載入狀態
 	        this.showLoading();
-	        
-	        // 更新頁面標題
 	        document.title = `商品詳情 - 像素部落`;
 	        
-	        // 請求商品資料
-	        const url = `${this.apiBaseUrl}/product/${productId}/search`;
+	        // 🔥 修正：使用和 HTML 版本相同的 API
+	        const url = `${this.apiBaseUrl}/product/searchall?proIsMarket=0`;
 	        console.log('請求 URL:', url);
 	        
 	        const response = await fetch(url);
@@ -353,7 +370,6 @@ class ProductDetailManager {
 	        
 	        if (!response.ok) {
 	            const errorText = await response.text();
-	            
 	            if (response.status === 404) {
 	                throw new Error('商品不存在');
 	            } else if (response.status === 500) {
@@ -363,47 +379,31 @@ class ProductDetailManager {
 	            }
 	        }
 	        
-	        const responseData = await response.json();
-	        console.log('API 完整回應:', responseData);
+	        const products = await response.json();
+	        console.log('API 完整回應（所有商品）:', products.length, '項');
+	        
+	        // 🔥 修正：從所有商品中找目標商品（和 HTML 版本一樣）
+	        const productData = products.find(p => 
+	            String(p.id) === String(productId) || 
+	            String(p.proNo) === String(productId)
+	        );
 
-	        let productData;
-	        let inventoryData;
-
-	        if (Array.isArray(responseData)) {
-	            console.log('處理陣列格式回應');
-	            if (responseData.length > 0) {
-	                // 如果是陣列，取第一個元素
-	                const firstItem = responseData[0];
-	                productData = firstItem.product;
-	                inventoryData = firstItem.inventory;
-	            } else {
-	                throw new Error('商品不存在');
-	            }
-	        } else {
-	            console.log('處理物件格式回應');
-	            // 如果是物件，從物件中取得 product 和 inventory
-	            productData = responseData.product;
-	            inventoryData = responseData.inventory;
-	        }
-
-	        console.log('解析後的商品資料:', productData);
-	        console.log('解析後的庫存資料:', inventoryData);
-
-	        // 檢查資料是否存在
 	        if (!productData) {
-	            throw new Error('商品資料不存在');
+	            throw new Error(`找不到商品 ID: ${productId}`);
 	        }
-	        
-	        // 確認商品資料有效
-	        if (!productData || !productData.id) {
-	            throw new Error('商品資料無效');
-	        }
-	        
+
+	        console.log('找到目標商品:', productData);
+	        console.log('商品屬性檢查:');
+	        console.log('mallTagNo:', productData.mallTagNo);
+	        console.log('mallTagNo 類型:', typeof productData.mallTagNo);
+	        console.log('proVersion:', productData.proVersion);
+	        console.log('proStatus:', productData.proStatus);
+
 	        // 更新頁面標題為商品名稱
 	        document.title = `${productData.proName} - 像素部落`;
 	        
-	        // 🔥 重要修改：同時傳遞商品資料和庫存資料
-	        this.displayProductDetail(productData, inventoryData);
+	        // 🔥 注意：這裡不傳 inventoryData，因為 searchall API 可能不包含庫存資訊
+	        this.displayProductDetail(productData, null);
 	        
 	        // 高亮對應的左側標籤
 	        this.highlightCorrespondingTag(productData.mallTagNo);
@@ -418,6 +418,11 @@ class ProductDetailManager {
 	        }
 	    }
 	}
+	
+	
+
+	
+	
     /**
      * 顯示商品詳情
      */
@@ -484,20 +489,29 @@ class ProductDetailManager {
 	                        
 	                        <!-- 商品基本資訊 -->
 	                        <div class="product-specs">
-	                            <div class="spec-item">
-	                                <span class="spec-label">狀態</span>
-	                                <span class="spec-value">${this.escapeHtml(product.proStatus || '未知')}</span>
-	                            </div>
 	                            
-	                            <div class="spec-item">
-	                                <span class="spec-label">版本</span>
-	                                <span class="spec-value">${this.escapeHtml(product.proVersion || '標準版')}</span>
-	                            </div>
-	                            
-	                            <div class="spec-item">
-	                                <span class="spec-label">發布日期</span>
-	                                <span class="spec-value">${this.formatDate(product.proDate)}</span>
-	                            </div>
+								<div class="spec-item">
+							        <span class="spec-label">狀態</span>
+							        <span class="spec-value">${this.escapeHtml(product.proStatus || '未知')}</span>
+							    </div>
+							    
+							    <div class="spec-item">
+							        <span class="spec-label">版本</span>
+							        <span class="spec-value">${this.escapeHtml(product.proVersion || '標準版')}</span>
+							    </div>
+							    
+							    <div class="spec-item">
+							        <span class="spec-label">平台</span>
+							        <span class="spec-value">${this.escapeHtml(this.getPlatformName(product))}</span>
+							    </div>
+							    
+							    <div class="spec-item">
+							        <span class="spec-label">發布日期</span>
+							        <span class="spec-value">${this.formatDate(product.proDate)}</span>
+							    </div>
+								
+								
+
 	                        </div>
 	                        
 	                        <!-- 庫存顯示區域 - 動態生成 -->
@@ -682,7 +696,9 @@ class ProductDetailManager {
      * 返回商品列表頁面
      */
     goBackToList() {
-        window.location.href = 'product.html';
+		
+		// 修正路徑
+        window.location.href = '/front-end/shopsys/product.html';
     }
 
     /**
