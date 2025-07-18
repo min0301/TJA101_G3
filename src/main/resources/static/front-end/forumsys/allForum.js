@@ -15,9 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const urlParams = new URLSearchParams(window.location.search);
     const postId = urlParams.get('postId');
+    const view = urlParams.get('view'); // 新增：取得 view 參數
 
     if (postId) {
         showPostDetailView(postId);
+    } else if (view === 'collected') { // 新增：處理收藏文章視圖
+        showCollectedPostsView();
     } else {
         showInitialView();
     }
@@ -32,9 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
 function handlePopState(event) {
     const params = new URLSearchParams(window.location.search);
     const postId = params.get('postId');
+    const view = params.get('view'); // 新增：取得 view 參數
 
     if (postId) {
         showPostDetailView(postId);
+    } else if (view === 'collected') { // 新增：處理收藏文章視圖
+        showCollectedPostsView();
     } else {
         const activeForum = document.querySelector('.forum-link.active');
         if (activeForum) {
@@ -80,7 +86,7 @@ window.showPostListView = async function (forumId) {
 
         const [forumRes, postsRes] = await Promise.all([
             fetch(`/api/forum/${forumId}`, {headers: headers}),
-            fetch(`/api/forum/${forumId}/posts`)
+            fetch(`/api/forum/${forumId}/posts/sorted`, {headers: headers})
         ]);
 
         if (!forumRes.ok || !postsRes.ok) {
@@ -135,7 +141,7 @@ window.showPostListView = async function (forumId) {
         }
 
         // 3. 最後渲染文章列表
-        renderPosts(dynamicContentContainer, posts);
+        renderPosts(dynamicContentContainer, posts, true); // true 表示需要顯示收藏按鈕
 
         // 更新瀏覽器歷史紀錄
         history.pushState({forumId: forumId}, ``, `?forumId=${forumId}`);
@@ -177,18 +183,84 @@ async function showPostDetailView(postId) {
     }
 }
 
+/**
+ * 顯示使用者收藏的文章列表
+ */
+window.showCollectedPostsView = async function () {
+    dynamicContentContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>`;
+    if (window.innerWidth > 992) {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    try {
+        const token = localStorage.getItem('jwt');
+        if (!token) {
+            dynamicContentContainer.innerHTML = `
+                <div class="alert alert-info text-center p-5">
+                    <i class="bi bi-person-fill-lock fs-1 text-muted mb-3"></i>
+                    <h4>您尚未登入</h4>
+                    <p>請 <a href="/front-end/mem/MemberLogin.html" class="alert-link">登入</a> 以查看您的收藏文章。</p>
+                </div>
+            `;
+            return;
+        }
+
+        const headers = {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`};
+        const response = await fetch(`/api/posts/collect/me`, {headers: headers});
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                dynamicContentContainer.innerHTML = `
+                    <div class="alert alert-warning text-center p-5">
+                        <i class="bi bi-exclamation-triangle fs-1 text-muted mb-3"></i>
+                        <h4>登入狀態無效</h4>
+                        <p>您的登入已過期或無效，請 <a href="/front-end/mem/MemberLogin.html" class="alert-link">重新登入</a>。</p>
+                    </div>
+                `;
+                return;
+            }
+            throw new Error('無法獲取收藏文章列表');
+        }
+
+        const collectedPosts = await response.json();
+
+        // 渲染收藏文章頁面標題
+        const headerHtml = `
+            <div class="d-flex align-items-center mb-4">
+                <i class="bi bi-bookmark-heart-fill fs-2 me-3 text-danger"></i>
+                <h2 class="fw-bold mb-0">我的收藏文章</h2>
+            </div>
+        `;
+        dynamicContentContainer.innerHTML = headerHtml; // 清空並加入標題
+
+        // 渲染文章列表 (使用現有的 renderPosts 函式)
+        renderPosts(dynamicContentContainer, collectedPosts, false); // false 表示不需要顯示收藏按鈕，因為這是收藏列表本身
+
+        history.pushState({view: 'collected'}, ``, `?view=collected`);
+
+        // 初始化 AOS 動畫
+        setTimeout(() => {
+            AOS.init({once: true});
+            dynamicContentContainer.querySelectorAll('[data-aos]').forEach(el => el.classList.add('aos-animate'));
+        }, 100);
+
+    } catch (error) {
+        showError(dynamicContentContainer, `無法載入我的收藏文章`);
+        console.error(error);
+    }
+};
+
+
 // --- 組件渲染輔助函式 ---
 
 /**
  * 渲染帶有橫幅圖片、標題、描述以及收藏按鈕的討論區頂部。
+ * 注意：此函式現在用於渲染討論區頁面，收藏按鈕已移至文章列表項。
  */
 function renderForumHeader(container, forum) {
     const headerContainer = document.createElement('div');
     const imageUrl = forum.forImgUrl || '../assets/img/categories/1.jpg';
     const fallbackImageUrl = '../assets/img/categories/1.jpg';
-    const isCollected = forum.collected;
-    const buttonText = isCollected ? '已收藏' : '收藏';
-    const buttonClass = isCollected ? 'btn-primary' : 'btn-outline-light';
 
     headerContainer.innerHTML = `
         <div class="position-relative text-white mb-4" style="width: 100%; height: 200px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
@@ -200,11 +272,6 @@ function renderForumHeader(container, forum) {
                         <h2 class="fw-bold mb-1">${forum.forName}</h2>
                         <p class="mb-0 d-none d-md-block">${forum.forDes || ''}</p>
                     </div>
-                    <div class="flex-shrink-0">
-                        <button id="collect-btn" class="btn ${buttonClass} btn-sm">
-                            <i class="bi bi-heart-fill"></i> ${buttonText}
-                        </button>
-                    </div>
                 </div>
                  <p class="mb-0 d-md-none mt-2">${forum.forDes || ''}</p>
             </div>
@@ -212,53 +279,75 @@ function renderForumHeader(container, forum) {
     `;
     container.innerHTML = ''; // 先清空
     container.appendChild(headerContainer);
-    addCollectButtonListener(forum.id);
+    // 討論區收藏按鈕已移除，因為現在是文章收藏功能
 }
 
 /**
  * 渲染文章列表。
+ * @param {HTMLElement} container - 渲染文章的容器元素。
+ * @param {Array<Object>} posts - 文章資料陣列。
+ * @param {boolean} showCollectButton - 是否顯示收藏按鈕 (預設為 true)。
  */
-function renderPosts(container, posts) {
+function renderPosts(container, posts, showCollectButton = true) {
     const postsContainer = document.createElement('div');
     postsContainer.id = 'post-list-container';
 
     if (!posts || posts.length === 0) {
-        postsContainer.innerHTML = '<div class="alert alert-info">這個討論區還沒有文章喔！</div>';
+        postsContainer.innerHTML = '<div class="alert alert-info">目前沒有文章喔！</div>';
     } else {
         posts.forEach(post => {
             const fallbackImageUrl = '../../assets/img/categories/1.jpg';
-            const postImageUrl = `/api/forumpost/image/${post.id}`;
+            const postImageUrl = post.postImageUrl;
             const title = post.postTitle || "（無標題）";
             const content = post.postCon || "";
-            const memberId = post.memberId;
+            const memberId = post.memberNo; // 注意：這裡從 post.memberId 改為 post.memberNo 以符合 DTO
+            const memberNickName = post.memberNickName || '匿名';
+            const postUpdate = new Date(post.pcollUpdate || post.postUpdate).toLocaleString('zh-TW'); // 收藏時間或文章更新時間
+            const isCollected = post.postCollectStatus === 'COLLECT'; // 判斷是否已收藏
+
+            // 修正：根據 DTO 類型決定 postId 的來源
+            // 如果是 PostCollectDTO，文章ID在 postNo 欄位；如果是 ForumPostDTO，文章ID在 id 欄位。
+            const currentPostId = post.postNo || post.id;
+
+            // 收藏按鈕的 HTML
+            const collectButtonHtml = showCollectButton ? `
+                <button class="btn btn-sm ${isCollected ? 'btn-primary' : 'btn-outline-secondary'} collect-post-btn"
+                        data-post-id="${currentPostId}" data-is-collected="${isCollected}">
+                    <i class="bi bi-bookmark-heart-fill"></i> ${isCollected ? '已收藏' : '收藏'}
+                </button>
+            ` : '';
 
             const postCardHTML = `
                 <div class="post-box d-flex mb-3" data-aos="fade-up">
                     <div class="card w-100">
                         <div class="card-body d-flex">
                             <div class="flex-shrink-0 me-3">
-                                <img src="${postImageUrl}" alt="${title}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;" onerror="this.onerror=null;this.src='${fallbackImageUrl}';">
+                                <img src="${postImageUrl}" alt="${title}" style="width: 120px; height: 120px; object-fit: contain; border-radius: 8px; background-color: #f0f0f0;" onerror="this.onerror=null;this.src='${fallbackImageUrl}';">
                             </div>
                             <div class="flex-grow-1 d-flex flex-column">
                                 <div>
                                     <h4 class="card-title fw-bold">
-                                        <a href="#" class="post-link" data-post-id="${post.id}">${title}</a>
+                                        <a href="#" class="post-link" data-post-id="${currentPostId}">${title}</a>
                                     </h4>
                                     <p class="card-text post-summary">${content.substring(0, 80)}...</p>
                                 </div>
                                 <div class="mt-auto d-flex justify-content-between align-items-center">
                                     <div class="d-flex align-items-center gap-2 text-muted">
-                                        <img src="/images/memberAvatar/mem${memberId}.png" 
-                                             class="rounded-circle" 
-                                             alt="author avatar" 
-                                             style="width: 24px; height: 24px; object-fit: cover;" 
+                                        <img src="/images/memberAvatar/mem${memberId}.png"
+                                             class="rounded-circle"
+                                             alt="author avatar"
+                                             style="width: 24px; height: 24px; object-fit: cover;"
                                              onerror="this.src='/images/memberAvatar/defaultmem.png'">
-                                        <small>樓主: ${post.memberNickName || '匿名'}</small> 
+                                        <small>樓主: ${memberNickName}</small>
+                                        <small class="ms-3">最後更新於: ${postUpdate}</small>
                                     </div>
-                                    <div class="post-stats">
-                                        <span class="me-3" title="留言數"><i class="bi bi-chat-dots-fill"></i> ${post.mesNumbers || 0}</span>
-                                        <span class="me-3" title="喜歡"><i class="bi bi-hand-thumbs-up-fill text-success"></i> ${post.postLikeCount || 0}</span>
-                                        <span title="不喜歡"><i class="bi bi-hand-thumbs-down-fill text-danger"></i> ${post.postLikeDlc || 0}</span>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="post-stats">
+                                            <span class="me-3" title="留言數"><i class="bi bi-chat-dots-fill"></i> ${post.mesNumbers || 0}</span>
+                                            <span class="me-3" title="喜歡"><i class="bi bi-hand-thumbs-up-fill text-success"></i> ${post.postLikeCount || 0}</span>
+                                            <span title="不喜歡"><i class="bi bi-hand-thumbs-down-fill text-danger"></i> ${post.postLikeDlc || 0}</span>
+                                        </div>
+                                        ${collectButtonHtml}
                                     </div>
                                 </div>
                             </div>
@@ -269,50 +358,87 @@ function renderPosts(container, posts) {
             postsContainer.innerHTML += postCardHTML;
         });
     }
-    container.appendChild(postsContainer);
+    // 如果是第一次渲染文章列表，清空容器；否則直接追加
+    if (container.querySelector('#post-list-container')) {
+        container.querySelector('#post-list-container').innerHTML = postsContainer.innerHTML;
+    } else {
+        container.appendChild(postsContainer);
+    }
+    addPostCollectButtonListeners(); // 為新渲染的收藏按鈕綁定事件
 }
 
 
 /**
- * 為收藏按鈕綁定點擊事件。
+ * 為收藏文章按鈕綁定點擊事件。
  */
-function addCollectButtonListener(forumId) {
-    const collectBtn = document.getElementById('collect-btn');
-    if (!collectBtn) return;
-
-    collectBtn.addEventListener('click', async () => {
-        collectBtn.disabled = true;
-        try {
-            const token = localStorage.getItem('jwt');
-            if (!token) {
-                alert('請先登入才能使用收藏功能。');
-                return;
-            }
-            const response = await fetch(`/api/forums/${forumId}/collect`, {
-                method: 'PUT',
-                headers: {'Authorization': `Bearer ${token}`}
-            });
-
-            if (!response.ok) {
-                if (response.status === 401 || response.status === 403) {
-                    alert('您的登入已過期或無效，請重新登入。');
-                }
-                throw new Error('API request failed');
-            }
-            const resultDTO = await response.json();
-            if (resultDTO.collectStatus === 'COLLECT') {
-                collectBtn.innerHTML = '<i class="bi bi-heart-fill"></i> 已收藏';
-                collectBtn.classList.replace('btn-outline-light', 'btn-primary');
-            } else {
-                collectBtn.innerHTML = '<i class="bi bi-heart-fill"></i> 收藏';
-                collectBtn.classList.replace('btn-primary', 'btn-outline-light');
-            }
-        } catch (error) {
-            console.error('收藏/取消收藏操作失敗:', error);
-        } finally {
-            collectBtn.disabled = false;
-        }
+function addPostCollectButtonListeners() {
+    document.querySelectorAll('.collect-post-btn').forEach(button => {
+        button.removeEventListener('click', handlePostCollect); // 避免重複綁定
+        button.addEventListener('click', handlePostCollect);
     });
+}
+
+/**
+ * 處理文章收藏/取消收藏的邏輯
+ */
+async function handlePostCollect(event) {
+    const button = event.currentTarget;
+    const postId = button.dataset.postId;
+    let isCollected = button.dataset.isCollected === 'true'; // 讀取當前狀態
+
+    const token = localStorage.getItem('jwt');
+    if (!token) {
+        alert('請先登入才能使用收藏功能。');
+        return;
+    }
+
+    button.disabled = true; // 禁用按鈕防止重複點擊
+
+    try {
+        const response = await fetch(`/api/posts/${postId}/collect`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            // 在這裡傳送一個空的 body 即可，因為後端會根據現有狀態切換
+            body: JSON.stringify({})
+        });
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                alert('您的登入已過期或無效，請重新登入。');
+            }
+            throw new Error('API request failed');
+        }
+
+        const resultDTO = await response.json();
+        const newStatus = resultDTO.postCollectStatus;
+
+        if (newStatus === 'COLLECT') {
+            button.innerHTML = '<i class="bi bi-bookmark-heart-fill"></i> 已收藏';
+            button.classList.replace('btn-outline-secondary', 'btn-primary');
+            button.dataset.isCollected = 'true';
+        } else {
+            button.innerHTML = '<i class="bi bi-bookmark-heart-fill"></i> 收藏';
+            button.classList.replace('btn-primary', 'btn-outline-secondary');
+            button.dataset.isCollected = 'false';
+            // 如果是在「我的收藏」頁面取消收藏，則從列表中移除該文章
+            const currentView = new URLSearchParams(window.location.search).get('view');
+            if (currentView === 'collected') {
+                button.closest('.post-box').remove(); // 移除整個文章卡片
+                // 如果移除後沒有文章了，顯示提示
+                if (document.querySelectorAll('.post-box').length === 0) {
+                    dynamicContentContainer.appendChild(document.createElement('div')).outerHTML = '<div class="alert alert-info">目前沒有收藏文章喔！</div>';
+                }
+            }
+        }
+    } catch (error) {
+        console.error('收藏/取消收藏操作失敗:', error);
+        alert('操作失敗，請稍後再試。');
+    } finally {
+        button.disabled = false; // 重新啟用按鈕
+    }
 }
 
 
@@ -320,8 +446,8 @@ function addCollectButtonListener(forumId) {
  * 渲染文章主體內容
  */
 function renderPostDetail(post) {
-    const postDate = new Date(post.postCrDate).toLocaleString('zh-TW');
-    const postImageUrl = `/api/forumpost/image/${post.id}`;
+    const postDate = new Date(post.postCrdate).toLocaleString('zh-TW') ;
+    const postImageUrl = post.postImageUrl;
     const fallbackImageUrl = '../../assets/img/categories/1.jpg';
     const memberId = post.memberId;
 
@@ -341,7 +467,7 @@ function renderPostDetail(post) {
                 <span class="mx-2">|</span>
                 <span>發布時間：${postDate}</span>
             </div>
-             <img src="${postImageUrl}" class="img-fluid rounded mb-4" alt="${post.postTitle}" onerror="this.onerror=null;this.src='${fallbackImageUrl}';">
+             <img src="${postImageUrl}" class="img-fluid rounded post-detail-main-img" alt="${post.postTitle}" onerror="this.onerror=null;this.src='${fallbackImageUrl}';">
             <div class="fs-5 lh-lg">${post.postCon}</div>
         </article>
         <hr class="my-5">
@@ -390,8 +516,8 @@ async function loadAndRenderComments(postId) {
                                     <small class="text-muted">${mesDate}</small>
                                 </div>
                             </div>
-                            <button class="btn btn-sm btn-outline-secondary report-btn" 
-                                    data-bs-toggle="modal" data-bs-target="#reportModal" 
+                            <button class="btn btn-sm btn-outline-secondary report-btn"
+                                    data-bs-toggle="modal" data-bs-target="#reportModal"
                                     data-comment-id="${comment.id}">
                                 <i class="bi bi-flag"></i> 檢舉
                             </button>
@@ -479,7 +605,13 @@ function setupEventListeners() {
 
         if (postLink) {
             event.preventDefault();
-            showPostDetailView(postLink.dataset.postId);
+            // 確保 postId 存在且為有效值
+            const postId = postLink.dataset.postId;
+            if (postId && postId !== 'undefined') { // 增加 undefined 檢查
+                showPostDetailView(postId);
+            } else {
+                console.error('點擊文章連結時，postId 為 undefined 或無效。');
+            }
         }
 
         if (likeBtn) {
@@ -488,9 +620,19 @@ function setupEventListeners() {
 
         if (backBtn) {
             event.preventDefault();
+            // 返回到上一個歷史狀態，這可能是文章列表或收藏列表
             window.history.back();
         }
     });
+
+    // 為「我的收藏」按鈕綁定點擊事件
+    const myCollectionsTab = document.getElementById('my-collections-tab');
+    if (myCollectionsTab) {
+        myCollectionsTab.addEventListener('click', (event) => {
+            event.preventDefault(); // 阻止預設的 tab 切換行為
+            showCollectedPostsView();
+        });
+    }
 
     const reportModal = document.getElementById('reportModal');
     if (reportModal) {

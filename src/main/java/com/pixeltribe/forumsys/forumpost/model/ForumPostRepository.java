@@ -4,12 +4,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 public interface ForumPostRepository extends JpaRepository<ForumPost, Integer> {
-
-    List<ForumPost> findAllByOrderByPostUpdateDesc();
 
     List<ForumPost> findByForNo_Id(Integer forNo);
 
@@ -19,10 +18,15 @@ public interface ForumPostRepository extends JpaRepository<ForumPost, Integer> {
     @Query("SELECT fp FROM ForumPost fp JOIN FETCH fp.forNo JOIN FETCH fp.memNo WHERE fp.id = :postId AND fp.forNo.id = :forumId")
     Optional<ForumPost> findByIdAndForNoId(@Param("postId") Integer postId, @Param("forumId") Integer forumId);
 
-    @Query("SELECT fp FROM ForumPost fp JOIN FETCH fp.forNo JOIN FETCH fp.memNo")
+    @Query("SELECT fp FROM ForumPost fp JOIN FETCH fp.forNo JOIN FETCH fp.memNo ORDER BY fp.postCrdate DESC")
     List<ForumPost> findAllWithForumAndMember();
 
     // 變數名稱 `id` 可變，但 `@Param` 的值 `:id` 不可變
     @Query("SELECT fp FROM ForumPost fp JOIN FETCH fp.forNo JOIN FETCH fp.memNo WHERE fp.id = :id")
     Optional<ForumPost> findByIdWithForumAndMember(@Param("id") Integer id); // `findByIdWithForumAndMember` 是可變的方法名稱
+
+    // ForumPostRepository.java
+    @Query("SELECT fp FROM ForumPost fp JOIN FETCH fp.forNo JOIN FETCH fp.memNo WHERE fp.forNo.id = :forNoId ORDER BY fp.postUpdate DESC")
+    List<ForumPost> findByForNo_IdOrderByPostUpdateDesc(@Param("forNoId") Integer forNoId);
+
 }

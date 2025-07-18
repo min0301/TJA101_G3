@@ -61,5 +61,15 @@ public class PostCollectService {
                 .toList();
 
     }
+
+    public boolean isPostCollected(Integer memberId, Integer postId) {
+     Member member = memRepository.findById(memberId).orElse(null);
+     ForumPost forumPost = forumPostRepository.findById(postId).orElse(null);
+     if (member == null || forumPost == null) {
+         return false;
+     }
+     Optional<PostCollect> collect = postCollectRepository.findByPostNoAndMemNo(forumPost, member);
+     return collect.isPresent() && collect.get().getPostCollectStatus() == PostCollectStatus.COLLECT;
+ }
 }
 

@@ -4,12 +4,15 @@ import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
 import com.pixeltribe.forumsys.forumpost.model.ForumPostDTO;
 import com.pixeltribe.forumsys.forumpost.model.ForumPostService;
 import com.pixeltribe.forumsys.forumpost.model.ForumPostUpdateDTO;
+import com.pixeltribe.forumsys.postcollect.model.PostCollectService;
+import com.pixeltribe.membersys.security.MemberDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,14 +24,30 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:8080"}, allowedHeaders = "*")
+//@CrossOrigin(origins = {"http://localhost:8080"}, allowedHeaders = "*")
 public class ForumPostController {
 
     private final ForumPostService forumPostSvc;
+    private final PostCollectService postCollectService;
 
     @Autowired
-    public ForumPostController(ForumPostService forumPostSvc) {
+    public ForumPostController(ForumPostService forumPostSvc, PostCollectService postCollectService) { // 3. 透過建構子注入
         this.forumPostSvc = forumPostSvc;
+        this.postCollectService = postCollectService; // 4. 初始化
+    }
+
+    @GetMapping("/forum/{forumId}/posts/sorted")
+    @Operation(summary = "查特定討論區文章並按更新時間倒序", description = "根據討論區ID查詢該討論區下的所有文章，並依更新時間倒序排列")
+    public ResponseEntity<List<ForumPostDTO>> findPostsByForumSortedByUpdateDesc(
+            @Parameter(description = "討論區編號", example = "1")
+            @PathVariable("forumId") Integer forumId) {
+
+        List<ForumPostDTO> posts = forumPostSvc.findAllByOrderByPostUpdateDesc(forumId); // 調用服務層的方法
+
+        if (posts.isEmpty()) {
+            return ResponseEntity.ok(posts);
+        }
+        return ResponseEntity.ok(posts);
     }
 
     /**
@@ -155,6 +174,16 @@ public class ForumPostController {
             e.printStackTrace();
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/api/posts/{postId}/collect/status")
+    @Operation(summary = "檢查文章是否已被當前會員收藏")
+    public ResponseEntity<?> checkPostCollectStatus(@PathVariable Integer postId, @AuthenticationPrincipal MemberDetails currentUser) {
+        if (currentUser == null) {
+            return ResponseEntity.ok(Map.of("isCollected", false)); // 未登入則視為未收藏
+        }
+        boolean isCollected = postCollectService.isPostCollected(currentUser.getMemberId(), postId);
+        return ResponseEntity.ok(Map.of("isCollected", isCollected));
     }
 
     /**

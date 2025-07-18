@@ -240,6 +240,7 @@ public class ForumPostService {
                 .collect(Collectors.toList());
     }
 
+
     /**
      * 獲取特定討論區的文章列表 (返回 DTO 列表)。
      *
@@ -254,6 +255,7 @@ public class ForumPostService {
                 .map(ForumPostDTO::new)
                 .collect(Collectors.toList());
     }
+
 
     /**
      * 根據文章 ID 和討論區 ID 查詢單篇文章 (返回 Optional<ForumPostDTO>)。
@@ -282,6 +284,22 @@ public class ForumPostService {
                     forumMap.put("name", forum.getForName());
                     return forumMap;
                 })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 獲取特定討論區的文章列表，並依 `postUpdate` 時間倒序排列。
+     *
+     * @param forumId 討論區 ID。
+     * @return 特定討論區的文章 ForumPostDTO 列表，依更新時間倒序排列。
+     */
+    @Transactional(readOnly = true)
+    public List<ForumPostDTO> findAllByOrderByPostUpdateDesc(Integer forumId) { // 修正參數為 forumId
+        // 直接使用 Repository 中已經定義好的帶有 JOIN FETCH 和 ORDER BY 的方法
+        List<ForumPost> posts = forumPostRepository.findByForNo_IdOrderByPostUpdateDesc(forumId); //
+
+        return posts.stream()
+                .map(ForumPostDTO::new)
                 .collect(Collectors.toList());
     }
 
