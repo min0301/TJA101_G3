@@ -3,6 +3,7 @@
 
 (function() {
     'use strict';
+	
 
     // *** 訂單 API 客戶端 - 使用 IIFE 避免污染全域範疇 *** //
     window.OrderApiClient = {
@@ -62,46 +63,58 @@
 
 		
         // *** 基礎 API 請求方法 ***//
-        async request(url, options = {}) {
-            try {
-                const defaultOptions = {
-                    headers: this.createHeaders()
-                };
+		async request(url, options = {}) {
+		            try {
+		                // 確保使用相對路徑，這樣在任何環境都能正常工作
+		                let requestUrl = url;
+		                
+		                // 如果 URL 以 / 開頭，保持原樣（相對於根目錄）
+		                // 如果專案部署在子路徑，可能需要額外處理
+		                console.log('Debug - API 請求路徑:', requestUrl);
+		                
+		                const defaultOptions = {
+		                    headers: this.createHeaders()
+		                };
 
-                const finalOptions = {
-                    ...defaultOptions,
-                    ...options,
-                    headers: {
-                        ...defaultOptions.headers,
-                        ...options.headers
-                    }
-                };
+		                const finalOptions = {
+		                    ...defaultOptions,
+		                    ...options,
+		                    headers: {
+		                        ...defaultOptions.headers,
+		                        ...options.headers
+		                    }
+		                };
 
-                const response = await fetch(url, finalOptions);
+		                const response = await fetch(requestUrl, finalOptions);
+		                
+		                console.log('Debug - API 回應狀態:', response.status, response.statusText);
 
-                // 處理認證失敗
-                if (response.status === 401 || response.status === 403) {
-                    throw new Error('您的登入已過期或無效，請重新登入');
-                }
+		                // 處理認證失敗
+		                if (response.status === 401 || response.status === 403) {
+		                    throw new Error('您的登入已過期或無效，請重新登入');
+		                }
 
-                if (!response.ok) {
-                    // 嘗試取得錯誤訊息
-                    let errorMessage = '請求失敗';
-                    try {
-                        const errorData = await response.json();
-                        errorMessage = errorData.errorMessage || errorData.message || errorMessage;
-                    } catch (e) {
-                        // 如果無法解析錯誤訊息，使用預設訊息
-                    }
-                    throw new Error(errorMessage);
-                }
+		                if (!response.ok) {
+		                    // 嘗試取得錯誤訊息
+		                    let errorMessage = `請求失敗 (${response.status})`;
+		                    try {
+		                        const errorData = await response.json();
+		                        errorMessage = errorData.errorMessage || errorData.message || errorMessage;
+		                    } catch (e) {
+		                        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+		                    }
+		                    throw new Error(errorMessage);
+		                }
 
-                return await response.json();
-            } catch (error) {
-                console.error('API 請求失敗:', error);
-                throw error;
-            }
-        },
+		                const responseData = await response.json();
+		                console.log('Debug - API 回應資料:', responseData);
+		                return responseData;
+		                
+		            } catch (error) {
+		                console.error('API 請求失敗:', error);
+		                throw error;
+		            }
+		        },
 
 		
 		
@@ -119,21 +132,60 @@
 
 		
         // *** 取得單一訂單詳情 (包含訂單明細) *** //
-        async getOrderDetail(orderNo) {
-            if (!this.isLoggedIn()) {
-                throw new Error('請先登入才能查看訂單詳情');
-            }
+		async getOrderDetail(orderNo) {
+			if (!this.isLoggedIn()) {
+		    	throw new Error('請先登入才能查看訂單詳情');
+		    }
 
-            const [orderInfo, orderItems] = await Promise.all([
-                this.request(`/api/orders/${orderNo}/detail`),
-                this.request(`/api/orderitem/order/${orderNo}`)
-            ]);
+		    console.log('Debug - 開始載入訂單詳情:', orderNo);
 
-            return {
-                orderInfo,
-                orderItems
-            };
-        },
+		    // 只使用你實際存在的 API
+		    const orderItems = await this.request(`/api/orderitem/order/${orderNo}`);
+		            
+		    console.log('Debug - 取得商品明細:', orderItems);
+
+		    // 從商品明細中構建訂單基本資訊
+		    let orderInfo = {
+		    	orderNo: orderNo,
+		        orderStatus: '已完成', // 暫時固定為已完成以測試評價功能
+		        orderDatetime: '2025-07-11T11:45:00',
+		        orderTotal: 0,
+		        contactEmail: 'v4w5x6y@TJA101.com.tw',
+		        contactPhone: '未提供'
+		    };
+
+		   // 如果有商品項目，計算總金額並取得訂單相關資訊
+		   if (orderItems && orderItems.length > 0) {
+		   		// 計算總金額
+		        orderInfo.orderTotal = orderItems.reduce((total, item) => {
+		        	return total + (item.proPrice * item.orderAmount);
+		        }, 0);
+		                
+		        // 如果商品項目中有訂單相關資訊，使用它們
+		        const firstItem = orderItems[0];
+		        if (firstItem.orderDate) {
+		        	orderInfo.orderDatetime = firstItem.orderDate;
+		        }
+		        if (firstItem.orderStatus) {
+		        	orderInfo.orderStatus = firstItem.orderStatus;
+		        }
+		        // 如果有其他訂單相關欄位，也可以在這裡取得
+		        if (firstItem.contactEmail) {
+		        	orderInfo.contactEmail = firstItem.contactEmail;
+		        }
+		        if (firstItem.contactPhone) {
+		        	orderInfo.contactPhone = firstItem.contactPhone;
+		        }
+		    }
+
+		    console.log('Debug - 構建的訂單資訊:', orderInfo);
+
+		    return {
+		    	orderInfo,
+		        orderItems
+		    };
+		},
+				
 
 		
         // *** 取得訂單明細列表 (根據訂單編號) *** //
@@ -269,18 +321,20 @@
 		getOrderStatusIcon(status) {
 		    const iconMap = {
 		        'PENDING': 'bi-clock',
-		        'Paying': 'bi-credit-card', 
-		        'Processing': 'bi-gear',
+		        'PAYING': 'bi-credit-card', 
+		        'PROCESSING': 'bi-gear',
 		        'SHIPPED': 'bi-truck',
-		        'Completed': 'bi-check-circle',
+		        'COMPLETED': 'bi-check-circle',
 		        'FAILED': 'bi-exclamation-triangle',
 		        'CANCELLED': 'bi-x-circle',
 				
 				// 中文狀態兼容  
-				'處理中': 'bi-gear',
-				'已完成': 'bi-check-circle',
-				'已出貨': 'bi-truck',
 				'等待付款': 'bi-clock',
+				'付款處理中': 'bi-credit-card', 
+				'處理中': 'bi-gear',
+				'已出貨': 'bi-truck',
+				'已完成': 'bi-check-circle',
+				'處理失敗': 'bi-exclamation-triangle',
 				'已取消': 'bi-x-circle'
 				
 				
@@ -290,19 +344,19 @@
 
 		
         // *** 顯示星級評分 *** //
-        getStarDisplay(rating) {
-            if (!rating) return '未評價';
-            
-            let stars = '';
-            for (let i = 1; i <= 5; i++) {
-                if (i <= rating) {
-                    stars += '★';
-                } else {
-                    stars += '☆';
-                }
-            }
-            return stars;
-        }
+		getStarDisplay(rating) {
+		    if (!rating) return '<span class="text-muted">未評價</span>';
+		    
+		    let starsHtml = '';
+		    for (let i = 1; i <= 5; i++) {
+		        if (i <= rating) {
+		            starsHtml += '<i class="bi bi-star-fill text-warning"></i>';
+		        } else {
+		            starsHtml += '<i class="bi bi-star text-muted"></i>';
+		        }
+		    }
+		    return starsHtml;
+		}
     };
 
 })();
