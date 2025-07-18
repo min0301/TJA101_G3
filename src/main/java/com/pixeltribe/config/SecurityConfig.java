@@ -24,7 +24,8 @@ class SecurityConfig {
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
-//    cors設定會覆寫cors.default
+
+    //    cors設定會覆寫cors.default
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -60,7 +61,7 @@ class SecurityConfig {
                                 //    - 靜態資源 (css, js, images...)
                                 //    - 不需登入就可查看的 GET 請求 (例如: 熱門討論區、文章列表、分類列表)
                                 .requestMatchers(
-                                		
+
                                         "/api/**",  //暫時全開，記得去下面加入自己的方法
                                         //========靜態公開資源========
                                         "/",
@@ -71,7 +72,7 @@ class SecurityConfig {
                                         "/out-statics/**",
                                         "/templates/**",
                                         "/front-end/**",
-                                       
+
                                         "/index.html",
                                         "/indexstatic.html",
                                         "/swagger-ui/**",
