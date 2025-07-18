@@ -152,202 +152,125 @@
     <div id="commentError" class="alert d-none mt-3"></div>
 </div>
 
-<!--<script>-->
-<!--    (function () {-->
-<!--        const API_BASE = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : location.origin;-->
-<!--        const COMMENT_API = '/api/admin/NewsComment';-->
-<!--        const COMMENT_HIDE_API = id => `/api/admin/NewsComment/${id}/hide`;-->
-<!--        const EDIT_PAGE = '../newssys/comments/editNewsComment.html';-->
-<!--        const token = localStorage.getItem('jwt');-->
-<!--        const PAGE_SIZE = 10;-->
-
-<!--        let currentPage = 0;-->
-
-<!--        document.getElementById('searchBtn').addEventListener('click', () => loadComments(0));-->
-
-<!--        function val(id) {-->
-<!--            return document.getElementById(id).value.trim();-->
-<!--        }-->
-
-<!--        function showError(msg = '') {-->
-<!--            const e = document.getElementById('commentError');-->
-<!--            e.textContent = msg;-->
-<!--            e.classList.toggle('d-none', !msg);-->
-<!--        }-->
-
-<!--        async function loadComments(page) {-->
-<!--            currentPage = page;-->
-<!--            showError();-->
-<!--            const params = new URLSearchParams({-->
-<!--                page, size: PAGE_SIZE,-->
-<!--                keyword: val('keyword'),-->
-<!--                newsId: val('newsId'),-->
-<!--                memberId: val('memberId'),-->
-<!--                status: val('status')-->
-<!--            });-->
-
-<!--            try {-->
-<!--                const res = await fetch(`${API_BASE}${COMMENT_API}?${params}`);-->
-<!--                if (!res.ok) throw new Error(`HTTP ${res.status}`);-->
-<!--                const data = await res.json();-->
-<!--                renderTable(data.content);-->
-<!--                renderPagination(data.totalPages);-->
-<!--            } catch (e) {-->
-<!--                showError('載入失敗：' + e.message);-->
-<!--            }-->
-<!--        }-->
-
-<!--        function renderTable(list) {-->
-<!--            const tb = document.getElementById('commentTableBody');-->
-<!--            if (!list.length) {-->
-<!--                tb.innerHTML = '<tr><td colspan="8" class="text-center">無資料</td></tr>';-->
-<!--                return;-->
-<!--            }-->
-
-<!--            tb.innerHTML = list.map(r => `-->
-<!--            <tr>-->
-<!--                <td>${r.id}</td>-->
-<!--                <td class="text-start">${escapeHtml(r.ncomCon)}</td>-->
-<!--                <td>${r.newsNoId}</td>-->
-<!--                <td>${r.memNoMemNickName || ''}<small class="text-muted">(ID: ${r.memNoId})</small></td>-->
-<!--                <td>${r.ncomLikeLc} / ${r.ncomLikeDlc}</td>-->
-<!--                <td><span class="status-pill ${r.ncomStatus === '2' ? 'status-hide' : 'status-normal'}">-->
-<!--                    ${r.ncomStatus === '2' ? '隱藏' : '正常'}</span></td>-->
-<!--                <td>${new Date(r.ncomCre).toLocaleString()}</td>-->
-<!--                <td class="actions">-->
-<!--                    <button class="btn btn-edit btn-sm text-white" data-id="${r.id}" onclick="openCommentEdit(${r.id})">修改</button>-->
-<!--                    <button class="btn btn-toggle btn-sm text-white ${r.ncomStatus === '2' ? 'show' : ''}"-->
-<!--                            data-id="${r.id}" onclick="toggleCommentStatus(${r.id}, ${r.ncomStatus !== '2'})">-->
-<!--                        ${r.ncomStatus === '2' ? '顯示' : '隱藏'}-->
-<!--                    </button>-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--        `).join('');-->
-<!--        }-->
-
-<!--        function renderPagination(totalPages) {-->
-<!--            const ul = document.getElementById('commentPagination');-->
-<!--            ul.innerHTML = '';-->
-<!--            for (let i = 0; i < totalPages; i++) {-->
-<!--                const li = document.createElement('li');-->
-<!--                li.className = 'page-item' + (i === currentPage ? ' active' : '');-->
-<!--                li.innerHTML = `<button class="page-link">${i + 1}</button>`;-->
-<!--                li.onclick = () => loadComments(i);-->
-<!--                ul.appendChild(li);-->
-<!--            }-->
-<!--        }-->
-
-<!--        window.toggleCommentStatus = async function (id, hide) {-->
-<!--            if (!confirm(`確定要${hide ? '隱藏' : '顯示'}留言 ${id}？`)) return;-->
-<!--            try {-->
-<!--                const res = await fetch(API_BASE + COMMENT_HIDE_API(id), {-->
-<!--                    method: 'PATCH',-->
-<!--                    headers: {-->
-<!--                        'Authorization': 'Bearer ' + token,-->
-<!--                        'Content-Type': 'application/json'-->
-<!--                    },-->
-<!--                    body: JSON.stringify({ncomStatus: hide ? '2' : '1'})-->
-<!--                });-->
-<!--                if (!res.ok) throw new Error(`HTTP ${res.status}`);-->
-<!--                loadComments(currentPage);-->
-<!--            } catch (e) {-->
-<!--                showError('操作失敗：' + e.message);-->
-<!--            }-->
-<!--        }-->
-
-<!--        window.openCommentEdit = function (id) {-->
-<!--            if (typeof loadExternalPage === 'function') {-->
-<!--                loadExternalPage(`${EDIT_PAGE}?id=${id}`);-->
-<!--            } else {-->
-<!--                window.location.href = `${EDIT_PAGE}?id=${id}`;-->
-<!--            }-->
-<!--        }-->
-
-<!--        function escapeHtml(str) {-->
-<!--            return str.replace(/[&<>"']/g, m => ({-->
-<!--                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'-->
-<!--            }[m]));-->
-<!--        }-->
-
-<!--        // 初始化-->
-<!--        loadComments(0);-->
-<!--    })();-->
-<!--</script>-->
-
 <script>
     (function () {
-        /* ---- 參數 ---- */
-        const pageSize = 5;
+        const API_BASE = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : location.origin;
+        const COMMENT_API = '/api/admin/NewsComment';
+        const COMMENT_HIDE_API = id => `/api/admin/NewsComment/${id}/hide`;
+        const EDIT_PAGE = '../newssys/comments/editNewsComment.html';
+        const token = localStorage.getItem('jwt');
+        const PAGE_SIZE = 10;
+
         let currentPage = 0;
-        let totalPages  = 0;
-        let sortBy      = 'createTime';   // 預設欄位
-        let sortDir     = 'desc';         // asc/desc
-        const jwtToken  = localStorage.getItem('jwt') || '';
 
-        /* ---- 主流程 ---- */
-        async function fetchPage() {
-            const status = document.getElementById('statusFilter').value;
-            let url = `/api/admin/NewsComReport?page=${currentPage}&size=${pageSize}`
-                + `&sort=${sortBy},${sortDir}`;
-            if (status) url += `&status=${status}`;
+        document.getElementById('searchBtn').addEventListener('click', () => loadComments(0));
 
-            const res = await fetch(url, { headers:{Authorization:`Bearer ${jwtToken}`} });
-            if (!res.ok) return showError(`(${res.status}) 讀取失敗`);
-            const page = await res.json();
-            totalPages = page.totalPages;
-            renderTable(page.content || []);
-            pageInfo.textContent = `第 ${page.number+1} / ${totalPages} 頁`;
-            hideError();
+        function val(id) {
+            return document.getElementById(id).value.trim();
         }
 
-        /* ---- Render ---- */
-        const tbody    = document.getElementById('reportTableBody');
-        const pageInfo = document.getElementById('pageInfo');
-
-        function renderTable(list){
-            tbody.innerHTML = list.length ? list.map(r=>`
-      <tr>
-        <td>${r.id}</td>
-        <td class="text-start">${r.newsComment??'-'}</td>
-        <td>${r.reportTypeRpiType??'-'}</td>
-        <td>${fmt(r.createTime)}</td>
-        <td>${badge(r.newsComReportStatus)}</td>
-        <td><a href="#" class="btn btn-sm btn-outline-primary"
-               onclick="event.preventDefault();
-                        loadExternalPage('../newssys/report/processNewsReport.html?id=${r.id}')">
-             處理
-        </a></td>
-      </tr>`).join('') : `<tr><td colspan="6">查無資料</td></tr>`;
+        function showError(msg = '') {
+            const e = document.getElementById('commentError');
+            e.textContent = msg;
+            e.classList.toggle('d-none', !msg);
         }
-        const badge = c=>c==='0'
-            ?'<span class="status-pill status-pending">待處理</span>'
-            :'<span class="status-pill status-done">已處理</span>';
-        const fmt   = s=>s?new Date(s).toLocaleString('zh-TW'):'-';
 
-        /* ---- UI 事件 ---- */
-        window.prevPage = ()=>{ if(currentPage>0){currentPage--; fetchPage();}};
-        window.nextPage = ()=>{ if(currentPage<totalPages-1){currentPage++; fetchPage();}};
-        window.resetAndFetch = ()=>{currentPage=0; fetchPage();};
+        async function loadComments(page) {
+            currentPage = page;
+            showError();
+            const params = new URLSearchParams({
+                page, size: PAGE_SIZE,
+                keyword: val('keyword'),
+                newsId: val('newsId'),
+                memberId: val('memberId'),
+                status: val('status')
+            });
 
-        /** 點表頭排序 **/
-        document.querySelectorAll('.table-dark th').forEach((th,i)=>{
-            if(i!==0 && i!==3) return; // 只開 ID (0) & 建立時間(3)
-            th.style.cursor='pointer';
-            th.onclick = ()=>{
-                sortBy  = (i===0)?'id':'createTime';
-                sortDir = (sortDir==='asc')?'desc':'asc';
-                currentPage = 0;
-                fetchPage();
-            };
-        });
+            try {
+                const res = await fetch(`${API_BASE}${COMMENT_API}?${params}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                renderTable(data.content);
+                renderPagination(data.totalPages);
+            } catch (e) {
+                showError('載入失敗：' + e.message);
+            }
+        }
 
-        /* ---- Error Box ---- */
-        const errBox = document.getElementById('error-message');
-        const showError = msg=>{ errBox.textContent=msg; errBox.style.display='block'; };
-        const hideError = ()=> errBox.style.display='none';
+        function renderTable(list) {
+            const tb = document.getElementById('commentTableBody');
+            if (!list.length) {
+                tb.innerHTML = '<tr><td colspan="8" class="text-center">無資料</td></tr>';
+                return;
+            }
 
-        /* ---- init ---- */
-        fetchPage();
+            tb.innerHTML = list.map(r => `
+            <tr>
+                <td>${r.id}</td>
+                <td class="text-start">${escapeHtml(r.ncomCon)}</td>
+                <td>${r.newsNoId}</td>
+                <td>${r.memNoMemNickName || ''}<small class="text-muted">(ID: ${r.memNoId})</small></td>
+                <td>${r.ncomLikeLc} / ${r.ncomLikeDlc}</td>
+                <td><span class="status-pill ${r.ncomStatus === '2' ? 'status-hide' : 'status-normal'}">
+                    ${r.ncomStatus === '2' ? '隱藏' : '正常'}</span></td>
+                <td>${new Date(r.ncomCre).toLocaleString()}</td>
+                <td class="actions">
+                    <button class="btn btn-edit btn-sm text-white" data-id="${r.id}" onclick="openCommentEdit(${r.id})">修改</button>
+                    <button class="btn btn-toggle btn-sm text-white ${r.ncomStatus === '2' ? 'show' : ''}"
+                            data-id="${r.id}" onclick="toggleCommentStatus(${r.id}, ${r.ncomStatus !== '2'})">
+                        ${r.ncomStatus === '2' ? '顯示' : '隱藏'}
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+        }
+
+        function renderPagination(totalPages) {
+            const ul = document.getElementById('commentPagination');
+            ul.innerHTML = '';
+            for (let i = 0; i < totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = 'page-item' + (i === currentPage ? ' active' : '');
+                li.innerHTML = `<button class="page-link">${i + 1}</button>`;
+                li.onclick = () => loadComments(i);
+                ul.appendChild(li);
+            }
+        }
+
+        window.toggleCommentStatus = async function (id, hide) {
+            if (!confirm(`確定要${hide ? '隱藏' : '顯示'}留言 ${id}？`)) return;
+            try {
+                const res = await fetch(API_BASE + COMMENT_HIDE_API(id), {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ncomStatus: hide ? '2' : '1'})
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                loadComments(currentPage);
+            } catch (e) {
+                showError('操作失敗：' + e.message);
+            }
+        }
+
+        window.openCommentEdit = function (id) {
+            if (typeof loadExternalPage === 'function') {
+                loadExternalPage(`${EDIT_PAGE}?id=${id}`);
+            } else {
+                window.location.href = `${EDIT_PAGE}?id=${id}`;
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, m => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[m]));
+        }
+
+        // 初始化
+        loadComments(0);
     })();
 </script>
 </body>
