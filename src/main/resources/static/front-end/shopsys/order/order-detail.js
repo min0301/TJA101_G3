@@ -201,45 +201,85 @@
             `;
         },
 
-        /**
-         * 渲染訂單商品明細
-         */
-        renderOrderItems() {
-            const itemsHtml = this.orderItems.map(item => {
-                const itemPrice = OrderApiClient.formatPrice(item.proPrice);
-                const totalPrice = OrderApiClient.formatPrice(item.proPrice * item.orderAmount);
-                
-                return `
-                    <div class="card mb-3" data-aos="fade-up" data-item-no="${item.orderItemNo}">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-2">
-                                    <img src="/api/product/cover/${item.proNo}" 
-                                         class="img-fluid rounded" 
-                                         alt="${item.productName}"
-                                         style="max-height: 100px; object-fit: cover;"
-										 onerror="console.log('圖片載入失敗'); this.style.display='none'; this.parentElement.innerHTML='<div>預留位置</div>'"> 
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="mb-1">${item.productName}</h6>
-                                    <p class="text-muted mb-1">商品編號：${item.proNo}</p>
-                                    <p class="text-muted mb-0">單價：${itemPrice}</p>
-                                </div>
-                                <div class="col-md-2 text-center">
-                                    <span class="badge bg-secondary fs-6">×${item.orderAmount}</span>
-                                </div>
-                                <div class="col-md-2 text-end">
-                                    <strong class="fs-6">${totalPrice}</strong>
-                                    ${this.getItemStatusBadge(item)}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+        // *** 渲染訂單商品明細 *** //
+		renderOrderItems() {
+		    const itemsHtml = this.orderItems.map(item => {
+		        const itemPrice = OrderApiClient.formatPrice(item.proPrice);
+		        const totalPrice = OrderApiClient.formatPrice(item.proPrice * item.orderAmount);
+		        
+		        return `
+		            <div class="card mb-3" data-aos="fade-up" data-item-no="${item.orderItemNo}">
+		                <div class="card-body">
+		                    <div class="row align-items-center">
+		                        <div class="col-md-2">
+		                            <img src="/api/product/cover/${item.proNo}" 
+		                                 class="img-fluid rounded" 
+		                                 alt="${item.productName}"
+		                                 style="max-height: 100px; object-fit: cover;"
+		                                 onerror="console.log('圖片載入失敗'); this.style.display='none'; this.parentElement.innerHTML='<div class=\\'text-center p-3 bg-light rounded\\'>圖片載入失敗</div>'"> 
+		                        </div>
+		                        <div class="col-md-5">
+		                            <h6 class="mb-1">${item.productName}</h6>
+		                            <p class="text-muted mb-1">商品編號：${item.proNo}</p>
+		                            <p class="text-muted mb-0">單價：${itemPrice}</p>
+		                        </div>
+		                        <div class="col-md-2 text-center">
+		                            <span class="badge bg-secondary fs-6">×${item.orderAmount}</span>
+		                        </div>
+		                        <div class="col-md-2 text-end">
+		                            <strong class="fs-6">${totalPrice}</strong>
+		                            ${this.getItemStatusBadge(item)}
+		                        </div>
+		                        <div class="col-md-1 text-end">
+		                            ${this.renderItemCommentButton(item)}
+		                        </div>
+		                    </div>
+		                </div>
+		            </div>
+		        `;
+		    }).join('');
 
-            document.getElementById('order-items-container').innerHTML = itemsHtml;
-        },
+		    document.getElementById('order-items-container').innerHTML = itemsHtml;
+		},
+		
+		
+		// *** 新增：在商品列表中渲染評價按鈕的方法 *** //
+		renderItemCommentButton(item) {
+		    const order = this.orderData;
+		    const completedStatuses = ['COMPLETED', 'Completed', '已完成'];
+		    
+		    // 只有已完成的訂單才顯示評價按鈕
+		    if (!completedStatuses.includes(order.orderStatus)) {
+		        return `
+		            <small class="text-muted">
+		                <i class="bi bi-clock me-1"></i>
+		                完成後可評價
+		            </small>
+		        `;
+		    }
+			
+			
+			// 檢查是否已評價
+			    const hasComment = item.proStar && item.proStar > 0;
+			    
+			    if (hasComment) {
+			        return `
+						<button class="btn btn-outline-success btn-sm comment-btn w-100" 
+					        	data-item-no="${item.orderItemNo}">
+					    	<i class="bi bi-check-circle me-1"></i>已評論
+					    </button>
+			        `;
+			    } else {
+			        return `
+			            <button class="btn btn-warning btn-sm comment-btn w-100" 
+			                    data-item-no="${item.orderItemNo}">
+			                <i class="bi bi-star me-1"></i>未評價
+			            </button>
+			        `;
+			    }
+			},
+		
+		
 
         /**
          * 渲染訂單進度
@@ -288,42 +328,50 @@
             this.elements.orderProgress.innerHTML = progressHtml;
         },
 
-        /**
-         * 更新操作按鈕
-         */
+        // *** 更新操作按鈕 *** //
         updateActionButtons() {
             const order = this.orderData;
             
             // 付款按鈕
-            if (order.orderStatus === 'PENDING' || order.orderStatus === 'FAILED') {
-                this.elements.paymentBtn.classList.remove('d-none');
-                this.elements.paymentBtn.innerHTML = order.orderStatus === 'FAILED' 
-                    ? '<i class="bi bi-arrow-clockwise me-2"></i>重新付款'
-                    : '<i class="bi bi-credit-card me-2"></i>立即付款';
-            } else {
-                this.elements.paymentBtn.classList.add('d-none');
-            }
+			const pendingStatuses = ['PENDING', 'Pending', '等待付款'];
+			const failedStatuses = ['FAILED', 'Failed', '處理失敗'];
+			
+			
+			if (pendingStatuses.includes(order.orderStatus) || failedStatuses.includes(order.orderStatus)) {
+			        this.elements.paymentBtn.classList.remove('d-none');
+			        this.elements.paymentBtn.innerHTML = failedStatuses.includes(order.orderStatus)
+			            ? '<i class="bi bi-arrow-clockwise me-2"></i>重新付款'
+			            : '<i class="bi bi-credit-card me-2"></i>立即付款';
+			    } else {
+			        this.elements.paymentBtn.classList.add('d-none');
+			    }
+            
 
             // 取消按鈕
-            if (order.orderStatus === 'PENDING' || order.orderStatus === 'Paying') {
-                this.elements.cancelBtn.classList.remove('d-none');
-            } else {
-                this.elements.cancelBtn.classList.add('d-none');
-            }
+			const cancelableStatuses = ['PENDING', 'Pending', '等待付款', 'PAYING', 'Paying', '付款處理中'];
+			    
+			    if (cancelableStatuses.includes(order.orderStatus)) {
+			        this.elements.cancelBtn.classList.remove('d-none');
+			    } else {
+			        this.elements.cancelBtn.classList.add('d-none');
+			    }
         },
 
-        /**
-         * 檢查是否顯示評價區域
-         */
+        // *** 檢查是否顯示評價區域 *** //
         checkCommentSection() {
             const order = this.orderData;
             
-            if (order.orderStatus === 'Completed') {
-                this.elements.commentSection.classList.remove('d-none');
-                this.loadCommentSection();
-            } else {
-                this.elements.commentSection.classList.add('d-none');
-            }
+			//  統一狀態判斷，支援多種狀態格式
+			const completedStatuses = ['COMPLETED', 'Completed', '已完成'];
+			    
+			if (completedStatuses.includes(order.orderStatus)) {
+				this.elements.commentSection.classList.remove('d-none');
+				this.loadCommentSection();
+			} else {
+				this.elements.commentSection.classList.add('d-none');
+				// Debug: 在開發階段可以看到當前狀態
+				console.log('當前訂單狀態:', order.orderStatus, '- 評價功能需要已完成狀態');
+			}
         },
 
         /**
@@ -332,49 +380,75 @@
         async loadCommentSection() {
             try {
                 // 檢查是否已有評價
-                const comments = await OrderApiClient.getMemberCommentsByOrder(this.currentOrderNo);
-                
-                const commentsHtml = this.orderItems.map(item => {
-                    const existingComment = comments.find(c => c.orderItemNo === item.orderItemNo);
-                    
-                    return `
-                        <div class="card mb-3" data-item-no="${item.orderItemNo}">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-2">
-                                        <img src="/api/product/image/${item.proNo}" 
-                                             class="img-fluid rounded" 
-                                             alt="${item.productName}"
-                                             style="max-height: 80px; object-fit: cover;">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>${item.productName}</h6>
-                                        <p class="text-muted mb-0">購買數量：${item.orderAmount}</p>
-                                    </div>
-                                    <div class="col-md-4 text-end">
-                                        ${existingComment ? 
-                                            this.renderExistingComment(existingComment) : 
-                                            this.renderCommentButton(item.orderItemNo)
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+				const comments = await OrderApiClient.getMemberCommentsByOrder(this.currentOrderNo);
+				       const commentsHtml = this.orderItems.map(item => {
+				           const existingComment = comments.find(c => c.orderItemNo === item.orderItemNo);
+				           return `
+				               <div class="card mb-3" data-item-no="${item.orderItemNo}">
+				                   <div class="card-body">
+				                       <div class="row align-items-center">
+				                           <div class="col-md-8">
+				                               <h6 class="mb-2">${item.productName}</h6>
+				                               <p class="text-muted mb-0">購買數量：${item.orderAmount}</p>
+				                           </div>
+				                           <div class="col-md-4">
+				                               ${existingComment ? 
+				                                   this.renderExistingCommentDisplay(existingComment) : 
+				                                   this.renderCommentButton(item.orderItemNo)
+				                               }
+				                           </div>
+				                       </div>
+				                   </div>
+				               </div>
+				           `;
+				       }).join('');
 
-                document.getElementById('comments-container').innerHTML = commentsHtml;
-
-            } catch (error) {
-                console.error('載入評價區域失敗:', error);
-                document.getElementById('comments-container').innerHTML = `
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        載入評價資訊失敗，請稍後再試。
-                    </div>
+				       document.getElementById('comments-container').innerHTML = commentsHtml;
+				   } catch (error) {
+				       console.error('載入評價區域失敗:', error);
+				       document.getElementById('comments-container').innerHTML = `
+				           <div class="alert alert-warning">
+				               <i class="bi bi-exclamation-triangle me-2"></i>
+				               載入評價資訊失敗，請稍後再試。
+				           </div>
                 `;
             }
         },
+		
+		
+		
+		// *** 專門顯示已有評價的方法（包含星星和評價內容） *** //
+		renderExistingCommentDisplay(comment) {
+		    const stars = OrderApiClient.getStarDisplay(comment.proStar);
+		    const commentDate = comment.commentDate ? OrderApiClient.formatDate(comment.commentDate) : '';
+		    
+		    return `
+		        <div class="text-end">
+		            <div class="mb-2">
+		                <div class="d-flex justify-content-end align-items-center mb-1">
+		                    <span class="me-2">${stars}</span>
+		                    <small class="text-muted">${comment.proStar}/5</small>
+		                </div>
+		                ${commentDate ? `<small class="text-muted d-block">評價時間：${commentDate}</small>` : ''}
+		            </div>
+		            
+		            ${comment.productComment ? `
+		                <div class="alert alert-light p-2 mb-2 text-start">
+		                    <small class="text-dark">"${comment.productComment}"</small>
+		                </div>
+		            ` : ''}
+		            
+		            <button class="btn btn-outline-secondary btn-sm comment-btn" 
+		                    data-item-no="${comment.orderItemNo}">
+		                <i class="bi bi-pencil me-1"></i>修改評價
+		            </button>
+		        </div>
+		    `;
+		},
+		
+		
+		
+		
 
         /**
          * 處理動態點擊事件

@@ -26,7 +26,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     
     // 根據會員編號查詢（通過訂單)
     @Query(value = "SELECT oi.* FROM order_item oi " +
-            "JOIN orders o ON oi.order_no = o.order_no " +
+            "JOIN `order` o ON oi.order_no = o.order_no " +
             "WHERE o.mem_no = :memNo " +
             "ORDER BY o.order_date DESC", 
             nativeQuery = true)
@@ -34,7 +34,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     
     // 根據會員編號查詢（分頁）
     @Query(value = "SELECT oi.* FROM order_item oi " +
-            "JOIN orders o ON oi.order_no = o.order_no " +
+            "JOIN `order` o ON oi.order_no = o.order_no " +
             "WHERE o.mem_no = :memNo " +
             "ORDER BY o.order_date DESC", 
     nativeQuery = true)
@@ -45,7 +45,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     
     // 查詢特定會員的特定訂單明細
     @Query(value = "SELECT oi.* FROM order_item oi " +
-            "JOIN orders o ON oi.order_no = o.order_no " +
+            "JOIN `order` o ON oi.order_no = o.order_no " +
             "WHERE oi.order_item_no = :orderItemNo " +
             "AND o.mem_no = :memNo", 
     nativeQuery = true)
@@ -105,7 +105,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     
     // *** 查詢會員的評價記錄 *** //
     @Query(value = "SELECT oi.* FROM order_item oi " +
-                   "JOIN orders o ON oi.order_no = o.order_no " +
+                   "JOIN `order` o ON oi.order_no = o.order_no " +
                    "WHERE o.mem_no = :memNo " +
                    "AND (oi.product_comment IS NOT NULL OR oi.pro_star IS NOT NULL) " +
                    "ORDER BY oi.product_comment_crdate DESC", 
@@ -114,7 +114,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     
     // *** 查詢會員可以評價的訂單明細（已完成且未評價）*** //
     @Query(value = "SELECT oi.* FROM order_item oi " +
-                   "JOIN orders o ON oi.order_no = o.order_no " +
+                   "JOIN `order` o ON oi.order_no = o.order_no " +
                    "WHERE o.mem_no = :memNo " +
                    "AND o.order_status = '2' " +
                    "AND oi.product_comment IS NULL " +
@@ -162,7 +162,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     
     // *** 統計會員的評價總數 *** //
     @Query(value = "SELECT COUNT(*) FROM order_item oi " +
-                   "JOIN orders o ON oi.order_no = o.order_no " +
+                   "JOIN `order` o ON oi.order_no = o.order_no " +
                    "WHERE o.mem_no = :memNo " +
                    "AND (oi.product_comment IS NOT NULL OR oi.pro_star IS NOT NULL)", 
            nativeQuery = true)
@@ -244,7 +244,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     
     // *** 查詢訂單明細並載入所有關聯資料 *** //
     @Query(value = "SELECT oi.*, o.*, p.* FROM order_item oi " +
-                   "LEFT JOIN orders o ON oi.order_no = o.order_no " +
+                   "LEFT JOIN `order` o ON oi.order_no = o.order_no " +
                    "LEFT JOIN product p ON oi.pro_no = p.id " +
                    "WHERE oi.order_item_no = :orderItemNo", 
            nativeQuery = true)
@@ -252,7 +252,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     
     // *** 查詢會員的訂單明細並載入關聯資料 *** //
     @Query(value = "SELECT oi.*, o.*, p.* FROM order_item oi " +
-                   "LEFT JOIN orders o ON oi.order_no = o.order_no " +
+                   "LEFT JOIN `order` o ON oi.order_no = o.order_no " +
                    "LEFT JOIN product p ON oi.pro_no = p.id " +
                    "WHERE o.mem_no = :memNo " +
                    "ORDER BY o.order_date DESC", 
@@ -261,7 +261,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     
     // *** 查詢產品評價並載入會員資訊 *** //
     @Query(value = "SELECT oi.*, o.*, p.* FROM order_item oi " +
-                   "LEFT JOIN orders o ON oi.order_no = o.order_no " +
+                   "LEFT JOIN `order` o ON oi.order_no = o.order_no " +
                    "LEFT JOIN product p ON oi.pro_no = p.id " +
                    "WHERE oi.pro_no = :proNo " +
                    "AND (oi.product_comment IS NOT NULL OR oi.pro_star IS NOT NULL) " +
