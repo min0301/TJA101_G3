@@ -134,8 +134,8 @@
             const hide = document.getElementById("hideOption").value === "true";
 
             try {
-                const resp = await fetch(`/api/admin/NewsComReport/${id}`, {
-                    method:'PUT',
+                const resp = await fetch(`/api/admin/update/newscommentreport`, {
+                    method:'PATCH',
                     headers:{
                         'Content-Type':'application/json',
                         'Authorization':'Bearer ' + jwtToken
@@ -147,8 +147,8 @@
                     })
                 });
                 if (!resp.ok) throw new Error(`(${resp.status}) 處理失敗`);
-                msgArea.innerHTML = `<div class="success">✅ 已成功處理，3 秒後返回列表頁...</div>`;
-                setTimeout(() => loadExternalPage('allNewsReport.html'), 3000);
+                msgArea.innerHTML = `<div class="success">✅ 已成功處理， 2秒後返回列表頁...</div>`;
+                setTimeout(() => loadExternalPage('../newssys/report/allNewsReport.html'), 2000);
             } catch (err) {
                 msgArea.innerHTML = `<div class="error">❌ ${err.message}</div>`;
             }
@@ -169,24 +169,5 @@
         }
     })();   // IIFE end
 </script>
-
-<!-- ====== 共用的載頁函式，與列表頁同檔即可 ====== -->
-<!--<script>-->
-<!--    function loadExternalPage(path){-->
-<!--        fetch(path, { headers:{'Authorization':'Bearer '+ (localStorage.getItem('jwt')||'')} })-->
-<!--            .then(r => r.ok ? r.text() : Promise.reject(new Error(`(${r.status}) 無法載入畫面`)))-->
-<!--            .then(html => {-->
-<!--                const container = document.getElementById('content-area') || document.body;-->
-<!--                container.innerHTML = html;-->
-<!--                container.querySelectorAll("script").forEach(oldS => {-->
-<!--                    const s = document.createElement("script");-->
-<!--                    if (oldS.src) s.src = oldS.src; else s.textContent = oldS.textContent;-->
-<!--                    oldS.replaceWith(s);-->
-<!--                });-->
-<!--            })-->
-<!--            .catch(err => alert(err.message));-->
-<!--    }-->
-<!--</script>-->
-
 </body>
 </html>

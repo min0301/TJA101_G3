@@ -11,7 +11,7 @@
 
     <link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
     <link rel="stylesheet" href="/assets/vendors/bootstrap/bootstrap.min.css">
-<!--    <link rel="stylesheet" href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">-->
+    <!--    <link rel="stylesheet" href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">-->
 
     <style>
 
@@ -572,8 +572,8 @@
     // 格式：'主選單Key-子選單Key': '對應的 HTML 檔案路徑'
     // =================================================================================
     const pageMappings = {
-    	'store-management':'../shopsys/product/listAllProduct.html',
-    	'store-malltag':'../shopsys/malltag/listAllMallTag.html',
+        'store-management': '../shopsys/product/listAllProduct.html',
+        'store-malltag': '../shopsys/malltag/listAllMallTag.html',
         'store-orders': '../shopsys/order/allOrder.html',
         'forum-forums': '../forumsys/forum/allForum.html',
         'forum-add': '../forumsys/forum/addForum.html',
@@ -583,8 +583,8 @@
         'forum-edit-category': '../forumsys/category/editCategory.html',
         'forum-comments': '../forumsys/message/allMessages.html',
         'forum-reports': '../forumsys/messagereport/allReports.html',
-		'member-query':'../memsys/ListAllMem.html',
-        'news-management':'../newssys/news/listAllNews.html',
+        'member-query': '../memsys/ListAllMem.html',
+        'news-management': '../newssys/news/listAllNews.html',
         'news-categories': '../newssys/category/allNewsCategory.html',
         'news-add-category': '../newssys/category/addNewsCategory.html',
         'news-edit-category': '../newssys/category/editNewsCategory.html',
@@ -631,6 +631,44 @@
         } else if (pageKey === 'store' && subKey === 'dashboard') {
             // 對於原本內建的儀表板，保留原邏輯
             contentArea.innerHTML = getShopDashboardHTML();
+
+        } else if (pageKey === 'news' && subKey === 'dashboard') {
+            contentArea.innerHTML = getNewsDashboardHTML();
+
+            // 🔽 加入這段：渲染儀表板數據
+            setTimeout(async () => {
+                const token = localStorage.getItem('jwt');
+                const headers = {Authorization: 'Bearer ' + token};
+
+                const newsCountEl = document.getElementById('newsCount');
+                const commentCountEl = document.getElementById('commentCount');
+                const pendingReportEl = document.getElementById('pendingReportCount');
+
+                try {
+                    // ① 新聞總數
+                    const res1 = await fetch('/api/News/admin/newscount', {headers});
+                    if (!res1.ok) throw new Error(`(${res1.status}) 新聞載入失敗`);
+                    const newsCount = await res1.text(); // 回傳是字串數字
+                    if (newsCountEl) newsCountEl.innerText = newsCount;
+
+                    // ② 評論總數
+                    const res2 = await fetch('/api/admin/NewsComment/count', {headers});
+                    if (!res2.ok) throw new Error(`(${res2.status}) 評論載入失敗`);
+                    const commentCount = await res2.text();
+                    if (commentCountEl) commentCountEl.innerText = commentCount;
+
+                    // ③ 檢舉總數（只取未處理的）
+                    const res3 = await fetch('/api/admin/NewsComReport?status=0', {headers});
+                    if (!res3.ok) throw new Error(`(${res3.status}) 檢舉載入失敗`);
+                    const reportData = await res3.json();
+                    if (pendingReportEl) pendingReportEl.innerText = reportData.content.length;
+                } catch (err) {
+                    console.error('儀表板數據載入失敗:', err);
+                    if (newsCountEl) newsCountEl.innerText = '錯誤';
+                    if (commentCountEl) commentCountEl.innerText = '錯誤';
+                    if (pendingReportEl) pendingReportEl.innerText = '錯誤';
+                }
+            }, 0);
         } else {
             // 其他所有未設定的頁面，顯示佔位內容
             contentArea.innerHTML = getPlaceholderHTML(pageKey, subKey);
@@ -714,7 +752,8 @@
                 </div>
                 <div class="stats-grid">
                     <div class="stat-card"><i class="bi bi-people-fill stat-icon"></i><div class="stat-number">1,204</div><div class="stat-label">總會員數</div></div>
-                    <div class="stat-card"><i class="bi bi-newspaper stat-icon"></i><div class="stat-number">38</div><div class="stat-label">新聞總數</div></div>
+                    <div class="stat-card"><i class="bi bi-newspaper stat-icon"></i><div class="stat-number" id="newsCount">載入中</div><div class="stat-label">新聞總數</div>
+        </div>
                     <div class="stat-card"><i class="bi bi-chat-square-dots-fill stat-icon"></i><div class="stat-number">512</div><div class="stat-label">論壇文章數</div></div>
                     <div class="stat-card"><i class="bi bi-shop-window stat-icon"></i><div class="stat-number">156</div><div class="stat-label">上架商品數</div></div>
                 </div>
@@ -754,6 +793,43 @@
         `;
     }
 
+    // 新聞儀表板的 HTML
+    function getNewsDashboardHTML() {
+        return `
+            <div class="dashboard-content">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">新聞管理後台</h1>
+                    <p class="welcome-subtitle">這裡是新聞系統的數據總覽儀表板。</p>
+                </div>
+                <div class="stats-grid">
+        <div class="stat-card">
+            <i class="bi bi-newspaper stat-icon"></i>
+            <div class="stat-number" id="newsCount">載入中</div>
+            <div class="stat-label">新聞總數</div>
+        </div>
+        <div class="stat-card">
+            <i class="bi bi-chat-square-dots-fill stat-icon"></i>
+            <div class="stat-number" id="commentCount">載入中</div>
+            <div class="stat-label">評論總數</div>
+        </div>
+        <div class="stat-card">
+            <i class="bi bi-shield stat-icon"></i>
+            <div class="stat-number" id="pendingReportCount">載入中</div>
+            <div class="stat-label">待處理檢舉總數</div>
+        </div>
+    </div>
+                <div class="guide-text">
+                    <h3>📋 使用說明</h3>
+                    <p>請使用左側選單進行各項管理操作。<br>
+                    • <strong>新聞類別管理</strong>：管理新聞類別修改、新增。<br>
+                    • <strong>新聞管理</strong>：管理新聞修改、新增、隱藏。<br>
+                    • <strong>新聞評論管理</strong>：管理新聞評論修改、隱藏。<br>
+                    • <strong>新聞評論檢舉審核</strong>：新聞評論檢舉處理。</p>
+                </div>
+            </div>
+        `;
+    }
+
     // 佔位頁面的 HTML，用於顯示開發中的頁面
     function getPlaceholderHTML(pageKey, subKey) {
         // ... 此函式內容不變 ...
@@ -768,7 +844,7 @@
             'shipping': '產品發貨管理',
             'reviews': '訂單評論管理',
             'coupons': '優惠券管理',
-            'dashboard': '儀表板', 
+            'dashboard': '儀表板',
             'news-edit': '新聞編輯',
             'comments': '新聞評論管理',
             'reports': '審核檢舉',
@@ -808,6 +884,27 @@
         document.querySelectorAll('.menu-item.active').forEach(item => item.classList.remove('active'));
         document.querySelectorAll('.submenu-item.active').forEach(item => item.classList.remove('active'));
         contentArea.innerHTML = getMainDashboardHTML();
+
+
+        setTimeout(async () => {
+            const token = localStorage.getItem('jwt');
+            const headers = {Authorization: 'Bearer ' + token};
+
+            const newsCountEl = document.getElementById('newsCount');
+
+            try {
+                // ① 新聞總數
+                const res1 = await fetch('/api/News/admin/newscount', {headers});
+                if (!res1.ok) throw new Error(`(${res1.status}) 新聞載入失敗`);
+                const newsCount = await res1.text(); // 回傳是字串數字
+                if (newsCountEl) newsCountEl.innerText = newsCount;
+            } catch (err) {
+                console.error('儀表板數據載入失敗:', err);
+                if (newsCountEl) newsCountEl.innerText = '錯誤';
+                if (commentCountEl) commentCountEl.innerText = '錯誤';
+                if (pendingReportEl) pendingReportEl.innerText = '錯誤';
+            }
+        }, 0);
     }
 
     window.onload = function () {

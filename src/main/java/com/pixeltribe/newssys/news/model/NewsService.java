@@ -202,4 +202,8 @@ public class NewsService {
                         news.getAdminNo().getAdmName()))
                 .orElseThrow(() -> new EntityNotFoundException("not found news"));
     }
+
+    public Long getNewsCount() {
+        return newsRepository.count();
+    }
 }

@@ -38,6 +38,12 @@ public class NewsController {
         return newsSrv.getOneNews(newsId);
     }
 
+    @GetMapping("admin/newscount")
+    @Operation(summary = "取得新聞數量")
+    public Long getNewsCount() {
+        return newsSrv.getNewsCount();
+    }
+
     @GetMapping("admin/{newsId}")
     @Operation(summary = "後台查詢某一則新聞")
     public NewsAdminDTO findOneAdmin(@PathVariable Integer newsId) {
