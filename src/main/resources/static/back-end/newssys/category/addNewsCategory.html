@@ -171,7 +171,7 @@
                 });
                 if (!res.ok) throw new Error(await res.text() || '新增失敗');
                 show('新增成功！2 秒後返回', 'success');
-                setTimeout(() => loadExternalPage('../newssys/newsCategory/allNewsCategory.html'), 2000);
+                setTimeout(() => loadExternalPage('../newssys/category/allNewsCategory.html'), 2000);
             } catch (err) {
                 show('失敗: ' + err.message, 'error');
                 btn.disabled = false;

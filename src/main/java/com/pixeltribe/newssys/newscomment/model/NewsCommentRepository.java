@@ -85,4 +85,29 @@ public interface NewsCommentRepository extends JpaRepository<NewsComment, Intege
     @Modifying
     @Query("UPDATE NewsComment c SET c.ncomStatus = :status WHERE c.id = :id")
     int updateHideStatus(@Param("id") Integer id, @Param("status") Character status);
+
+    @Query("""
+            SELECT new com.pixeltribe.newssys.newscomment.model.AdminNewsCommentDetailDTO(
+                       c.id,
+                       c.ncomCon,
+                       c.ncomCre,
+                       c.ncomStatus,
+                          n.id,
+                          n.newsTit,
+                       m.id,
+                       m.memNickName,
+                       c.ncomLikeLc,
+                       c.ncomLikeDlc
+            )
+            FROM NewsComment c
+                JOIN c.newsNo n
+            JOIN c.memNo m
+            WHERE c.id = :id
+            """)
+    Optional<AdminNewsCommentDetailDTO> getNewsCommentById(@Param("id") Integer id);
+
+    long countByNcomStatus(char c);
+
+
+//    Integer countAllNewsComment();
 }

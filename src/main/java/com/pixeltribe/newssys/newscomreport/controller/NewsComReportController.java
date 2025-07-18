@@ -7,6 +7,7 @@ import com.pixeltribe.newssys.newscomreport.model.NewsComReportService;
 import com.pixeltribe.newssys.newscomreport.model.NewsComReportUpdateDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,8 +22,12 @@ class NewsComReportController {
 
     @GetMapping("/admin/NewsComReport")
     @Operation(summary = "取得所有新聞評論檢舉")
-    public PageResponse<NewsComReportDTO> findAllReport(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
-        return newsComReportService.findAllReport(page, size);
+    public PageResponse<NewsComReportDTO> findAllReport(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(required = false) Character status // 0:未處理 1:已處理
+    ) {
+        return newsComReportService.findAllReport(page, size,status);
     }
 
     @PostMapping("create/newscommentreport")
@@ -38,7 +43,7 @@ class NewsComReportController {
 
     @PatchMapping("/admin/update/newscommentreport")
     @Operation(summary = "更新新聞評論檢舉")
-    public NewsComReportUpdateDTO updateReport(@RequestBody @Valid NewsComReportUpdateDTO updateDTO) {
+    public NewsComReportUpdateDTO updateReport(@RequestBody @Validated NewsComReportUpdateDTO updateDTO) {
 //        TODO
 //        Integer reportId = updateDTO.getId();
 //        Integer reporterId = updateDTO.getReporterId();
@@ -53,6 +58,12 @@ class NewsComReportController {
 //        return newsComReportService.updateReport(reportId, reporterId, reporterName, reportTypeId, reportType, status, newsCommentId, newsComment, commentStatus);
 
     return newsComReportService.updateReport(updateDTO);
+    }
+
+    @GetMapping("/admin/NewsComReport/{id}")
+    @Operation(summary = "取得單一新聞評論檢舉")
+    public NewsComReportDTO findReportById(@PathVariable Integer id) {
+        return newsComReportService.findReportById(id);
     }
 
 

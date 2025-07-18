@@ -20,7 +20,7 @@ async function loadPage(id) {
     const box = $('#news-box');
     document.title = `${news.newsTit}`;
     box.innerHTML = `
-    <h1 class="news-title">${news.newsTit}</h1>
+    <h1 class="news-title text-break">${news.newsTit}</h1>
     <div class="news-meta">
       發佈：${new Date(news.newsCrdate).toLocaleString()}
       ${news.newsUpdate ? ` · 更新：${new Date(news.newsUpdate).toLocaleString()}` : ''}
@@ -71,8 +71,40 @@ async function loadPage(id) {
     /* 內文 */
     const art = document.createElement('div');
     art.className = 'news-content';
-    art.textContent = news.newsCon;
+    art.innerHTML = news.newsCon;  // ✅ 允許 HTML 渲染
     box.append(art);
+
+    // 處理內文中的圖片，轉為燈箱
+    const imgsInContent = art.querySelectorAll('img');
+    const modalContainer = document.getElementById('newsLightboxes') ||
+        document.body.appendChild(Object.assign(document.createElement('div'), { id: 'newsLightboxes' }));
+
+    imgsInContent.forEach((img, idx) => {
+        const modalId = `htmlImgModal-${idx}`;
+
+        // 建立 modal 元件
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.id = modalId;
+        modal.tabIndex = -1;
+        modal.setAttribute('aria-hidden', 'true');
+        modal.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-transparent border-0">
+          <img src="${img.src}" class="w-100 rounded-3" alt="news image">
+        </div>
+      </div>
+    `;
+        modalContainer.appendChild(modal);
+
+        // 包裹 img 用 a 標籤觸發 modal
+        const wrapper = document.createElement('a');
+        wrapper.href = 'javascript:void(0)';
+        wrapper.setAttribute('data-bs-toggle', 'modal');
+        wrapper.setAttribute('data-bs-target', `#${modalId}`);
+        img.parentNode?.insertBefore(wrapper, img);
+        wrapper.appendChild(img);
+    });
 
     /* 留言 ------------------------------------------------ */
     const comments = await fetch(`/api/NewsComment/${id}`).then(r => r.json());

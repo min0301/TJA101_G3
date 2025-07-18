@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,14 +24,14 @@ class NewsCommentController {
 
     @GetMapping("NewsComment/{id}")
     @Operation(summary = "取得某則新聞的評論")
-    public List<NewsCommentDTO> findAll(@PathVariable Integer id){
+    public List<NewsCommentDTO> findAll(@PathVariable Integer id) {
         return newsCommentService.findAll(id);
     }
 
     @PostMapping("NewsComment/add")
     @Operation(summary = "新增新聞評論")
     public NewsCommentCreationDTO addComment(
-            @Valid @RequestBody NewsCommentCreationDTO dto){
+            @Valid @RequestBody NewsCommentCreationDTO dto) {
 
         return newsCommentService.add(
                 dto.getNewsNoId(),
@@ -41,7 +42,7 @@ class NewsCommentController {
 
     @PatchMapping("admin/NewsComment/update")
     @Operation(summary = "修改後台評論")
-    public NewsCommentUpdateDTO updateComment(NewsCommentUpdateDTO dto){
+    public NewsCommentUpdateDTO updateComment(@RequestBody @Validated NewsCommentUpdateDTO dto) {
         return newsCommentService.save(dto);
     }
 
@@ -59,11 +60,22 @@ class NewsCommentController {
         return newsCommentService.findAdminPage(p, newsId, memberId, st, keyword);
     }
 
-    @PatchMapping("/admin/NewsComment/{id}/hide")
+    @PatchMapping("admin/NewsComment/{id}/hide")
     @Operation(summary = "後台切換評論隱藏狀態")
     public CommentHideDTO toggleHide(@PathVariable Integer id, @RequestBody CommentHideDTO req) {
 
         return newsCommentService.toggleHide(id, req.getNcomStatus());
     }
 
+    @GetMapping("admin/NewsComment/count")
+    @Operation(summary = "後台取得評論數量")
+    public Integer countAllNewsComment() {
+        return newsCommentService.countAllNewsComment();
+    }
+
+    @GetMapping("admin/NewsComment/{commentId}")
+    @Operation(summary = "後台取得單一評論")
+    public AdminNewsCommentDetailDTO getCommentById(@PathVariable Integer commentId) {
+        return newsCommentService.getCommentById(commentId);
+    }
 }

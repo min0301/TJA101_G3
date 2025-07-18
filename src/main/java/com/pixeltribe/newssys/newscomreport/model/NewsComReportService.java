@@ -34,9 +34,14 @@ public class NewsComReportService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<NewsComReportDTO> findAllReport(int page, int size) {
+    public PageResponse<NewsComReportDTO> findAllReport(int page, int size ,Character status) {
         Page<NewsComReportDTO> reportDTOPage = newsComReportRepository.findNewsComReport(PageRequest.of(page, size));
-        //0:未處理 1:已處理
+        if (status != null) {
+            reportDTOPage = newsComReportRepository.findByStatus(status, PageRequest.of(page, size));
+        } else {
+            reportDTOPage = newsComReportRepository.findNewsComReport(PageRequest.of(page, size));
+        }
+
         return PageResponseFactory.fromPage(reportDTOPage);
     }
 
@@ -76,6 +81,25 @@ public class NewsComReportService {
                 saved.getId(),
                 saved.getNewsComReportStatus(),
                 saved.getNcomNo().getNcomStatus()
+        );
+    }
+
+    public NewsComReportDTO findReportById(Integer id) {
+        NewsComReport report = newsComReportRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("report not found"));
+
+        return new NewsComReportDTO(
+                report.getId(),
+                report.getReporter().getId(),
+                report.getReporter().getMemNickName(),
+                report.getReportType().getId(),
+                report.getReportType().getRpiType(),
+                report.getNewsComReportStatus(),
+                report.getNcomNo().getId(),
+                report.getNcomNo().getNcomCon(),
+                report.getNcomNo().getNcomStatus(),
+                report.getCreateTime(),
+                report.getFinishTime()
         );
     }
 }
