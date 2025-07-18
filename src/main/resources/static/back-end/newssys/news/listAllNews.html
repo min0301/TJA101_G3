@@ -183,9 +183,9 @@
     </div>
     <div class="control-bar">
         <div>
-            <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/addNews.html')"
-               class="action-btn btn-add"><i class="bi bi-plus-lg"></i> 新增新聞</a>
-            <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/addNews2.html')"
+            <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/news/addNews.html')"
+               class="action-btn btn-add"><i class="bi bi-plus-lg"></i> 新增新聞(廢棄)</a>
+            <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/news/addNews2.html')"
                class="action-btn btn-add"><i class="bi bi-plus-lg"></i> 新增新聞2</a>
             <!--            <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/addNews2.html')"-->
             <!--               class="action-btn btn-add"><i class="bi bi-plus-lg"></i> 新增新聞2</a>-->
@@ -208,7 +208,7 @@
                     <option value="false">隱藏</option>
                 </select>
             </div>
-
+\
             <div>
                 <label for="searchInput">搜尋：</label>
                 <input id="searchInput" type="text" class="form-control-sm" placeholder="標題關鍵字">
@@ -254,6 +254,11 @@
         const searchInput = document.getElementById('searchInput');
         const errorAlert = document.getElementById('errorAlert');
 
+        if (!pageSizeSelect || !tableBody || !paginationContainer) {
+            console.error('必要的 DOM 元素未正確初始化。請檢查 HTML 結構。');
+            return;
+        }
+
         let allNewsData = [];
         let currentPage = 1;
         let itemsPerPage = parseInt(pageSizeSelect.value) || 5;
@@ -267,23 +272,30 @@
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                if (!response.ok) throw new Error(`HTTP 錯誤：${response.status}`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP 錯誤：${response.status} - ${errorText}`);
+                }
 
                 const res = await response.json();
+                if (!res.content || !Array.isArray(res.content)) {
+                    throw new Error('API 返回的數據格式不正確');
+                }
+
                 allNewsData = res.content;
                 updateDisplay();
             } catch (err) {
                 errorAlert.classList.remove('d-none');
+                errorAlert.textContent = `載入失敗：${err.message}`;
                 console.error('載入失敗', err);
             }
         }
 
         function updateDisplay() {
-            const selectedStatus = document.getElementById("statusFilter").value;
+            const selectedStatus = document.getElementById("statusFilter")?.value;
 
             let filtered = [...allNewsData];
 
-            // 若選了特定狀態才篩選
             if (selectedStatus === "true") {
                 filtered = filtered.filter(n => n.isShowed === true);
             } else if (selectedStatus === "false") {
@@ -296,6 +308,39 @@
             renderTable(pageData);
             renderPagination(filtered.length);
         }
+
+        async function switchStatus(btn) {
+            const id         = btn.dataset.id;
+            const current    = btn.dataset.showed === "true";
+            const newStatus  = !current;
+
+            try {
+                await fetch(`http://localhost:8080/api/News/admin/updateShowStatus/${id}`, {
+                    method : "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type" : "application/json"
+                    },
+                    body   : JSON.stringify({ isShowed: newStatus })
+                });
+                // 更新完成後重新載入資料
+                loadNews();
+            } catch (err) {
+                alert("切換狀態失敗！" + err);
+            }
+        }
+
+        /* ★ 用事件委派一次綁在 document 就好 */
+        document.addEventListener("click", e => {
+            const editBtn = e.target.closest(".edit-btn");
+            const toggle  = e.target.closest(".toggle-btn");
+            if (editBtn) {
+                const id = editBtn.dataset.id;
+                loadExternalPage(`../newssys/news/updateNews.html?newsId=${id}`);
+            } else if (toggle) {
+                switchStatus(toggle);      // 原本的切換顯示 / 隱藏函式
+            }
+        });
 
         function renderTable(newsList) {
             tableBody.innerHTML = '';
@@ -352,16 +397,6 @@
                 });
             });
         }
-
-        // 放在 renderTable() 外面，全域只設一次
-        document.addEventListener('click', function (e) {
-            if (e.target.classList.contains('edit-btn')) {
-                const newsId = e.target.dataset.id;
-                if (newsId) {
-                    loadExternalPage(`../newssys/updateNews.html?newsId=${newsId}`);
-                }
-            }
-        });
 
         function renderPagination(totalItems) {
             const totalPages = Math.ceil(totalItems / itemsPerPage);

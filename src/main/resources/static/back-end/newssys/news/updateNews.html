@@ -162,7 +162,7 @@
             </div>
 
             <div class="form-actions">
-                <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/listAllNews.html')"
+                <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/news/listAllNews.html')"
                    class="action-btn btn-cancel">返回列表</a>
                 <button type="submit" class="action-btn btn-submit">儲存修改</button>
             </div>
@@ -170,151 +170,6 @@
         <div id="message-area"></div>
     </div>
 </div>
-
-<!--<script>-->
-<!--    async function loadCss(url) {-->
-<!--        return new Promise((resolve, reject) => {-->
-<!--            const link = document.createElement('link');-->
-<!--            link.rel = 'stylesheet';-->
-<!--            link.href = url;-->
-<!--            link.onload = () => resolve();-->
-<!--            link.onerror = () => reject(new Error('CSS 載入失敗：' + url));-->
-<!--            document.head.appendChild(link);-->
-<!--        });-->
-<!--    }-->
-
-<!--    async function loadJs(url) {-->
-<!--        return new Promise((resolve, reject) => {-->
-<!--            const script = document.createElement('script');-->
-<!--            script.src = url;-->
-<!--            script.onload = resolve;-->
-<!--            script.onerror = () => reject(new Error('JS 載入失敗：' + url));-->
-<!--            document.body.appendChild(script);-->
-<!--        });-->
-<!--    }-->
-
-<!--    (async function () {-->
-<!--        const contentArea = parent.document.getElementById('content-area');-->
-<!--        const search = contentArea?.dataset?.pageParams;-->
-<!--        const queryParams = new URLSearchParams(search);-->
-<!--        const newsId = queryParams.get('newsId');-->
-
-<!--        if (!newsId) {-->
-<!--            alert("缺少新聞 ID！");-->
-<!--            return;-->
-<!--        }-->
-
-<!--        const token = localStorage.getItem('jwt');-->
-<!--        const authHeader = token ? { Authorization: 'Bearer ' + token } : {};-->
-
-<!--        try {-->
-<!--            // 載入資源-->
-<!--            await loadCss('/assets/vendors/summernote/summernote-lite.min.css');-->
-<!--            await loadJs('/assets/vendors/jquery/jquery.min.js');-->
-<!--            await loadJs('/assets/vendors/summernote/summernote-lite.min.js');-->
-
-<!--            $('#newsCon').summernote({-->
-<!--                height: 300,-->
-<!--                lang: 'zh-TW',-->
-<!--                toolbar: [-->
-<!--                    ['style', ['bold', 'italic', 'underline', 'clear']],-->
-<!--                    ['para', ['ul', 'ol', 'paragraph']],-->
-<!--                    ['insert', ['link', 'picture']],-->
-<!--                    ['view', ['codeview']]-->
-<!--                ],-->
-<!--                callbacks: {-->
-<!--                    onImageUpload: function (files) {-->
-<!--                        for (const file of files) {-->
-<!--                            const formData = new FormData();-->
-<!--                            formData.append('file', file);-->
-<!--                            fetch('/api/news/image/temp-image', {-->
-<!--                                method: 'POST',-->
-<!--                                body: formData,-->
-<!--                                headers: authHeader-->
-<!--                            })-->
-<!--                                .then(r => r.json())-->
-<!--                                .then(d => $('#newsCon').summernote('insertImage', d.url))-->
-<!--                                .catch(err => alert('圖片上傳失敗：' + err.message));-->
-<!--                        }-->
-<!--                    }-->
-<!--                }-->
-<!--            });-->
-
-<!--            // 載入分類-->
-<!--            const tagRes = await fetch('/api/admin/allNewsCategories');-->
-<!--            const tagData = await tagRes.json();-->
-<!--            const tagSel = document.getElementById('newsTags');-->
-<!--            tagSel.innerHTML = '';-->
-<!--            tagData.forEach(tag => {-->
-<!--                const opt = document.createElement('option');-->
-<!--                opt.value = tag.id;-->
-<!--                opt.textContent = tag.ncatName;-->
-<!--                tagSel.appendChild(opt);-->
-<!--            });-->
-
-<!--            // 載入新聞資料-->
-<!--            const token = localStorage.getItem('jwt');-->
-<!--            const authHeader = token ? { Authorization: 'Bearer ' + token } : {};-->
-<!--            const newsRes = await fetch(`/api/news/${newsId}`, {-->
-<!--                headers: authHeader-->
-<!--            });-->
-
-<!--            const news = await newsRes.json();-->
-<!--            document.getElementById('newsId').value = news.newsId;-->
-<!--            document.getElementById('newsTit').value = news.title;-->
-<!--            $('#newsCon').summernote('code', news.content);-->
-<!--            document.getElementById('isShowed').checked = !!news.isShowed;-->
-
-<!--            const selectedTagIds = news.categories?.map(c => String(c.id)) || [];-->
-<!--            [...tagSel.options].forEach(opt => {-->
-<!--                if (selectedTagIds.includes(opt.value)) {-->
-<!--                    opt.selected = true;-->
-<!--                }-->
-<!--            });-->
-
-<!--        } catch (e) {-->
-<!--            showMessage("初始化失敗：" + e.message, 'error');-->
-<!--        }-->
-
-<!--        document.getElementById('edit-news-form').addEventListener('submit', async e => {-->
-<!--            e.preventDefault();-->
-<!--            const title = document.getElementById('newsTit').value.trim();-->
-<!--            const content = $('#newsCon').summernote('code');-->
-<!--            const tags = Array.from(document.getElementById('newsTags').selectedOptions).map(o => +o.value);-->
-<!--            const isShowed = document.getElementById('isShowed').checked ? 1 : 0;-->
-
-<!--            const payload = { newsTit: title, newsCon: content, tags, isShowed };-->
-
-<!--            try {-->
-
-<!--                const res = await fetch(`/api/News/admin/${newsId}`, {-->
-<!--                    method: 'PUT',-->
-<!--                    headers: { 'Content-Type': 'application/json', ...authHeader },-->
-<!--                    body: JSON.stringify(payload)-->
-<!--                });-->
-<!--                if (!res.ok) throw new Error((await res.json()).errorMessage || '更新失敗');-->
-
-<!--                showMessage('更新成功！2 秒後返回列表', 'success');-->
-<!--                setTimeout(() => {-->
-<!--                    if (parent.loadExternalPage) {-->
-<!--                        parent.loadExternalPage('../newssys/listAllNews.html');-->
-<!--                    }-->
-<!--                }, 2000);-->
-
-<!--            } catch (err) {-->
-<!--                showMessage(err.message, 'error');-->
-<!--            }-->
-<!--        });-->
-
-<!--        function showMessage(msg, type) {-->
-<!--            const area = document.getElementById('message-area');-->
-<!--            area.textContent = msg;-->
-<!--            area.className = type;-->
-<!--            area.style.display = 'block';-->
-<!--        }-->
-<!--    })();-->
-<!--</script>-->
-
 
 <script>
     async function loadCss(url) {
@@ -339,16 +194,23 @@
     }
 
     (async function () {
-        const contentArea = parent.document.getElementById('content-area') || parent.document.getElementById('contentArea');
-        const search = contentArea?.dataset?.pageParams;
-        const queryParams = new URLSearchParams(search);
-        const newsId = queryParams.get('newsId');
+        /* ---------- 可靠取得 newsId ---------- */
+        let search = "";
+        // (1) 後台載入器存的
+        if (parent && parent.document) {
+            const area = parent.document.getElementById("content-area");
+            search = area?.dataset?.pageParams || "";
+        }
+        // (2) F5 直接重整
+        if (!search) search = window.location.search;
 
+        const params = new URLSearchParams(search);
+        const newsId = params.get("newsId");
         if (!newsId) {
-            alert("❗ 缺少新聞 ID！");
+            alert("❗ 缺少 newsId，請回列表頁重試");
             return;
         }
-
+        /* ------------------------------------ */
         const token = localStorage.getItem('jwt');
         const authHeader = token ? {Authorization: 'Bearer ' + token} : {};
 
@@ -366,7 +228,7 @@
             });
 
             // 取得新聞資料
-            const newsRes = await fetch(`/api/News/${newsId}`, {headers: authHeader});
+            const newsRes = await fetch(`/api/News/admin/${newsId}`, {headers: authHeader});
             if (!newsRes.ok) throw new Error(`新聞讀取失敗 (${newsRes.status})`);
 
             const news = await newsRes.json();
@@ -392,8 +254,7 @@
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline', 'clear']],
                     ['para', ['ul', 'ol', 'paragraph']],
-                    ['insert', ['link', 'picture']],
-                    ['view', ['codeview']]
+                    ['insert', ['picture']]
                 ],
                 callbacks: {
                     onImageUpload: function (files) {
@@ -436,13 +297,13 @@
             const title = document.getElementById('newsTit').value.trim();
             const content = $('#newsCon').summernote('code');
             const tags = Array.from(document.getElementById('newsTags').selectedOptions).map(o => +o.value);
-            const isShowed = document.getElementById('isShowed').checked ? 1 : 0;
+            const isShowed = document.getElementById('isShowed').checked;
 
             const payload = {
                 id: Number(newsId),
                 newsTit: title,
                 newsCon: content,
-                tags,
+                categoryIds: tags, // 確保字段名稱與後端一致
                 isShowed
             };
 
@@ -453,12 +314,15 @@
                     body: JSON.stringify(payload)
                 });
 
-                if (!res.ok) throw new Error((await res.text()) || '更新失敗');
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(errorText || '更新失敗');
+                }
 
                 showMessage('✅ 更新成功！2 秒後返回列表', 'success');
                 setTimeout(() => {
                     if (parent.loadExternalPage) {
-                        parent.loadExternalPage('../newssys/listAllNews.html');
+                        parent.loadExternalPage('../newssys/news/listAllNews.html');
                     }
                 }, 2000);
             } catch (err) {

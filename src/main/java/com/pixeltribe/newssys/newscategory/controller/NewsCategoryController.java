@@ -4,7 +4,6 @@ import com.pixeltribe.newssys.newscategory.model.NewsCategory;
 import com.pixeltribe.newssys.newscategory.model.NewsCategoryDTO;
 import com.pixeltribe.newssys.newscategory.model.NewsCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +22,12 @@ public class NewsCategoryController {
     @Operation(summary = "獲得所有新聞分類")
     public List<NewsCategory> getAllNewsCategories() {
         return newsCategoryService.getAllNewsCategories();
+    }
+
+    @GetMapping("NewsCategory/{id}")
+    @Operation(summary = "獲得單一新聞分類")
+    public NewsCategoryDTO getNewsCategoryById(@PathVariable int id) {
+        return newsCategoryService.getNewsCategoryById(id);
     }
 
     @PostMapping("NewsCategories/add")

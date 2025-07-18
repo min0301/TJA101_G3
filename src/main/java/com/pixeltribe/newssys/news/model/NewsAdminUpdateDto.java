@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * DTO for {@link News}
@@ -21,5 +22,8 @@ public class NewsAdminUpdateDto implements Serializable {
     @Size(max = 9000)
     String newsCon;
     Boolean isShowed;
+
+    @NotNull(message = "至少選一個分類")
+    List<Long> categoryIds;
 
 }

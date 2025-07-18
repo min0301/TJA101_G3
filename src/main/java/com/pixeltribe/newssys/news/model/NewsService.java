@@ -17,11 +17,9 @@ import com.pixeltribe.util.JwtUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -108,11 +106,24 @@ public class NewsService {
 
     @Transactional
     public NewsAdminUpdateDto updateNews(@Valid NewsAdminUpdateDto nauDTO) {
-        News news = newsRepository.findById(nauDTO.getId()).orElseThrow(() -> new EntityNotFoundException("not found news"));
+        News news = newsRepository.findById(nauDTO.getId())
+                .orElseThrow(() -> new EntityNotFoundException("not found news"));
 
+        // 更新主要欄位
         news.setNewsTit(nauDTO.getNewsTit());
         news.setNewsCon(nauDTO.getNewsCon());
         news.setIsShowed(nauDTO.getIsShowed());
+
+        // 更新分類：先刪除舊有分類，再加入新的分類
+        newsContentClassificationRepository.deleteByNewsNoId(news.getId());
+        for (Long catId : nauDTO.getCategoryIds()) {
+            NewsCategory category = newsCategoryRepository.findById(catId.intValue())
+                    .orElseThrow(() -> new EntityNotFoundException("分類編號不存在: " + catId));
+            NewsContentClassification ncc = new NewsContentClassification();
+            ncc.setNewsNo(news);
+            ncc.setNcatNo(category);
+            newsContentClassificationRepository.save(ncc);
+        }
 
         return nauDTO;
     }
@@ -155,5 +166,40 @@ public class NewsService {
         redisTemplate.delete(redisKey);
 
         return ResponseEntity.ok(Map.of("newsId", news.getId()));
+    }
+
+    public NewsAdminUpdateDto updateShowStatus(Integer id, Boolean isShowed) {
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("not found news"));
+
+        news.setIsShowed(isShowed);
+        newsRepository.save(news);
+
+        NewsAdminUpdateDto nauDTO = new NewsAdminUpdateDto();
+        nauDTO.setId(news.getId());
+        nauDTO.setNewsTit(news.getNewsTit());
+        nauDTO.setNewsCon(news.getNewsCon());
+        nauDTO.setIsShowed(news.getIsShowed());
+
+        return nauDTO;
+    }
+
+    @Transactional(readOnly = true)
+    public NewsAdminDTO findOneAdmin(Integer newsId) {
+        return newsRepository.findById(newsId)
+                .map(news -> new NewsAdminDTO(
+                        news.getId(),
+                        news.getNewsTit(),
+                        news.getNewsCon(),
+                        news.getNewsUpdate(),
+                        news.getNewsCrdate(),
+                        news.getIsShowed(),
+                        (long) news.getNewsImages().size(),
+                        news.getNewContentClassifications().stream()
+                                .map(ncc -> ncc.getNcatNo().getNcatName())
+                                .collect(Collectors.joining(",")),
+                        news.getAdminNo().getId(),
+                        news.getAdminNo().getAdmName()))
+                .orElseThrow(() -> new EntityNotFoundException("not found news"));
     }
 }

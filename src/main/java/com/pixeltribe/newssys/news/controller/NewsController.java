@@ -3,25 +3,23 @@ package com.pixeltribe.newssys.news.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pixeltribe.common.PageResponse;
-import com.pixeltribe.membersys.administrator.model.AdmRepository;
-import com.pixeltribe.membersys.administrator.model.Administrator;
 import com.pixeltribe.newssys.news.model.*;
-import com.pixeltribe.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/News")
 public class NewsController {
 
-
     private final NewsService newsSrv;
 
 
-    public NewsController(NewsService newsSrv, JwtUtil jwtUtil, AdmRepository admRepository) {
+    public NewsController(NewsService newsSrv) {
         this.newsSrv = newsSrv;
     }
 
@@ -38,6 +36,12 @@ public class NewsController {
     @Operation(summary = "顯示某一則新聞")
     public NewsDTO findById(@PathVariable Integer newsId) {
         return newsSrv.getOneNews(newsId);
+    }
+
+    @GetMapping("admin/{newsId}")
+    @Operation(summary = "後台查詢某一則新聞")
+    public NewsAdminDTO findOneAdmin(@PathVariable Integer newsId) {
+        return newsSrv.findOneAdmin(newsId);
     }
 
     @GetMapping("admin/allNews")
@@ -58,7 +62,10 @@ public class NewsController {
 
     @PatchMapping("admin/update/{id}")
     @Operation(summary = "修改某則新聞")
-    public NewsAdminUpdateDto updateNews(@PathVariable Integer id, @Valid @RequestBody NewsAdminUpdateDto nauDTO) {
+    public NewsAdminUpdateDto updateNews(
+            @PathVariable Integer id,
+            @Valid @RequestBody NewsAdminUpdateDto nauDTO) {
+
         nauDTO.setId(id);
         return newsSrv.updateNews(nauDTO);
     }
@@ -68,10 +75,19 @@ public class NewsController {
     public ResponseEntity<?> createNews(@Valid @RequestBody NewsCreationDTO dto,
                                         HttpServletRequest req) {
         try {
-            return newsSrv.createAdmin(dto,req);
+            return newsSrv.createAdmin(dto, req);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @PutMapping("admin/updateShowStatus/{id}")
+    @Operation(summary = "更新新聞顯示狀態")
+    public NewsAdminUpdateDto updateShowStatus(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Boolean> requestBody) {
+        Boolean isShowed = requestBody.get("isShowed");
+        return newsSrv.updateShowStatus(id, isShowed);
     }
 
 }
