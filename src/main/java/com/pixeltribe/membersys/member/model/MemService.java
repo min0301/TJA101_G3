@@ -228,11 +228,20 @@ public class MemService {
 	}
 
 	// 分頁查詢會員
-	public Page<MemberAdminDto> findAllAdminMembers(Pageable pageable) {
-		return memRepository.findAll(pageable)
-				.map(member -> new MemberAdminDto(member.getId(), member.getMemName(), member.getMemNickName(),
-						member.getMemAccount(), member.getMemEmail(), member.getMemAddr(), member.getMemPhone(),
-						member.getMemBirthday(), member.getMemCreate(), member.getMemStatus()));
+	public Page<MemberAdminDto> findAllAdminMembers(String keyword, Pageable pageable) {
+		if (keyword == null || keyword.trim().isEmpty()) {
+			// 沒有 keyword 時，回傳全部分頁
+			return memRepository.findAll(pageable)
+					.map(member -> new MemberAdminDto(member.getId(), member.getMemName(), member.getMemNickName(),
+							member.getMemAccount(), member.getMemEmail(), member.getMemAddr(), member.getMemPhone(),
+							member.getMemBirthday(), member.getMemCreate(), member.getMemStatus()));
+		} else {
+			// 有 keyword 時，進行條件搜尋
+			return memRepository.findByKeyword(keyword, pageable)
+					.map(member -> new MemberAdminDto(member.getId(), member.getMemName(), member.getMemNickName(),
+							member.getMemAccount(), member.getMemEmail(), member.getMemAddr(), member.getMemPhone(),
+							member.getMemBirthday(), member.getMemCreate(), member.getMemStatus()));
+		}
 	}
 
 	// 停權狀態切換
