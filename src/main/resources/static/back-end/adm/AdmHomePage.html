@@ -538,6 +538,9 @@
                     <a href="#" class="submenu-item" onclick="renderContent('forum', 'reports', event)">
                         <i class="bi bi-shield-check item-icon"></i>文章留言檢舉審核
                     </a>
+                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'article-reports', event)">
+                        <i class="bi bi-shield-check item-icon"></i>文章檢舉審核
+                    </a>
                 </div>
             </li>
             <li class="menu-item" id="menu-member">
@@ -546,15 +549,15 @@
                     <i class="bi bi-chevron-down arrow"></i>
                 </button>
                 <div class="submenu">
-                    <a href="#" class="submenu-item" onclick="renderContent('member', 'dashboard', event)">
-                        <i class="bi bi-pie-chart-fill item-icon"></i>儀表板
-                    </a>
+<!--                     <a href="#" class="submenu-item" onclick="renderContent('member', 'dashboard', event)"> -->
+<!--                         <i class="bi bi-pie-chart-fill item-icon"></i>儀表板 -->
+<!--                     </a> -->
                     <a href="#" class="submenu-item" onclick="renderContent('member', 'query', event)">
-                        <i class="bi bi-person-lines-fill item-icon"></i>會員資料查詢
+                        <i class="bi bi-person-lines-fill item-icon"></i>會員查詢/管理
                     </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('member', 'suspend', event)">
-                        <i class="bi bi-person-slash item-icon"></i>會員停權
-                    </a>
+<!--                     <a href="#" class="submenu-item" onclick="renderContent('member', 'suspend', event)"> -->
+<!--                         <i class="bi bi-person-slash item-icon"></i>會員停權 -->
+<!--                     </a> -->
                 </div>
             </li>
         </ul>
@@ -572,8 +575,10 @@
     // 格式：'主選單Key-子選單Key': '對應的 HTML 檔案路徑'
     // =================================================================================
     const pageMappings = {
+
         'store-management': '../shopsys/product/listAllProduct.html',
         'store-malltag': '../shopsys/malltag/listAllMallTag.html',
+
         'store-orders': '../shopsys/order/allOrder.html',
         'forum-forums': '../forumsys/forum/allForum.html',
         'forum-add': '../forumsys/forum/addForum.html',
@@ -583,15 +588,25 @@
         'forum-edit-category': '../forumsys/category/editCategory.html',
         'forum-comments': '../forumsys/message/allMessages.html',
         'forum-reports': '../forumsys/messagereport/allReports.html',
-        'member-query': '../memsys/ListAllMem.html',
-        'news-management': '../newssys/news/listAllNews.html',
+
+        'forum-article-reports': '../forumsys/articlereport/allArticleReports.html', // [新增] 文章檢舉列表頁面
+        'news-management':'../newssys/listAllNews.html',
+		'member-query':'../memsys/ListAllMem.html',
+        'news-management':'../newssys/news/listAllNews.html',
+
         'news-categories': '../newssys/category/allNewsCategory.html',
         'news-add-category': '../newssys/category/addNewsCategory.html',
         'news-edit-category': '../newssys/category/editNewsCategory.html',
         'news-comments': '../newssys/comments/allNewsComment.html',
         'news-edit-comments': '../newssys/comments/editNewsComment.html',
+
         'news-reports': '../newssys/report/allNewsReport.html',
         'news-process-report': '../newssys/report/processNewsReport.html',
+
+        'forum-posts': '../forumsys/forumpost/allForumPost.html', // [新增] 文章列表頁面
+        'forum-add-post': '../forumsys/forumpost/addForumPost.html', // [新增] 新增文章頁面
+        'forum-edit-post': '../forumsys/forumpost/forumPost.html', // [新增] 編輯文章頁面
+
 
         // 在此處繼續添加其他頁面...
     };
@@ -854,7 +869,8 @@
             'official': '發布官方文章',
             'categories': '討論區類別管理',
             'query': '會員資料查詢',
-            'suspend': '會員停權'
+            'suspend': '會員停權',
+            'article-reports': '文章檢舉審核' // 新增的子選單標題
         };
 
         const title = pageTitles[pageKey] || '系統';

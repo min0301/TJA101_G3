@@ -1,379 +1,426 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>會員管理</title>
-    <style>
-        body {
-            background-color: #f0f2f5;
-            font-family: 'Karla', '微軟正黑體', Arial, sans-serif;
-            color: #5d5d66;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>會員管理</title>
+<style>
+body {
+	background-color: #f0f2f5;
+	font-family: 'Karla', '微軟正黑體', Arial, sans-serif;
+	color: #5d5d66;
+}
 
-        .members-management-container {
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 24px;
-        }
+.members-management-container {
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 24px;
+}
 
-        .page-title-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e0e0e0;
-        }
+.page-title-header {
+	display: flex;
+	align-items: center;
+	margin-bottom: 25px;
+	padding-bottom: 15px;
+	border-bottom: 1px solid #e0e0e0;
+}
 
-        .page-title-header h2 {
-            font-size: 24px;
-            font-weight: 700;
-            margin: 0;
-        }
+.page-title-header h2 {
+	font-size: 24px;
+	font-weight: 700;
+	margin: 0;
+}
 
-        .control-bar {
-            background: #ffffff;
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
+.control-bar {
+	background: #ffffff;
+	padding: 15px 20px;
+	border-radius: 10px;
+	margin-bottom: 20px;
+	border: 1px solid #e0e0e0;
+	display: flex;
+	align-items: center;
+}
 
-        .filter-group {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
+.filter-group {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+}
 
-        .filter-select, .form-control-sm {
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            padding: 8px 12px;
-            background: #f0f2f5;
-            color: #5d5d66;
-            transition: border-color 0.2s;
-        }
+.filter-select {
+	border: 1px solid #e0e0e0;
+	border-radius: 6px;
+	padding: 8px 12px;
+	background: #f0f2f5;
+	color: #5d5d66;
+}
 
-        .action-btn {
-            display: inline-block;
-            text-decoration: none;
-            background: none;
-            border: 1px solid #e0e0e0;
-            color: #5d5d66;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
+.table-container {
+	overflow-x: auto;
+	border-radius: 12px;
+	border: 1px solid #e0e0e0;
+	background: #fff;
+}
 
-        .action-btn:hover {
-            background: rgba(8, 190, 171, 0.1);
-            color: #08beab;
-            border-color: #08beab;
-        }
+.resizable-table {
+	border-collapse: collapse;
+	width: 100%;
+	table-layout: fixed;
+	min-width: 1200px;
+}
 
-        .action-btn.btn-add {
-            background-color: #08beab;
-            border-color: #08beab;
-            color: white;
-            font-weight: bold;
-        }
+.resizable-table th, .resizable-table td {
+	border: 1px solid #e0e0e0;
+	padding: 8px 12px;
+	text-align: center;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	background: #fff;
+}
 
-        .action-btn.btn-add:hover {
-            background-color: #07a897;
-            border-color: #07a897;
-        }
+.resizable-table th {
+	position: relative;
+	background: #f6fcfc;
+	font-weight: bold;
+	color: #08beab;
+	user-select: none;
+}
 
-        .table-container {
-            background: #ffffff;
-            border-radius: 12px;
-            overflow-x: auto;
-            border: 1px solid #e0e0e0;
-        }
+/* 重點：最後一欄寬度夠，避免內容壓縮溢出 */
+.resizable-table th:last-child, .resizable-table td:last-child {
+	min-width: 210px;
+	width: 220px;
+	max-width: 250px;
+	overflow: visible;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+.resizer {
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 6px;
+	height: 100%;
+	cursor: col-resize;
+	z-index: 1;
+	background: linear-gradient(to right, #e0e0e0 60%, #b0b0b0 100%);
+	opacity: 0.6;
+}
 
-        thead {
-            background-color: rgba(8, 190, 171, 0.1);
-        }
+.pagination-controls {
+	display: flex;
+	justify-content: center;
+	padding: 20px 0;
+}
 
-        th, td {
-            text-align: center;
-            padding: 12px;
-            border-top: 1px solid #e0e0e0;
-        }
+.pagination {
+	display: flex;
+	padding-left: 0;
+	list-style: none;
+	margin: 0;
+}
 
-        th {
-            color: #08beab;
-            font-weight: bold;
-        }
+.pagination .page-link {
+	color: #08beab;
+	background-color: #ffffff;
+	border: 1px solid #e0e0e0;
+	margin: 0 3px;
+	padding: 8px 14px;
+	border-radius: 6px;
+	text-decoration: none;
+}
 
-        .pagination-controls {
-            display: flex;
-            justify-content: center;
-            padding: 20px 0;
-        }
+.pagination .page-item.active .page-link {
+	background-color: #08beab;
+	color: white;
+}
 
-        .pagination {
-            display: flex;
-            padding-left: 0;
-            list-style: none;
-            margin: 0;
-        }
+.alert {
+	color: #e74c3c;
+	background-color: #fbecec;
+	border: 1px solid #e74c3c;
+	padding: 15px;
+	border-radius: 5px;
+}
 
-        .pagination .page-link {
-            color: #08beab;
-            background-color: #ffffff;
-            border: 1px solid #e0e0e0;
-            margin: 0 3px;
-            padding: 8px 14px;
-            border-radius: 6px;
-            text-decoration: none;
-        }
+/* 狀態標籤 */
+.status-label {
+	display: inline-block;
+	min-width: 48px;
+	font-size: 15px;
+	font-weight: bold;
+	border-radius: 6px;
+	padding: 4px 16px;
+	margin-right: 14px;
+	letter-spacing: 2px;
+	vertical-align: middle;
+	transition: background 0.2s, color 0.2s;
+}
 
-        .pagination .page-item.active .page-link {
-            background-color: #08beab;
-            color: white;
-        }
+.status-label.normal {
+	background: #4ec08b;
+	color: #fff;
+}
 
-        .pagination .page-item.disabled .page-link {
-            color: #6c757d;
-            pointer-events: none;
-            background-color: #e9ecef;
-            border-color: #e0e0e0;
-        }
+.status-label.blocked {
+	background: #e74c3c;
+	color: #fff;
+}
 
-        .alert {
-            color: #e74c3c;
-            background-color: #fbecec;
-            border: 1px solid #e74c3c;
-            padding: 15px;
-            border-radius: 5px;
-        }
-    </style>
+/* Toggle Switch */
+.toggle-switch {
+	display: inline-block;
+	width: 48px;
+	height: 26px;
+	position: relative;
+	vertical-align: middle;
+	margin-left: 0;
+}
+
+.toggle-switch input[type="checkbox"] {
+	display: none;
+}
+
+.toggle-slider {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #e74c3c;
+	border-radius: 26px;
+	transition: background 0.25s;
+	cursor: pointer;
+}
+
+.toggle-switch input:checked+.toggle-slider {
+	background: #08beab;
+}
+
+.toggle-slider:before {
+	content: '';
+	position: absolute;
+	left: 4px;
+	top: 4px;
+	width: 18px;
+	height: 18px;
+	background: #fff;
+	border-radius: 50%;
+	transition: transform 0.25s;
+	z-index: 3;
+}
+
+.toggle-switch input:checked+.toggle-slider:before {
+	transform: translateX(22px);
+}
+</style>
 </head>
 <body>
-<div class="members-management-container">
-    <div class="page-title-header">
-        <h2><i class="bi bi-card-list item-icon"></i>會員資料查詢</h2>
-    </div>
-    <div class="control-bar">
-    
-        <div class="filter-group">
-            <div>
-                <label for="pageSizeSelect">每頁顯示：</label>
-                <select id="pageSizeSelect" class="filter-select">
-                    <option value="3">3</option>
-                    <option value="5" selected>5</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                </select>
-            </div>
-            <div>
-                <label for="statusFilter">篩選狀態：</label>
-                <select id="statusFilter" class="filter-select" onchange="filterByStatus()">
-                    <option value="">全部狀態</option>
-                    <option value="true">正常</option>
-                    <option value="false">停權</option>
-                </select>
-            </div>
-
-            <div>
-                <label for="searchInput">搜尋：</label>
-                <input id="searchInput" type="text" class="form-control-sm" placeholder="標題關鍵字">
-            </div>
-        </div>
-    </div>
-
-    <div class="alert d-none" id="errorAlert">載入失敗，請檢查後端或 CORS 設定</div>
-    <div id="error-message"></div>
-    <div class="table-container">
-        <table>
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>會員姓名</th>
-                <th>會員暱稱</th>
-                <th>帳號</th>
-                <th>Email</th>
-                <th>地址</th>
-                <th>手機</th>
-                <th>生日</th>
-                <th>加入時間</th>
-                <th>停權狀態</th>
-            </tr>
-            </thead>
-            <tbody id="TableBody">
-            <tr>
-                <td colspan="9" style="text-align:center; padding: 40px;">載入中...</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <nav class="pagination-controls">
-        <ul class="pagination" id="paginationNav"></ul>
-    </nav>
-</div>
-
-<script>
+	<div class="members-management-container">
+		<div class="page-title-header">
+			<h2>會員資料查詢</h2>
+		</div>
+		<div class="control-bar">
+			<div class="filter-group">
+				<label for="pageSizeSelect">每頁顯示：</label> <select
+					id="pageSizeSelect" class="filter-select">
+					<option value="3">3</option>
+					<option value="5" selected>5</option>
+					<option value="10">10</option>
+					<option value="20">20</option>
+				</select> <input id="searchInput" class="filter-select" type="text"
+					style="width: 200px;" placeholder="搜尋ID/暱稱/帳號/Email/地址">
+			</div>
+		</div>
+		<div class="alert d-none" id="errorAlert">載入失敗，請檢查後端或 CORS 設定</div>
+		<div class="table-container">
+			<table class="resizable-table">
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>會員姓名</th>
+						<th>會員暱稱</th>
+						<th>帳號</th>
+						<th>Email</th>
+						<th>地址</th>
+						<th>手機</th>
+						<th>生日</th>
+						<th>加入時間</th>
+						<th>狀態</th>
+					</tr>
+				</thead>
+				<tbody id="TableBody">
+					<tr>
+						<td colspan="11" style="text-align: center; padding: 40px;">載入中...</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<nav class="pagination-controls">
+			<ul class="pagination" id="paginationNav"></ul>
+		</nav>
+	</div>
+	<script>
 (function () {
-    const apiUrl = 'http://localhost:8080/api/members/admin/allMembers';
-    const token = localStorage.getItem('jwt');
-	
-    const tableBody = document.getElementById('TableBody');
-    const paginationContainer = document.getElementById('paginationNav');
-    const pageSizeSelect = document.getElementById('pageSizeSelect');
-    const searchInput = document.getElementById('searchInput');
-    const errorAlert = document.getElementById('errorAlert');
-    
-    let allMembersData = [];
-    let currentPage = 1;
-    let itemsPerPage = parseInt(pageSizeSelect.value) || 5;
-    let currentKeyword = '';
-    
-    async function loadMembers() {
+  const apiUrl = 'http://localhost:8080/api/members/admin/allMembers';
+  const updateUrl = 'http://localhost:8080/api/members/admin/allMembers/status';
+  const token = localStorage.getItem('jwt');
+  const tableBody = document.getElementById('TableBody');
+  const paginationContainer = document.getElementById('paginationNav');
+  const pageSizeSelect = document.getElementById('pageSizeSelect');
+  const errorAlert = document.getElementById('errorAlert');
+  const searchInput = document.getElementById('searchInput');
+  
+  let allMembersData = [];
+  let currentPage = 1;
+  let itemsPerPage = parseInt(pageSizeSelect.value) || 5;
+  let currentKeyword = '';
+  let debounceTimer = null;
+
+  async function loadMembers() {
+    try {
+      const url = `${apiUrl}?page=${currentPage-1}&size=${itemsPerPage}&keyword=${encodeURIComponent(currentKeyword)}`;
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) throw new Error(`HTTP 錯誤：${response.status}`);
+      const res = await response.json();
+      allMembersData = res.content || res;
+      renderTable(allMembersData);
+      renderPagination(res.totalElements || allMembersData.length);
+    } catch (err) {
+      errorAlert.classList.remove('d-none');
+      console.error('載入失敗', err);
+    }
+  }
+
+  function renderTable(membersList) {
+    tableBody.innerHTML = '';
+    if (!membersList || membersList.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="11" class="text-center">目前沒有任何會員資料。</td></tr>`;
+      return;
+    }
+    for (const member of membersList) {
+      const isActive = member.memStatus === 1 || member.memStatus === '1';
+      const joinDate = member.memCreate ? new Date(member.memCreate).toLocaleString() : '';
+      const birth = member.memBirthday ? new Date(member.memBirthday).toLocaleDateString() : '';
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${member.id}</td>
+        <td>${member.memName || ''}</td>
+        <td>${member.memNickName || ''}</td>
+        <td>${member.memAccount || ''}</td>
+        <td>${member.memEmail || ''}</td>
+        <td>${member.memAddr || ''}</td>
+        <td>${member.memPhone || ''}</td>
+        <td>${birth}</td>
+        <td>${joinDate}</td>
+        <td>
+          <span class="status-label ${isActive ? 'normal' : 'blocked'}">${isActive ? '正常' : '停權'}</span>
+          <label class="toggle-switch">
+            <input type="checkbox" class="status-toggle" data-id="${member.id}" ${isActive ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </label>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    }
+
+    // Toggle 狀態切換事件
+    document.querySelectorAll('.status-toggle').forEach(toggle => {
+      toggle.addEventListener('change', async function () {
+        const memberId = this.dataset.id;
+        const newStatus = this.checked ? '1' : '2';
         try {
-            const url = `${apiUrl}?page=${currentPage-1}&size=${itemsPerPage}&keyword=${encodeURIComponent(currentKeyword)}`;
-            console.log("page=", currentPage-1, "size=", itemsPerPage, "keyword=", currentKeyword);
+          const resp = await fetch(`${updateUrl}/${memberId}`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: newStatus })
+          });
 
-            const response = await fetch(url, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            if (!response.ok) throw new Error(`HTTP 錯誤：${response.status}`);
-
-            const res = await response.json();
-            allMembersData = res.content || res;
-            updateDisplay();
+          if (!resp.ok) throw new Error('狀態更新失敗');
+          await loadMembers(); // 直接重刷 UI，確保 toggle 和狀態同步
         } catch (err) {
-            errorAlert.classList.remove('d-none');
-            console.error('載入失敗', err);
+          alert('會員狀態更新失敗！');
+          this.checked = !this.checked; // 錯誤時還原
         }
-    }
-
-    function updateDisplay() {
-        const selectedStatus = document.getElementById("statusFilter").value;
-
-        let filtered = [...allMembersData];
-
-        // 若選了特定狀態才篩選
-        if (selectedStatus === "true") {
-            filtered = filtered.filter(n => n.isShowed === true);
-        } else if (selectedStatus === "false") {
-            filtered = filtered.filter(n => n.isShowed === false);
-        }
-
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageData = filtered.slice(start, end);
-        renderTable(pageData);
-        renderPagination(filtered.length);
-    }
-	console.log('allMembersData', allMembersData);
-    function renderTable(membersList) {
-        tableBody.innerHTML = '';
-
-        if (!membersList || membersList.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="10" class="text-center">目前沒有任何新聞資料。</td></tr>`;
-            return;
-        }
-
-        for (const member of membersList) {
-            const joinDate = member.memCreate ? new Date(member.memCreate).toLocaleString() : '未提供';
-            const birth = member.birth ? new Date(member.birth).toLocaleDateString() : '';
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${member.id}</td>
-                <td>${member.memName}</td>
-                <td>${member.memNickName}</td>
-                <td>${member.memAccount}</td>
-                <td>${member.memEmail}</td>
-                <td>${member.memAddr}</td>
-                <td>${member.memPhone}</td>
-                <td>${member.memBirthday}</td>
-                <td>${member.memCreate}</td>
-                <td>${member.memStatus ? '正常' : '停權'}</td>`;
-
-            tableBody.appendChild(row);
-        }
-
-//         document.querySelectorAll('.toggle-btn').forEach(btn => {
-//             btn.addEventListener('click', async function () {
-//                 const id = this.dataset.id;
-//                 const currentStatus = this.dataset.showed === 'true';
-//                 const newStatus = !currentStatus;
-
-//                 try {
-//                     await fetch(`http://localhost:8080/api/members/admin/updateShowStatus/${id}`, {
-//                         method: 'PUT',
-//                         headers: {
-//                             'Authorization': `Bearer ${token}`,
-//                             'Content-Type': 'application/json'
-//                         },
-//                         body: JSON.stringify({ isShowed: newStatus })
-//                     });
-//                     loadNews();
-//                 } catch (err) {
-//                     alert('切換狀態失敗！');
-//                 }
-//             });
-//         });
-    }
-
-    function renderPagination(totalItems) {
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
-        paginationContainer.innerHTML = '';
-
-        for (let i = 1; i <= totalPages; i++) {
-            const li = document.createElement('li');
-            li.className = `page-item ${i === currentPage ? 'active' : ''}`;
-
-            const a = document.createElement('a');
-            a.className = 'page-link';
-            a.href = '#';
-            a.textContent = i;
-            a.addEventListener('click', function (e) {
-                e.preventDefault();
-                currentPage = i;
-                updateDisplay();
-            });
-
-            li.appendChild(a);
-            paginationContainer.appendChild(li);
-        }
-    }
-    window.filterByStatus = function () {
-        currentPage = 1;
-        updateDisplay();
-    }
-
-    pageSizeSelect.addEventListener('change', function () {
-        itemsPerPage = parseInt(this.value);
-        currentPage = 1;
-        updateDisplay();
+      });
     });
+  }
 
-    searchInput.addEventListener('input', function () {
-        currentKeyword = this.value;
-        currentPage = 1;
-        loadNews();
-    });
+  function renderPagination(totalItems) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    paginationContainer.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement('li');
+      li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+      const a = document.createElement('a');
+      a.className = 'page-link';
+      a.href = '#';
+      a.textContent = i;
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (currentPage !== i) {
+          currentPage = i;
+          loadMembers();
+        }
+      });
+      li.appendChild(a);
+      paginationContainer.appendChild(li);
+    }
+  }
 
+  pageSizeSelect.addEventListener('change', function () {
+    itemsPerPage = parseInt(this.value);
+    currentPage = 1;
     loadMembers();
+  });
+
+  function makeTableResizable(tableSelector = '.resizable-table') {
+    const table = document.querySelector(tableSelector);
+    const ths = table.querySelectorAll('th');
+    ths.forEach(th => {
+	      const resizer = document.createElement('div');
+	      resizer.classList.add('resizer');
+	      th.appendChild(resizer);
+	      
+	      let x = 0, w = 0;
+	      resizer.addEventListener('mousedown', function(e) {
+	        x = e.clientX;
+	        w = th.offsetWidth;
+	        document.body.style.cursor = 'col-resize';
+
+	        function onMouseMove(e) {
+	          const dx = e.clientX - x;
+	          th.style.width = Math.max(w + dx, 50) + 'px';
+	        }
+	        function onMouseUp() {
+	          document.removeEventListener('mousemove', onMouseMove);
+	          document.removeEventListener('mouseup', onMouseUp);
+	          document.body.style.cursor = '';
+	        }
+	        document.addEventListener('mousemove', onMouseMove);
+	        document.addEventListener('mouseup', onMouseUp);
+	      });
+	    });
+	  }
+	  // 搜尋欄功能
+  searchInput.addEventListener('input', function () {
+	  clearTimeout(debounceTimer);
+	  debounceTimer = setTimeout(() => {
+	    currentKeyword = this.value.trim();
+	    currentPage = 1;
+	    loadMembers();
+	  }, 200);
+	});
+  loadMembers();
+  makeTableResizable('.resizable-table');
 })();
 </script>
+</body>
+</html>

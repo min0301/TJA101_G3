@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- 加入base標籤，統一使用絕對路徑 -->
+<base href="/">
+
+<!-- 加入 base 標籤，確保相對路徑的基準點 -->
+<base href="/front-end/shopsys/order/">
+
 <title>像素部落 - 訂單詳情</title>
 <meta name="description" content="像素部落, Pixel Tribe, 訂單詳情">
 <meta name="keywords" content="訂單詳情, 購買記錄, 評價產品">
@@ -24,13 +31,13 @@
 </script>
 
 <!-- CSS Files -->
-<link rel="stylesheet" href="../../../assets/vendors/bootstrap/bootstrap.min.css">
-<link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
-<link rel="stylesheet" href="../../../assets/vendors/simplebar/simplebar.min.css">
-<link rel="stylesheet" href="../../../assets/vendors/aos/aos.css">
-<link rel="stylesheet" href="../../../assets/css/style.css">
-<link rel="stylesheet" href="../../../assets/css/responsive.css">
-<link rel="stylesheet" href="../../../assets/css/custom-style.css">
+<link rel="stylesheet" href="/assets/vendors/bootstrap/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">
+<link rel="stylesheet" href="/assets/vendors/simplebar/simplebar.min.css">
+<link rel="stylesheet" href="/assets/vendors/aos/aos.css">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/responsive.css">
+<link rel="stylesheet" href="/assets/css/custom-style.css">
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -73,7 +80,8 @@
                 <!-- 返回按鈕 -->
                 <div class="row mb-4">
                     <div class="col-12">
-                        <a href="order-list.html" class="btn btn-outline-secondary">
+                    <!-- 統一使用絕對路徑 -->
+                        <a href="/front-end/shopsys/order/order-list.html" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>返回訂單列表
                         </a>
                     </div>
@@ -263,26 +271,27 @@
         </div>
     </div>
 
-    <!-- JavaScript Files -->
+    <!-- JavaScript Files -->    <!-- 統一使用絕對路徑 -->
     <script src="/js/dynamicHeaderInfo.js"></script>
-    <script src="../../../assets/vendors/jquery/jquery.min.js"></script>
-    <script src="../../../assets/vendors/bootstrap/bootstrap.bundle.js"></script>
-    <script src="../../../assets/vendors/popper/popper.min.js"></script>
-    <script src="../../../assets/vendors/simplebar/simplebar.min.js"></script>
-    <script src="../../../assets/vendors/aos/aos.js"></script>
-    <script src="../../../assets/js/main.js"></script>
-    <script src="../../../assets/js/global-loader.js"></script>
+    <script src="/assets/vendors/jquery/jquery.min.js"></script>
+    <script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+    <script src="/assets/vendors/popper/popper.min.js"></script>
+    <script src="/assets/vendors/simplebar/simplebar.min.js"></script>
+    <script src="/assets/vendors/aos/aos.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/global-loader.js"></script>
     
     <!-- 訂單功能相關 JS -->
-    <script src="api-client.js"></script>
-    <script src="order-detail.js"></script>
-    <script src="comment-modal.js"></script>
+    <script src="/front-end/shopsys/order/api-client.js"></script>
+    <script src="/front-end/shopsys/order/order-detail.js"></script>
+    <script src="/front-end/shopsys/order/comment-modal.js"></script>
 
     <script>
         // 頁面載入完成後初始化
         document.addEventListener('DOMContentLoaded', function() {
             // 檢查登入狀態
             if (!OrderApiClient.isLoggedIn()) {
+            	<!-- 統一使用絕對路徑 -->
                 window.location.href = '/front-end/mem/MemberLogin.html?redirect=' + encodeURIComponent(window.location.pathname);
                 return;
             }

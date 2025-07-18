@@ -23,15 +23,20 @@ public class MemLoginService {
 	public MemLoginReturn login(String memAccount, String memPassword) {
 		
 		Member member = memRepository.findByMemAccount(memAccount);
-		MemberBasicDto memberInfo = new MemberBasicDto(member.getId(),member.getMemAccount(),member.getMemNickName(),member.getMemName(),member.getMemEmail());
+		MemberBasicDto memberInfo = new MemberBasicDto(member.getId(),member.getMemAccount(),member.getMemNickName(),member.getMemName(),member.getMemEmail(),member.getRole());
+		String token = jwtUtil.generateMemberToken(member);
 		
-		if (member == null) {
-			return new MemLoginReturn(false, "輸入的帳號不存在");
-		}
+		 // 密碼錯誤
 		if(!member.getMemPassword().equals(memPassword)) {
 			return new MemLoginReturn(false, "密碼錯誤");
 		}
-		String token = jwtUtil.generateMemberToken(member);
+		
+		// 被停權
+		if(member.getMemStatus().equals('2')) {
+			return new MemLoginReturn(false, "此帳號已被停權");
+		}
+		
+		// 成功登入回傳jwt和memberInfo存於localStorage
 		return new MemLoginReturn(true,"登入成功", token, memberInfo);
 	}
 }

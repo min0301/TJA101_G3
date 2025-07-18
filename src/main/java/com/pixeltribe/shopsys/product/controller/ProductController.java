@@ -26,13 +26,17 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pixeltribe.forumsys.forum.model.ForumDetailDTO;
+import com.pixeltribe.shopsys.product.exception.ProductExistException;
+import com.pixeltribe.shopsys.product.exception.ProductIncompleteException;
 import com.pixeltribe.shopsys.product.model.Product;
 import com.pixeltribe.shopsys.product.model.ProductAddDTO;
 import com.pixeltribe.shopsys.product.model.ProductDTOMapper;
 import com.pixeltribe.shopsys.product.model.ProductDisplayDTO;
 import com.pixeltribe.shopsys.product.model.ProductEditDTO;
+import com.pixeltribe.shopsys.product.model.ProductInventoryDTO;
 import com.pixeltribe.shopsys.product.model.ProductIsmarketDTO;
 import com.pixeltribe.shopsys.product.model.ProductManageDTO;
+import com.pixeltribe.shopsys.product.model.ProductPreorderService;
 import com.pixeltribe.shopsys.product.model.ProductSearchDTO;
 import com.pixeltribe.shopsys.product.model.ProductService;
 
@@ -49,6 +53,8 @@ public class ProductController {
 		ProductService productService;
 		@Autowired
 		ProductDTOMapper productDTOMapper;
+		@Autowired
+		ProductPreorderService proudctPreorderService;
 		
 		@GetMapping("product")
 		public List<ProductManageDTO> getAllProducts() {
@@ -63,8 +69,7 @@ public class ProductController {
 		            ) throws IOException{
 		    if (result.hasErrors()) {
 		        return ResponseEntity.badRequest().body("輸入資料有誤！");
-		    }
-		        
+		    }     
 			if (imageFile[0].isEmpty()) { // 使用者未選擇要上傳的新圖片時
 					
 			} else {
@@ -78,10 +83,23 @@ public class ProductController {
 				System.out.println("error");
 			}
 
-			Product addProduct = productService.add(productDTOMapper.paDTOToProduct(productAddDTO));
 			
-		    return ResponseEntity.ok(addProduct);
+			try {
+				productAddDTO.setProIsmarket('1');
+		        Product addProduct = productService.add(productDTOMapper.paDTOToProduct(productAddDTO));
+		        return ResponseEntity.ok(addProduct);
+		        
+		    } catch (ProductExistException e) {
+		        return ResponseEntity.status(HttpStatus.CONFLICT)
+		            .body(e.getMessage());
+		            
+		    } catch (Exception e) {
+		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		            .body(e.getMessage());
+		    }
+		  
 		 }
+
 		 @Transactional
 		 @PutMapping("/admin/product/{id}")
 		    public ResponseEntity<?> updateProduct(
@@ -105,13 +123,21 @@ public class ProductController {
 						productEditDTO.setProCover(upFiles);
 					}
 				}
-				if (result.hasErrors()) {
-					System.out.println("error");
-				}
-
-			    Product updateProduct = productService.update(productDTOMapper.peDTOToProduct(productEditDTO));
-
-		        return ResponseEntity.ok(updateProduct);
+				try {
+					Product updateProduct = productService.update(productDTOMapper.peDTOToProduct(productEditDTO));
+			        return ResponseEntity.ok(updateProduct);
+			        
+			    } catch (ProductExistException e) {
+					  
+			        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());        
+			        
+			    } catch (ProductIncompleteException e) {
+			        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+			        
+			    }catch (Exception e) {
+			        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+			        
+			    } 
 		    }
 		
 		@GetMapping("/product/{id}")
@@ -121,9 +147,14 @@ public class ProductController {
 		 }
 		
 		@GetMapping("/product/{id}/search")
-		public ProductDisplayDTO searchOneProduct(@Parameter
+		public ResponseEntity<?> searchOneProduct(@Parameter
 										@PathVariable Integer id) {
-		   return productDTOMapper.toProductDisplayDTO(productService.getOneProduct(id));
+			ProductDisplayDTO product = productDTOMapper.toProductDisplayDTO(productService.getOneProduct(id));
+			ProductInventoryDTO inventory = proudctPreorderService.getProductInventoryDisplay(id);
+			Map<String, Object> result = new HashMap<>();
+			result.put("product", product);
+			result.put("inventory", inventory);
+			return ResponseEntity.ok(result);
 		 }
 		 
 		@GetMapping("/product/cover/{id}")
@@ -159,18 +190,16 @@ public class ProductController {
 	        try {
 	            boolean success = productService.updateMarketStatus(proNo, request.getProIsmarket());
 	            
-	            if (success) {
 	                response.put("success", true);
 	                response.put("message", "狀態更新成功");
 	                response.put("proNo", proNo);
 	                response.put("proIsmarket", request.getProIsmarket());
 	                return ResponseEntity.ok(response);
-	            } else {
-	                response.put("success", false);
-	                response.put("message", "更新失敗，商品可能不存在");
-	                return ResponseEntity.badRequest().body(response);
-	            }
-	            
+	           
+	        }catch (ProductIncompleteException e) {
+	        	response.put("success", false);
+	            response.put("message", e.getMessage());
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 	        } catch (Exception e) {
 	            response.put("success", false);
 	            response.put("message", "系統錯誤：" + e.getMessage());

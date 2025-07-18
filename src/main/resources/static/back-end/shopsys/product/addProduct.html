@@ -62,6 +62,7 @@
 
     /* 輸入欄位樣式 */
     .form-group input[type="text"],
+    .form-group input[type="number"],
     .form-group input[type="date"],
     .form-group input[type="file"],
     .form-group textarea,
@@ -133,6 +134,33 @@
       font-size: 13px;
       color: var(--text-color);
       opacity: 0.8;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+    }
+
+    /* 數量輸入欄位特殊樣式 */
+    .form-group input[type="number"] {
+      max-width: 200px;
     }
 
     /* 按鈕群組 */
@@ -241,6 +269,11 @@
       opacity: 0.6;
       pointer-events: none;
     }
+
+    /* 隱藏狀態 */
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -248,7 +281,7 @@
 <div class="add-product-container">
   <div class="page-title-header">
     <h2><i class="bi bi-plus-circle item-icon"></i>新增商品</h2>
-    <a href="/back-end/adm/AdmHomePage.html" class="action-btn btn-home">回後台首頁</a>
+    <a href="AdmHomePage.html" class="action-btn btn-home">回管理首頁</a>
   </div>
 
   <div id="error-message"></div>
@@ -281,8 +314,8 @@
       </div>
       
       <div class="form-group">
-        <label for="product_date" required>發售日</label>
-        <input type="date" id="product_date" name="proDate" required>
+        <label for="product_date">發售日</label>
+        <input type="date" id="product_date" name="proDate" >
       </div>
       
       <div class="form-group">
@@ -293,13 +326,13 @@
       </div>
       
       <div class="form-group">
-        <label for="product_details" required>描述</label>
-        <textarea id="product_details" name="proDetails" required placeholder="請輸入商品描述"></textarea>
+        <label for="product_details">描述</label>
+        <textarea id="product_details" name="proDetails" placeholder="請輸入商品描述"></textarea>
       </div>
       
       <div class="form-group">
-        <label for="product_include" required>內容物</label>
-        <textarea id="product_include" name="proInclude" required placeholder="請輸入商品內容物"></textarea>
+        <label for="product_include">內容物</label>
+        <textarea id="product_include" name="proInclude" placeholder="請輸入商品內容物"></textarea>
       </div>
     
       <div class="form-group">
@@ -309,17 +342,17 @@
         </select>
       </div>
        
-      <div class="form-group">
+<!--       <div class="form-group">
         <label for="product_ismarket" required>上下架</label>
         <select id="product_ismarket" name="proIsmarket" required>
           <option value="">請選擇狀態</option>
           <option value="0">上架</option>
           <option value="1">下架</option>
         </select>
-      </div>
+      </div> -->
       
       <div class="button-group">
-        <a href="listAllProduct.html" class="action-btn">返回列表</a>
+        <a href="#" onclick="event.preventDefault(); loadExternalPage('../shopsys/product/listAllProduct.html')" class="action-btn">返回列表</a>
         <button type="submit" class="action-btn btn-save">新增商品</button>
       </div>
     </form>
@@ -337,6 +370,8 @@
     const nameInput = document.getElementById('product_name');
     const priceInput = document.getElementById('product_price');
     const statusSelect = document.getElementById('product_status');
+    const preorderSection = document.getElementById('preorder-section');
+    const preorderQuantityInput = document.getElementById('preorder_quantity');
     const versionInput = document.getElementById('product_version');
     const dateInput = document.getElementById('product_date');
     const imageUploadInput = document.getElementById('product_image_upload');
@@ -344,7 +379,6 @@
     const detailsTextarea = document.getElementById('product_details');
     const includeTextarea = document.getElementById('product_include');
     const malltagSelect = document.getElementById('product_malltag');
-    const ismarketSelect = document.getElementById('product_ismarket');
     const errorMessageDiv = document.getElementById('error-message');
 
     // --- 核心功能函式 ---
@@ -360,6 +394,10 @@
       }
     }
 
+    /**
+     * @description 設定狀態變更處理器
+     */
+   
     /**
      * @description 載入商城標籤資料
      */
@@ -423,14 +461,13 @@
           proDate: dateInput.value,
           proDetails: detailsTextarea.value,
           proInclude: includeTextarea.value,
-          mallTagNo: parseInt(malltagSelect.value),
-          proIsmarket: ismarketSelect.value
+          mallTagNo: parseInt(malltagSelect.value)
         };
 
-        // 3. 將資料包裝成 JSON 並加入 FormData
+        // 4. 將資料包裝成 JSON 並加入 FormData
         formData.append('ProductAddDTO', new Blob([JSON.stringify(productAddDTO)], { type: 'application/json' }));
 
-        // 4. 加入圖片檔案
+        // 5. 加入圖片檔案
         const imageFile = imageUploadInput.files[0];
         if (imageFile) {
           formData.append('imageFile', imageFile);
@@ -438,20 +475,41 @@
           formData.append('imageFile', new File([], '', { type: 'image/gif' }));
         }
 
-        // 5. 發送請求
+        // 6. 發送請求
         const response = await fetch(`${apiBaseUrl}/product/addproduct`, {
           method: 'POST',
           body: formData,
         });
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ message: '新增失敗，且無法解析錯誤訊息。' }));
-          throw new Error(errorData.message || '新增失敗');
+            const responseText = await response.text();
+            console.log('錯誤回應內容:', responseText);
+            
+            let errorMessage = '新增失敗';
+            
+            // 檢查不同的狀態碼
+            if (response.status === 409) {
+                errorMessage = responseText || '商品已存在';
+                console.log('處理重複商品錯誤');
+            } else if (response.status === 400) {
+                errorMessage = responseText || '輸入資料有誤';
+            } else if (response.status === 500) {
+                errorMessage = responseText || '伺服器內部錯誤';
+            } else {
+                try {
+                    const errorData = JSON.parse(responseText);
+                    errorMessage = errorData.message || errorMessage;
+                } catch (e) {
+                    errorMessage = responseText || errorMessage;
+                }
+            }
+            
+            throw new Error(errorMessage);
         }
 
         // 成功提示
         alert('新增成功！');
-        window.location.href = 'listAllProduct.html';
+        loadExternalPage('../shopsys/product/listAllProduct.html');
 
       } catch(error) {
         showError(`儲存失敗: ${error.message}`);

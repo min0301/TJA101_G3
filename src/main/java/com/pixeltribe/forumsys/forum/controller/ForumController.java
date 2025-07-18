@@ -1,8 +1,11 @@
 package com.pixeltribe.forumsys.forum.controller;
 
-import com.pixeltribe.forumsys.forum.model.*;
+import com.pixeltribe.forumsys.forum.model.ForumDetailDTO;
+import com.pixeltribe.forumsys.forum.model.ForumService;
+import com.pixeltribe.forumsys.forum.model.ForumUpdateDTO;
 import com.pixeltribe.membersys.security.MemberDetails;
-import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -118,6 +121,17 @@ public class ForumController {
     @Operation(summary = "查全部討論區(按熱度排序)")
     public List<ForumDetailDTO> findHotForums() {
         return forumSvc.getHotForumsRedis();
+    }
+
+    @GetMapping("/search/forums")
+    @Operation(
+            summary = "查詢討論區(按關鍵字)",
+            description = "根據關鍵字搜尋討論區"
+    )
+    public List<ForumDetailDTO> findHotForumsByKeyword(
+            @Parameter(description = "關鍵字", example = "魔物獵人")
+            @RequestParam String keyword) {
+        return forumSvc.searchForumsByKeyword(keyword);
     }
 
 

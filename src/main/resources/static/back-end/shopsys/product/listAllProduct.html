@@ -454,8 +454,8 @@
   // 使用 IIFE (Immediately Invoked Function Expression) 避免污染全域範疇
   (function() {
     // --- 變數定義區 ---
-    const apiUrl = 'http://localhost:8080/api/product'; // 不可變：後端 API 端點
-    const stockApiUrl = 'http://localhost:8080/api/productsn/allstock';
+    const apiUrl = '/api/product'; // 不可變：後端 API 端點
+    const stockApiUrl = '/api/productsn/allstock';
 
     // 可變：這些是 DOM 元素的引用，名稱可依個人習慣修改，但要與 HTML 的 id 對應
     const tableBody = document.getElementById('product-data-body');
@@ -674,7 +674,7 @@
      */
     async function updateSingleProductStock(productId) {
       try {
-        const singleStockUrl = `http://localhost:8080/api/productsn/stock/${productId}`;
+        const singleStockUrl = `/api/productsn/stock/${productId}`;
         const response = await fetch(singleStockUrl);
         if (response.ok) {
           const stockCount = await response.json();
@@ -757,44 +757,80 @@
       buttonElement.textContent = '處理中...';
       
       try {
-        const response = await fetch(`${apiUrl}/${productId}/market-status`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ proIsmarket: proIsMarket })
-        });
+    	    const response = await fetch(`${apiUrl}/${productId}/market-status`, {
+    	        method: 'PUT',
+    	        headers: {
+    	            'Content-Type': 'application/json',
+    	        },
+    	        body: JSON.stringify({ proIsmarket: proIsMarket })
+    	    });
 
-        if (response.ok) {
-          const result = await response.json();
-          
-          if (result.success) {
-            const product = allProductsData.find(p => p.id == productId);
-            if (product) {
-              product.proIsmarket = proIsMarket;
-            }
-            
-            if (proIsMarket === '0') {
-              onlineBtn.disabled = true;
-              offlineBtn.disabled = false;
-            } else {
-              onlineBtn.disabled = false;
-              offlineBtn.disabled = true;
-            }
-            
-            alert(`修改成功`);
-          } else {
-            throw new Error(result.message || '更新失敗');
-          }
-        } else {
-          throw new Error(`HTTP ${response.status}`);
-        }
-      } catch (error) {
-        alert('更新狀態失敗，請稍後再試');
-      } finally {
-        buttonElement.textContent = originalText;
-      }
-    }
+    	    // 無論成功或失敗都解析 JSON
+    	    const result = await response.json();
+    	    console.log('後端回應:', result); // 除錯用
+
+    	    if (response.ok && result.success) {
+    	        // 成功的情況
+    	        const product = allProductsData.find(p => p.id == productId);
+    	        if (product) {
+    	            product.proIsmarket = proIsMarket;
+    	        }
+
+    	        if (proIsMarket === '0') {
+    	            onlineBtn.disabled = true;
+    	            offlineBtn.disabled = false;
+    	        } else {
+    	            onlineBtn.disabled = false;
+    	            offlineBtn.disabled = true;
+    	        }
+
+    	        alert('修改成功');
+    	    } else {
+    	        // 失敗的情況（包括 400, 404, 500 等錯誤狀態碼）
+    	        let errorMessage = '更新失敗';
+    	        
+    	        if (result && result.message) {
+    	            errorMessage = result.message;
+    	        }
+    	        
+    	        console.log('錯誤訊息:', errorMessage);
+    	        alert(errorMessage);
+    	        
+    	        // 重要：失敗時恢復按鈕狀態
+    	        // 這裡需要根據目前的實際狀態來設定按鈕
+    	        const product = allProductsData.find(p => p.id == productId);
+    	        if (product) {
+    	            if (product.proIsmarket === '0') {
+    	                onlineBtn.disabled = true;
+    	                offlineBtn.disabled = false;
+    	            } else {
+    	                onlineBtn.disabled = false;
+    	                offlineBtn.disabled = true;
+    	            }
+    	        }
+    	    }
+
+    	} catch (error) {
+    	    console.error('請求錯誤:', error);
+    	    alert('網路錯誤，請稍後再試');
+    	    
+    	    // 網路錯誤時也要恢復按鈕狀態
+    	    const product = allProductsData.find(p => p.id == productId);
+    	    if (product) {
+    	        if (product.proIsmarket === '0') {
+    	            onlineBtn.disabled = true;
+    	            offlineBtn.disabled = false;
+    	        } else {
+    	            onlineBtn.disabled = false;
+    	            offlineBtn.disabled = true;
+    	        }
+    	    }
+    	} finally {
+    	    // 恢復按鈕文字
+    	    buttonElement.textContent = originalText;
+    	}
+  }
+   
 
     // --- 輔助函式 ---
     function showError(error) {

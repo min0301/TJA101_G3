@@ -11,20 +11,20 @@ import org.springframework.data.repository.query.Param;
 public interface ProductRepository extends JpaRepository<Product, Integer>{
 	
 		@Modifying
-	    @Query(value="UPDATE Product p SET p.PRO_ISMARKET = :proIsMarket WHERE p.PRO_NO = :proNo", nativeQuery = true)
+	    @Query(value="UPDATE Product SET PRO_ISMARKET = :proIsMarket WHERE PRO_NO = :proNo", nativeQuery = true)
 	    Integer updateMarketStatus(@Param("proNo") Integer proNo, @Param("proIsMarket") Character proIsMarket);
 		
-	    @Query(value="SELECT * FROM Product p WHERE p.MALL_TAG_NO = :mallTagNo "+"AND (p.PRO_ISMARKET IS NULL OR p.PRO_ISMARKET = :proIsMarket)", nativeQuery = true)
+	    @Query(value="SELECT * FROM Product WHERE MALL_TAG_NO = :mallTagNo AND (PRO_ISMARKET IS NULL OR PRO_ISMARKET = :proIsMarket)", nativeQuery = true)
 	    List<Product> findByMallTagAndMarket(@Param("mallTagNo") Integer mallTagNo,@Param("proIsMarket") Character proIsMarket);
 
-	    @Query(value="SELECT * FROM Product p WHERE p.PRO_ISMARKET = :proIsMarket", nativeQuery = true)
+	    @Query(value="SELECT * FROM Product WHERE PRO_ISMARKET = :proIsMarket", nativeQuery = true)
 	    List<Product> findByMarket(@Param("proIsMarket") Character proIsMarket);
 
 	    List<Product> findByProStatus(String proStatus);
 	    
-	    @Query(value="SELECT * FROM Product p WHERE p.PRO_STATUS = '預購中' AND p.PRO_DATE <= :date", nativeQuery = true)
-	    List<Product> findPreorderProductsBeforeDate(@Param("date") LocalDate date);
-	    
 	    List<Product> findByProName(String proName);
+	    
+	    @Query(value ="SELECT PRO_NO FROM Product WHERE LOWER(TRIM(PRO_NAME)) = LOWER(TRIM(:proName)) AND PRO_VERSION = :proVersion AND MALL_TAG_NO = :mallTagNo", nativeQuery = true)
+	    Integer isExistProduct(@Param("proName") String proName, @Param("proVersion") String proVersion, @Param("mallTagNo") Integer mallTagNo);
 	    
 }

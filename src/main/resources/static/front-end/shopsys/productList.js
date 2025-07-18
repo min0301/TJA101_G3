@@ -5,7 +5,9 @@
 
 class ProductListManager {
     constructor() {
-        this.apiBaseUrl = 'http://localhost:8080/api';
+		
+		// 修改為 動態API URL
+        this.apiBaseUrl = `${location.origin}/api`;
         this.currentContainer = null;
         this.productsData = [];
         this.currentPage = 1;
@@ -372,8 +374,21 @@ class ProductListManager {
      */
     viewProductDetail(productId) {
         console.log('查看商品詳情:', productId);
+		
         // 跳轉到商品詳情頁面，使用 PRO_NO
-        window.location.href = `/product.html?id=${productId}`;
+		const currentPath = window.location.pathname;
+		    let targetUrl;
+		    
+		    if (currentPath.includes('/front-end/shopsys/productDetail.js')) {
+		        // 如果已經在 shopsys 目錄下，使用相對路徑
+		        targetUrl = `product.html?id=${productId}`;
+		    } else {
+		        // 如果在其他位置，使用絕對路徑
+		        targetUrl = `/front-end/shopsys/product.html?id=${productId}`;
+		    }
+		    
+		    console.log('跳轉到:', targetUrl);
+		    window.location.href = targetUrl;
     }
 
     /**
@@ -472,7 +487,7 @@ class ProductListManager {
                         <div class="mt-3">
                             <p class="small text-info">
                                 <i class="bi bi-info-circle me-1"></i>
-                                請確認後端服務是否在 <code>http://localhost:8080</code> 運行
+                                請確認後端服務是否在正常運行
                             </p>
                         </div>
                         <button class="btn btn-primary" onclick="window.productListManager.refreshProducts()">

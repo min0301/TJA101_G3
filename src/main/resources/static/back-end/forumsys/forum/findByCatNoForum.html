@@ -200,7 +200,7 @@
 
             // 2. 根據 catId 組合 API URL
             //    "/api/category/${catId}/forums" 這段路徑不可變，必須與 Controller 的 @GetMapping 相符
-            const apiUrl = `http://localhost:8080/api/category/${catId}/forums`;
+            const apiUrl = `/api/category/${catId}/forums`;
 
             try {
                 // 3. 發送請求

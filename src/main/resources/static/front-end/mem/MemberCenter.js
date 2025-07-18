@@ -89,8 +89,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <input type="password" id="newPassword" class="form-control mb-2" placeholder="輸入新密碼" required>
 				<div class="invalid-feedback" id="newPasswordError"></div>
                 <input type="password" id="newPasswordConfirm" class="form-control mb-3" placeholder="再次輸入新密碼" required>
-                <div class="invalid-feedback" id="newPasswordConfirmError"></div>
-                  <button type="submit" class="btn btn-main flex-fill">重設密碼</button>
+				<div class="d-flex mb-2" style="gap:10px;">
+				  <button type="submit" class="btn btn-main flex-fill">重設密碼</button>
+				</div>
                 <div id="resetPwdMsg" class="text-center mt-2"></div>
               </form>
             </div>
@@ -145,6 +146,7 @@ document.addEventListener('DOMContentLoaded', async function() {
           <div class="member-center-card mb-4 bg-white">
             <div class="card-body py-4 px-4">
               <div class="card-section-title mb-2">密碼重設</div>
+			  <div class="card-section-title mb-2">請輸入8碼以上，含英文及數字的密碼</div>
               <form id="resetPwdForm" autocomplete="off">
                 <input type="password" id="oldPassword" class="form-control mb-2" placeholder="輸入原密碼" required>
 				<div class="invalid-feedback" id="newPasswordError"></div>

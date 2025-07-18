@@ -207,7 +207,7 @@
         const submitButton = document.getElementById('submit-button');
         const messageArea = document.getElementById('message-area');
         const imageFileInput = document.getElementById('imageFile');
-        const apiUrl = 'http://localhost:8080/api/admin/forum';
+        const apiUrl = '/api/admin/forum';
 
         /**
          * @description 動態從後端 API 載入所有分類並填充至下拉選單
@@ -215,7 +215,7 @@
         async function loadCategories() {
             try {
                 // 為避免瀏覽器快取，可以增加一個 cache: 'no-cache' 選項
-                const response = await fetch('http://localhost:8080/api/categorys', {cache: 'no-cache'});
+                const response = await fetch('/api/categorys', {cache: 'no-cache'});
                 if (!response.ok) {
                     throw new Error('無法載入分類資料，請檢查後端服務');
                 }
@@ -262,9 +262,15 @@
 
             try {
                 const response = await fetch(apiUrl, {method: 'POST', body: formData});
+
+                // 【修改點】處理非成功的 Response
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(errorText || `發生錯誤，狀態碼: ${response.status}`);
+                    // 【核心修改】從 .text() 改為 .json() 來解析 JSON 物件
+                    const errorData = await response.json();
+
+                    // 【核心修改】從解析後的物件中，只取出 message 屬性
+                    // errorData.message 的 'message' 對應 Spring Boot 預設錯誤 JSON 中的 "message" 欄位
+                    throw new Error(errorData.message || `發生未知錯誤，狀態碼: ${response.status}`);
                 }
                 showMessage('新增成功！2秒後將返回列表頁。', 'success');
                 setTimeout(() => {

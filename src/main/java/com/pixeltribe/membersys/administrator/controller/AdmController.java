@@ -57,7 +57,7 @@ public class AdmController {
 			administrator.setAdmAccount(admAccount);
 			administrator.setAdmName(admName);
 			administrator.setAdmPassword(admPassword);
-			
+			administrator.setRole(admRole);
 			//將新administrator存入DB並回傳成功
 			administrator = admRepository.save(administrator);
 			

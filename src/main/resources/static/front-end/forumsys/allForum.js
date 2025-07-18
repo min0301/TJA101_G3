@@ -108,7 +108,7 @@ window.showPostListView = async function (forumId) {
         chatRoomContainer.innerHTML = `
             <div class="chat-room card">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-chat-dots-fill me-2"></i>即時聊天室</h5>
+                    <h5 class="mb-0" ><i class="bi bi-chat-dots-fill me-2"></i>${forum.forName}-即時聊天室</h5>
                     <span id="chat-status" class="badge bg-secondary">未連接</span>
                 </div>
                 <div class="card-body">

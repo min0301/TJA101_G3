@@ -3,489 +3,486 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新增文章 - 論壇文章管理</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-          integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <title>新增文章 - 論壇管理</title>
     <style>
-        /* CSS 樣式區：定義頁面外觀與排版 (保持與你提供的一致) */
-        body {
-            font-family: 'Segoe UI', sans-serif;
+        /* 從 addForum.html 複製並調整，確保風格一致 */
+        .forumpost-management-container {
+            width: 100%;
+            max-width: 1400px;
             margin: 0 auto;
-            max-width: 800px;
-            padding: 20px;
-            background-color: #f4f7f6;
-            color: #333;
         }
 
-        .header-container {
+        .page-title-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        h1 {
-            color: #2c3e50;
+        .page-title-header h2 {
+            font-family: 'Karla', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
             margin: 0;
         }
 
-        .form-container { /* 修改 class 名稱以與 HTML 匹配 */
-            background-color: #ffffff;
+        .item-icon {
+            margin-right: 10px;
+        }
+
+        .form-wrapper {
+            background: var(--component-bg);
             padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .form-group label {
             display: block;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             color: #34495e;
+            font-size: 16px;
         }
 
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
+        .form-control {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             font-size: 16px;
-            box-sizing: border-box; /* 確保 padding 不增加寬度 */
+            background: var(--primary-bg);
+            color: var(--text-color);
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        .btn {
-            display: inline-block;
-            text-decoration: none;
-            color: white;
-            padding: 10px 18px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: opacity 0.3s;
+        .form-control:focus {
+            border-color: var(--brand-green);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--brand-green-light);
         }
 
-        .btn:hover {
-            opacity: 0.9;
-        }
-
-        .btn-submit {
-            background-color: #27ae60; /* 綠色 */
-        }
-
-        .btn-back {
-            background-color: #95a5a6; /* 灰色 */
+        textarea.form-control {
+            resize: vertical;
+            min-height: 180px;
         }
 
         .form-actions {
             text-align: right;
-            margin-top: 30px;
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
         }
 
-        .form-actions .btn {
-            margin-left: 10px;
+        .action-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .action-btn:hover {
+            background: #f2f2f2;
+            border-color: #adadad;
+        }
+
+        .action-btn.btn-submit {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+            color: white;
+        }
+
+        .action-btn.btn-submit:hover {
+            background-color: var(--brand-green-hover);
+            border-color: var(--brand-green-hover);
+        }
+
+        .action-btn.btn-submit:disabled {
+            background-color: #95a5a6;
+            border-color: #95a5a6;
+            cursor: not-allowed;
         }
 
         #message-area {
             padding: 15px;
             margin-top: 20px;
-            border-radius: 5px;
-            display: none; /* 預設隱藏 */
+            border-radius: 6px;
+            display: none;
             font-weight: bold;
+            border: 1px solid transparent;
         }
 
         #message-area.success {
             color: #155724;
             background-color: #d4edda;
+            border-color: #c3e6cb;
         }
 
         #message-area.error {
             color: #721c24;
             background-color: #f8d7da;
+            border-color: #f5c6cb;
         }
-
-        /* 預設圖片預覽樣式 */
-        #defaultImagePreview {
+        .image-option-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .image-option-group input[type="radio"] {
+            margin-right: 5px;
+        }
+        .default-image-preview {
             max-width: 150px;
             max-height: 150px;
-            margin-top: 10px;
-            border: 1px solid #ddd;
-            display: none; /* 預設隱藏 */
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            object-fit: cover;
+            margin-left: 10px;
         }
-
-        .image-source-options {
-            display: flex; /* 讓選項水平排列 */
-            gap: 15px; /* 選項之間的間距 */
-            margin-bottom: 15px; /* 與下方圖片預覽的間距 */
-        }
-
-        .image-source-label {
-            display: flex; /* 讓 radio 和文字水平對齊 */
-            align-items: center; /* 垂直居中對齊 */
-            padding: 10px 15px; /* 點擊區域的內邊距 */
-            border: 1px solid #ccc; /* 邊框 */
-            border-radius: 5px; /* 圓角 */
-            cursor: pointer; /* 滑鼠指針變為手型 */
-            transition: background-color 0.2s, border-color 0.2s; /* 平滑過渡效果 */
-            flex-grow: 1; /* 讓選項均勻分佈可用空間 */
-            justify-content: center; /* 內容水平居中 */
-        }
-
-        .image-source-label:hover {
-            background-color: #f0f0f0; /* 滑鼠懸停時的背景色 */
-            border-color: #999; /* 滑鼠懸停時的邊框顏色 */
-        }
-
-        .image-source-label input[type="radio"] {
-            /* 隱藏原生 radio 按鈕，我們將使用樣式化的 span 來表示選中狀態 */
-            -webkit-appearance: none; /* 移除瀏覽器預設樣式 */
-            -moz-appearance: none;
-            appearance: none;
-            width: 10px; /* 自訂 radio 圓圈大小 */
-            height: 18px;
-            border: 2px solid #aaa;
-            border-radius: 50%; /* 圓形 */
-            margin-right: 10px; /* 與文字的間距 */
-            outline: none; /* 移除點擊時的藍色外框 */
-            cursor: pointer;
-            position: relative; /* 用於自訂圓點 */
-            display: flex; /* 使用 flexbox 讓圓點居中 */
-            justify-content: center;
-            align-items: center;
-        }
-
-        .image-source-label input[type="radio"]:checked {
-            border-color: #27ae60; /* 選中時的邊框顏色 */
-            background-color: #fff; /* 選中時的背景色，內部圓點會蓋住 */
-        }
-
-        .image-source-label input[type="radio"]:checked::before {
-            /* 選中時內部的圓點 */
-            content: '';
-            width: 10px; /* 內部圓點大小 */
-            height: 10px;
-            background-color: #27ae60; /* 內部圓點顏色 */
-            border-radius: 50%;
-            display: block;
-        }
-
-        /* 確保文字不會因為 radio 隱藏而消失 */
-        .image-source-label span {
-            font-weight: normal; /* 文字不需要加粗，因為外層 label 已經加粗 */
-            color: #333;
+        #customImageUpload {
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
-<div class="header-container">
-    <h1>新增文章</h1></div>
 
-<div class="form-container">
-    <form id="add-forumpost-form">
-        <div class="form-group">
-            <label for="postTitle">文章標題</label>
-            <input type="text" id="postTitle" name="postTitle" required maxlength="50">
-        </div>
+<div class="forumpost-management-container">
+    <div class="page-title-header">
+        <h2><i class="bi bi-plus-circle-fill item-icon"></i>新增文章</h2>
+    </div>
 
-        <div class="form-group">
-            <label for="postCon">文章內容</label>
-            <textarea id="postCon" name="postCon" required rows="10" minlength="10" maxlength="5000"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="forNoId">所屬討論區</label>
-            <select id="forNoId" name="forNoId" required>
-                <option value="" disabled selected>--載入中--</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="ftagNoId">文章類別</label>
-            <select id="ftagNoId" name="ftagNoId" required>
-                <option value="" disabled selected>--載入中--</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>文章封面圖片</label>
-            <div class="image-source-options"><label class="image-source-label"> <input type="radio"
-                                                                                        id="useDefaultImage"
-                                                                                        name="imageSource"
-                                                                                        value="default" checked>
-                <span>使用預設圖片</span> </label>
-                <label class="image-source-label"> <input type="radio" id="uploadCustomImage" name="imageSource"
-                                                          value="custom">
-                    <span>上傳自訂圖片</span>
-                </label>
+    <div class="form-wrapper">
+        <form id="add-forumpost-form">
+            <div class="form-group">
+                <label for="postTitle">文章標題</label>
+                <input type="text" id="postTitle" name="postTitle" class="form-control" required>
             </div>
-            <img id="defaultImagePreview" src="" alt="預設圖片預覽" style="display: none;">
-            <input type="file" id="postCoverImageFile" name="imageFile" accept="image/*" style="display: none;">
-        </div>
 
-        <div class="form-actions">
-            <a href="/back-end/forumsys/forumpost/allForumPost.html" class="btn btn-back">返回列表</a>
-            <button type="submit" id="submit-button" class="btn btn-submit">確認新增</button>
-        </div>
-    </form>
+            <div class="form-group">
+                <label for="forNoId">所屬討論區</label>
+                <select id="forNoId" name="forNoId" class="form-control" required>
+                    <option value="" disabled selected>--載入中--</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="forumTagSelect">文章類別</label>
+                <select id="forumTagSelect" class="form-control" name="ftagNoId" required> <option value="" disabled selected>-- 請選擇文章類別 --</option>
+                </select>
+                <div class="invalid-feedback" id="forumTagError">請選擇文章類別。</div>
+            </div>
+
+            <div class="form-group">
+                <label for="postCon">文章內容</label>
+                <textarea id="postCon" name="postCon" class="form-control" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>封面圖片</label>
+                <div class="image-option-group">
+                    <input type="radio" id="useDefaultImage" name="imageOption" value="default" checked>
+                    <label for="useDefaultImage">使用類別預設圖片</label>
+                    <img id="default-image-preview" src="" alt="預設圖片預覽" class="default-image-preview" style="display: none;">
+                </div>
+                <div class="image-option-group">
+                    <input type="radio" id="uploadCustomImage" name="imageOption" value="custom">
+                    <label for="uploadCustomImage">上傳自訂圖片</label>
+                </div>
+                <div id="customImageUpload" style="display: none;">
+                    <input type="file" id="imageFile" name="imageFile" class="form-control" accept="image/png, image/jpeg, image/gif">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="postStatus">狀態</label>
+                <select id="postStatus" name="postStatus" class="form-control">
+                    <option value="0" selected>正常</option>
+                    <option value="1">停用</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="postPin">是否置頂</label>
+                <select id="postPin" name="postPin" class="form-control">
+                    <option value="0" selected>否</option>
+                    <option value="1">是</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <a href="#"
+                   onclick="event.preventDefault(); loadExternalPage('../forumsys/forumpost/allForumPost.html')"
+                   class="action-btn">返回列表</a>
+                <button type="submit" id="submit-button" class="action-btn btn-submit">確認新增</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="message-area"></div>
 </div>
 
-<div id="message-area"></div>
-
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const postTitleInput = document.getElementById('postTitle');
-        const postConTextarea = document.getElementById('postCon');
-        const forNoSelect = document.getElementById('forNoId');
-        const ftagNoSelect = document.getElementById('ftagNoId');
+    (function () {
+        'use strict';
 
-        const useDefaultImageRadio = document.getElementById('useDefaultImage');
-        const uploadCustomImageRadio = document.getElementById('uploadCustomImage');
-        const defaultImagePreview = document.getElementById('defaultImagePreview');
-        const postCoverImageFileInput = document.getElementById('postCoverImageFile');
-
+        // --- DOM 元素定義 ---
         const form = document.getElementById('add-forumpost-form');
+        const postTitleInput = document.getElementById('postTitle');
+        const forNoIdSelect = document.getElementById('forNoId');
+        const forumTagSelect = document.getElementById('forumTagSelect'); // 【修正】變數名稱與 HTML ID 一致
+        const postConTextarea = document.getElementById('postCon');
+        const postStatusSelect = document.getElementById('postStatus');
+        const postPinSelect = document.getElementById('postPin');
+        const imageFileInput = document.getElementById('imageFile');
         const submitButton = document.getElementById('submit-button');
         const messageArea = document.getElementById('message-area');
+        const useDefaultImageRadio = document.getElementById('useDefaultImage');
+        const uploadCustomImageRadio = document.getElementById('uploadCustomImage');
+        const customImageUploadDiv = document.getElementById('customImageUpload');
+        const defaultImagePreview = document.getElementById('default-image-preview');
 
-        const API_ADD_POST_URL = 'http://localhost:8080/api/forumpost/insert';
-        const API_FORUMS_URL = 'http://localhost:8080/api/forums';
-        const API_FORUM_TAGS_URL = 'http://localhost:8080/api/forumtag';
 
-        // 定義預設圖片的映射關係
-        // 假設您的圖片都放在 /resources/imgseed/forumposttag_img/
-        // 並以文章類別 ID 作為檔案名 (例如 1.jpg, 2.jpg 等)
-        const DEFAULT_IMAGE_BASE_PATH = 'http://localhost:8080/images/forumposttag_img/';
-        const DEFAULT_IMAGE_MAP = {
-            // 範例：映射類別 ID 到圖片名稱
-            // 這些 ID 和圖片名稱需要根據您的實際情況進行配置
-            1: '01.jpg',
-            2: '02.jpg',
-            3: '03.jpg',
-            4: '04.jpg',
-            5: '05.jpg',
-            6: '06.jpg',
-            7: '07.jpg',
-            8: '08.jpg',
-            9: '09.jpg',
-            10: '10.jpg',
-            11: '11.jpg',
-            // ... 可以繼續添加更多映射
-        };
+        // --- API 路徑定義 ---
+        const addPostApiUrl = 'http://localhost:8080/api/forumpost/insert';
+        const allForumsApiUrl = 'http://localhost:8080/api/forums';
+        const allTagsApiUrl = 'http://localhost:8080/api/forumtag'; // 【不可變】根據 ForumTagController.java
+        const defaultImageUrlApiBase = 'http://localhost:8080/api/forumtag/default-image'; // 【重要】假設 ForumTagController 提供了此 API，或您需在後端實作
 
-        let selectedDefaultImageUrl = ''; // 用於儲存當前選定的預設圖片 URL
 
+        // --- 載入討論區和文章類別下拉選單 ---
+        async function loadSelectOptions() {
+            try {
+                // 並行載入討論區和文章類別
+                const [forumsResponse, tagsResponse] = await Promise.all([
+                    fetch(allForumsApiUrl),
+                    fetch(allTagsApiUrl)
+                ]);
+
+                if (!forumsResponse.ok) throw new Error('無法載入討論區資料');
+                if (!tagsResponse.ok) throw new Error('無法載入文章類別資料');
+
+                const forums = await forumsResponse.json();
+                const tags = await tagsResponse.json();
+
+                populateSelect(forNoIdSelect, forums, 'id', 'forName', '--請選擇所屬討論區--');
+                // 【修正】使用正確的下拉選單變數 forumTagSelect
+                populateSelect(forumTagSelect, tags, 'id', 'ftagName', '--請選擇文章類別--'); // 【修正】ftagName 來自 ForumTagDTO.java
+
+                // 初始載入時，根據選定的類別更新預設圖片預覽
+                // 只有在 `useDefaultImageRadio` 被選中時才載入預設圖片
+                if (useDefaultImageRadio.checked) {
+                    updateDefaultImagePreview();
+                }
+
+                // 監聽文章類別下拉選單的變化，以更新預設圖片預覽
+                forumTagSelect.addEventListener('change', updateDefaultImagePreview);
+
+            } catch (error) {
+                console.error('載入下拉選單失敗:', error);
+                showMessage(`資料載入失敗: ${error.message}`, 'error');
+                forNoIdSelect.innerHTML = `<option value="" disabled>載入失敗</option>`;
+                forumTagSelect.innerHTML = `<option value="" disabled>載入失敗</option>`; // 【修正】
+            }
+        }
+
+        /**
+         * @description 填充下拉選單的通用函式
+         * @param {HTMLSelectElement} selectElement - 要填充的 select 元素
+         * @param {Array} data - 從 API 獲取的資料陣列
+         * @param {string} valueKey - 作為 option value 的屬性名稱
+         * @param {string} textKey - 作為 option textContent 的屬性名稱
+         * @param {string} defaultText - 預設選項的文字
+         */
+        function populateSelect(selectElement, data, valueKey, textKey, defaultText) {
+            selectElement.innerHTML = `<option value="" disabled selected>${defaultText}</option>`;
+            data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item[valueKey];
+                option.textContent = item[textKey];
+                selectElement.appendChild(option);
+            });
+        }
+
+        /**
+         * @description 根據選定的文章類別 ID 獲取並顯示預設圖片
+         */
+        async function updateDefaultImagePreview() {
+            const selectedTagId = forumTagSelect.value; // 【修正】使用正確的下拉選單變數
+            if (selectedTagId) {
+                try {
+                    // 呼叫後端 API 獲取預設圖片 URL
+                    // 【重點】這裡假設有一個 API 根據 tagId 返回其預設圖片 URL
+                    const response = await fetch(`${defaultImageUrlApiBase}/${selectedTagId}`);
+                    if (!response.ok) {
+                        throw new Error(`無法獲取預設圖片URL，狀態碼: ${response.status}`);
+                    }
+                    const imageUrl = await response.text(); // 預期返回純文字的 URL
+                    defaultImagePreview.src = imageUrl;
+                    defaultImagePreview.style.display = 'block';
+                } catch (error) {
+                    console.error('載入預設圖片失敗:', error);
+                    defaultImagePreview.style.display = 'none';
+                    defaultImagePreview.src = ''; // 清除圖片源
+                }
+            } else {
+                defaultImagePreview.style.display = 'none';
+                defaultImagePreview.src = '';
+            }
+        }
+
+        // --- 圖片上傳選項切換 ---
+        useDefaultImageRadio.addEventListener('change', () => {
+            if (useDefaultImageRadio.checked) {
+                customImageUploadDiv.style.display = 'none';
+                imageFileInput.value = ''; // 清空已選擇的檔案
+                imageFileInput.removeAttribute('required');
+                updateDefaultImagePreview(); // 顯示預設圖片
+            }
+        });
+
+        uploadCustomImageRadio.addEventListener('change', () => {
+            if (uploadCustomImageRadio.checked) {
+                customImageUploadDiv.style.display = 'block';
+                // imageFileInput.setAttribute('required', 'required'); // 根據業務邏輯決定是否強制上傳
+                defaultImagePreview.style.display = 'none'; // 隱藏預設圖片
+            }
+        });
+
+        // 初始載入時，如果預設圖片選項被選中，執行相關邏輯
+        if (useDefaultImageRadio.checked) {
+            customImageUploadDiv.style.display = 'none';
+            imageFileInput.removeAttribute('required');
+        }
+
+        // 檔案上傳預覽
+        imageFileInput.addEventListener('change', (event) => {
+            if (event.target.files && event.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    defaultImagePreview.src = e.target.result; // 暫時用 defaultImagePreview 顯示上傳圖片
+                    defaultImagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(event.target.files[0]);
+            } else {
+                defaultImagePreview.style.display = 'none';
+                defaultImagePreview.src = '';
+            }
+        });
+
+
+        // --- 表單提交事件處理 ---
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            submitButton.disabled = true;
+            submitButton.textContent = '新增中...';
+            hideMessage();
+
+            const formData = new FormData();
+
+            // 1. 建立文章資料 DTO
+            const forumPostData = {
+                postTitle: postTitleInput.value,
+                postCon: postConTextarea.value,
+                postStatus: postStatusSelect.value,
+                postPin: postPinSelect.value,
+                forNoId: parseInt(forNoIdSelect.value, 10),
+                ftagNoId: parseInt(forumTagSelect.value, 10), // 【修正】使用正確的下拉選單變數
+            };
+
+            // 2. 將 DTO 轉換為 JSON Blob 並附加到 FormData
+            formData.append('forumPostUpdate', new Blob([JSON.stringify(forumPostData)], {type: 'application/json'}));
+
+            // 3. 處理圖片檔案
+            if (uploadCustomImageRadio.checked && imageFileInput.files.length > 0) {
+                // 如果選擇上傳自訂圖片且有檔案
+                formData.append('imageFile', imageFileInput.files[0]);
+                formData.append('defaultImageUrl', ''); // 清空 defaultImageUrl
+            } else if (useDefaultImageRadio.checked) {
+                // 如果選擇使用預設圖片，將預設圖片 URL 傳給後端
+                // 注意：這裡假設後端會根據傳入的 defaultImageUrl 參數來處理
+                // 如果 defaultImageUrlApiBase/{tagId} 成功返回 URL，就傳遞
+                // 否則，不傳遞 defaultImageUrl 讓後端處理 (Service 層應有備用邏輯)
+                const selectedTagId = forumTagSelect.value;
+                if (selectedTagId) {
+                    try {
+                        const response = await fetch(`${defaultImageUrlApiBase}/${selectedTagId}`);
+                        const imageUrl = await response.text();
+                        formData.append('defaultImageUrl', imageUrl);
+                    } catch (error) {
+                        console.error('獲取預設圖片URL失敗，將不會傳遞預設圖片URL:', error);
+                        // 即使獲取失敗，也不要阻止表單提交，讓後端決定
+                    }
+                }
+            }
+
+
+            try {
+                const response = await fetch(addPostApiUrl, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const errorResponse = await response.json();
+                    let errorMessage = '新增失敗！';
+                    if (errorResponse && typeof errorResponse === 'object') {
+                        const fieldErrors = Object.values(errorResponse).join(', ');
+                        errorMessage = `輸入資料有誤: ${fieldErrors}`;
+                    } else if (errorResponse && typeof errorResponse === 'string') {
+                        errorMessage = errorResponse;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const result = await response.json();
+                console.log('新增成功:', result);
+                showMessage('新增成功！2秒後將返回列表頁。', 'success');
+
+                setTimeout(() => {
+                    if (typeof window.parent.loadExternalPage === 'function') {
+                        window.parent.loadExternalPage('../forumsys/forumpost/allForumPost.html');
+                    } else if (typeof loadExternalPage === 'function') {
+                        loadExternalPage('../forumsys/forumpost/allForumPost.html');
+                    }
+                }, 2000);
+
+            } catch (error) {
+                showMessage(`新增失敗: ${error.message}`, 'error');
+                submitButton.disabled = false;
+                submitButton.textContent = '確認新增';
+            }
+        });
+
+        // --- 輔助函式 ---
         function showMessage(message, type) {
-            messageArea.innerHTML = message;
+            messageArea.textContent = message;
             messageArea.className = type;
             messageArea.style.display = 'block';
         }
 
         function hideMessage() {
             messageArea.style.display = 'none';
-            messageArea.textContent = '';
         }
 
-        async function loadForums() {
-            try {
-                const response = await fetch(API_FORUMS_URL);
-                if (!response.ok) {
-                    throw new Error(`無法載入討論區資料，狀態碼: ${response.status}`);
-                }
-                const forums = await response.json();
-
-                forNoSelect.innerHTML = '<option value="" disabled selected>--請選擇討論區--</option>';
-                forums.forEach(forum => {
-                    const option = document.createElement('option');
-                    option.value = forum.id;
-                    option.textContent = forum.forName;
-                    forNoSelect.appendChild(option);
-                });
-            } catch (error) {
-                console.error('載入討論區失敗:', error);
-                forNoSelect.innerHTML = '<option value="" disabled>討論區載入失敗</option>';
-                showMessage(`載入討論區失敗: ${error.message}`, 'error');
-            }
-        }
-
-        async function loadForumTags() {
-            try {
-                const response = await fetch(API_FORUM_TAGS_URL);
-                if (!response.ok) {
-                    throw new Error(`無法載入文章類別資料，狀態碼: ${response.status}`);
-                }
-                const tags = await response.json();
-
-                ftagNoSelect.innerHTML = '<option value="" disabled selected>--請選擇文章類別--</option>';
-                tags.forEach(tag => {
-                    const option = document.createElement('option');
-                    option.value = tag.id;
-                    option.textContent = tag.ftagName;
-                    option.dataset.defaultImage = DEFAULT_IMAGE_MAP[tag.id] || ''; // 將預設圖片名存儲在 dataset
-                    ftagNoSelect.appendChild(option);
-                });
-                // 載入完畢後，如果已經有選定的文章類別，觸發一次預覽更新
-                updateDefaultImagePreview();
-
-            } catch (error) {
-                console.error('載入文章類別失敗:', error);
-                ftagNoSelect.innerHTML = '<option value="" disabled>文章類別載入失敗</option>';
-                showMessage(`載入文章類別失敗: ${error.message}`, 'error');
-            }
-        }
-
-        // --- 處理圖片來源選擇 (預設圖片 vs. 自訂上傳) ---
-        function handleImageSourceChange() {
-            if (useDefaultImageRadio.checked) {
-                postCoverImageFileInput.style.display = 'none';
-                postCoverImageFileInput.value = ''; // 清空已選擇的自訂檔案
-                updateDefaultImagePreview(); // 顯示預設圖片預覽
-            } else { // uploadCustomImageRadio.checked
-                defaultImagePreview.style.display = 'none';
-                defaultImagePreview.src = ''; // 清空預覽圖片
-                postCoverImageFileInput.style.display = 'block';
-
-            }
-        }
-
-        // --- 根據選定的文章類別更新預設圖片預覽 ---
-        function updateDefaultImagePreview() {
-            const selectedOption = ftagNoSelect.options[ftagNoSelect.selectedIndex];
-            const defaultImageName = selectedOption && selectedOption.dataset.defaultImage ? selectedOption.dataset.defaultImage : '';
-
-            if (useDefaultImageRadio.checked && defaultImageName) {
-                selectedDefaultImageUrl = DEFAULT_IMAGE_BASE_PATH + defaultImageName;
-                defaultImagePreview.src = selectedDefaultImageUrl;
-                defaultImagePreview.style.display = 'block';
-            } else {
-                selectedDefaultImageUrl = '';
-                defaultImagePreview.src = '';
-                defaultImagePreview.style.display = 'none';
-            }
-        }
-
-        // --- 事件監聽器 ---
-        ftagNoSelect.addEventListener('change', updateDefaultImagePreview); // 文章類別改變時更新預覽
-        useDefaultImageRadio.addEventListener('change', handleImageSourceChange);
-        uploadCustomImageRadio.addEventListener('change', handleImageSourceChange);
-
-
-        form.addEventListener('submit', async function (event) {
-            event.preventDefault();
-            hideMessage();
-
-            submitButton.disabled = true;
-            submitButton.textContent = '新增中...';
-
-            const formData = new FormData();
-
-            // 構建 ForumPostUpdateDTO 對象（用於後端接收 JSON 數據）
-            const forumPostUpdateDTO = {
-                forNoId: parseInt(forNoSelect.value),
-                ftagNoId: parseInt(ftagNoSelect.value),
-                postTitle: postTitleInput.value.trim(),
-                postCon: postConTextarea.value.trim(),
-                postPin: '0', // 預設為 '0' (不置頂)
-                postStatus: '1', // 預設為 '1' (公開)
-                memNoId: 1, //[可變] 會員ID 暫時固定為 1
-            };
-
-            // 將 DTO 物件轉換為 JSON 字串並作為 Blob 添加到 FormData 中
-            // 這裡的 'forumPostUpdate' 必須與後端 Controller @RequestPart("forumPostUpdate") 的名稱匹配
-            formData.append('forumPostUpdate', new Blob([JSON.stringify(forumPostUpdateDTO)], {type: 'application/json'}));
-
-            // 處理圖片上傳或預設圖片 URL
-            if (uploadCustomImageRadio.checked && postCoverImageFileInput.files.length > 0) {
-                // 用戶選擇了上傳自訂圖片
-                formData.append('imageFile', postCoverImageFileInput.files[0]);
-            } else if (useDefaultImageRadio.checked && selectedDefaultImageUrl) {
-                // 用戶選擇使用預設圖片，並且有選定的預設圖片 URL
-                // 後端需要一個新的 RequestPart 參數來接收這個 URL
-                // 或者 Service 層自行根據 ftagNoId 判斷並設定圖片
-                // 這裡的實現將預設圖片URL作為一個額外的 RequestPart 傳遞
-                formData.append('defaultImageUrl', selectedDefaultImageUrl);
-            }
-            // 如果都沒有選擇，則不傳遞圖片相關參數
-
-            console.log("提交的 FormData (DTO部分):", forumPostUpdateDTO);
-            if (uploadCustomImageRadio.checked) {
-                console.log("提交的 FormData (自訂圖片):", postCoverImageFileInput.files[0]);
-            } else if (useDefaultImageRadio.checked) {
-                console.log("提交的 FormData (預設圖片URL):", selectedDefaultImageUrl);
-            }
-
-
-            try {
-                const response = await fetch(API_ADD_POST_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    const errorResponse = await response.json().catch(() => ({message: `發生錯誤，狀態碼: ${response.status}`}));
-                    const errorMessage = Object.values(errorResponse).flat().join('<br>');
-                    throw new Error(errorMessage || `發生錯誤，狀態碼: ${response.status}`);
-                }
-
-                showMessage('文章新增成功！1秒後將返回文章列表頁。', 'success');
-                form.reset();
-                defaultImagePreview.style.display = 'none'; // 重置時隱藏圖片
-                selectedDefaultImageUrl = ''; // 清空預設圖片URL
-                // 確保電台按鈕和文件輸入狀態正確重置
-                useDefaultImageRadio.checked = true;
-                postCoverImageFileInput.style.display = 'none';
-
-
-                setTimeout(() => {
-                    window.location.href = '/back-end/forumsys/forumpost/allForumPost.html';
-                }, 1000);
-
-            } catch (error) {
-                showMessage(`新增失敗: ${error.message}`, 'error');
-                console.error('新增文章失敗:', error);
-            } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = '確認新增';
-            }
-        });
-        postCoverImageFileInput.addEventListener('change', function () { // 變數名稱 `postCoverImageFileInput` 不可變
-            if (this.files && this.files[0]) { // 變數名稱 `this.files` 不可變
-                // 創建 FileReader 物件來讀取檔案內容
-                const reader = new FileReader(); // 變數名稱 `reader` 不可變
-
-                // 當 FileReader 完成讀取時觸發
-                reader.onload = function (e) { // 變數名稱 `e` 不可變
-                    // 將讀取到的圖片資料 (base64 編碼的 URL) 設定給預覽圖片的 src
-                    defaultImagePreview.src = e.target.result; // 變數名稱 `e.target.result` 不可變
-                    defaultImagePreview.style.display = 'block'; // 確保預覽圖片顯示出來
-                    // 確保選擇自訂圖片時，預設圖片的 Radio 按鈕沒有被選中
-                    uploadCustomImageRadio.checked = true; // 變數名稱 `uploadCustomImageRadio` 不可變
-                };
-
-                // 以 Data URL (base64) 的形式讀取檔案
-                reader.readAsDataURL(this.files[0]);
-            } else {
-                // 如果用戶選擇了檔案但後來取消選擇 (例如點擊取消按鈕)
-                defaultImagePreview.src = ''; // 清空預覽圖片來源
-                defaultImagePreview.style.display = 'none'; // 隱藏預覽圖片
-                // 如果取消選擇，自動切換回使用預設圖片的 Radio 按鈕
-                useDefaultImageRadio.checked = true; // 變數名稱 `useDefaultImageRadio` 不可變
-                handleImageSourceChange(); // 變數名稱 `handleImageSourceChange` 不可變
-            }
-        });
-
-        // 頁面初始化
-        loadForums();
-        loadForumTags().then(() => {
-            // 在載入文章類別後，確保預設圖片選項的初始化狀態
-            handleImageSourceChange();
-        });
-    });
+        // --- 頁面初始化 ---
+        loadSelectOptions();
+    })();
 </script>
 </body>
 </html>
