@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>處理新聞留言檢舉</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap 5（與列表頁相同） -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- ====== 共用樣式 ====== -->
+    <style>
+        body { padding: 20px; font-family: "Segoe UI", Roboto, "Noto Sans TC", sans-serif; }
+
+        .page-title-header  { margin-bottom: 16px; }
+        .page-title-header h2 { font-size: 1.8rem; font-weight: 700; }
+
+        .main-layout        { display: flex; gap: 24px; flex-wrap: wrap; }
+        .panel              { flex: 1 1 320px; border: 1px solid #dee2e6; border-radius: 8px;
+            padding: 20px; background: #f8f9fa; }
+        .panel-title        { font-size: 1.25rem; font-weight: 600; margin-bottom: 12px; }
+
+        .info-group         { margin-bottom: 10px; }
+        .info-group label   { font-weight: 600; min-width: 92px; display: inline-block; }
+        .info-group .content{ display: inline-block; }
+
+        /* 狀態 Badge */
+        .status-badge       { padding: 2px 12px; border-radius: 999px; font-weight: 600; font-size: .875rem; }
+        .status-normal      { background:#0d6efd; color:#fff; }
+        .status-hidden      { background:#6c757d; color:#fff; }
+
+        /* 表單 */
+        #handleForm .form-group   { margin-bottom: 12px; }
+        #handleForm select        { max-width: 160px; }
+        #handleForm .form-actions { display: flex; gap: 10px; }
+
+        .btn-submit   { background:#198754; color:#fff; border:none; min-width:120px; }
+        .btn-submit:disabled{ background:#adb5bd; }
+        .btn-cancel   { background:#fff; border:1px solid #343a40; color:#343a40; }
+
+        /* 成功 & 錯誤訊息 */
+        #message-area .success { color: #198754; font-weight: 600; }
+        #message-area .error   { color: #dc3545; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="process-report-container">
+    <div class="page-title-header">
+        <h2><i class="bi bi-shield-shaded me-2"></i>處理新聞留言檢舉</h2>
+    </div>
+
+    <div class="main-layout">
+        <div class="panel" id="commentPanel">載入中...</div>
+        <div class="panel" id="reportPanel">載入中...</div>
+    </div>
+
+    <div id="message-area" class="mt-3"></div>
+</div>
+
+<!-- ====================== 主要腳本 ====================== -->
+<script>
+    (function () {
+        /* ---- 取得 ID 與 JWT ---- */
+        const params   = new URLSearchParams(
+            document.getElementById("content-area")?.dataset.pageParams || location.search);
+        const id       = params.get('id');
+        const jwtToken = localStorage.getItem('jwt') || '';
+
+        /* ---- DOM ---- */
+        const commentPanel = document.getElementById("commentPanel");
+        const reportPanel  = document.getElementById("reportPanel");
+        const msgArea      = document.getElementById("message-area");
+
+        /* ---- 先載入檢舉資料 ---- */
+        (async function loadData() {
+            try {
+                const res  = await fetch(`/api/admin/NewsComReport/${id}`, {
+                    headers:{ 'Authorization':'Bearer '+ jwtToken }
+                });
+                if (!res.ok) throw new Error(`(${res.status}) 無法取得資料`);
+
+                const data = await res.json();
+                renderComment(data);
+                renderReport(data);
+            } catch (err) {
+                commentPanel.innerHTML = reportPanel.innerHTML = `<p class="text-danger">${err.message}</p>`;
+            }
+        })();
+
+        /* ========= 渲染 ========= */
+        function renderComment(data) {
+            commentPanel.innerHTML = `
+      <h3 class="panel-title">留言資訊</h3>
+      <div class="info-group"><label>留言內容</label><div class="content">${data.newsComment}</div></div>
+      <div class="info-group"><label>留言狀態</label><div class="content">${commentStatus(data.newsCommentStatus)}</div></div>
+    `;
+        }
+
+        function renderReport(data) {
+            const handled   = data.newsComReportStatus === '1';
+            const disabled  = handled ? 'disabled' : '';
+            const btnText   = handled ? '已處理' : '確認處理';
+
+            reportPanel.innerHTML = `
+      <h3 class="panel-title">檢舉資訊</h3>
+      <div class="info-group"><label>檢舉人 ID</label><div class="content">${data.reporterId}</div></div>
+      <div class="info-group"><label>檢舉類型</label><div class="content">${data.reportTypeRpiType}</div></div>
+      <div class="info-group"><label>建立時間</label><div class="content">${fmtDate(data.createTime)}</div></div>
+      <div class="info-group"><label>處理狀態</label><div class="content">${reportStatus(data.newsComReportStatus)}</div></div>
+      <div class="info-group"><label>處理時間</label><div class="content">${fmtDate(data.finishTime)}</div></div>
+
+      <form id="handleForm">
+        <div class="form-group">
+          <label class="me-2">是否隱藏留言</label>
+          <select id="hideOption" class="form-select d-inline-block w-auto" ${disabled}>
+            <option value="false">不處理</option>
+            <option value="true">隱藏留言</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-submit btn" ${disabled}>${btnText}</button>
+          <button type="button" class="btn-cancel btn" onclick="loadExternalPage('../newssys/report/allNewsReport.html')">返回列表</button>
+        </div>
+      </form>
+    `;
+
+            document.getElementById("handleForm").addEventListener("submit", handleSubmit);
+        }
+
+        /* ========= 送出處理 ========= */
+        async function handleSubmit(e) {
+            e.preventDefault();
+            const hide = document.getElementById("hideOption").value === "true";
+
+            try {
+                const resp = await fetch(`/api/admin/NewsComReport/${id}`, {
+                    method:'PUT',
+                    headers:{
+                        'Content-Type':'application/json',
+                        'Authorization':'Bearer ' + jwtToken
+                    },
+                    body: JSON.stringify({
+                        id,
+                        newsComReportStatus:"1",
+                        ncomNoNcomStatus: hide ? "1" : null
+                    })
+                });
+                if (!resp.ok) throw new Error(`(${resp.status}) 處理失敗`);
+                msgArea.innerHTML = `<div class="success">✅ 已成功處理，3 秒後返回列表頁...</div>`;
+                setTimeout(() => loadExternalPage('allNewsReport.html'), 3000);
+            } catch (err) {
+                msgArea.innerHTML = `<div class="error">❌ ${err.message}</div>`;
+            }
+        }
+
+        /* ========= 工具 ========= */
+        const fmtDate = s => s ? new Date(s).toLocaleString('zh-TW') : '尚未處理';
+
+        function commentStatus(code){
+            return code==='1'
+                ? '<span class="status-badge status-hidden">已隱藏</span>'
+                : '<span class="status-badge status-normal">正常</span>';
+        }
+        function reportStatus(code){
+            if (code==='0') return '未處理';
+            if (code==='1') return '已處理';
+            return '未知';
+        }
+    })();   // IIFE end
+</script>
+
+<!-- ====== 共用的載頁函式，與列表頁同檔即可 ====== -->
+<!--<script>-->
+<!--    function loadExternalPage(path){-->
+<!--        fetch(path, { headers:{'Authorization':'Bearer '+ (localStorage.getItem('jwt')||'')} })-->
+<!--            .then(r => r.ok ? r.text() : Promise.reject(new Error(`(${r.status}) 無法載入畫面`)))-->
+<!--            .then(html => {-->
+<!--                const container = document.getElementById('content-area') || document.body;-->
+<!--                container.innerHTML = html;-->
+<!--                container.querySelectorAll("script").forEach(oldS => {-->
+<!--                    const s = document.createElement("script");-->
+<!--                    if (oldS.src) s.src = oldS.src; else s.textContent = oldS.textContent;-->
+<!--                    oldS.replaceWith(s);-->
+<!--                });-->
+<!--            })-->
+<!--            .catch(err => alert(err.message));-->
+<!--    }-->
+<!--</script>-->
+
+</body>
+</html>

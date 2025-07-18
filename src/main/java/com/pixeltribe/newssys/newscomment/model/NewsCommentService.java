@@ -53,13 +53,16 @@ public class NewsCommentService {
                 orElseThrow(() -> new EntityNotFoundException("not found member"));
         News news = newsRepository.findById(dto.getNewsNoId())
                 .orElseThrow(() -> new EntityNotFoundException(" not found news"));
+        NewsComment origin = newsCommentRepository.findById(dto.getId())
+                .orElseThrow(() -> new EntityNotFoundException("not found comment"));
+
         NewsComment newsComment = new NewsComment();
-        newsComment.setId(dto.getId());
-        newsComment.setNcomCon(dto.getNcomCon());
-        newsComment.setNcomStatus(dto.getNcomStatus());
-        newsComment.setNewsNo(news);
-        newsComment.setMemNo(member);
-        NewsComment saved = newsCommentRepository.save(newsComment);
+//        newsComment.setId(dto.getId());
+        origin.setNcomCon(dto.getNcomCon());
+        origin.setNcomStatus(dto.getNcomStatus());
+//        newsComment.setNewsNo(news);
+//        newsComment.setMemNo(member);
+        NewsComment saved = newsCommentRepository.save(origin);
         return  new NewsCommentUpdateDTO(saved.getId(),saved.getNcomCon(),saved.getNcomStatus(),saved.getMemNo().getId(),saved.getNewsNo().getId());
     }
     @Transactional(readOnly = true)
@@ -75,4 +78,18 @@ public class NewsCommentService {
         return new CommentHideDTO(id, hidden);
     }
 
+    @Transactional(readOnly = true)
+    public Integer countAllNewsComment() {
+
+        Integer countActiveComments = (int)newsCommentRepository.countByNcomStatus('1');
+        return countActiveComments;
+    }
+
+    @Transactional(readOnly = true)
+    public AdminNewsCommentDetailDTO getCommentById(Integer commentId) {
+
+        return newsCommentRepository.getNewsCommentById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("沒有找到 comment"));
+
+    }
 }
