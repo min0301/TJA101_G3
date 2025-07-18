@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.pixeltribe.shopsys.proSerialNumber.model.ProSerialNumber;
 import com.pixeltribe.shopsys.proSerialNumber.model.ProSerialNumberService;
+import com.pixeltribe.shopsys.product.model.ProductPreorderService;
+import com.pixeltribe.shopsys.product.model.ProductService;
 
 import jakarta.transaction.Transactional;
 
@@ -27,6 +29,10 @@ public class ProSerialNumberController {
 
     @Autowired
     ProSerialNumberService proSerialNumberService;
+    @Autowired
+    ProductPreorderService productPreorderService;
+    @Autowired
+    ProductService productService;
     
     @Transactional
     @PostMapping("/productSN/addone")
@@ -108,14 +114,34 @@ public class ProSerialNumberController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    @Transactional
+    
     @PostMapping("/productsn/allstock")
     public ResponseEntity<Map<Integer, Integer>> getProductStock(@RequestBody List<Integer> proNos) {
         try {
             Map<Integer, Integer> stockMap = new HashMap<>();
             for (Integer proNo : proNos) {
-            	Integer stockCount = proSerialNumberService.countStock(proNo);
-                stockMap.put(proNo, stockCount);
+            	 Integer stockCount = proSerialNumberService.countStock(proNo);
+            	 
+            	 if (stockCount != null && stockCount > 0) {
+                     // 有實體庫存，直接返回庫存數量
+                     stockMap.put(proNo, stockCount);
+                 } else {
+                     // 無實體庫存，檢查產品狀態是否為預購中
+                     String productStatus = productService.getOneProduct(proNo).getProStatus();
+                     
+                     if ("預購中".equals(productStatus)) {
+                         // 產品狀態為預購中，查詢預購數量
+                         Integer preorderQuantity = productPreorderService.getPreorderInventory(proNo.toString());
+                         
+                         if (preorderQuantity != null && preorderQuantity > 0) {
+                             // 有預購庫存，返回預購資訊
+                             stockMap.put(proNo, preorderQuantity);
+                         } else {
+                             // 預購中但沒有設定預購數量
+                             stockMap.put(proNo, 0);
+                         }
+                     }
+                 }
             }
             return ResponseEntity.ok(stockMap);
         } catch (Exception e) {
@@ -127,6 +153,24 @@ public class ProSerialNumberController {
     public ResponseEntity<Integer> getStock(@PathVariable Integer proNo) {
         try {
         	Integer stockCount = proSerialNumberService.countStock(proNo);
+        	if (stockCount != null && stockCount == 0) {
+        		// 無實體庫存，檢查產品狀態是否為預購中
+                String productStatus = productService.getOneProduct(proNo).getProStatus();
+                
+                if ("預購中".equals(productStatus)) {
+                    // 產品狀態為預購中，查詢預購數量
+                    Integer preorderQuantity = productPreorderService.getPreorderInventory(proNo.toString());
+                    
+                    if (preorderQuantity != null && preorderQuantity > 0) {
+                        // 有預購庫存，返回預購資訊
+                    	stockCount = preorderQuantity;
+                    } else {
+                        // 預購中但沒有設定預購數量
+                    	stockCount = 0;
+                    }
+                }
+                
+            }
             return ResponseEntity.ok(stockCount);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(0);
