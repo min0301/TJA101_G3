@@ -82,7 +82,7 @@ public class Member {
     private String memEmail;
 
     @Column(name = "MEM_ICON_DATA")
-    private byte[] memIconData;
+    private String memIconData;
 
     @Size(max = 100)
     @NotNull

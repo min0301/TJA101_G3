@@ -79,7 +79,7 @@ CREATE TABLE MEMBER
     MEM_ACCOUNT          VARCHAR(50)        NOT NULL unique Comment '登入帳號',
     MEM_PASSWORD         VARCHAR(60)        NOT NULL Comment '密碼/Bcrypt',
     MEM_EMAIL            VARCHAR(100)       NOT NULL unique,
-    MEM_ICON_DATA        LONGBLOB Comment '大頭貼',
+    MEM_ICON_DATA        VARCHAR(255)                Comment '大頭貼',
     MEM_ADDR             VARCHAR(100)       NOT NULL comment '地址',
     MEM_PHONE            VARCHAR(50)        NOT NULL unique comment '行動電話',
     MEM_BIRTHDAY         DATE               NOT NULL,

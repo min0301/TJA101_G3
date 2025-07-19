@@ -91,10 +91,10 @@
 			if (listMemEmail) listMemEmail.textContent = memberInfo.memEmail;
 			if (headerMemNickName) headerMemNickName.textContent = memberInfo.memNickName;
 			if (avatarImg) {
-				avatarImg.src = `/images/memberAvatar/mem${memberInfo.id}.png`;
+				avatarImg.src = `/uploads/memberAvatar/${memberInfo.memIconData || 'defaultmem.png'}`;
 				avatarImg.onerror = function() {
 					this.onerror = null;
-					this.src = '/images/memberAvatar/default.png';
+					this.src = '/images/memberAvatar/defaultmem.png';
 				};
 			}
 		} else {

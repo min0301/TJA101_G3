@@ -23,7 +23,7 @@ public class MemLoginService {
 	public MemLoginReturn login(String memAccount, String memPassword) {
 		
 		Member member = memRepository.findByMemAccount(memAccount);
-		MemberBasicDto memberInfo = new MemberBasicDto(member.getId(),member.getMemAccount(),member.getMemNickName(),member.getMemName(),member.getMemEmail(),member.getRole());
+		MemberBasicDto memberInfo = new MemberBasicDto(member.getId(),member.getMemAccount(),member.getMemNickName(),member.getMemName(),member.getMemEmail(),member.getRole(),member.getMemIconData());
 		String token = jwtUtil.generateMemberToken(member);
 		
 		 // 密碼錯誤
