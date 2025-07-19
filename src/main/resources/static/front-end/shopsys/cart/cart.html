@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 加入base標籤，統一使用絕對路徑 -->
+    <base href="/">
+    
+    <title>像素部落 - 購物車</title>
+    <meta name="description" content="像素部落, Pixel Tribe, 購物車">
+    <meta name="keywords" content="購物車, 遊戲商城, 電競商品">
+    <meta name="robots" content="all,follow">
+    
+    <script>
+        // Check local storage for theme
+        let localS = localStorage.getItem('theme')
+        themeToSet = localS
+        
+        if (!localS) {
+            themeToSet = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        
+        document.documentElement.setAttribute('data-theme', themeToSet)
+    </script>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="/assets/vendors/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="/assets/vendors/simplebar/simplebar.min.css">
+    <link rel="stylesheet" href="/assets/vendors/aos/aos.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/responsive.css">
+    <link rel="stylesheet" href="/assets/css/custom-style.css">
+    <link rel="stylesheet" href="/front-end/shopsys/cart/cart-style.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Theme Switcher -->
+    <div class="switcher switcher-show" id="theme-switcher">
+        <i id="switcher-icon" class="bi bi-moon"></i>
+    </div>
+
+    <!-- Back to Top -->
+    <a href="#" id="back-to-top"></a>
+
+    <div class="vine-wrapper">
+        <!-- Header -->
+        <div id="header-placeholder"></div>
+
+        <!-- Hero Section -->
+        <section class="vine-hero-2 bg-img-1">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="hero-content" data-aos="fade-down" data-aos-easing="linear">
+                            <h1><i class="bi bi-cart3 me-3"></i>購物車</h1>
+                            <p>管理您的購物清單</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <section class="vine-main">
+            <div class="container">
+                <!-- 載入狀態 -->
+                <div id="loading" class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">載入中...</span>
+                    </div>
+                    <p class="mt-3 text-muted">正在載入購物車...</p>
+                </div>
+
+                <!-- 登入提示 -->
+                <div id="login-prompt-container" class="d-none">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="card">
+                                <div class="card-body text-center p-5">
+                                    <i class="bi bi-lock" style="font-size: 4rem; color: #d88e24;"></i>
+                                    <h3 class="mt-4 mb-3">請先登入</h3>
+                                    <p class="text-muted mb-4">
+                                        您需要登入會員才能使用購物車功能。<br>
+                                        登入後就可以將喜歡的商品加到購物車，隨時都能查看和管理。
+                                    </p>
+                                    <div class="d-grid gap-2 d-md-block">
+                                        <button class="btn btn-primary" onclick="goToLogin()">
+                                            <i class="bi bi-box-arrow-in-right me-2"></i>立即登入
+                                        </button>
+                                        <button class="btn btn-outline-primary" onclick="goToRegister()">
+                                            <i class="bi bi-person-plus me-2"></i>註冊新帳號
+                                        </button>
+                                        <button class="btn btn-outline-secondary" onclick="goToShop()">
+                                            <i class="bi bi-shop me-2"></i>回到商城
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 空購物車 -->
+                <div id="empty-cart-container" class="d-none">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="card">
+                                <div class="card-body text-center p-5">
+                                    <i class="bi bi-cart-x" style="font-size: 4rem; color: #6c757d;"></i>
+                                    <h3 class="mt-4 mb-3">購物車是空的</h3>
+                                    <p class="text-muted mb-4">快去挑選一些喜歡的商品吧！</p>
+                                    <div class="d-grid gap-2 d-md-block">
+                                        <button class="btn btn-primary" onclick="continueShopping()">
+                                            <i class="bi bi-shop me-2"></i>開始購物
+                                        </button>
+                                        <button class="btn btn-outline-secondary" onclick="goToShop()">
+                                            <i class="bi bi-arrow-left me-2"></i>回到商城
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 購物車內容 -->
+                <div id="cart-container" class="d-none">
+                    <div class="row">
+                        <!-- 左側購物車列表 -->
+                        <div class="col-lg-8">
+                            <!-- 導航按鈕 -->
+                            <div class="mb-4">
+                                <button class="btn btn-outline-primary me-2" onclick="goToShop()">
+                                    <i class="bi bi-arrow-left me-2"></i>回到商城
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="continueShopping()">
+                                    <i class="bi bi-shop me-2"></i>繼續購物
+                                </button>
+                            </div>
+                            
+                            <!-- 無法購買商品提醒 -->
+                            <div class="alert alert-warning alert-sm" id="unavailable-alert" style="display: none;">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>注意：</strong>您的購物車中有 <span id="unavailable-count">0</span> 項商品目前無法購買
+                            </div>
+
+                            <!-- 購物車表格 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-cart3 me-2"></i>購物車內容
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <table class="cart-table" id="cart-table" style="display: none;">
+                                        <thead>
+                                            <tr>
+                                                
+                                                <th>商品資訊</th>
+                                                <th style="width: 100px;">單價</th>
+                                                <th style="width: 120px;">數量</th>
+                                                <th style="width: 100px;">小計</th>
+                                                <th style="width: 80px;">操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="cart-table-body">
+                                            <!-- 商品列表將動態載入 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn btn-outline-danger" onclick="clearCart()">
+                                        <i class="bi bi-trash me-2"></i>清空購物車
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右側訂單摘要 -->
+                        <div class="col-lg-4">
+                            <div class="card position-sticky" style="top: 100px;">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-receipt me-2"></i>訂單摘要
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="cart-summary">
+                                        <div class="summary-row">
+                                            <span>商品種類：</span>
+                                            <span id="total-items">0 種</span>
+                                        </div>
+                                        
+                                        <div class="summary-row">
+                                            <span>商品總數：</span>
+                                            <span id="total-quantity">0 件</span>
+                                        </div>
+                                        
+                                        <div class="summary-row">
+                                            <span>小計：</span>
+                                            <span>NT$ <span id="subtotal">0</span></span>
+                                        </div>
+                                        
+                                        <div class="summary-row total">
+                                            <span>總計：</span>
+                                            <span>NT$ <span id="total-price">0</span></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button class="pixel-btn primary" id="checkout-btn">
+                                        <i class="bi bi-credit-card me-2"></i>前往結帳
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <div id="footer-placeholder"></div>
+    </div>
+
+    <!-- 提示訊息 -->
+    <div class="cute-alert" id="cute-alert">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span id="alert-icon" style="font-size: 1.5rem;">ℹ️</span>
+            <span id="alert-message">訊息內容</span>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="/js/dynamicHeaderInfo.js"></script>
+    <script src="/assets/vendors/jquery/jquery.min.js"></script>
+    <script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+    <script src="/assets/vendors/popper/popper.min.js"></script>
+    <script src="/assets/vendors/simplebar/simplebar.min.js"></script>
+    <script src="/assets/vendors/aos/aos.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/global-loader.js"></script>
+    
+    <!-- 購物車功能 JS -->
+    <script src="/front-end/shopsys/cart/cart-api-client.js"></script>
+    <script src="/front-end/shopsys/cart/cart-manager.js"></script>
+
+    <script>
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', function() {
+        	// 載入 Header/Footer
+            const headerPlaceholder = document.getElementById('header-placeholder');
+            const footerPlaceholder = document.getElementById('footer-placeholder');
+            
+            if (headerPlaceholder && typeof $ !== 'undefined') {
+                $('#header-placeholder').load('/templates/_header.html', function() {
+                    console.log('Header 載入完成');
+                });
+            }
+            
+            if (footerPlaceholder && typeof $ !== 'undefined') {
+                $('#footer-placeholder').load('/templates/_footer.html', function() {
+                    console.log('Footer 載入完成');
+                });
+            }
+            
+            // 初始化購物車管理器
+            CartManager.init();
+        });
+    </script>
+
+</body>
+</html>

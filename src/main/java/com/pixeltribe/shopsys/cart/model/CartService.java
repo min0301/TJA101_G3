@@ -165,13 +165,34 @@ public class CartService {
 		// 取得購物車
 		CartDTO cart = cartRepository.getCart(memNo);
 		
+		// 加入debug log
+		System.out.println("=== 購物車 Debug ===");
+	    System.out.println("會員編號: " + memNo);
+	    System.out.println("Redis 回傳的 cart: " + cart);
+		
+		
 		if (cart == null) {
+			System.out.println("購物車為 null，創建新的空購物車");
+			
 			// 購物車不存在，創建空的購物車
             cart = new CartDTO();
             cart.setMemNo(memNo);
             cart.setItem(new ArrayList<>());
             cart.calculateTotals();
-        }	
+        } else {
+            System.out.println("購物車存在，商品數量: " + (cart.getItem() != null ? cart.getItem().size() : "item為null"));
+            // 確保 item 不是 null
+            if (cart.getItem() == null) {
+                cart.setItem(new ArrayList<>());
+            }
+            cart.calculateTotals();
+        }
+        
+        // 🔥 回傳前再次 debug
+        System.out.println("最終回傳的購物車: " + cart);
+        System.out.println("總商品數: " + cart.getTotalItem());
+        System.out.println("總價格: " + cart.getTotalPrice());
+        System.out.println("=== Debug 結束 ===");	
 		
 		return cart;  // 回傳到CartDTO
 	}

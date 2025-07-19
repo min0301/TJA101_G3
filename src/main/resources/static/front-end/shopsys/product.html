@@ -385,13 +385,70 @@
 	    `;
 	}
 
-	/**
-	 * 處理加入購物車
-	 */
-	function handleAddToCart(productId) {
-	    console.log('加入購物車:', productId);
-	    showToast('商品已加入購物車！', 'success');
+	
+	//*** 處理加入購物車 (薰妤有加入實際呼叫後端 API，原本只有顯示提示訊息)*** //
+	async function handleAddToCart(productId) {
+    console.log('加入購物車:', productId);
+    
+    // 檢查登入狀態
+    const jwt = localStorage.getItem('jwt');
+    if (!jwt) {
+        showToast('請先登入會員！', 'warning');
+        // 未登入跳轉到登入頁面
+        window.location.href = '/front-end/mem/MemberLogin.html';
+        return;
+    }
+    
+    try {
+        // 顯示載入狀態
+        showToast('正在加入購物車...', 'info');
+        
+        // 呼叫加購物車 API
+        const response = await fetch('/api/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Bearer ' + jwt
+            },
+            body: `proNo=${productId}&proNum=1`  // 預設數量為 1
+        });
+        
+        if (response.ok) {
+            const cartData = await response.json();
+            console.log('加購物車成功:', cartData);
+            showToast('商品已加入購物車！', 'success');
+            
+            // 可選：更新頁面上的購物車數量顯示
+            updateCartBadge();
+            
+        } else {
+            const errorText = await response.text();
+            console.error('加購物車失敗:', response.status, errorText);
+            
+            if (response.status === 401) {
+                showToast('登入已過期，請重新登入！', 'warning');
+            } else {
+                showToast('加入購物車失敗，請稍後再試！', 'error');
+            }
+        }
+        
+    	} catch (error) {
+        console.error('網路錯誤:', error);
+        showToast('網路錯誤，請稍後再試！', 'error');
+    	}
+    
 	}
+
+	
+	//*** 薰妤新增-更新購物車數量顯示（如果頁面有購物車數量）*** //
+	function updateCartBadge() {
+    // 這個函數可以用來更新 header 中的購物車數量
+    // 如果 header 有購物車數量顯示的話
+    console.log('可以在這裡更新購物車數量顯示');
+	}
+	
+	
+
 
 	/**
 	 * 處理加入最愛
