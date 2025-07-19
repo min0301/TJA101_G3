@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.pixeltribe.membersys.member.dto.MemberGameDto;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.data.domain.Page;
@@ -250,5 +252,30 @@ public class MemService {
 		Member member = memRepository.findById(id).orElseThrow(() -> new RuntimeException("會員不存在"));
 		member.setMemStatus(status);
 		memRepository.save(member);
+	}
+
+    public List<MemberGameDto> getMemberGameScore() {
+		List<MemberGameDto> memberGameScores = memRepository.findMemberGameScores();
+		if (memberGameScores == null || memberGameScores.isEmpty()) {
+			return List.of(); // 返回空列表而不是 null
+		}
+		return memberGameScores;
+    }
+
+	public MemberGameDto updateMemberGameScore(Integer id, Integer newScore) {
+		Member m = memRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("會員不存在"));
+
+		Integer old = m.getPoint();
+		if (old == null || newScore > old) {
+			m.setPoint(newScore);
+		}
+		memRepository.save(m);
+
+		return new MemberGameDto(m.getId(), m.getMemName(), m.getMemNickName(), m.getPoint());
+	}
+
+	public MemberGameDto getMemberGameScoreById(Integer id) {
+		Member member = memRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("會員不存在"));
+		return new MemberGameDto(member.getId(), member.getMemName(), member.getMemNickName(), member.getPoint());
 	}
 }

@@ -1,0 +1,18 @@
+#miniGameCanvas {
+    position: fixed;
+    inset: 0;                     /* 佔滿全視窗 */
+    margin: auto;
+    z-index: 9999;                /* 高於所有 UI */
+    display: none;                /* 預設隱藏 */
+    outline: 4px solid #FFD700;   /* 像素風外框 */
+    image-rendering: pixelated;   /* 放大仍保持像素感 */
+    background: #70c5ce
+    /*url('/assets/img/bg.png') repeat-x;*/
+}
+.game-show #miniGameCanvas { display: block; }
+/* 放在 miniGame.css 最後 */
+body.game-lock-scroll {
+    position: fixed;      /* 把整頁「釘」住 */
+    width: 100%;
+    overflow: hidden;     /* 關閉捲軸 */
+}
