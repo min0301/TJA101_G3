@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,12 +41,12 @@ public class ProductService {
 	@Autowired
 	ProductPreorderService productPreorderService;
 	
-
+	@Transactional
 	public Product add(Product product) {
 		isExistProduct(product);
 		return productRepository.save(product);
     }
-
+	@Transactional
 	public Product update(Product product) {
 		isExistProduct(product);
 		Integer proNo = product.getId();
@@ -73,7 +74,7 @@ public class ProductService {
 		List<Product> products = productRepository.findAll();
 		return productDTOMapper.toProductManageDTOList(products);
 	}
-
+	@Transactional
 	public boolean updateMarketStatus(Integer proNo, Character proIsMarket) {
 		 Optional<Product> product = productRepository.findById(proNo);
 		 Product p = product.get();
@@ -102,6 +103,12 @@ public class ProductService {
 	public List<ProductSearchDTO> findByMallTagAllMarket(Integer mallTagNo) {
 		List<Product> products = productRepository.findByMallTagAndMarket(mallTagNo, null);
 		return productDTOMapper.toProductSearchDTOList(products);
+	}
+	
+	public List<ProductManageDTO> findProductsByComplexQuery(String proName, Integer minPrice, Integer maxPrice,
+																String proStatus, Integer mallTagNo, Character proIsMarket){
+		List<Product> products = productRepository.findProductsByComplexQuery(proName, minPrice, maxPrice, proStatus, mallTagNo, proIsMarket);
+		return productDTOMapper.toProductManageDTOList(products);
 	}
 	
 	private Boolean isExistProduct(Product product) {

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pixeltribe.forumsys.forum.model.Forum;
+import com.pixeltribe.shopsys.malltag.exception.MallTagExistException;
 import com.pixeltribe.shopsys.malltag.model.MallTag;
 import com.pixeltribe.shopsys.malltag.model.MallTagRepository;
 import com.pixeltribe.shopsys.malltag.model.MallTagService;
@@ -34,15 +35,23 @@ public class MallTagController {
 	@Autowired
 	MallTagService mallTagService;
 	
-	@Transactional
 	@PostMapping("/malltag/add")
-	public String addMallTag(@Valid MallTag malltag, BindingResult result){
-		mallTagService.add(malltag);
-	
-		List<MallTag> list = mallTagService.getAllMallTags();
-		return "success"; 
+	public ResponseEntity<?> addMallTag(@Valid MallTag malltag, BindingResult result) {
+	    if (result.hasErrors()) {
+	        return ResponseEntity.badRequest().body("輸入資料有誤");
+	    }
+	    
+	    try {
+	    	MallTag addMallTag = mallTagService.add(malltag);
+	        return ResponseEntity.ok(addMallTag);
+	    } catch (MallTagExistException e) {
+	        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("新增過程中發生錯誤");
+	    }
 	}
-	@Transactional
+
 	@PutMapping("/malltag/update/{mallTagNO}")
 	public ResponseEntity<?> updateMallTag(
 	    @PathVariable("mallTagNO") Integer mallTagNO,
@@ -66,9 +75,12 @@ public class MallTagController {
 	                .body("ID 為 " + mallTagNO + " 的商城標籤未找到或更新失敗。");
 	        }
 	        return ResponseEntity.ok(updateMallTag);
-	    } catch (Exception e) {
+	    } catch (MallTagExistException e) {
+	        return ResponseEntity.status(HttpStatus.CONFLICT)
+	                .body(e.getMessage());
+	    }catch (Exception e) {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	            .body("更新過程中發生錯誤：" + e.getMessage());
+	            .body("更新過程中發生錯誤：");
 	    }
 	}
 	

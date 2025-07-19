@@ -60,7 +60,7 @@ public class ProductController {
 		public List<ProductManageDTO> getAllProducts() {
 	        return productService.getAllProducts();
 	    }
-		@Transactional
+		
 		@PostMapping("/product/addproduct")
 		public ResponseEntity<?> addProduct(
 		            @RequestPart("ProductAddDTO") @Valid ProductAddDTO productAddDTO,
@@ -100,7 +100,6 @@ public class ProductController {
 		  
 		 }
 
-		 @Transactional
 		 @PutMapping("/admin/product/{id}")
 		    public ResponseEntity<?> updateProduct(
 		            @PathVariable Integer id,
@@ -179,7 +178,6 @@ public class ProductController {
 			return result;
 		}
 		
-		@Transactional
 		@PutMapping("/product/{proNo}/market-status")
 	    public ResponseEntity<Map<String, Object>> updateMarketStatus(
 	            @PathVariable Integer proNo,
@@ -219,6 +217,16 @@ public class ProductController {
 		public List<ProductSearchDTO> findByMarket(
 	            @RequestParam(required = false, defaultValue = "0") Character proIsMarket) {
 				return productService.findByMarket(proIsMarket);  
+		}
+		
+		@GetMapping("/product/complexquery")
+		public List<ProductManageDTO> findProductsByComplexQuery( @RequestParam(required = false) String proName,
+													              @RequestParam(required = false) Integer minPrice,
+													              @RequestParam(required = false) Integer maxPrice,
+													              @RequestParam(required = false) String proStatus,
+													              @RequestParam(required = false) Integer mallTagNo,
+													              @RequestParam(required = false) Character proIsMarke){
+			return productService.findProductsByComplexQuery(proName, minPrice, maxPrice, proStatus, mallTagNo, proIsMarke);
 		}
 	        
 }
