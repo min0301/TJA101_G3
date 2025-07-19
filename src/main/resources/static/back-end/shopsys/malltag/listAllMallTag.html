@@ -486,7 +486,6 @@
                 lightbox.style.display = 'none';
             }, 300);
         }
-
         /**
          * @description 新增標籤
          */
@@ -515,35 +514,45 @@
                     body: formData
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: 新增失敗`);
-                }
-
-                const message = await response.text();
-                if (message === "success") {
-                    alert("新增成功！");
+                if (response.ok) {
+                    // HTTP 200 - 新增成功
+                    const newMallTag = await response.json();
+                    alert(`新增成功！標籤名稱: ${newMallTag.mallTagName}`);
                     hideLightbox('lightbox_add');
                     addNameInput.value = '';
                     loadMallTags();
+                } else if (response.status === 409) {
+                    // HTTP 409 - 重複標籤
+                    const errorMessage = await response.text();
+                    alert(errorMessage);
+                } else if (response.status === 400) {
+                    // HTTP 400 - 輸入資料有誤
+                    const errorMessage = await response.text();
+                    alert('輸入錯誤: ' + errorMessage);
+                } else if (response.status === 500) {
+                    // HTTP 500 - 伺服器錯誤
+                    const errorMessage = await response.text();
+                    alert('系統錯誤: ' + errorMessage);
                 } else {
-                    throw new Error('服務器回應異常');
+                    // 其他錯誤
+                    const errorMessage = await response.text();
+                    alert('新增失敗: ' + errorMessage);
                 }
             } catch (error) {
                 console.error('新增標籤錯誤:', error);
-                alert('新增失敗: ' + error.message);
+                alert('網路錯誤，請檢查連線: ' + error.message);
             } finally {
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             }
         }
-
         /**
          * @description 更新標籤
          */
         async function updateMallTag() {
             const updateMalltagId = parseInt(updateIdField.textContent);
             const updateMalltagName = updateNameInput.value.trim();
-            
+
             if (isNaN(updateMalltagId) || updateMalltagName === "") {
                 alert("請確認所有欄位都已填寫或取得有效ID。");
                 return;
@@ -553,25 +562,32 @@
             const originalText = submitBtn.textContent;
             submitBtn.textContent = '處理中...';
             submitBtn.disabled = true;
-            
+
             try {
                 const updateData = {
                     id: updateMalltagId,
                     mallTagName: updateMalltagName
                 };
-                
+
                 const response = await fetch(`/api/malltag/update/${updateMalltagId}`, {
                     method: "PUT",
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify(updateData)
                 });
 
+                // 特殊處理 HTTP 409 (重複標籤)
+                if (response.status === 409) {
+                    const errorText = await response.text();
+                    alert("更新失敗：" + errorText);
+                    return;
+                }
+
                 if (!response.ok) {
                     const errorText = await response.text();
-                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                    throw new Error(errorText); // 移除 HTTP 狀態碼
                 }
 
                 const result = await response.json();

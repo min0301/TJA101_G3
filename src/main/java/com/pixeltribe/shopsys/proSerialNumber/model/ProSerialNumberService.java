@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pixeltribe.shopsys.product.model.Product;
@@ -22,10 +23,11 @@ public class ProSerialNumberService {
     @Autowired
     ProductRepository productRepository;
     
+    @Transactional
     public ProSerialNumber addProSN(ProSerialNumber proSN) {
         return proSerialNumberRepository.save(proSN);
     }
-
+    @Transactional
     public ProSerialNumber updateProSN(ProSerialNumber proSN) {
         return proSerialNumberRepository.save(proSN);
     }
@@ -38,7 +40,7 @@ public class ProSerialNumberService {
         Optional<ProSerialNumber> optional = proSerialNumberRepository.findById(proSNNo);
         return optional.orElse(null);
     }
-    
+    @Transactional
     public Integer addMultipleProSN(List<ProSerialNumber> proSNList) {
         List<ProSerialNumber> savedList = proSerialNumberRepository.saveAll(proSNList);
         return savedList.size();

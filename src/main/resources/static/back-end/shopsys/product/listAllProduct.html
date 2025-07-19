@@ -34,14 +34,23 @@
     .control-bar {
       background: var(--component-bg);
       padding: 15px 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
+      border-radius: 10px 10px 0 0; /* 只有上方圓角 */
+      margin-bottom: 0; /* 移除底部間距 */
       border: 1px solid var(--border-color);
+      border-bottom: none; /* 移除下邊框，與搜尋區域連接 */
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 15px;
+    }
+
+    /* 表格容器，獨立樣式 */
+    .table-container {
+      background: var(--component-bg);
+      border-radius: 12px; /* 恢復完整圓角 */
+      overflow-x: auto;
+      border: 1px solid var(--border-color); /* 恢復完整邊框 */
     }
 
     .filter-group {
@@ -62,6 +71,177 @@
     .filter-select:focus {
       border-color: var(--brand-green); /* 使用主模板主題色 */
       outline: none;
+    }
+
+    /* 新增：搜尋展開/收起條樣式 */
+    .search-toggle-bar {
+      background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+      height: 20px; /* 減半高度 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+      user-select: none;
+      position: relative;
+      
+    }
+
+    .search-toggle-bar:hover {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    }
+
+    .search-toggle-icon {
+      font-size: 12px; /* 調整箭頭大小 */
+      color: #999999; /* 淺灰色 */
+      transition: transform 0.3s ease;
+      font-weight: bold;
+    }
+
+    .search-toggle-icon.expanded {
+      transform: rotate(180deg);
+    }
+
+    /* 新增：複合查詢區域樣式 */
+    .search-container {
+      background: var(--component-bg);
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 20px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      max-height: 0;
+    }
+
+    .search-container.expanded {
+      max-height: 600px; /* 增加高度以容納3列 */
+    }
+
+    .search-content {
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    /* 搜尋結果顯示列 */
+    .search-result-row {
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 20px;
+    }
+
+    .search-result-row span {
+      font-size: 14px;
+      color: var(--text-color);
+      font-weight: 500;
+    }
+
+    /* 第2列：商品名稱、價格搜尋 */
+    .search-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* 第3列：商品狀態、平台、上下架 */
+    .search-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 14px;
+    }
+
+    .form-input {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 12px;
+      background: var(--primary-bg);
+      color: var(--text-color);
+      transition: border-color 0.2s;
+      font-size: 14px;
+    }
+
+    .form-input:focus {
+      border-color: var(--brand-green);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.1);
+    }
+
+    .price-range-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .price-range-group .form-input {
+      flex: 1;
+    }
+
+    .price-separator {
+      color: var(--text-color);
+      font-weight: 600;
+    }
+
+    .search-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .search-btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: 1px solid;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .search-btn.btn-clear {
+      background: var(--component-bg);
+      border-color: var(--border-color);
+      color: var(--text-color);
+    }
+
+    .search-btn.btn-clear:hover {
+      background: #f8f9fa;
+      border-color: #adb5bd;
+    }
+
+    .search-btn.btn-search {
+      background: var(--brand-green);
+      border-color: var(--brand-green);
+      color: white;
+    }
+
+    .search-btn.btn-search:hover {
+      background: var(--brand-green-hover);
+      border-color: var(--brand-green-hover);
+    }
+
+    .search-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     /* 表格容器，與 allOrder.html 對齊 */
@@ -396,7 +576,7 @@
 
   <div class="control-bar">
     <div>
-      <span>商品管理列表</span>
+      <span id="search-result-info">商品管理列表</span>
     </div>
     <div class="filter-group">
       <div class="items-per-page-selector">
@@ -407,6 +587,72 @@
           <option value="10" selected>10</option>
           <option value="20">20</option>
         </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增：搜尋展開/收起條 -->
+  <div class="search-toggle-bar" onclick="toggleSearchPanel()">
+    <span class="search-toggle-icon" id="search-toggle-icon">▼</span>
+  </div>
+
+  <!-- 新增：複合查詢區域 -->
+  <div class="search-container" id="search-container">
+    <div class="search-content" id="search-content">
+      <!-- 第1列：搜尋結果顯示 -->
+      <div class="search-result-row">
+        <span id="search-result-display">搜尋結果</span>
+      </div>
+      
+      <!-- 第2列：商品名稱、價格搜尋 -->
+      <div class="search-row-2">
+        <div class="form-group">
+          <label for="search-product-name">商品名稱</label>
+          <input type="text" id="search-product-name" class="form-input" placeholder="請輸入商品名稱關鍵字">
+        </div>
+        
+        <div class="form-group">
+          <label>價格區間</label>
+          <div class="price-range-group">
+            <input type="number" id="search-price-min" class="form-input" placeholder="最低價格" min="0">
+            <span class="price-separator">-</span>
+            <input type="number" id="search-price-max" class="form-input" placeholder="最高價格" min="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- 第3列：商品狀態、平台、上下架 -->
+      <div class="search-row-3">
+        <div class="form-group">
+          <label for="search-status">商品狀態</label>
+          <select id="search-status" class="form-input">
+            <option value="">全部狀態</option>
+            <option value="已發售">已發售</option>
+            <option value="預購中">預購中</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="search-platform">商品平台</label>
+          <select id="search-platform" class="form-input">
+            <option value="">全部平台</option>
+            <!-- 平台選項將由 JavaScript 動態載入 -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="search-market-status">上下架狀態</label>
+          <select id="search-market-status" class="form-input">
+            <option value="">全部</option>
+            <option value="0">已上架</option>
+            <option value="1">已下架</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="search-buttons">
+        <button type="button" class="search-btn btn-clear" onclick="clearSearchForm()">清除</button>
+        <button type="button" class="search-btn btn-search" onclick="performComplexSearch()">查詢</button>
       </div>
     </div>
   </div>
@@ -455,6 +701,8 @@
   (function() {
     // --- 變數定義區 ---
     const apiUrl = '/api/product'; // 不可變：後端 API 端點
+    const complexQueryApiUrl = '/api/product/complexquery'; // 複合查詢 API (修改為GET)
+    const mallTagApiUrl = '/api/malltag'; // 商品平台 API
     const stockApiUrl = '/api/productsn/allstock';
 
     // 可變：這些是 DOM 元素的引用，名稱可依個人習慣修改，但要與 HTML 的 id 對應
@@ -463,12 +711,164 @@
     const paginationContainer = document.getElementById('pagination-container');
     const itemsPerPageSelect = document.getElementById('items-per-page');
     const paginationInfo = document.getElementById('pagination-info');
+    const searchResultInfo = document.getElementById('search-result-info');
 
     // 可變：應用程式狀態變數
     let allProductsData = []; // 存放從 API 獲取的原始商品資料
     let stockData = new Map();
     let currentPage = 1;
     let itemsPerPage = 10;
+    let isSearchMode = false; // 標記是否為搜尋模式
+    let searchCriteria = {}; // 儲存當前搜尋條件
+
+    // --- 新增：搜尋面板相關函式 ---
+
+    /**
+     * @description 切換搜尋面板的展開/收起狀態
+     */
+    window.toggleSearchPanel = function() {
+      const searchContainer = document.getElementById('search-container');
+      const toggleIcon = document.getElementById('search-toggle-icon');
+      
+      if (searchContainer.classList.contains('expanded')) {
+        searchContainer.classList.remove('expanded');
+        toggleIcon.classList.remove('expanded');
+      } else {
+        searchContainer.classList.add('expanded');
+        toggleIcon.classList.add('expanded');
+      }
+    };
+
+    /**
+     * @description 載入商品平台下拉選項
+     */
+    async function loadMallTags() {
+      try {
+        const response = await fetch(mallTagApiUrl);
+        if (response.ok) {
+          const mallTags = await response.json();
+          const platformSelect = document.getElementById('search-platform');
+          
+          // 清空現有選項（保留"全部平台"）
+          platformSelect.innerHTML = '<option value="">全部平台</option>';
+          
+          // 新增平台選項
+          mallTags.forEach(tag => {
+            const option = document.createElement('option');
+            option.value = tag.id || tag.mallTagNo; // 支援兩種可能的ID欄位名稱
+            option.textContent = tag.name || tag.mallTagName; // 支援兩種可能的名稱欄位名稱
+            platformSelect.appendChild(option);
+          });
+        } else {
+          console.error('載入商品平台失敗:', response.status);
+        }
+      } catch (error) {
+        console.error('載入商品平台時發生錯誤:', error);
+      }
+    }
+
+    /**
+     * @description 清除搜尋表單
+     */
+    window.clearSearchForm = function() {
+      document.getElementById('search-product-name').value = '';
+      document.getElementById('search-price-min').value = '';
+      document.getElementById('search-price-max').value = '';
+      document.getElementById('search-platform').value = '';
+      document.getElementById('search-status').value = '';
+      document.getElementById('search-market-status').value = '';
+    };
+
+    /**
+     * @description 執行複合查詢
+     */
+    window.performComplexSearch = async function() {
+      try {
+        // 收集搜尋條件
+        const params = new URLSearchParams();
+        
+        const productName = document.getElementById('search-product-name').value.trim();
+        const priceMin = document.getElementById('search-price-min').value;
+        const priceMax = document.getElementById('search-price-max').value;
+        const mallTagNo = document.getElementById('search-platform').value;
+        const proStatus = document.getElementById('search-status').value;
+        const proIsMarke = document.getElementById('search-market-status').value;
+
+        // 只添加有值的參數
+        if (productName) params.append('proName', productName);
+        if (priceMin) params.append('minPrice', priceMin);
+        if (priceMax) params.append('maxPrice', priceMax);
+        if (mallTagNo) params.append('mallTagNo', mallTagNo);
+        if (proStatus) params.append('proStatus', proStatus);
+        if (proIsMarke) params.append('proIsMarke', proIsMarke); // 修正參數名稱為 proIsMarke // 這裡會傳送單個字元 '0' 或 '1'
+
+        console.log('搜尋參數:', params.toString());
+
+        // 顯示載入狀態
+        showLoading();
+        searchCriteria = Object.fromEntries(params);
+
+        // 建構查詢URL
+        const queryUrl = params.toString() ? `${complexQueryApiUrl}?${params.toString()}` : complexQueryApiUrl;
+
+        // 發送搜尋請求 (改為GET)
+        const response = await fetch(queryUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`搜尋請求失敗: ${response.status}`);
+        }
+
+        const searchResults = await response.json();
+        allProductsData = searchResults;
+        isSearchMode = true;
+
+        // 更新搜尋結果資訊
+        updateSearchResultInfo(searchResults.length);
+
+        // 獲取搜尋結果的庫存資料
+        if (searchResults.length > 0) {
+          const productIds = searchResults.map(product => product.id);
+          await fetchStockData(productIds);
+        }
+
+        // 重置分頁並更新顯示
+        currentPage = 1;
+        updateDisplay();
+
+      } catch (error) {
+        console.error('複合查詢失敗:', error);
+        showError(error);
+      }
+    };
+
+    /**
+     * @description 更新搜尋結果資訊顯示
+     */
+    function updateSearchResultInfo(resultCount) {
+      const searchResultDisplay = document.getElementById('search-result-display');
+      if (isSearchMode) {
+        searchResultDisplay.textContent = `找到 ${resultCount} 筆符合條件的商品`;
+        searchResultInfo.textContent = '商品管理列表'; // 保持原文字不變
+      } else {
+        searchResultDisplay.textContent = '搜尋結果';
+        searchResultInfo.textContent = '商品管理列表';
+      }
+    }
+
+    /**
+     * @description 重置到全部商品顯示
+     */
+    async function resetToAllProducts() {
+      isSearchMode = false;
+      searchCriteria = {};
+      updateSearchResultInfo(0);
+      await loadProducts();
+    }
 
     // --- 核心功能函式 ---
 
@@ -492,6 +892,7 @@
         itemsPerPage = parseInt(itemsPerPageSelect.value) || 10;
         currentPage = 1;
         updateDisplay();
+        updateSearchResultInfo(allProductsData.length);
       } catch (error) {
         showError(error);
       }
@@ -560,7 +961,8 @@
       // 常見錯誤：若傳入的 products 是空的，沒有做處理會顯示空白畫面。
       // 解法：判斷陣列長度，若為 0 則顯示提示訊息。
       if (!products || products.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding: 40px;">找不到符合條件的商品</td></tr>`;
+        const noDataMessage = isSearchMode ? '找不到符合搜尋條件的商品' : '找不到符合條件的商品';
+        tableBody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding: 40px;">${noDataMessage}</td></tr>`;
         return;
       }
 
@@ -575,7 +977,7 @@
         row.innerHTML = `
           <td>${product.id}</td>
           <td class="product-name">${product.proName}</td>
-          <td class="price-cell">$${Number(product.proPrice).toLocaleString()}</td>
+          <td class="price-cell">${Number(product.proPrice).toLocaleString()}</td>
           <td>${product.proStatus}</td>
           <td>${product.proVersion}</td>
           <td>${formatDate(product.proDate)}</td>
@@ -843,7 +1245,7 @@
     function formatDate(dateString) {
       if (!dateString) return '-';
       try {
-        return new Date(dateString).toLocaleString('zh-TW', { hour12: false });
+        return new Date(dateString).toLocaleDateString('zh-TW');
       } catch (e) {
         return dateString;
       }
@@ -890,8 +1292,33 @@
       updateDisplay();
     });
 
+    // --- 新增：點擊搜尋結果資訊重置到全部商品 ---
+    const searchResultDisplay = document.getElementById('search-result-display');
+    searchResultDisplay.addEventListener('click', function() {
+      if (isSearchMode) {
+        if (confirm('確定要清除搜尋結果，回到全部商品列表嗎？')) {
+          resetToAllProducts();
+          clearSearchForm();
+        }
+      }
+    });
+
+    // 讓搜尋結果資訊在搜尋模式下變成可點擊的樣式
+    searchResultDisplay.style.cursor = 'default';
+    searchResultDisplay.addEventListener('mouseenter', function() {
+      if (isSearchMode) {
+        this.style.cursor = 'pointer';
+        this.style.textDecoration = 'underline';
+      }
+    });
+    searchResultDisplay.addEventListener('mouseleave', function() {
+      this.style.cursor = 'default';
+      this.style.textDecoration = 'none';
+    });
+
     // --- 初始化頁面 ---
     loadProducts();
+    loadMallTags(); // 載入商品平台選項
 
   })();
 </script>

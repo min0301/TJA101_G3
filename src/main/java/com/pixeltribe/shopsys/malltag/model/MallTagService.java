@@ -7,42 +7,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.pixeltribe.shopsys.malltag.exception.MallTagExistException;
+import com.pixeltribe.shopsys.product.exception.ProductExistException;
+import com.pixeltribe.shopsys.product.model.Product;
+
 @Service
 public class MallTagService {
 	
 	@Autowired
 	MallTagRepository mallTagRepository;
 	
-	public void add(MallTag mallTag) {
-        mallTagRepository.save(mallTag);
+	@Transactional
+	public MallTag add(MallTag mallTag) {
+		boolean isExist = mallTagRepository.isExistMallTag(mallTag.getMallTagName()) != null;
+	    
+	    if (isExist) {
+	        throw new MallTagExistException("平台已存在，請重新確認");
+	    }
+		return mallTagRepository.save(mallTag);
     }
 	
 	@Transactional
     public MallTag update(MallTag mallTag) {
-		// 檢查傳入的 mallTag 物件是否有 ID
-        if (mallTag.getId() == null) {
-            System.err.println("更新失敗：MallTag 物件中缺少 ID。");
-            return null;
-        }
-
-        // 根據 ID 查詢現有的 MallTag 實體
-        Optional<MallTag> existingMallTagOpt = mallTagRepository.findById(mallTag.getId());
-
-        if (existingMallTagOpt.isPresent()) {
-            MallTag existingMallTag = existingMallTagOpt.get();
-
-            // 更新
-            existingMallTag.setMallTagName(mallTag.getMallTagName());
-
-            // 保存更新
-            System.out.println("正在更新 MallTag ID: " + existingMallTag.getId() + " 為名稱: " + existingMallTag.getMallTagName()); // 打印日誌
-            return mallTagRepository.save(existingMallTag);
-        } else {
-            // 如果找不到該 ID，更新目標不存在
-            System.err.println("更新失敗：找不到 ID 為 " + mallTag.getId() + " 的商城標籤。"); 
-            return null; 
-        }
-
+		Integer exist = mallTagRepository.isExistMallTag(mallTag.getMallTagName());
+		boolean isExist = exist != null && !exist.equals(mallTag.getId());
+	    if (isExist) {
+	        throw new MallTagExistException("平台已存在，請重新確認");
+	    }
+		return mallTagRepository.save(mallTag);
     }
 
     public void delete(MallTag mallTag) {

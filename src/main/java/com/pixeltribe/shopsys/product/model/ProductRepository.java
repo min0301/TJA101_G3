@@ -27,4 +27,12 @@ public interface ProductRepository extends JpaRepository<Product, Integer>{
 	    @Query(value ="SELECT PRO_NO FROM Product WHERE LOWER(TRIM(PRO_NAME)) = LOWER(TRIM(:proName)) AND PRO_VERSION = :proVersion AND MALL_TAG_NO = :mallTagNo", nativeQuery = true)
 	    Integer isExistProduct(@Param("proName") String proName, @Param("proVersion") String proVersion, @Param("mallTagNo") Integer mallTagNo);
 	    
+	    @Query(value = "SELECT * FROM Product WHERE 1=1 " +
+	    	       "AND (:proName IS NULL OR PRO_NAME LIKE CONCAT('%', :proName, '%')) " +
+	    	       "AND (:minPrice IS NULL OR PRO_PRICE >= :minPrice) " + "AND (:maxPrice IS NULL OR PRO_PRICE <= :maxPrice) " +
+	    	       "AND (:proStatus IS NULL OR PRO_STATUS = :proStatus) " + "AND (:mallTagNo IS NULL OR MALL_TAG_NO = :mallTagNo) " +
+	    	       "AND (:proIsMarket IS NULL OR PRO_ISMARKET = :proIsMarket) " + "ORDER BY PRO_NO ASC", nativeQuery = true)
+	    List<Product> findProductsByComplexQuery( @Param("proName") String proName, @Param("minPrice") Integer minPrice, @Param("maxPrice") Integer maxPrice,
+	    										  @Param("proStatus") String proStatus, @Param("mallTagNo") Integer mallTagNo, @Param("proIsMarket") Character proIsMarket);
+	   
 }
