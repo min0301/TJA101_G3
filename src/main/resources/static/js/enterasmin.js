@@ -4,7 +4,7 @@
         "ArrowDown", "ArrowDown",
         "ArrowLeft", "ArrowRight",
         "ArrowLeft", "ArrowRight",
-        "KeyB", "KeyA", "KeyB", "KeyA"
+        "KeyB", "KeyA"
     ];
 
     let inputSequence = [];
