@@ -66,5 +66,13 @@ public class ArticleComReportController {
         return articleComReportService.getOneArticleComReport(comNo);
     }
 
+    @GetMapping("/admin/articlecomreports/pendingcount")
+    @Operation(
+            summary = "取得待處理留言檢舉數量"
+    )
+    public Long getPendingCommentReportCount() {
+        return articleComReportService.getCountByArtComRepStatus('0');
+    }
+
 
 }

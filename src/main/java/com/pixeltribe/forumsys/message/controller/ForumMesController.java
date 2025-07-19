@@ -119,5 +119,11 @@ public class ForumMesController {
         return ResponseEntity.ok(updateForumMes);
     }
 
+    @GetMapping("admin/posts/messagecount")
+    @Operation(summary = "取得討論區留言數量")
+    public Long getForumMesCount() {
+        return forumMesSvc.getForumMesCount();
+    }
+
 
 }

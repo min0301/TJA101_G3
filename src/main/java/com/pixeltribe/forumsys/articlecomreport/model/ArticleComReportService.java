@@ -86,5 +86,12 @@ public class ArticleComReportService {
         return ArticleComReportDTO.convertToArticleComReportDTO(articleComReport);
     }
 
+    public Long getCountByArtComRepStatus(Character artComRepStatus) {
+        if (articleComReportRepository.countByArtComRepStatus(artComRepStatus) == 0) {
+            return 0L;
+        }
+        return articleComReportRepository.countByArtComRepStatus(artComRepStatus);
+    }
+
 
 }

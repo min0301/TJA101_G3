@@ -307,5 +307,9 @@ public class ForumService {
                 .collect(Collectors.toList());
     }
 
+    public Long getForumCount() {
+        return forumRepository.count();
+    }
+
 
 }

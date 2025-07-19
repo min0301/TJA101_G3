@@ -23,6 +23,7 @@ public class ArticleReportController {
     public ArticleReportController(ArticleReportService articleReportService) {
         this.articleReportService = articleReportService;
     }
+
     @PostMapping("/posts/report")
     @Operation(
             summary = "新增文章檢舉"
@@ -43,14 +44,15 @@ public class ArticleReportController {
     public ResponseEntity<ArticleReportDTO> updatearticleReport(
             @PathVariable("articleReportNo") Integer articleReportNo, // 參數名稱改為 articleReportNo
             @Valid @RequestBody ArticleReportUpdateDTO articleReportUpdateDTO
-    ){
-        return ResponseEntity.ok(articleReportService.update(articleReportNo,articleReportUpdateDTO));
+    ) {
+        return ResponseEntity.ok(articleReportService.update(articleReportNo, articleReportUpdateDTO));
     }
+
     @GetMapping("/articlereports")
     @Operation(
             summary = "文章檢舉列表"
     )
-    public List<ArticleReportDTO> getAllArticleReport(){
+    public List<ArticleReportDTO> getAllArticleReport() {
         return articleReportService.getAllArticleReport();
     }
 
@@ -60,7 +62,16 @@ public class ArticleReportController {
     )
     public ArticleReportDTO getArticleReportById(
             @PathVariable("articleReportNo") Integer articleReportNo // 參數名稱改為 articleReportNo
-    ){
+    ) {
         return articleReportService.getoneArticleReport(articleReportNo);
+    }
+
+
+    @GetMapping("/admin/articlereports/pendingcoung")
+    @Operation(
+            summary = "查詢待處理文章檢舉數量"
+    )
+    public Long getPendingCommentReportCount() {
+        return articleReportService.getCountByArtRepStatus('0');
     }
 }

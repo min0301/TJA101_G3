@@ -10,4 +10,6 @@ public interface ArticleReportRepository extends JpaRepository<ArticleReport, In
     Optional<ArticleReport> findByPostNoAndReporter(ForumPost postNo, Member reporter);
 
     ForumPost postNo(ForumPost postNo);
+
+    Long countByArtRepStatus(Character artRepStatus);
 }

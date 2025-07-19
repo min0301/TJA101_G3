@@ -112,7 +112,7 @@ public class ForumPostService {
 
         // 查找並設定關聯實體
         Member member = memRepository.findById(1)
-                .orElseThrow(() -> new ResourceNotFoundException("找不到會員 ID: 1。請確認資料庫中是否存在 ID 為 1 的會員。" ));
+                .orElseThrow(() -> new ResourceNotFoundException("找不到會員 ID: 1。請確認資料庫中是否存在 ID 為 1 的會員。"));
         forumPost.setMemNo(member);
 
         Forum forum = forumRepository.findById(forumPostDTO.getForNoId())
@@ -145,9 +145,9 @@ public class ForumPostService {
     /**
      * 更新文章。
      *
-     * @param postId       文章 ID。
-     * @param forumPostDTO 包含更新文章文字資訊的 DTO。
-     * @param imageFile    文章封面圖片檔案 (可選)。
+     * @param postId                      文章 ID。
+     * @param forumPostDTO                包含更新文章文字資訊的 DTO。
+     * @param imageFile                   文章封面圖片檔案 (可選)。
      * @param defaultImageUrlFromFrontend 前端傳來的預設圖片 URL (如果選擇使用預設圖片)。
      * @return 更新後的 ForumPostDTO。
      */
@@ -317,5 +317,9 @@ public class ForumPostService {
             }
         }
         return null; // 沒有上傳圖片，返回 null
+    }
+
+    public Long getPostCount() {
+        return forumPostRepository.count();
     }
 }

@@ -94,7 +94,11 @@ public class ForumMesService {
             forumMes.setMesStatus(forumMesUpdateDTO.getMesStatus());
         }
         return ForumMesDTO.convertToForumMesDTO(forumMesRepository.save(forumMes));
-
     }
+
+    public Long getForumMesCount() {
+        return forumMesRepository.count();
+    }
+
 
 }
