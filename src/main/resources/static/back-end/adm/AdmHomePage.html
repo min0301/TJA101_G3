@@ -810,9 +810,12 @@
                 </div>
                 <div class="stats-grid">
                     <div class="stat-card"><i class="bi bi-people-fill stat-icon"></i><div class="stat-number">1,204</div><div class="stat-label">總會員數</div></div>
-                    <div class="stat-card"><i class="bi bi-newspaper stat-icon"></i><div class="stat-number" id="newsCount">載入中</div><div class="stat-label">新聞總數</div>
-        </div>
-                    <div class="stat-card"><i class="bi bi-chat-square-dots-fill stat-icon"></i><div class="stat-number">512</div><div class="stat-label">論壇文章數</div></div>
+                    <div class="stat-card"><i class="bi bi-newspaper stat-icon"></i><div class="stat-number" id="newsCount">載入中</div><div class="stat-label">新聞總數</div></div>
+                    <div class="stat-card">
+                        <i class="bi bi-chat-square-dots-fill stat-icon"></i>
+                        <div class="stat-number" id="mainForumPostCount">載入中</div>
+                        <div class="stat-label">論壇文章數</div>
+                    </div>
                     <div class="stat-card"><i class="bi bi-shop-window stat-icon"></i><div class="stat-number">156</div><div class="stat-label">上架商品數</div></div>
                 </div>
                 <div class="guide-text">
@@ -992,24 +995,34 @@
         document.querySelectorAll('.submenu-item.active').forEach(item => item.classList.remove('active'));
         contentArea.innerHTML = getMainDashboardHTML();
 
-
         setTimeout(async () => {
             const token = localStorage.getItem('jwt');
-            const headers = {Authorization: 'Bearer ' + token};
+            // [不可變] headers 是 API 驗證的必要部分
+            const headers = { Authorization: 'Bearer ' + token };
 
+            // [可變] 根據你 HTML 中的 id 獲取 DOM 元素
             const newsCountEl = document.getElementById('newsCount');
+            const forumPostCountEl = document.getElementById('mainForumPostCount'); // 【新增】抓取論壇文章數的元素
 
             try {
-                // ① 新聞總數
-                const res1 = await fetch('/api/News/admin/newscount', {headers});
-                if (!res1.ok) throw new Error(`(${res1.status}) 新聞載入失敗`);
-                const newsCount = await res1.text(); // 回傳是字串數字
+                // ① 新聞總數 (原有邏輯不變)
+                const res1 = await fetch('/api/News/admin/newscount', { headers });
+                if (!res1.ok) throw new Error(`(新聞總數 ${res1.status})`);
+                const newsCount = await res1.text();
                 if (newsCountEl) newsCountEl.innerText = newsCount;
+
+                // ② 論壇文章總數 (【新增】的 fetch 邏輯)
+                // [可變] /api/admin/forumpost/count 是你的後端 API 端點，可根據實際情況修改
+                const res2 = await fetch('/api/admin/forumpost/count', { headers });
+                if (!res2.ok) throw new Error(`(論壇文章數 ${res2.status})`);
+                const postCount = await res2.text();
+                if (forumPostCountEl) forumPostCountEl.innerText = postCount;
+
             } catch (err) {
-                console.error('儀表板數據載入失敗:', err);
+                console.error('主儀表板數據載入失敗:', err);
+                // 【修改】更完整的錯誤處理
                 if (newsCountEl) newsCountEl.innerText = '錯誤';
-                if (commentCountEl) commentCountEl.innerText = '錯誤';
-                if (pendingReportEl) pendingReportEl.innerText = '錯誤';
+                if (forumPostCountEl) forumPostCountEl.innerText = '錯誤';
             }
         }, 0);
     }
