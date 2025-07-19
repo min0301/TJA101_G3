@@ -40,6 +40,36 @@
 <link rel="stylesheet" href="assets/css/style.css">
 <link rel="stylesheet" href="assets/css/responsive.css">
 
+<style>
+    #konami-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s ease-in-out;
+    }
+
+    #konami-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    #konami-overlay img {
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover;
+        opacity: 0.8;
+    }
+</style>
+
 <!-- ==============================================
      Fonts
     =============================================== -->
@@ -536,6 +566,10 @@
 
 <!-- 燈箱  -->
 <div id="newsLightboxes"></div>
+    <div id="konami-overlay">
+        <img src="/images/loginAdmin.gif" alt="Admin Secret Login">
+    </div>
+
 <!-- ==============================================
 Scripts
 =============================================== -->
@@ -548,5 +582,7 @@ Scripts
 <script src="assets/vendors/aos/aos.js"></script>
 <script src="front-end/forumsys/index-hot-loader.js"></script>
 <script src="front-end/newspage/news-carousel.js"></script>
+<script src="js/dynamicHeaderInfo.js"></script>
+<script src="js/enterasmin.js"></script>
 </body>
 </html>

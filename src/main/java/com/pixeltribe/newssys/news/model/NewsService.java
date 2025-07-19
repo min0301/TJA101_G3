@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -205,5 +206,32 @@ public class NewsService {
 
     public Long getNewsCount() {
         return newsRepository.count();
+    }
+
+    public List<NewsAdminDTO> search(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return List.of();
+        }
+
+        Optional<List<News>> searchResult = newsRepository.searchNewsByKeyword(keyword);
+        if (searchResult.isEmpty()){
+            return List.of();
+        }
+        List<News> newsList =  searchResult.get();
+        return newsList.stream()
+                .map(news -> new NewsAdminDTO(
+                        news.getId(),
+                        news.getNewsTit(),
+                        news.getNewsCon(),
+                        news.getNewsUpdate(),
+                        news.getNewsCrdate(),
+                        news.getIsShowed(),
+                        (long) news.getNewsImages().size(),
+                        news.getNewContentClassifications().stream()
+                                .map(ncc -> ncc.getNcatNo().getNcatName())
+                                .collect(Collectors.joining(",")),
+                        news.getAdminNo().getId(),
+                        news.getAdminNo().getAdmName()))
+                .collect(Collectors.toList());
     }
 }

@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -23,6 +24,12 @@ public class NewsController {
         this.newsSrv = newsSrv;
     }
 
+    @GetMapping("/search")
+    @Operation(summary = "搜尋前台新聞")
+    public List<NewsAdminDTO> search(
+            @RequestParam String  keyword){
+                return newsSrv.search(keyword);
+    }
 
     @GetMapping("all")
     @Operation(summary = "顯示所有前台新聞")
