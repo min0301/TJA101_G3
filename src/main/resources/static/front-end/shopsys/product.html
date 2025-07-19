@@ -126,7 +126,7 @@
 	                console.log('顯示商品詳情，ID:', productId);
 	                showProductDetail(productId);
 	            } else {
-	                // 沒有商品ID，顯示商品列表（保持組員原有邏輯）
+	                // 沒有商品ID，顯示商品列表
 	                console.log('顯示商品列表，初始化 MallTagManager...');
 	                
 	                if (window.mallTagManager && typeof window.mallTagManager.init === 'function') {
@@ -148,216 +148,344 @@
 	    }, 300);
 	});
 
-	/**
-	 * 顯示商品詳情 - 最小侵入式實現
-	 */
+	// *** 顯示商品詳情 - 整合庫存 API (薰妤修) ***//
 	async function showProductDetail(productId) {
-	    try {
-	        console.log('開始載入商品詳情，ID:', productId);
-	        
-	        // 顯示載入狀態
-	        const container = document.getElementById('dynamic-content-container');
-	        if (!container) {
-	            console.error('找不到 dynamic-content-container');
-	            return;
-	        }
-	        
-	        container.innerHTML = `
-	            <div class="text-center py-5">
-	                <div class="spinner-border text-primary" role="status"></div>
-	                <h4 class="mt-3">載入商品資訊中...</h4>
-	                <p class="text-muted">請稍候</p>
-	            </div>
-	        `;
-	        
-	        // 使用和 productList.js 相同的 API
-	        const apiBaseUrl = `${location.origin}/api`;
-	        const apiUrl = `${apiBaseUrl}/product/searchall?proIsMarket=0`;
-	        
-	        console.log('請求 API:', apiUrl);
-	        
-	        const response = await fetch(apiUrl);
-	        if (!response.ok) {
-	            throw new Error(`HTTP error! status: ${response.status}`);
-	        }
+    	try {
+        	console.log('開始載入商品詳情，ID:', productId);
+        
+        	// 顯示載入狀態
+        	const container = document.getElementById('dynamic-content-container');
+        	if (!container) {
+            	console.error('找不到 dynamic-content-container');
+            	return;
+        	}
+        
+        	container.innerHTML = `
+            	<div class="text-center py-5">
+                	<div class="spinner-border text-primary" role="status"></div>
+                	<h4 class="mt-3">載入商品資訊中...</h4>
+                	<p class="text-muted">請稍候</p>
+            	</div>
+		        `;
+		        
+		        // 使用和 productList.js 相同的 API
+		        const apiBaseUrl = `${location.origin}/api`;
+		        const apiUrl = `${apiBaseUrl}/product/searchall?proIsMarket=0`;
+		        
+		        console.log('請求商品 API:', apiUrl);
+		        
+		        const response = await fetch(apiUrl);
+		        if (!response.ok) {
+		            throw new Error(`HTTP error! status: ${response.status}`);
+		        }
+		
+		        const products = await response.json();
+		        console.log('載入商品列表:', products.length, '項');
+		        
+		        // 尋找目標商品
+		        const product = products.find(p => 
+		            String(p.id) === String(productId) || 
+		            String(p.proNo) === String(productId)
+		        );
+		
+		        if (!product) {
+		            throw new Error(`找不到商品 ID: ${productId}`);
+		        }
+		
+		        console.log('找到目標商品:', product);
+		        
+		        // 新增：載入庫存資訊
+		        let stockInfo = null;
+		        try {
+		            console.log('開始查詢庫存資訊...');
+		            const stockResponse = await fetch(`${apiBaseUrl}/cart/stock/${productId}`, {
+		                headers: {
+		                    'Authorization': 'Bearer ' + localStorage.getItem('jwt'),
+		                    'Content-Type': 'application/json'
+		                }
+		            });
+		            
+		            if (stockResponse.ok) {
+		                stockInfo = await stockResponse.json();
+		                console.log('庫存資訊載入成功:', stockInfo);
+		            } else {
+		                console.warn('庫存 API 回應失敗:', stockResponse.status);
+		            }
+		        } catch (stockError) {
+		            console.warn('無法取得庫存資訊:', stockError);
+		        }
+		        
+		        // 顯示商品詳情（包含庫存）
+		        displayProductDetailWithStock(product, stockInfo);
+		        
+		    } catch (error) {
+		        console.error('載入商品詳情失敗:', error);
+		        showProductError(error.message);
+		    }
+		}
+	
+	 
 
-	        const products = await response.json();
-	        console.log('載入商品列表:', products.length, '項');
-	        
-	        // 尋找目標商品
-	        const product = products.find(p => 
-	            String(p.id) === String(productId) || 
-	            String(p.proNo) === String(productId)
-	        );
-
-	        if (!product) {
-	            throw new Error(`找不到商品 ID: ${productId}`);
+	
+	
+	// ***  顯示商品詳情內容 包含庫存 (薰妤修) ***//
+	function displayProductDetailWithStock(product, stockInfo) {
+	    const container = document.getElementById('dynamic-content-container');
+	    
+	    // 平台名稱邏輯
+	    let platformName = '測試平台';
+	    if (product.mallTagNo) {
+	        if (typeof product.mallTagNo === 'object' && product.mallTagNo.mallTagName) {
+	            platformName = product.mallTagNo.mallTagName;
+	        } else if (typeof product.mallTagNo === 'number') {
+	            const platformMap = {
+	                1: 'Steam',
+	                2: 'PlayStation',
+	                3: 'Xbox',
+	                4: 'Nintendo Switch',
+	                5: 'Epic Games Store'
+	            };
+	            platformName = platformMap[product.mallTagNo] || `平台 ${product.mallTagNo}`;
 	        }
-
-	        console.log('找到目標商品:', product);
-	        
-	        // 顯示商品詳情
-	        displayProductDetail(product);
-	        
-	    } catch (error) {
-	        console.error('載入商品詳情失敗:', error);
-	        showProductError(error.message);
 	    }
+	    
+	    // 整合庫存邏輯
+	    const proIsmarket = product.proIsmarket;
+	    const proStatus = product.proStatus;
+	    
+	    console.log('商品上架狀態 (proIsmarket):', proIsmarket);
+	    console.log('商品狀態 (proStatus):', proStatus);
+	    console.log('庫存資訊:', stockInfo);
+	    
+	    // 根據庫存資訊生成狀態
+	    let statusInfo = generateStatusInfo(proIsmarket, proStatus, stockInfo);
+	    
+	    const productId = product.id || product.proNo;
+	    const apiBaseUrl = `${location.origin}/api`;
+	    const imageUrl = `${apiBaseUrl}/product/cover/${productId}`;
+	    
+	    // 更新頁面標題
+	    document.title = `${product.proName} - 像素部落`;
+	    
+	    // 更新 hero 區域標題
+	    const heroContent = document.querySelector('.hero-content p');
+	    if (heroContent) {
+	        heroContent.textContent = `商品詳情 - ${product.proName}`;
+	    }
+	    
+	    // 顯示完整的商品詳情（包含庫存）
+	    container.innerHTML = `
+	        <div class="card shadow-sm border-0">
+	            <div class="card-body p-4">
+	                <!-- 返回按鈕 -->
+	                <div class="mb-4">
+	                    <nav aria-label="breadcrumb">
+	                        <ol class="breadcrumb">
+	                            <li class="breadcrumb-item">
+	                                <a href="/front-end/shopsys/shopindex.html">商城首頁</a>
+	                            </li>
+	                            <li class="breadcrumb-item">
+	                                <a href="/front-end/shopsys/product.html">所有產品</a>
+	                            </li>
+	                            <li class="breadcrumb-item active">${product.proName}</li>
+	                        </ol>
+	                    </nav>
+	                </div>
+	                
+	                <div class="row">
+	                    <!-- 商品圖片 -->
+	                    <div class="col-lg-6 mb-4">
+	                        <div class="product-image-wrapper">
+	                            <img src="${imageUrl}" 
+	                                 alt="${product.proName}" 
+	                                 class="img-fluid rounded shadow-sm w-100"
+	                                 style="height: 400px; object-fit: cover;"
+	                                 onerror="this.src='https://via.placeholder.com/400x400/667eea/ffffff?text=商品圖片'">
+	                        </div>
+	                    </div>
+	                    
+	                    <!-- 商品資訊 -->
+	                    <div class="col-lg-6">
+	                        <h1 class="h2 mb-3 fw-bold">${product.proName || '未知商品'}</h1>
+	                        
+	                        <div class="price-section mb-3 pb-3 border-bottom">
+	                            <span class="h3 text-success fw-bold">NT$ ${formatPrice(product.proPrice || 0)}</span>
+	                        </div>
+	                        
+	                        <!-- 商品狀態顯示 -->
+	                        <div class="status-section mb-3">
+	                            <span class="${statusInfo.statusClass}">${statusInfo.displayText}</span>
+	                        </div>
+	                        
+	                        <!-- 庫存狀態顯示（使用真實資料）-->
+	                        <div class="stock-section mb-4 p-3 bg-light rounded">
+	                            <div class="d-flex align-items-center gap-2 mb-2">
+	                                <i class="bi bi-box-seam ${statusInfo.stockClass}"></i>
+	                                <span class="fw-bold ${statusInfo.stockClass}">${statusInfo.stockText}</span>
+	                            </div>
+	                            <!-- 庫存數量顯示 -->
+	                            <div class="stock-quantity">
+	                                <span class="text-muted">庫存數量：</span>
+	                                <span class="fw-bold ${statusInfo.stockClass}">${statusInfo.stockCount}</span>
+	                                ${statusInfo.stockSource ? `<small class="text-muted d-block">資料來源：${statusInfo.stockSource}</small>` : ''}
+	                            </div>
+	                        </div>
+	                        
+	                        <!-- 商品規格 -->
+	                        <div class="product-info bg-light p-3 rounded mb-4">
+	                            <div class="row">
+	                                <div class="col-6">
+	                                    <strong>版本：</strong><br>
+	                                    <span class="text-muted">${product.proVersion || '標準版'}</span>
+	                                </div>
+	                                <div class="col-6">
+	                                    <strong>平台：</strong><br>
+	                                    <span class="text-muted">${platformName}</span>
+	                                </div>
+	                            </div>
+	                        </div>
+	                        
+	                        <div class="product-description mb-4">
+	                            <h5>商品描述</h5>
+	                            <p class="text-muted">
+	                                ${product.proDetails || '商品詳細資訊暫未提供'}
+	                            </p>
+	                        </div>
+	                        
+	                        <!-- 操作按鈕根據庫存狀態調整 -->
+	                        <div class="action-buttons">
+	                            <div class="row">
+	                                <div class="col-md-6 mb-2">
+	                                    <button class="btn ${statusInfo.canPurchase ? 'btn-success' : 'btn-secondary'} btn-lg w-100" 
+	                                            ${statusInfo.canPurchase ? '' : 'disabled'}
+	                                            onclick="handleAddToCart(${productId})">
+	                                        <i class="bi bi-cart-plus me-2"></i>${statusInfo.buttonText}
+	                                    </button>
+	                                </div>
+	                                <div class="col-md-6 mb-2">
+	                                    <button class="btn btn-danger btn-lg w-100" onclick="handleAddToFavorite(${productId})">
+	                                        <i class="bi bi-heart me-2"></i>加入最愛
+	                                    </button>
+	                                </div>
+	                                <div class="col-12">
+	                                    <a href="/front-end/shopsys/product.html" class="btn btn-outline-secondary w-100">
+	                                        <i class="bi bi-arrow-left me-2"></i>返回商品列表
+	                                    </a>
+	                                </div>
+	                            </div>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    `;
+	}
+	 
+	 
+	
+	
+	// ***  根據庫存資訊生成狀態 (薰妤修) ***//
+	function generateStatusInfo(proIsmarket, proStatus, stockInfo) {
+	    let statusInfo = {
+	        displayText: '狀態未知',
+	        statusClass: 'badge bg-secondary',
+	        stockText: '庫存狀態未知',
+	        stockClass: 'text-muted',
+	        stockCount: '查詢中...',
+	        stockSource: null,
+	        canPurchase: false,
+	        buttonText: '無法購買'
+	    };
+	    
+	    // 如果有庫存資訊，使用真實資料
+	    if (stockInfo && stockInfo.stock !== undefined) {
+	        const realStock = stockInfo.stock;
+	        const stockSource = stockInfo.stockSource || '資料庫';
+	        
+	        if (proIsmarket === '0' || proIsmarket === 0) {
+	            // 上架商品
+	            if (realStock > 0) {
+	                if (proStatus === '預購中' || proStatus === '預購') {
+	                    statusInfo = {
+	                        displayText: '開放預購',
+	                        statusClass: 'badge bg-warning text-dark',
+	                        stockText: '預購商品，發售後出貨',
+	                        stockClass: 'text-warning',
+	                        stockCount: `${realStock} 件`,
+	                        stockSource: stockSource,
+	                        canPurchase: true,
+	                        buttonText: '立即預購'
+	                    };
+	                } else {
+	                    statusInfo = {
+	                        displayText: '現貨供應',
+	                        statusClass: 'badge bg-success',
+	                        stockText: realStock <= 10 ? '庫存偏低，欲購從速' : '有現貨，立即發貨',
+	                        stockClass: realStock <= 10 ? 'text-warning' : 'text-success',
+	                        stockCount: `${realStock} 件`,
+	                        stockSource: stockSource,
+	                        canPurchase: true,
+	                        buttonText: '加入購物車'
+	                    };
+	                }
+	            } else {
+	                // 無庫存
+	                statusInfo = {
+	                    displayText: '暫時缺貨',
+	                    statusClass: 'badge bg-danger',
+	                    stockText: '商品暫時缺貨',
+	                    stockClass: 'text-danger',
+	                    stockCount: '0 件',
+	                    stockSource: stockSource,
+	                    canPurchase: false,
+	                    buttonText: '暫時缺貨'
+	                };
+	            }
+	        } else {
+	            // 下架商品
+	            statusInfo = {
+	                displayText: '暫停販售',
+	                statusClass: 'badge bg-danger',
+	                stockText: '商品暫時下架',
+	                stockClass: 'text-danger',
+	                stockCount: '0 件',
+	                stockSource: stockSource,
+	                canPurchase: false,
+	                buttonText: '暫停販售'
+	            };
+	        }
+	    } else {
+	        // 無法取得庫存資訊，使用預設邏輯
+	        console.warn('⚠️ 無庫存資訊，使用預設顯示');
+	        
+	        if (proIsmarket === '0' || proIsmarket === 0) {
+	            statusInfo = {
+	                displayText: proStatus || '已發售',
+	                statusClass: 'badge bg-success',
+	                stockText: '商品可購買',
+	                stockClass: 'text-success',
+	                stockCount: '查詢中...',
+	                stockSource: null,
+	                canPurchase: true,
+	                buttonText: '加入購物車'
+	            };
+	        } else {
+	            statusInfo = {
+	                displayText: '暫停販售',
+	                statusClass: 'badge bg-danger',
+	                stockText: '商品暫時下架',
+	                stockClass: 'text-danger',
+	                stockCount: '0 件',
+	                stockSource: null,
+	                canPurchase: false,
+	                buttonText: '暫停販售'
+	            };
+	        }
+	    }
+	    
+	    return statusInfo;
 	}
 
-	/**
-	 * 顯示商品詳情內容
-	 */
-	 function displayProductDetail(product) {
-		    
-		    
-		    const container = document.getElementById('dynamic-content-container');
-		    
-		    // 🔥 測試平台邏輯
-		    let platformName = '測試平台';
-		    if (product.mallTagNo) {
-		        if (typeof product.mallTagNo === 'object' && product.mallTagNo.mallTagName) {
-		            platformName = product.mallTagNo.mallTagName;
-		            console.log('✅ 從物件取得平台:', platformName);
-		        } else if (typeof product.mallTagNo === 'number') {
-		            const platformMap = {
-		                1: 'Steam',
-		                2: 'PlayStation',
-		                3: 'Xbox',
-		                4: 'Nintendo Switch',
-		                5: 'Epic Games Store'
-		            };
-		            platformName = platformMap[product.mallTagNo] || `平台 ${product.mallTagNo}`;
-		            console.log('✅ 從數字映射取得平台:', platformName);
-		        }
-		    }
-		    
-		    console.log('最終平台名稱:', platformName);
-		    console.log('最終版本:', product.proVersion);
-		    
-		    // 獲取商品狀態
-		    const proIsmarket = product.proIsmarket;
-		    let statusText = '狀態未知';
-		    let statusClass = 'badge bg-secondary';
-		    
-		    if (proIsmarket === '0' || proIsmarket === 0) {
-		        statusText = product.proStatus || '已發售';
-		        statusClass = 'badge bg-success';
-		    } else if (proIsmarket === '1' || proIsmarket === 1) {
-		        statusText = product.proStatus || '預購中';
-		        statusClass = 'badge bg-warning text-dark';
-		    }
-		    
-		    const productId = product.id || product.proNo;
-		    const apiBaseUrl = `${location.origin}/api`;
-		    const imageUrl = `${apiBaseUrl}/product/cover/${productId}`;
-		    
-		    // 更新頁面標題
-		    document.title = `${product.proName} - 像素部落`;
-		    
-		    // 更新 hero 區域標題
-		    const heroContent = document.querySelector('.hero-content p');
-		    if (heroContent) {
-		        heroContent.textContent = `商品詳情 - ${product.proName}`;
-		    }
-		    
-		    // 🔥 修正：使用計算後的平台和版本
-		    container.innerHTML = `
-		        <div class="card shadow-sm border-0">
-		            <div class="card-body p-4">
-		                <!-- 返回按鈕 -->
-		                <div class="mb-4">
-		                    <nav aria-label="breadcrumb">
-		                        <ol class="breadcrumb">
-		                            <li class="breadcrumb-item">
-		                                <a href="/front-end/shopsys/shopindex.html">商城首頁</a>
-		                            </li>
-		                            <li class="breadcrumb-item">
-		                                <a href="/front-end/shopsys/product.html">所有產品</a>
-		                            </li>
-		                            <li class="breadcrumb-item active">${product.proName}</li>
-		                        </ol>
-		                    </nav>
-		                </div>
-		                
-		                <div class="row">
-		                    <!-- 商品圖片 -->
-		                    <div class="col-lg-6 mb-4">
-		                        <div class="product-image-wrapper">
-		                            <img src="${imageUrl}" 
-		                                 alt="${product.proName}" 
-		                                 class="img-fluid rounded shadow-sm w-100"
-		                                 style="height: 400px; object-fit: cover;"
-		                                 onerror="this.src='https://via.placeholder.com/400x400/667eea/ffffff?text=商品圖片'">
-		                        </div>
-		                    </div>
-		                    
-		                    <!-- 商品資訊 -->
-		                    <div class="col-lg-6">
-		                        <h1 class="h2 mb-3 fw-bold">${product.proName || '未知商品'}</h1>
-		                        
-		                        <div class="price-section mb-3 pb-3 border-bottom">
-		                            <span class="h3 text-success fw-bold">NT$ ${formatPrice(product.proPrice || 0)}</span>
-		                        </div>
-		                        
-		                        <div class="status-section mb-4">
-		                            <span class="${statusClass}">${statusText}</span>
-		                        </div>
-		                        
-		                        <!-- 🔥 修正：使用計算後的值 -->
-		                        <div class="product-info bg-light p-3 rounded mb-4">
-		                            <div class="row">
-		                                <div class="col-6">
-		                                    <strong>版本：</strong><br>
-		                                    <span class="text-muted">${product.proVersion || '標準版'}</span>
-		                                </div>
-		                                <div class="col-6">
-		                                    <strong>平台：</strong><br>
-		                                    <span class="text-muted">${platformName}</span>
-		                                </div>
-		                            </div>
-		                        </div>
-		                        
-		                        <div class="product-description mb-4">
-		                            <h5>商品描述</h5>
-		                            <p class="text-muted">
-		                                ${product.proDescription || product.proDetails || '這是一款優質的遊戲產品，為您帶來極致的遊戲體驗。'}
-		                            </p>
-		                        </div>
-		                        
-		                        <!-- 操作按鈕 -->
-		                        <div class="action-buttons">
-		                        <div class="row">
-		                            <div class="col-md-6 mb-2">
-		                                <button class="btn btn-success btn-lg w-100" onclick="handleAddToCart(${productId})">
-		                                    <i class="bi bi-cart-plus me-2"></i>加入購物車
-		                                </button>
-		                            </div>
-		                            <div class="col-md-6 mb-2">
-		                                <button class="btn btn-danger btn-lg w-100" onclick="handleAddToFavorite(${productId})">
-		                                    <i class="bi bi-heart me-2"></i>加入最愛
-		                                </button>
-		                            </div>
-		                            <div class="col-12">
-		                                <a href="/front-end/shopsys/product.html" class="btn btn-outline-secondary w-100">
-		                                    <i class="bi bi-arrow-left me-2"></i>返回商品列表
-		                                </a>
-		                            </div>
-		                        </div>
-		                    </div>
-		                    </div>
-		                </div>
-		            </div>
-		        </div>
-		    `;
-		}
-	 
-	 
-	 
-	 
-	 
-	 
-	 
 	 
 	 
 	/**

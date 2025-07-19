@@ -185,6 +185,14 @@ public class CartController {
 	}
 	
 	
+	// ========== 讀取可購買的庫存數量(包含現貨跟預購) ============ //
+	@GetMapping("/cart/stock/{productId}")
+	public ResponseEntity<StockInfoResponse> getProductStock(@PathVariable Integer productId) {
+	    StockInfoResponse stockInfo = cartService.getStockInfo(productId);
+	    return ResponseEntity.ok(stockInfo);
+	}
+	
+	
 	
 	
 	// ******** 後台API (管理員查看數據) ******** //
@@ -210,7 +218,7 @@ public class CartController {
 	
 	// ========== 查詢產品庫存 ============ //
 	@GetMapping("/admin/cart/stock/{productId}")
-	public ResponseEntity<StockInfoResponse> getProductStock(@PathVariable Integer productId) {
+	public ResponseEntity<StockInfoResponse> getAdminProductStock(@PathVariable Integer productId) {
 	    
 	    StockInfoResponse response = cartService.getStockInfo(productId);
 	    if (response == null) {

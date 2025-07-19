@@ -13,6 +13,12 @@ class ProductListManager {
         this.currentPage = 1;
         this.itemsPerPage = 12;
         this.isLoading = false;
+		
+		// 新增購物車需要的部分 (薰妤加)
+		this.addToCart = this.addToCart.bind(this);
+		this.showToast = this.showToast.bind(this);
+		this.updateCartBadge = this.updateCartBadge.bind(this);
+		
     }
 
     /**
@@ -264,10 +270,10 @@ class ProductListManager {
                         
                         <!-- 快速操作按鈕 -->
                         <div class="position-absolute top-0 end-0 m-2 d-flex gap-1 product-actions" style="opacity: 0; transition: opacity 0.3s;">
-                            <button class="btn btn-sm btn-light rounded-circle" style="width: 36px; height: 36px; backdrop-filter: blur(10px);" onclick="event.stopPropagation(); window.productListManager.addToCart(${productId})" title="加入購物車">
+                            <button class="btn btn-sm btn-light rounded-circle" style="width: 36px; height: 36px; backdrop-filter: blur(10px);" onclick="event.stopPropagation(); addToCartFromList(${productId})" title="加入購物車">
                                 <i class="bi bi-cart-plus"></i>
                             </button>
-                            <button class="btn btn-sm btn-primary rounded-circle" style="width: 36px; height: 36px;" onclick="event.stopPropagation(); window.productListManager.viewProductDetail(${productId})" title="查看詳情">
+                            <button class="btn btn-sm btn-primary rounded-circle" style="width: 36px; height: 36px;" onclick="event.stopPropagation(); viewProductDetailFromList(${productId})" title="查看詳情">
                                 <i class="bi bi-eye"></i>
                             </button>
                         </div>
@@ -391,13 +397,74 @@ class ProductListManager {
 		    window.location.href = targetUrl;
     }
 
-    /**
-     * 加入購物車 - 使用 PRO_NO
-     */
-    addToCart(productId) {
-        console.log('加入購物車:', productId);
-        this.showToast('商品已加入購物車！', 'success');
-    }
+	
+	
+	//*** 處理加入購物車 (薰妤有加入實際呼叫後端 API，原本只有顯示提示訊息)*** //
+	async addToCart(productId) {
+	    console.log('🛒 開始加入購物車:', productId);
+	    
+	    // 檢查登入狀態
+	    const jwt = localStorage.getItem('jwt');
+	    if (!jwt) {
+	        this.showToast('請先登入會員！', 'error');
+	        // 可選：跳轉到登入頁面
+	        return;
+	    }
+	    
+	    try {
+	        // 顯示載入狀態
+	        this.showToast('正在加入購物車...', 'info');
+	        
+	        // 🔥 實際呼叫後端 API
+	        const response = await fetch('/api/cart/add', {
+	            method: 'POST',
+	            headers: {
+	                'Content-Type': 'application/x-www-form-urlencoded',
+	                'Authorization': 'Bearer ' + jwt
+	            },
+	            body: `proNo=${productId}&proNum=1`  // 預設數量為 1
+	        });
+	        
+	        console.log('📡 API 回應狀態:', response.status, response.ok);
+	        
+	        if (response.ok) {
+	            const cartData = await response.json();
+	            console.log('✅ 加購物車成功:', cartData);
+	            this.showToast('商品已加入購物車！', 'success');
+	            
+	            // 可選：更新購物車數量顯示
+	            this.updateCartBadge();
+	            
+	        } else {
+	            const errorText = await response.text();
+	            console.error('❌ 加購物車失敗:', response.status, errorText);
+	            
+	            if (response.status === 401) {
+	                this.showToast('登入已過期，請重新登入！', 'error');
+	            } else {
+	                this.showToast('加入購物車失敗，請稍後再試！', 'error');
+	            }
+	        }
+	        
+	    } catch (error) {
+	        console.error('❌ 網路錯誤:', error);
+	        this.showToast('網路錯誤，請稍後再試！', 'error');
+	    }
+	}
+	
+
+	
+	
+	//*** 薰妤新增-更新購物車數量顯示*** //
+	updateCartBadge() {
+	    // 這個函數可以用來更新 header 中的購物車數量
+	    // 如果 header 有購物車數量顯示的話
+	    console.log('🔄 可以在這裡更新購物車數量顯示');
+	}
+	
+	
+	
+	
 
     /**
      * 快速搜尋功能 - 修正版
@@ -1000,3 +1067,61 @@ window.showProductList = function(container) {
         console.error('ProductListManager 未初始化');
     }
 };
+
+
+// ========== 全域加購物車函數 - 解決 this 綁定問題 (薰妤加) ========= //
+window.addToCartFromList = async function(productId) {
+    console.log('全域加購物車函數被調用:', productId);
+    
+    // 檢查登入狀態
+    const jwt = localStorage.getItem('jwt');
+    if (!jwt) {
+        alert('請先登入會員！');
+        return;
+    }
+    
+    try {
+        // 顯示載入提示
+        console.log('正在加入購物車...');
+        
+        // 直接呼叫 API
+        const response = await fetch('/api/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Bearer ' + jwt
+            },
+            body: `proNo=${productId}&proNum=1`
+        });
+        
+        console.log('API 回應狀態:', response.status, response.ok);
+        
+        if (response.ok) {
+            const cartData = await response.json();
+            console.log('加購物車成功:', cartData);
+            alert('商品已加入購物車！');
+        } else {
+            const errorText = await response.text();
+            console.error('加購物車失敗:', response.status, errorText);
+            alert('加入購物車失敗：' + errorText);
+        }
+        
+    } catch (error) {
+        console.error('網路錯誤:', error);
+        alert('網路錯誤：' + error.message);
+    }
+};
+
+
+
+// ========== 全域查看商品詳情函數 (薰妤加) ========= //
+window.viewProductDetailFromList = function(productId) {
+    console.log('查看商品詳情:', productId);
+    const targetUrl = `/front-end/shopsys/product.html?id=${productId}`;
+    window.location.href = targetUrl;
+};
+
+
+
+
+

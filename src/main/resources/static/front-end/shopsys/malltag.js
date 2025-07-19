@@ -892,59 +892,105 @@ window.handleProductClick = function(productId) {
 	window.location.href = `/front-end/shopsys/product.html?id=${productId}`;
 };
 
-// 臨時的購物車功能（先顯示提示，後續可以擴展）
-function addToCart(productId) {
-	console.log('加入購物車:', productId);
+// 購物車功能（薰妤修）
+async function addToCart(productId) {
+    console.log('🛒 malltag.js - 加入購物車:', productId);
+    
+    // 檢查登入狀態
+    const jwt = localStorage.getItem('jwt');
+    if (!jwt) {
+        showToast('請先登入會員！', 'warning');
+        return;
+    }
+    
+    try {
+        // 顯示載入狀態
+        showToast('正在加入購物車...', 'info');
+        
+        // 實際呼叫後端 API
+        const response = await fetch('/api/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Bearer ' + jwt
+            },
+            body: `proNo=${productId}&proNum=1`
+        });
+        
+        console.log('📡 API 回應狀態:', response.status, response.ok);
+        
+        if (response.ok) {
+            const cartData = await response.json();
+            console.log('✅ 加購物車成功:', cartData);
+            showToast('商品已加入購物車！', 'success');
+        } else {
+            const errorText = await response.text();
+            console.error('❌ 加購物車失敗:', response.status, errorText);
+            
+            if (response.status === 401) {
+                showToast('登入已過期，請重新登入！', 'warning');
+            } else {
+                showToast('加入購物車失敗，請稍後再試！', 'error');
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ 網路錯誤:', error);
+        showToast('網路錯誤，請稍後再試！', 'error');
+    }
+}
+	
+	
+	// 通用的提示訊息函數
+	function showToast(message, type = 'success') {
+	    const colors = {
+	        success: '#28a745',
+	        info: '#007bff',
+	        warning: '#ffc107',
+	        error: '#dc3545'
+	    };
+	
 
 	// 顯示提示訊息
 	const toast = document.createElement('div');
 	toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: var(--green-color);
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        z-index: 9999;
-        font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        animation: slideIn 0.3s ease;
+	        position: fixed;
+	        top: 20px;
+	        right: 20px;
+	        background: ${colors[type] || colors.success};
+	        color: white;
+	        padding: 12px 20px;
+	        border-radius: 8px;
+	        z-index: 9999;
+	        font-weight: 500;
+	        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+	        animation: slideIn 0.3s ease;
     `;
 	toast.textContent = '商品已加入購物車！';
 
 	// 添加滑入動畫
 	const keyframes = `
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-    `;
+	        @keyframes slideIn {
+	            from { transform: translateX(100%); opacity: 0; }
+	            to { transform: translateX(0); opacity: 1; }
+	        }
+	    `;
 
-	if (!document.querySelector('#toast-styles')) {
-		const style = document.createElement('style');
-		style.id = 'toast-styles';
-		style.textContent = keyframes;
-		document.head.appendChild(style);
-	}
+	    if (!document.querySelector('#toast-styles')) {
+	        const style = document.createElement('style');
+	        style.id = 'toast-styles';
+	        style.textContent = keyframes;
+	        document.head.appendChild(style);
+	    }
 
-	document.body.appendChild(toast);
+	    document.body.appendChild(toast);
 
 	// 3秒後自動移除提示
 	setTimeout(() => {
-		toast.style.animation = 'slideIn 0.3s ease reverse';
-		setTimeout(() => {
-			if (toast.parentNode) {
-				toast.parentNode.removeChild(toast);
-			}
-		}, 300);
-	}, 3000);
+	        if (toast.parentNode) {
+	            toast.parentNode.removeChild(toast);
+	        }
+	    }, 3000);
 }
 
 // 導出到全域範圍供其他腳本使用
