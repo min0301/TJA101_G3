@@ -1,5 +1,7 @@
 package com.pixeltribe.shopsys.cart.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -7,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,11 +18,14 @@ import com.pixeltribe.shopsys.cart.exception.CartErrorCode;
 import com.pixeltribe.shopsys.cart.exception.CartException;
 import com.pixeltribe.shopsys.cart.model.AdminCartListResponse;
 import com.pixeltribe.shopsys.cart.model.CartDTO;
+import com.pixeltribe.shopsys.cart.model.CartRequests;
 import com.pixeltribe.shopsys.cart.model.CartService;
 import com.pixeltribe.shopsys.cart.model.CartStatisticsResponse;
+import com.pixeltribe.shopsys.cart.model.CartValidationResponse;
 import com.pixeltribe.shopsys.cart.model.StockInfoResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 
 
@@ -114,6 +120,71 @@ public class CartController {
 		
 		return ResponseEntity.ok("購物車已清空");
 	}
+	
+	
+	
+	// ========== 批量移除商品 ============ //
+	@DeleteMapping("/cart/remove/batch")
+	public ResponseEntity<CartDTO> removeMultipleItems(
+	        @RequestBody List<Integer> proNos,
+	        HttpServletRequest request) {
+	    
+	    Integer memNo = (Integer) request.getAttribute("currentId");
+	    if (memNo == null) {
+	        throw new CartException(CartErrorCode.ADM_001);
+	    }
+	    
+	    CartDTO cart = cartService.removeMultipleItems(memNo, proNos);
+	    return ResponseEntity.ok(cart);
+	}
+
+	// ========== 批量更新商品數量 ============ //
+	@PutMapping("/cart/update/batch")
+	public ResponseEntity<CartDTO> updateMultipleItemsQuantity(
+	        @RequestBody List<CartService.CartUpdateItem> updateItems,
+	        HttpServletRequest request) {
+	    
+	    Integer memNo = (Integer) request.getAttribute("currentId");
+	    if (memNo == null) {
+	        throw new CartException(CartErrorCode.ADM_001);
+	    }
+	    
+	    CartDTO cart = cartService.updateMultipleItemsQuantity(memNo, updateItems);
+	    return ResponseEntity.ok(cart);
+	}
+
+	// ========== 獲取選中商品購物車 ============ //
+	@PostMapping("/cart/selected")
+	public ResponseEntity<CartDTO> getSelectedItemsCart(
+	        @Valid @RequestBody CartRequests.SelectedItems request,
+	        HttpServletRequest httpRequest) {
+	    
+	    Integer memNo = (Integer) httpRequest.getAttribute("currentId");
+	    if (memNo == null) {
+	        throw new CartException(CartErrorCode.ADM_001);
+	    }
+	    
+	    CartDTO cart = cartService.getSelectedItemsCart(memNo, request.getSelectedProNos());
+	    return ResponseEntity.ok(cart);
+	}
+
+	// ========== 結帳前驗證 ============ //
+	@PostMapping("/cart/validate")
+	public ResponseEntity<CartValidationResponse> validateCartForCheckout(
+	        @RequestBody(required = false) CartRequests.CheckoutValidation request,
+	        HttpServletRequest httpRequest) {
+	    
+	    Integer memNo = (Integer) httpRequest.getAttribute("currentId");
+	    if (memNo == null) {
+	        throw new CartException(CartErrorCode.ADM_001);
+	    }
+	    
+	    List<Integer> selectedProNos = (request != null) ? request.getSelectedProNos() : null;
+	    CartValidationResponse response = cartService.validateCartForCheckout(memNo, selectedProNos);
+	    return ResponseEntity.ok(response);
+	}
+	
+	
 	
 	
 	// ******** 後台API (管理員查看數據) ******** //

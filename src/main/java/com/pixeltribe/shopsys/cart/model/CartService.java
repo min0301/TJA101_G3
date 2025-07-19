@@ -33,12 +33,22 @@ public class CartService {
 	
 	@Autowired  
     private RedisTemplate<String, String> redisTemplate;
+	
+	private static final int MAX_ITEMS_PER_CART = 50;          // 購物車最大商品種類
+	private static final int MAX_QUANTITY_PER_ITEM = 99;       // 單項商品最大數量
+	private static final int STOCK_WARNING_THRESHOLD = 10;     // 庫存警告閾值
+	private static final String PREORDER_STATUS = "預購";      // 預購狀態
+	private static final int MAX_CART_TOTAL_PRICE = 200000;    // 購物車最大總價
+	
     
     // Redis Key 前綴常數
     private static final String PREORDER_STOCK_PREFIX = "preorder:stock:product:";
 	
 	// ============ 加入商品到購物車 ===========//
 	public CartDTO addToCart(Integer memNo, Integer proNo, Integer proNum) {
+		
+		// 新增：驗證商品數量限制
+	    validateItemQuantityLimit(proNum);
 		
 		Product product = productRepository.findById(proNo).orElse(null);
         
@@ -51,84 +61,95 @@ public class CartService {
         	throw new CartException(CartErrorCode.CART_002); // 商品不可購買
         }
         
-        // ******* 檢查庫存 ************ //
-        // 庫存檢查邏輯（軟性提醒）
-        boolean hasStockIssue = false;
-        String stockWarning = null;
-
-        // 檢查庫存（不阻止加入，但提供警告）
-        Integer availableStock = getProductStock(product);
-
-        if (availableStock == 0) {
-            hasStockIssue = true;
-            stockWarning = getStockWarningMessage(product, proNum, availableStock);
-        } else if (availableStock != Integer.MAX_VALUE && proNum > availableStock) {
-            hasStockIssue = true;
-            stockWarning = getStockWarningMessage(product, proNum, availableStock);
-        } else if (availableStock <= 10 && !"預購".equals(product.getProStatus())) {
-            hasStockIssue = true;
-            stockWarning = getStockWarningMessage(product, proNum, availableStock);
+     // 取得現有購物車
+        CartDTO cart = cartRepository.getCart(memNo);
+        
+        // 如果購物車不存在，就創建新的
+        if (cart == null) {  
+            cart = new CartDTO();
+            cart.setMemNo(memNo);
+            cart.setItem(new ArrayList<>());
         }
         
-
+        // 檢查產品是否已存在
+        CartDTO.CartItem existingItem = null;
+        for (CartDTO.CartItem item : cart.getItem()) {
+            if (item.getProNo().equals(proNo)) {
+                existingItem = item;
+                break;
+            }
+        }
         
-        
-        // 使用資料庫裡的產品資訊
-        String proName = product.getProName();
-        Integer proPrice = product.getProPrice();
-		
-        
-        // 取得現有購物車
-        CartDTO cart = cartRepository.getCart(memNo);
-
-		
-		// 如果購物車不存在，就創建新的
-		if (cart == null) {  
-			cart = new CartDTO();
-			cart.setMemNo(memNo);
-			cart.setItem(new ArrayList<>());
-		}
-		
-		// 檢查產品是否已存在
-		CartDTO.CartItem existingItem = null;
-		for (CartDTO.CartItem item : cart.getItem()) {
-			if (item.getProNo().equals(proNo)) {
-				existingItem = item;
-				break;
-			}
-		}
-		
-		// 商品已存在，增加數量
-		if (existingItem != null) {
-			// 更新數量並重新檢查庫存
-		    Integer newTotalQuantity = existingItem.getProNum() + proNum;
-		    
-		    // 重新檢查總數量的庫存狀況
-		    if (availableStock != Integer.MAX_VALUE && newTotalQuantity > availableStock) {
-		        hasStockIssue = true;
-		        stockWarning = getStockWarningMessage(product, newTotalQuantity, availableStock);
-		    }
-			
-			existingItem.setProNum(newTotalQuantity);
-            existingItem.calculateTotal(); // 重新計算小計
+        // 商品已存在，增加數量
+        if (existingItem != null) {
+            Integer newTotalQuantity = existingItem.getProNum() + proNum;
+            
+            // 🔥 新增：驗證更新後的數量是否超限
+            validateItemQuantityLimit(newTotalQuantity);
+            
+            // 檢查庫存邏輯...
+            Integer availableStock = getProductStock(product);
+            boolean hasStockIssue = false;
+            String stockWarning = null;
+            
+            if (availableStock == 0) {
+                hasStockIssue = true;
+                stockWarning = getStockWarningMessage(product, newTotalQuantity, availableStock);
+            } else if (availableStock != Integer.MAX_VALUE && newTotalQuantity > availableStock) {
+                hasStockIssue = true;
+                stockWarning = getStockWarningMessage(product, newTotalQuantity, availableStock);
+            } else if (availableStock <= STOCK_WARNING_THRESHOLD && !PREORDER_STATUS.equals(product.getProStatus())) {
+                hasStockIssue = true;
+                stockWarning = getStockWarningMessage(product, newTotalQuantity, availableStock);
+            }
+            
+            existingItem.setProNum(newTotalQuantity);
+            existingItem.calculateTotal();
             existingItem.setHasStockIssue(hasStockIssue);    
             existingItem.setStockWarning(stockWarning);
-		} else {
-			// 建立新商品項目
-			CartDTO.CartItem newItem = new CartDTO.CartItem();
+            
+        } else {
+            // 🔥 新增：驗證是否會超過購物車商品種類限制
+            validateCartItemsLimit(cart, true);
+            
+            // 建立新商品項目
+            String proName = product.getProName();
+            Integer proPrice = product.getProPrice();
+            
+            // 檢查庫存邏輯...
+            Integer availableStock = getProductStock(product);
+            boolean hasStockIssue = false;
+            String stockWarning = null;
+            
+            if (availableStock == 0) {
+                hasStockIssue = true;
+                stockWarning = getStockWarningMessage(product, proNum, availableStock);
+            } else if (availableStock != Integer.MAX_VALUE && proNum > availableStock) {
+                hasStockIssue = true;
+                stockWarning = getStockWarningMessage(product, proNum, availableStock);
+            } else if (availableStock <= STOCK_WARNING_THRESHOLD && !PREORDER_STATUS.equals(product.getProStatus())) {
+                hasStockIssue = true;
+                stockWarning = getStockWarningMessage(product, proNum, availableStock);
+            }
+            
+            CartDTO.CartItem newItem = new CartDTO.CartItem();
             newItem.setProNo(proNo);
             newItem.setProName(proName);
             newItem.setProPrice(proPrice);
             newItem.setProNum(proNum);
-            newItem.setProStatus(product.getProStatus());  // 確認庫存部分
-            newItem.setHasStockIssue(hasStockIssue);       // 確認庫存部分
-            newItem.setStockWarning(stockWarning);         // 確認庫存部分
-            newItem.calculateTotal(); // 計算小計
-            cart.getItem().add(newItem);  //加入購物車
-		}
-		
-		// 計算總價
-		cart.calculateTotals();
+            newItem.setProStatus(product.getProStatus());
+            newItem.setHasStockIssue(hasStockIssue);
+            newItem.setStockWarning(stockWarning);
+            newItem.calculateTotal();
+            cart.getItem().add(newItem);
+        }
+        
+        // 計算總價
+        cart.calculateTotals();
+        
+        // 新增：驗證購物車總限制
+        validateCartTotalLimits(cart);
+
 		
 		// 保存到Redis
 		cartRepository.saveCart(memNo, cart);
@@ -187,6 +208,18 @@ public class CartService {
 	// ============ 更新產品的數量 ===========//
 	public CartDTO updateCartItemQuantity(Integer memNo, Integer proNo, Integer proNum) {
 
+		// 修正：支援數量為0（代表移除商品）
+	    if (proNum == null || proNum < 0) {
+	        throw new CartException(CartErrorCode.CART_012); // 數量不能為負數
+	    }
+	    
+	    // 如果數量為0，直接移除商品
+	    if (proNum == 0) {
+	        return removeFromCart(memNo, proNo);
+	    }
+		
+		// 新增：驗證商品數量限制
+	    validateItemQuantityLimit(proNum);
 		
 		// 取得購物車
 		CartDTO cart = cartRepository.getCart(memNo);
@@ -202,15 +235,41 @@ public class CartService {
 		
 		// 找到指定商品並更新數量
 		for (CartDTO.CartItem item : cart.getItem()) {
-			if (item.getProNo().equals(proNo)) {
-				item.setProNum(proNum);
-                item.calculateTotal(); // 重新計算小計
-                break;
-			}
-		}
+	        if (item.getProNo().equals(proNo)) {
+	            // 重新檢查庫存狀況
+	            Product product = productRepository.findById(proNo).orElse(null);
+	            if (product != null) {
+	                Integer availableStock = getProductStock(product);
+	                boolean hasStockIssue = false;
+	                String stockWarning = null;
+	                
+	                if (availableStock == 0) {
+	                    hasStockIssue = true;
+	                    stockWarning = getStockWarningMessage(product, proNum, availableStock);
+	                } else if (availableStock != Integer.MAX_VALUE && proNum > availableStock) {
+	                    hasStockIssue = true;
+	                    stockWarning = getStockWarningMessage(product, proNum, availableStock);
+	                } else if (availableStock <= STOCK_WARNING_THRESHOLD && !PREORDER_STATUS.equals(product.getProStatus())) {
+	                    hasStockIssue = true;
+	                    stockWarning = getStockWarningMessage(product, proNum, availableStock);
+	                }
+	                
+	                item.setHasStockIssue(hasStockIssue);
+	                item.setStockWarning(stockWarning);
+	                item.setProStatus(product.getProStatus());
+	            }
+	            
+	            item.setProNum(proNum);
+	            item.calculateTotal();
+	            break;
+	        }
+	    }
 		
 		// 重新計算總價		
 		cart.calculateTotals();
+		
+		// 新增：驗證購物車總限制
+	    validateCartTotalLimits(cart);
 		
 		// 存到Redis
 		cartRepository.saveCart(memNo, cart);
@@ -228,6 +287,261 @@ public class CartService {
         System.out.println("已清空您的購物車");
 		
 	}
+	
+	
+	// ============ 購物車限制驗證方法 =========== //
+	// ***** 驗證購物車是否超過商品種類限制 ***** //
+	private void validateCartItemsLimit(CartDTO cart, boolean isAddingNew) {
+	    if (cart.getItem() == null) return;
+	    
+	    int currentItemCount = cart.getItem().size();
+	    int maxAllowed = isAddingNew ? currentItemCount + 1 : currentItemCount;
+	    
+	    if (maxAllowed > MAX_ITEMS_PER_CART) {
+	        throw new CartException(CartErrorCode.CART_011); // 需要新增這個錯誤碼
+	    }
+	}
+	
+	
+	// ***** 驗證單項商品數量是否超過限制 ***** //
+	private void validateItemQuantityLimit(Integer quantity) {
+	    if (quantity == null || quantity < 1) {
+	        throw new CartException(CartErrorCode.CART_012); // 數量必須大於0
+	    }
+	    
+	    if (quantity > MAX_QUANTITY_PER_ITEM) {
+	        throw new CartException(CartErrorCode.CART_013); // 數量超過上限
+	    }
+	}
+	
+	
+	// ***** 驗證購物車總重量/價值限制 ***** //
+	private void validateCartTotalLimits(CartDTO cart) {
+	    if (cart.getTotalPrice() != null && cart.getTotalPrice() > MAX_CART_TOTAL_PRICE) {
+	        throw new CartException(CartErrorCode.CART_014); // 購物車總價超限
+	    }
+	}
+	
+	
+	// ============ 批量操作功能 (前台) ===========//
+	
+	// *** 批量移除購物車商品 *** //
+	public CartDTO removeMultipleItems(Integer memNo, List<Integer> proNos) {
+	    if (proNos == null || proNos.isEmpty()) {
+	        throw new CartException(CartErrorCode.CART_015); // 批量操作參數錯誤
+	    }
+	    
+	    // 取得購物車
+	    CartDTO cart = cartRepository.getCart(memNo);
+	    
+	    if (cart == null) {
+	        // 購物車不存在，創建空的購物車
+	        cart = new CartDTO();
+	        cart.setMemNo(memNo);
+	        cart.setItem(new ArrayList<>());
+	        cart.calculateTotals();
+	        return cart;
+	    }
+	    
+	    // 批量移除指定產品
+	    cart.getItem().removeIf(item -> proNos.contains(item.getProNo()));
+	    
+	    // 重新計算總價
+	    cart.calculateTotals();
+	    
+	    // 存到Redis
+	    cartRepository.saveCart(memNo, cart);
+	    
+	    return cart;
+	}
+	
+
+	// *** 批量更新購物車商品數量 *** //
+	public CartDTO updateMultipleItemsQuantity(Integer memNo, List<CartUpdateItem> updateItems) {
+	    if (updateItems == null || updateItems.isEmpty()) {
+	        throw new CartException(CartErrorCode.CART_015);
+	    }
+	    
+	    // 取得購物車
+	    CartDTO cart = cartRepository.getCart(memNo);
+	    
+	    if (cart == null) {
+	        cart = new CartDTO();
+	        cart.setMemNo(memNo);
+	        cart.setItem(new ArrayList<>());
+	        cart.calculateTotals();
+	        return cart;
+	    }
+	    
+	    // 收集需要移除的商品（數量為0）
+	    List<Integer> itemsToRemove = new ArrayList<>();
+	    
+	    // 批量更新商品數量
+	    for (CartUpdateItem updateItem : updateItems) {
+	        // 驗證數量
+	        if (updateItem.getQuantity() == null || updateItem.getQuantity() < 0) {
+	            throw new CartException(CartErrorCode.CART_012);
+	        }
+	        
+	        // 如果數量為0，加入移除清單
+	        if (updateItem.getQuantity() == 0) {
+	            itemsToRemove.add(updateItem.getProNo());
+	            continue;
+	        }
+	        
+	        // 驗證非0數量的限制
+	        validateItemQuantityLimit(updateItem.getQuantity());
+	        
+	        // 更新商品數量
+	        for (CartDTO.CartItem item : cart.getItem()) {
+	            if (item.getProNo().equals(updateItem.getProNo())) {
+	                // 重新檢查庫存狀況
+	                Product product = productRepository.findById(updateItem.getProNo()).orElse(null);
+	                if (product != null) {
+	                    Integer availableStock = getProductStock(product);
+	                    boolean hasStockIssue = false;
+	                    String stockWarning = null;
+	                    
+	                    if (availableStock == 0) {
+	                        hasStockIssue = true;
+	                        stockWarning = getStockWarningMessage(product, updateItem.getQuantity(), availableStock);
+	                    } else if (availableStock != Integer.MAX_VALUE && updateItem.getQuantity() > availableStock) {
+	                        hasStockIssue = true;
+	                        stockWarning = getStockWarningMessage(product, updateItem.getQuantity(), availableStock);
+	                    } else if (availableStock <= STOCK_WARNING_THRESHOLD && !PREORDER_STATUS.equals(product.getProStatus())) {
+	                        hasStockIssue = true;
+	                        stockWarning = getStockWarningMessage(product, updateItem.getQuantity(), availableStock);
+	                    }
+	                    
+	                    item.setHasStockIssue(hasStockIssue);
+	                    item.setStockWarning(stockWarning);
+	                    item.setProStatus(product.getProStatus());
+	                }
+	                
+	                item.setProNum(updateItem.getQuantity());
+	                item.calculateTotal();
+	                break;
+	            }
+	        }
+	    }
+	    
+	    // 移除數量為0的商品
+	    if (!itemsToRemove.isEmpty()) {
+	        cart.getItem().removeIf(item -> itemsToRemove.contains(item.getProNo()));
+	    }
+	    
+	    cart.calculateTotals();
+	    
+	    // 驗證購物車總限制
+	    validateCartTotalLimits(cart);
+	    
+	    cartRepository.saveCart(memNo, cart);
+	    return cart;
+	}
+	
+	
+	
+	// *** 獲取選中商品的購物車資訊（結帳用） *** //
+	public CartDTO getSelectedItemsCart(Integer memNo, List<Integer> selectedProNos) {
+	    if (selectedProNos == null || selectedProNos.isEmpty()) {
+	        throw new CartException(CartErrorCode.CART_015); // 批量操作參數錯誤
+	    }
+	    
+	    // 取得完整購物車
+	    CartDTO fullCart = cartRepository.getCart(memNo);
+	    
+	    if (fullCart == null || fullCart.getItem().isEmpty()) {
+	        // 創建空的購物車回傳
+	        CartDTO emptyCart = new CartDTO();
+	        emptyCart.setMemNo(memNo);
+	        emptyCart.setItem(new ArrayList<>());
+	        emptyCart.calculateTotals();
+	        return emptyCart;
+	    }
+	    
+	    // 創建包含選中商品的新購物車
+	    CartDTO selectedCart = new CartDTO();
+	    selectedCart.setMemNo(memNo);
+	    selectedCart.setItem(new ArrayList<>());
+	    
+	    // 只加入選中的商品
+	    for (CartDTO.CartItem item : fullCart.getItem()) {
+	        if (selectedProNos.contains(item.getProNo())) {
+	            selectedCart.getItem().add(item);
+	        }
+	    }
+	    
+	    // 重新計算總價
+	    selectedCart.calculateTotals();
+	    
+	    return selectedCart;
+	}
+	
+	
+	// *** 驗證結帳前的購物車狀態 *** //
+	public CartValidationResponse validateCartForCheckout(Integer memNo, List<Integer> selectedProNos) {
+	    CartDTO cart;
+	    
+	    if (selectedProNos != null && !selectedProNos.isEmpty()) {
+	        // 驗證選中商品
+	        cart = getSelectedItemsCart(memNo, selectedProNos);
+	    } else {
+	        // 驗證整個購物車
+	        cart = getMemberCart(memNo);
+	    }
+	    
+	    CartValidationResponse response = new CartValidationResponse();
+	    response.setMemNo(memNo);
+	    response.setValid(true);
+	    response.setIssues(new ArrayList<>());
+	    
+	    if (cart.getItem().isEmpty()) {
+	        response.setValid(false);
+	        response.getIssues().add("購物車是空的，小精靈不知道要結帳什麼");
+	        return response;
+	    }
+	    
+	    // 檢查每個商品的狀態
+	    for (CartDTO.CartItem item : cart.getItem()) {
+	        // 重新檢查產品是否仍可購買
+	        Product product = productRepository.findById(item.getProNo()).orElse(null);
+	        
+	        if (product == null) {
+	            response.setValid(false);
+	            response.getIssues().add(String.format("商品 %s 已不存在", item.getProName()));
+	            continue;
+	        }
+	        
+	        // 檢查是否下架
+	        if (product.getProIsmarket() == '1') {
+	            response.setValid(false);
+	            response.getIssues().add(String.format("商品 %s 已下架", item.getProName()));
+	            continue;
+	        }
+	        
+	        // 檢查庫存
+	        Integer availableStock = getProductStock(product);
+	        if (availableStock == 0) {
+	            response.setValid(false);
+	            response.getIssues().add(String.format("商品 %s 目前缺貨", item.getProName()));
+	        } else if (availableStock != Integer.MAX_VALUE && item.getProNum() > availableStock) {
+	            response.setValid(false);
+	            response.getIssues().add(String.format("商品 %s 庫存不足，僅剩 %d 個", item.getProName(), availableStock));
+	        }
+	    }
+	    
+	    response.setTotalItems(cart.getTotalItem());
+	    response.setTotalQuantity(cart.getTotalQuantity());
+	    response.setTotalPrice(cart.getTotalPrice());
+	    
+	    return response;
+	}
+	
+	
+	
+	
+	
+	
 	
 	// ******** 後台 ******** //
 	// ============ 查詢所有購物車(後台) ===========//
@@ -273,18 +587,74 @@ public class CartService {
 	
 	// ============ 購物車統計 (後台) =========== //
 	public CartStatisticsResponse getCartStatistics() {
-        try {
-             Integer totalCarts = cartRepository.getTotalCartsCount();
-            
-            CartStatisticsResponse.StatisticsData data = 
-                new CartStatisticsResponse.StatisticsData(totalCarts);
-            
-            return new CartStatisticsResponse(data);
-            
-        } catch (Exception e) {
-            throw new CartException(CartErrorCode.ADM_003);
-        }
-    }
+	    try {
+	        // 1. 取得所有購物車數據
+	        List<CartDTO> allCarts = cartRepository.getAllCarts(1, Integer.MAX_VALUE);
+	        Integer totalCarts = allCarts.size();
+	        
+	        // 2. 初始化統計變數
+	        Integer totalActiveUsers = 0;
+	        Integer totalProducts = 0;
+	        Long totalCartValue = 0L;
+
+	        Integer cartsWithStockIssues = 0;
+	        Integer preOrderProductCount = 0;
+	        Integer onShelfProductCount = 0;
+	        
+	        // 3. 遍歷所有購物車進行統計
+	        for (CartDTO cart : allCarts) {
+	            if (cart.getItem() == null || cart.getItem().isEmpty()) {
+	                continue; // 跳過空購物車，不計入統計
+	            }
+	            
+	            totalActiveUsers++;
+	            
+	            // 統計每個購物車的商品
+	            boolean hasStockIssue = false;
+	            for (CartDTO.CartItem item : cart.getItem()) {
+	                totalProducts += item.getProNum();
+	                totalCartValue += (long) item.getSubtotal();
+	                
+	                // 檢查庫存問題
+	                if (Boolean.TRUE.equals(item.getHasStockIssue())) {
+	                    hasStockIssue = true;
+	                }
+	                
+	                // 統計商品狀態
+	                if ("預購中".equals(item.getProStatus()) || "預購".equals(item.getProStatus())) {
+	                    preOrderProductCount += item.getProNum();
+	                } else if ("已發售".equals(item.getProStatus()) || "上架".equals(item.getProStatus())) {
+	                    onShelfProductCount += item.getProNum();
+	                }
+	            }
+	            
+	            if (hasStockIssue) {
+	                cartsWithStockIssues++;
+	            }
+	        }
+	        
+	        // 4. 計算平均值
+	        Integer averageItemsPerCart = totalActiveUsers > 0 ? 
+	            (totalProducts / totalActiveUsers) : 0;
+	        
+	        // 5. 建立統計數據對象
+	        CartStatisticsResponse.StatisticsData data = new CartStatisticsResponse.StatisticsData();
+	        data.setTotalCarts(totalCarts);
+	        data.setTotalActiveUsers(totalActiveUsers);
+	        data.setTotalProducts(totalProducts);
+	        data.setAverageItemsPerCart(averageItemsPerCart);
+	        data.setTotalCartValue(totalCartValue);
+	        data.setCartsWithStockIssues(cartsWithStockIssues);
+	        data.setPreOrderProductCount(preOrderProductCount);
+	        data.setOnShelfProductCount(onShelfProductCount);
+	        
+	        return new CartStatisticsResponse(data);
+	        
+	    } catch (Exception e) {
+	        System.err.println("統計購物車數據失敗: " + e.getMessage());
+	        throw new CartException(CartErrorCode.ADM_003, e);
+	    }
+	}
 	
 	
 	// ============ 轉換方法 =========== //
@@ -324,11 +694,19 @@ public class CartService {
         List<AdminCartDTO.AdminCartItemDTO> adminItems = new ArrayList<>();
         for (CartDTO.CartItem item : cart.getItem()) {
             AdminCartDTO.AdminCartItemDTO adminItem = new AdminCartDTO.AdminCartItemDTO();
+            
+            // 基本商品資訊
             adminItem.setProNo(item.getProNo());
             adminItem.setProName(item.getProName());
             adminItem.setProPrice(item.getProPrice());
             adminItem.setProNum(item.getProNum());
             adminItem.setSubtotal(item.getSubtotal());
+            
+            // 新增：庫存相關資訊
+            adminItem.setProStatus(item.getProStatus());
+            adminItem.setHasStockIssue(item.getHasStockIssue());
+            adminItem.setStockWarning(item.getStockWarning());
+            
             adminItems.add(adminItem);
         }
         adminCart.setItems(adminItems);
@@ -444,6 +822,27 @@ public class CartService {
 	}
 	
 	
+	
+	// ============ 輔助類別 =========== //
+	// *** 批量更新商品數量的輔助類別 *** //
+	public static class CartUpdateItem {
+	    private Integer proNo;
+	    private Integer quantity;
+	    
+	    // 建構子
+	    public CartUpdateItem() {}
+	    
+	    public CartUpdateItem(Integer proNo, Integer quantity) {
+	        this.proNo = proNo;
+	        this.quantity = quantity;
+	    }
+	    
+	    // Getter & Setter
+	    public Integer getProNo() { return proNo; }
+	    public void setProNo(Integer proNo) { this.proNo = proNo; }
+	    public Integer getQuantity() { return quantity; }
+	    public void setQuantity(Integer quantity) { this.quantity = quantity; }
+	}
 	
 	
 }
