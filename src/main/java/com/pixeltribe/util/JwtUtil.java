@@ -93,5 +93,12 @@ public class JwtUtil {
         if (token == null) throw new RuntimeException("JWT 不存在");
         return extractMemberId(token);
     }
+    
+    
+    // 專門用於會員購物車
+    public Integer extractMemberIdFromMemberToken(String token) {
+        Claims claims = extractClaims(token);
+        return claims.get("memId", Integer.class);
+    }
 
 }
