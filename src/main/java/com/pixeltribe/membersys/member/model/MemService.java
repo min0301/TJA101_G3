@@ -1,5 +1,9 @@
 package com.pixeltribe.membersys.member.model;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -16,6 +20,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.pixeltribe.membersys.login.model.MemForgetPasswordService;
 import com.pixeltribe.membersys.member.dto.MemberAdminDto;
@@ -200,6 +206,7 @@ public class MemService {
 		Member member = opt.get();
 
 		MemberProfileDto dto = new MemberProfileDto();
+		dto.setId(member.getId());
 		dto.setMemName(member.getMemName());
 		dto.setMemBirthday(member.getMemBirthday());
 		dto.setMemAccount(member.getMemAccount());
@@ -207,7 +214,7 @@ public class MemService {
 		dto.setMemEmail(member.getMemEmail());
 		dto.setMemAddr(member.getMemAddr());
 		dto.setMemPhone(member.getMemPhone());
-
+		dto.setMemIconData(member.getMemIconData());
 		return dto;
 	}
 
@@ -224,6 +231,10 @@ public class MemService {
 		member.setMemEmail(payload.get("memEmail"));
 		member.setMemAddr(payload.get("memAddr"));
 		member.setMemPhone(payload.get("memPhone"));
+		String iconData = payload.get("memIconData");
+		if (iconData != null) {
+			member.setMemIconData(iconData);
+		}
 		memRepository.save(member);
 
 		return true;
@@ -278,4 +289,33 @@ public class MemService {
 		Member member = memRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("會員不存在"));
 		return new MemberGameDto(member.getId(), member.getMemName(), member.getMemNickName(), member.getPoint());
 	}
+	// 存會員頭像進DB
+	public void updateAvatar(Integer memberId, MultipartFile avatarFile) throws IOException {
+		Member member = memRepository.findById(memberId).orElseThrow(() -> new RuntimeException("找不到會員"));
+
+		// 取得副檔名
+		String ext = StringUtils.getFilenameExtension(avatarFile.getOriginalFilename());
+		String filename = "mem" + memberId + "." + ext;
+
+		// 設定儲存資料夾
+		String rootDir = System.getProperty("user.dir");
+		Path uploadDir = Paths.get(rootDir, "./uploads/memberAvatar");
+		if (!Files.exists(uploadDir))
+			Files.createDirectories(uploadDir);
+
+		Path filePath = uploadDir.resolve(filename);
+		avatarFile.transferTo(filePath.toFile());
+
+		// 刪除舊頭像
+		String oldFile = member.getMemIconData();
+		if (oldFile != null && !oldFile.isBlank() && !oldFile.equals(filename)) {
+			Path oldPath = uploadDir.resolve(oldFile);
+			Files.deleteIfExists(oldPath);
+		}
+
+		// 存檔名進DB
+		member.setMemIconData(filename);
+		memRepository.save(member);
+	}
+
 }

@@ -3,7 +3,8 @@ package com.pixeltribe.membersys.member.dto;
 import java.time.LocalDate;
 
 public class MemberProfileDto {
-
+	
+	private Integer id;
 	private String memName;
 	private LocalDate memBirthday;
 	private String memAccount;
@@ -11,6 +12,7 @@ public class MemberProfileDto {
 	private String memEmail;
 	private String memAddr;
 	private String memPhone;
+	private String memIconData;
 
 	// Constructor
 	public MemberProfileDto() {
@@ -18,10 +20,18 @@ public class MemberProfileDto {
 	}
 
 	// Getter & Setter
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
 	public String getMemName() {
 		return memName;
 	}
-
 	public void setMemName(String memName) {
 		this.memName = memName;
 	}
@@ -72,6 +82,14 @@ public class MemberProfileDto {
 
 	public void setMemPhone(String memPhone) {
 		this.memPhone = memPhone;
+	}
+
+	public String getMemIconData() {
+		return memIconData;
+	}
+
+	public void setMemIconData(String memIconData) {
+		this.memIconData = memIconData;
 	}
 
 }

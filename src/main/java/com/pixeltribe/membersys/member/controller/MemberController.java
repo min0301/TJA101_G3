@@ -10,14 +10,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.pixeltribe.membersys.member.dto.MemberAdminDto;
 import com.pixeltribe.membersys.member.dto.MemberProfileDto;
 import com.pixeltribe.membersys.member.model.MemService;
-
-
 
 @RestController
 @RequestMapping("/api/members")
@@ -111,25 +111,37 @@ public class MemberController {
 		return result;
 	}
 
-    // 會員分頁查詢
-    @GetMapping("/admin/allMembers")
-    public Page<MemberAdminDto> findAllMembers(
-            @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.ASC) Pageable pageable, 
-    		@RequestParam(required = false) String keyword) {
-        return memService.findAllAdminMembers(keyword, pageable);
-    }
-    
-    // 停權狀態切換
-    @PutMapping("/admin/allMembers/status/{id}")
-    public ResponseEntity<?> updateMemberStatus(
-            @PathVariable Integer id,
-            @RequestBody Map<String, Object> payload) {
-        Object statusObj = payload.get("status");
-        if (statusObj == null) {
-            return ResponseEntity.badRequest().body("缺少 status");
-        }
-        Character newStatus = statusObj.toString().charAt(0); // 假設 '1'=正常、'0'=停權
-        memService.updateMemberStatus(id, newStatus);
-        return ResponseEntity.ok().build();
-    }
+	// 會員分頁查詢
+	@GetMapping("/admin/allMembers")
+	public Page<MemberAdminDto> findAllMembers(
+			@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
+			@RequestParam(required = false) String keyword) {
+		return memService.findAllAdminMembers(keyword, pageable);
+	}
+
+	// 停權狀態切換
+	@PutMapping("/admin/allMembers/status/{id}")
+	public ResponseEntity<?> updateMemberStatus(@PathVariable Integer id, @RequestBody Map<String, Object> payload) {
+		Object statusObj = payload.get("status");
+		if (statusObj == null) {
+			return ResponseEntity.badRequest().body("缺少 status");
+		}
+		Character newStatus = statusObj.toString().charAt(0); // 假設 '1'=正常、'0'=停權
+		memService.updateMemberStatus(id, newStatus);
+		return ResponseEntity.ok().build();
+	}
+
+	// 上傳會員頭像
+	@PostMapping("/{id}/avatar")
+	public ResponseEntity<?> uploadAvatar(@PathVariable Integer id, @RequestParam("avatar") MultipartFile avatarFile) {
+		try {
+			memService.updateAvatar(id, avatarFile);
+			return ResponseEntity.ok(Map.of("success", true));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(Map.of("success", false, "message", "頭像上傳失敗"));
+		}
+	}
+
 }
