@@ -33,6 +33,7 @@ public class ForumPostController {
 
     /**
      * 獲取單篇文章詳情
+     *
      * @param id 文章編號
      * @return 文章詳情 DTO
      */
@@ -48,6 +49,7 @@ public class ForumPostController {
 
     /**
      * 獲取所有文章列表 (供一般會員查看，包含討論區與會員資訊)
+     *
      * @return 所有文章的 DTO 列表
      */
     @GetMapping("/forumposts/all")
@@ -59,6 +61,7 @@ public class ForumPostController {
 
     /**
      * 獲取特定討論區下的文章列表
+     *
      * @param forNo 討論區編號
      * @return 特定討論區的文章 DTO 列表
      */
@@ -76,6 +79,7 @@ public class ForumPostController {
 
     /**
      * 獲取所有討論區的列表 (用於前端篩選)
+     *
      * @return 所有討論區的 DTO 列表
      */
     @GetMapping("/forums/all") // 【新增】API 路徑
@@ -106,11 +110,12 @@ public class ForumPostController {
 
     /**
      * 新增文章
+     *
      * @param forumPostUpdateDTO 新增文章的 DTO
-     * @param imageFile 封面圖片檔案 (可選)
-     * @param result 驗證結果
+     * @param imageFile          封面圖片檔案 (可選)
+     * @param result             驗證結果
+     * @param defaultImageUrl    預設圖片的 URL
      * @return 新增後的文章 DTO 或錯誤訊息
-     * @param defaultImageUrl 預設圖片的 URL
      */
     @PostMapping(value = "/forumpost/insert", consumes = {"multipart/form-data"})
     @Operation(summary = "新增文章", description = "會員新增文章，可包含封面圖片")
@@ -154,11 +159,12 @@ public class ForumPostController {
 
     /**
      * 更新文章
-     * @param forNo 討論區編號
-     * @param postId 文章編號
+     *
+     * @param forNo              討論區編號
+     * @param postId             文章編號
      * @param forumPostUpdateDTO 更新文章的 DTO
-     * @param imageFile 封面圖片檔案 (可選)
-     * @param result 驗證結果
+     * @param imageFile          封面圖片檔案 (可選)
+     * @param result             驗證結果
      * @return 更新後的文章 DTO 或錯誤訊息
      */
     @PutMapping(value = "/forum/{forNo}/posts/{postId}", consumes = {"multipart/form-data"}) // 修改路徑，同時包含 forNo 和 postId
@@ -205,7 +211,8 @@ public class ForumPostController {
 
     /**
      * 刪除文章
-     * @param forNo 討論區編號
+     *
+     * @param forNo  討論區編號
      * @param postId 文章編號
      * @return 成功訊息
      */
@@ -233,4 +240,9 @@ public class ForumPostController {
 //            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
+    @GetMapping("admin/forumpost/count")
+    @Operation(summary = "取得討論區文章數量")
+    public Long getPostCount() {
+        return forumPostSvc.getPostCount();
+    }
 }

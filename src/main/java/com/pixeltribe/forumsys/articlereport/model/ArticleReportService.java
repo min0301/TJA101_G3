@@ -81,4 +81,11 @@ public class ArticleReportService {
                 .orElseThrow(() -> new ResourceNotFoundException("找不到文章檢舉編號" + articleReportNo));
         return ArticleReportDTO.convertToArticleReportDTO(articleReport);
     }
+
+    public Long getCountByArtRepStatus(Character artRepStatus) {
+        if (articleReportRepository.countByArtRepStatus(artRepStatus) == 0) {
+            return 0L;
+        }
+        return articleReportRepository.countByArtRepStatus(artRepStatus);
+    }
 }

@@ -11,8 +11,6 @@
 
     <link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
     <link rel="stylesheet" href="/assets/vendors/bootstrap/bootstrap.min.css">
-    <!--    <link rel="stylesheet" href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">-->
-
     <style>
 
         body {
@@ -549,15 +547,9 @@
                     <i class="bi bi-chevron-down arrow"></i>
                 </button>
                 <div class="submenu">
-<!--                     <a href="#" class="submenu-item" onclick="renderContent('member', 'dashboard', event)"> -->
-<!--                         <i class="bi bi-pie-chart-fill item-icon"></i>儀表板 -->
-<!--                     </a> -->
                     <a href="#" class="submenu-item" onclick="renderContent('member', 'query', event)">
                         <i class="bi bi-person-lines-fill item-icon"></i>會員查詢/管理
                     </a>
-<!--                     <a href="#" class="submenu-item" onclick="renderContent('member', 'suspend', event)"> -->
-<!--                         <i class="bi bi-person-slash item-icon"></i>會員停權 -->
-<!--                     </a> -->
                 </div>
             </li>
         </ul>
@@ -575,8 +567,8 @@
     // 格式：'主選單Key-子選單Key': '對應的 HTML 檔案路徑'
     // =================================================================================
     const pageMappings = {
-    	'store-management':'../shopsys/product/listAllProduct.html',
-    	'store-malltag':'../shopsys/malltag/listAllMallTag.html',
+        'store-management': '../shopsys/product/listAllProduct.html',
+        'store-malltag': '../shopsys/malltag/listAllMallTag.html',
         'store-orders': '../shopsys/order/allOrder.html',
         'forum-forums': '../forumsys/forum/allForum.html',
         'forum-add': '../forumsys/forum/addForum.html',
@@ -588,8 +580,8 @@
         'forum-reports': '../forumsys/messagereport/allReports.html',
 
         'forum-article-reports': '../forumsys/articlereport/allArticleReports.html', // [新增] 文章檢舉列表頁面
-		'member-query':'../memsys/ListAllMem.html',
-        'news-management':'../newssys/news/listAllNews.html',
+        'member-query': '../memsys/ListAllMem.html',
+        'news-management': '../newssys/news/listAllNews.html',
 
         'news-categories': '../newssys/category/allNewsCategory.html',
         'news-add-category': '../newssys/category/addNewsCategory.html',
@@ -646,8 +638,6 @@
 
         } else if (pageKey === 'news' && subKey === 'dashboard') {
             contentArea.innerHTML = getNewsDashboardHTML();
-
-            // 🔽 加入這段：渲染儀表板數據
             setTimeout(async () => {
                 const token = localStorage.getItem('jwt');
                 const headers = {Authorization: 'Bearer ' + token};
@@ -657,19 +647,16 @@
                 const pendingReportEl = document.getElementById('pendingReportCount');
 
                 try {
-                    // ① 新聞總數
                     const res1 = await fetch('/api/News/admin/newscount', {headers});
                     if (!res1.ok) throw new Error(`(${res1.status}) 新聞載入失敗`);
-                    const newsCount = await res1.text(); // 回傳是字串數字
+                    const newsCount = await res1.text();
                     if (newsCountEl) newsCountEl.innerText = newsCount;
 
-                    // ② 評論總數
                     const res2 = await fetch('/api/admin/NewsComment/count', {headers});
                     if (!res2.ok) throw new Error(`(${res2.status}) 評論載入失敗`);
                     const commentCount = await res2.text();
                     if (commentCountEl) commentCountEl.innerText = commentCount;
 
-                    // ③ 檢舉總數（只取未處理的）
                     const res3 = await fetch('/api/admin/NewsComReport?status=0', {headers});
                     if (!res3.ok) throw new Error(`(${res3.status}) 檢舉載入失敗`);
                     const reportData = await res3.json();
@@ -679,6 +666,65 @@
                     if (newsCountEl) newsCountEl.innerText = '錯誤';
                     if (commentCountEl) commentCountEl.innerText = '錯誤';
                     if (pendingReportEl) pendingReportEl.innerText = '錯誤';
+                }
+            }, 0);
+            // 【修改】新增 forum dashboard 的處理邏輯
+        } else if (pageKey === 'forum' && subKey === 'dashboard') {
+            contentArea.innerHTML = getForumDashboardHTML(); // 先渲染靜態 HTML
+            // 立即執行非同步資料獲取
+            setTimeout(async () => {
+                const token = localStorage.getItem('jwt');
+                if (!token) {
+                    console.error("未找到 JWT");
+                    return;
+                }
+                const headers = {Authorization: 'Bearer ' + token};
+
+                // 獲取所有數字顯示的 DOM 元素
+                const forumCountEl = document.getElementById('forumCount');
+                const postCountEl = document.getElementById('postCount');
+                const messageCountEl = document.getElementById('messageCount');
+                const pendingArticleReportEl = document.getElementById('pendingArticleReportCount');
+                const pendingCommentReportEl = document.getElementById('pendingCommentReportCount');
+
+                try {
+                    // ① 討論區總數
+                    const res1 = await fetch('/api/admin/forumcount', {headers});
+                    if (!res1.ok) throw new Error(`討論區數量載入失敗 (${res1.status})`);
+                    const forumCount = await res1.text();
+                    if (forumCountEl) forumCountEl.innerText = forumCount;
+
+                    // ② 文章總數
+                    const res2 = await fetch('/api/admin/forumpost/count', {headers});
+                    if (!res2.ok) throw new Error(`文章數量載入失敗 (${res2.status})`);
+                    const postCount = await res2.text();
+                    if (postCountEl) postCountEl.innerText = postCount;
+
+                    // ③ 留言總數
+                    const res3 = await fetch('/api/admin/posts/messagecount', {headers});
+                    if (!res3.ok) throw new Error(`留言數量載入失敗 (${res3.status})`);
+                    const messageCount = await res3.text();
+                    if (messageCountEl) messageCountEl.innerText = messageCount;
+
+                    // ④ 待處理文章檢舉數
+                    const res4 = await fetch('/api/admin/articlereports/pendingcoung', {headers});
+                    if (!res4.ok) throw new Error(`文章檢舉數量載入失敗 (${res4.status})`);
+                    const pendingArticleReportCount = await res4.text();
+                    if (pendingArticleReportEl) pendingArticleReportEl.innerText = pendingArticleReportCount;
+
+                    // ⑤ 待處理留言檢舉數
+                    const res5 = await fetch('/api/admin/articlecomreports/pendingcount', {headers});
+                    if (!res5.ok) throw new Error(`留言檢舉數量載入失敗 (${res5.status})`);
+                    const pendingCommentReportCount = await res5.text();
+                    if (pendingCommentReportEl) pendingCommentReportEl.innerText = pendingCommentReportCount;
+
+                } catch (err) {
+                    console.error('論壇儀表板數據載入失敗:', err);
+                    if (forumCountEl) forumCountEl.innerText = '錯誤';
+                    if (postCountEl) postCountEl.innerText = '錯誤';
+                    if (messageCountEl) messageCountEl.innerText = '錯誤';
+                    if (pendingArticleReportEl) pendingArticleReportEl.innerText = '錯誤';
+                    if (pendingCommentReportEl) pendingCommentReportEl.innerText = '錯誤';
                 }
             }, 0);
         } else {
@@ -805,6 +851,54 @@
         `;
     }
 
+    // 【新增】論壇儀表板的 HTML 產生函式
+    function getForumDashboardHTML() {
+        return `
+            <div class="dashboard-content">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">論壇管理後台</h1>
+                    <p class="welcome-subtitle">這裡是論壇系統的數據總覽儀表板。</p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="bi bi-card-list stat-icon"></i>
+                        <div class="stat-number" id="forumCount">載入中</div>
+                        <div class="stat-label">討論區總數</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="bi bi-file-text-fill stat-icon"></i>
+                        <div class="stat-number" id="postCount">載入中</div>
+                        <div class="stat-label">文章總數</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="bi bi-chat-left-text-fill stat-icon"></i>
+                        <div class="stat-number" id="messageCount">載入中</div>
+                        <div class="stat-label">留言總數</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="bi bi-shield-exclamation stat-icon"></i>
+                        <div class="stat-number" id="pendingArticleReportCount">載入中</div>
+                        <div class="stat-label">待處理文章檢舉</div>
+                    </div>
+                     <div class="stat-card">
+                        <i class="bi bi-shield-slash stat-icon"></i>
+                        <div class="stat-number" id="pendingCommentReportCount">載入中</div>
+                        <div class="stat-label">待處理留言檢舉</div>
+                    </div>
+                </div>
+                <div class="guide-text">
+                    <h3>📋 使用說明</h3>
+                    <p>請使用左側選單進行各項管理操作。<br>
+                    • <strong>討論區類別管理</strong>：管理討論區的分類。<br>
+                    • <strong>討論區管理</strong>：新增、修改或隱藏特定討論區。<br>
+                    • <strong>文章/留言管理</strong>：管理使用者發布的內容。<br>
+                    • <strong>檢舉審核</strong>：處理使用者提交的文章與留言檢舉。</p>
+                </div>
+            </div>
+        `;
+    }
+
+
     // 新聞儀表板的 HTML
     function getNewsDashboardHTML() {
         return `
@@ -814,22 +908,22 @@
                     <p class="welcome-subtitle">這裡是新聞系統的數據總覽儀表板。</p>
                 </div>
                 <div class="stats-grid">
-        <div class="stat-card">
-            <i class="bi bi-newspaper stat-icon"></i>
-            <div class="stat-number" id="newsCount">載入中</div>
-            <div class="stat-label">新聞總數</div>
-        </div>
-        <div class="stat-card">
-            <i class="bi bi-chat-square-dots-fill stat-icon"></i>
-            <div class="stat-number" id="commentCount">載入中</div>
-            <div class="stat-label">評論總數</div>
-        </div>
-        <div class="stat-card">
-            <i class="bi bi-shield stat-icon"></i>
-            <div class="stat-number" id="pendingReportCount">載入中</div>
-            <div class="stat-label">待處理檢舉總數</div>
-        </div>
-    </div>
+                    <div class="stat-card">
+                        <i class="bi bi-newspaper stat-icon"></i>
+                        <div class="stat-number" id="newsCount">載入中</div>
+                        <div class="stat-label">新聞總數</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="bi bi-chat-square-dots-fill stat-icon"></i>
+                        <div class="stat-number" id="commentCount">載入中</div>
+                        <div class="stat-label">評論總數</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="bi bi-shield stat-icon"></i>
+                        <div class="stat-number" id="pendingReportCount">載入中</div>
+                        <div class="stat-label">待處理檢舉總數</div>
+                    </div>
+                </div>
                 <div class="guide-text">
                     <h3>📋 使用說明</h3>
                     <p>請使用左側選單進行各項管理操作。<br>

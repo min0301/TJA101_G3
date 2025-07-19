@@ -134,6 +134,12 @@ public class ForumController {
         return forumSvc.searchForumsByKeyword(keyword);
     }
 
+    @GetMapping("admin/forumcount")
+    @Operation(summary = "取得討論區數量")
+    public Long getNewsCount() {
+        return forumSvc.getForumCount();
+    }
+
 
 }
 

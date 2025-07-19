@@ -10,4 +10,5 @@ public interface ArticleComReportRepository extends JpaRepository<ArticleComRepo
 
     Optional<ArticleComReport> findByMesNoAndReporter(ForumMes mesNo, Member reporter);
 
+    Long countByArtComRepStatus(Character artComRepStatus);
 }
