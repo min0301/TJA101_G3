@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NewsRepository extends JpaRepository<News, Integer> {
     @Query( """   
@@ -99,7 +100,9 @@ public interface NewsRepository extends JpaRepository<News, Integer> {
             """)
     Page<NewsAdminDTO> findAdminPageNewsByTitle(@Param("tit") String tit, Pageable pageable);
 
-
+    @Query("SELECT n FROM News n WHERE LOWER(n.newsTit) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
+            "OR LOWER(n.newsCon) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    Optional<List<News>> searchNewsByKeyword(String keyword);
 //    public NewsCreationDTO save(@Valid @RequestBody News news);
 
 }

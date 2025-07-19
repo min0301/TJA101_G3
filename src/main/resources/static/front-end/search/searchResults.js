@@ -31,10 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
             renderSearchTitle('討論區', keyword);
             fetchAndRenderForumResults(keyword);
             break;
-        // case 'news':
-        //     renderSearchTitle('新聞', keyword);
-        //     // fetchAndRenderNewsResults(keyword); // 未來可擴充
-        //     break;
+        case 'news':
+            renderSearchTitle('新聞', keyword);
+            fetchAndRenderNewsResults(keyword); // 未來可擴充
+            break;
         default:
             titleContainer.innerHTML = `<h1>未知的搜尋範圍</h1>`;
             resultsContainer.innerHTML = `<p class="alert alert-warning">不支援的搜尋範圍: ${scope}</p>`;
@@ -107,6 +107,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('搜尋討論區失敗:', error);
+            resultsContainer.innerHTML = `<div class="alert alert-danger">搜尋時發生錯誤，請稍後再試。</div>`;
+        }
+    }
+
+    async function fetchAndRenderNewsResults(keyword) {
+        resultsContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-success" role="status"></div><p class="mt-2">正在搜尋新聞中...</p></div>`;
+        try {
+            const response = await fetch(`/api/News/search?keyword=${encodeURIComponent(keyword)}`);
+            if (!response.ok) throw new Error(`伺服器錯誤: ${response.status}`);
+            const result = await response.json();
+            const newsList = result || [];
+
+            if (newsList.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-search fs-3"></i>
+                        <h4 class="alert-heading mt-2">找不到結果</h4>
+                        <p>找不到與 "${keyword}" 相關的新聞。</p>
+                    </div>`;
+                return;
+            }
+
+            const resultsHTML = newsList.map(news => {
+                const newsLink = `/front-end/news/NewsDetail.html?newsId=${news.id}`;
+                return `
+                    <a href="${newsLink}" class="card mb-3 text-decoration-none text-dark">
+                        <div class="card-body">
+                            <h5 class="card-title">${news.newsTit}</h5>
+                            <p class="card-text text-muted">${news.newsCon.slice(0, 100)}...</p>
+                            <span class="badge bg-secondary">${news.categoryTags?.join(', ') || '未分類'}</span>
+                        </div>
+                    </a>`;
+            }).join('');
+            resultsContainer.innerHTML = resultsHTML;
+
+        } catch (error) {
+            console.error('搜尋新聞失敗:', error);
             resultsContainer.innerHTML = `<div class="alert alert-danger">搜尋時發生錯誤，請稍後再試。</div>`;
         }
     }

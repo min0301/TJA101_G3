@@ -276,39 +276,6 @@
         }
 
         // 提交表單
-        // document.getElementById('newsForm').addEventListener('submit', async (e) => {
-        //     e.preventDefault();
-        //
-        //     const title = document.getElementById('newsTit').value.trim();
-        //     const content = $('#newsCon').summernote('code');
-        //     const tagIds = Array.from(document.getElementById('newsTags').selectedOptions)
-        //         .map(opt => +opt.value);
-        //     const isShowed = document.getElementById('isShowed').checked ? 1 : 0;
-        //
-        //     if (!title || !content || tagIds.length === 0) {
-        //         return showMessage('請填寫所有必填欄位', 'error');
-        //     }
-        //
-        //     /* ★ 不再夾帶 adminNo，後端靠 JWT 解析 */
-        //     const payload = {newsTit: title, newsCon: content, tags: tagIds, isShowed};
-        //
-        //     try {
-        //         const res = await fetch('/api/News/admin/redis/create', {  // ★ 改這裡
-        //             method: 'POST',
-        //             headers: {'Content-Type': 'application/json', ...authHeader},
-        //             body: JSON.stringify(payload)
-        //         });
-        //         if (!res.ok) throw new Error((await res.json()).errorMessage || '新增失敗');
-        //
-        //         showMessage('新增成功！2 秒後跳轉', 'success');
-        //         setTimeout(() => window.location.href =
-        //             '../newssys/news/listAllNews.html', 2000);
-        //
-        //     } catch (err) {
-        //         showMessage(err.message, 'error');
-        //     }
-        // });
-
         document.getElementById('newsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -341,14 +308,16 @@
                 if (!res.ok) throw new Error((await res.json()).errorMessage || '新增失敗');
 
                 showMessage('新增成功！2 秒後跳轉', 'success');
-                setTimeout(() => window.location.href =
-                    '../newssys/news/listAllNews.html', 2000);
+                setTimeout(() => {
+                    if (parent.loadExternalPage) {
+                        parent.loadExternalPage('../newssys/news/listAllNews.html');
+                    }
+                }, 2000);
 
             } catch (err) {
                 showMessage(err.message, 'error');
             }
         });
-
 
         function showMessage(msg, type) {
             const area = document.getElementById('message-area');
