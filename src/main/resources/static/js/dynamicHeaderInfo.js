@@ -136,6 +136,9 @@
 		) {
 			tryRenderHeaderInfo();
 			bindLogoutBtn();
+
+			const dropdownTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+			dropdownTriggerList.forEach(el => new bootstrap.Dropdown(el));
 		} else {
 			setTimeout(waitHeaderAndRender, 80); // 每80ms檢查一次
 		}
