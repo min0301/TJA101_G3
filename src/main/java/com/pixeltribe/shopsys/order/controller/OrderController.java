@@ -20,18 +20,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 
 import com.pixeltribe.shopsys.order.model.*;
 import com.pixeltribe.shopsys.orderItem.model.CreateOrderItemRequest;
+import com.pixeltribe.util.JwtUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
+
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class OrderController {
@@ -48,8 +52,58 @@ public class OrderController {
     @Autowired
     private PaymentService paymentService;       // 付款處理服務
     
+    @Autowired
+    private JwtUtil jwtUtil;  // 驗證用
+    
     
     private static final String FIXED_ADMIN_ID = "ADMIN_USER";
+    
+    public OrderController() {
+        System.out.println("🔥🔥🔥 OrderController 被載入了！🔥🔥🔥");
+    }
+    
+    
+    // 在類別開頭加入這個測試方法
+    @GetMapping("/test-payment")
+    public ResponseEntity<String> testPayment() {
+        System.out.println("🔥🔥🔥 測試路由被調用了！🔥🔥🔥");
+        return ResponseEntity.ok("測試成功");
+    }
+    
+    
+    
+    
+ // 手動驗證 JWT 的方法（不影響 Security 設定）
+    private Integer extractMemNoFromRequest(HttpServletRequest request) {
+        try {
+            // 1. 嘗試從 Authorization Header 取得 JWT
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                if (jwtUtil.validateToken(token)) {
+                    Integer memberId = jwtUtil.extractMemberIdFromMemberToken(token);
+                    if (memberId != null) {
+                        log.debug("從 JWT 取得會員編號：{}", memberId);
+                        return memberId;
+                    }
+                }
+            }
+            
+            // 2. 備用方案：從 LoginInterceptor 取得（如果有的話）
+            Object currentIdObj = request.getAttribute("currentId");
+            if (currentIdObj instanceof Integer) {
+                Integer memberId = (Integer) currentIdObj;
+                log.debug("從 Interceptor 取得會員編號：{}", memberId);
+                return memberId;
+            }
+            
+            return null;
+            
+        } catch (Exception e) {
+            log.warn("提取會員編號失敗", e);
+            return null;
+        }
+    }
 	
 	
 	@GetMapping("/orders")
@@ -123,10 +177,10 @@ public class OrderController {
 	@PostMapping("/checkout-from-cart")
 	public ResponseEntity<Map<String, Object>> checkoutFromCart(
 	        @RequestBody CheckoutFromCartRequest request,
-	        HttpSession session) {
+	        HttpServletRequest httpRequest) {  // 改用 HttpServletRequest
 	    try {
-	        // 1. 獲取當前登入會員
-	        Integer memNo = getCurrentMemNo(session);
+	        // 1. 手動驗證並取得會員編號
+	        Integer memNo = extractMemNoFromRequest(httpRequest);
 	        if (memNo == null) {
 	            Map<String, Object> errorResponse = new HashMap<>();
 	            errorResponse.put("success", false);
@@ -144,14 +198,14 @@ public class OrderController {
 	            return ResponseEntity.badRequest().body(errorResponse);
 	        }
 	        
-	        // 3. 從購物車建立訂單
+	        // 3. 建立訂單（保持不變）
 	        OrderDTO order = orderService.createOrderFromCart(
 	            memNo, 
 	            request.getContactEmail(), 
 	            request.getContactPhone()
 	        );
 	        
-	        // 4. 建立成功回應
+	        // 4. 回應（保持不變）
 	        Map<String, Object> response = new HashMap<>();
 	        response.put("success", true);
 	        response.put("message", "訂單建立成功");
@@ -360,60 +414,11 @@ public class OrderController {
     }
 	
 	// ***** 綠界付款通知回調（系統對系統） 對應 application.properties 中的 ecpay.notify.url ***** //
-	@PostMapping("/payment/notify")
-	public ResponseEntity<String> handlePaymentNotify(@RequestParam Map<String, String> params) {
-	    try {
-	        log.info("收到綠界付款通知：tradeNo={}", params.get("MerchantTradeNo"));
-	        
-	        // 重用現有的處理邏輯
-	        String result = paymentService.handlePaymentCallback(params);
-	        return ResponseEntity.ok(result);
-	        
-	    } catch (Exception e) {
-	        log.error("處理付款通知失敗", e);
-	        return ResponseEntity.ok("0|系統錯誤");
-	    }
-	}
+	// *** 移到PaymentCallbackController *** //
+	
 	
 	// ***** 綠界付款完成返回（用戶瀏覽器跳轉） 對應 application.properties 中的 ecpay.return.url ***** //
-	@GetMapping("/payment/return")
-	public ResponseEntity<Map<String, Object>> handlePaymentReturn(
-	        @RequestParam Map<String, String> params) {
-	    try {
-	        String tradeNo = params.get("MerchantTradeNo");
-	        String rtnCode = params.get("RtnCode");
-	        String rtnMsg = params.get("RtnMsg");
-	        
-	        log.info("用戶付款完成返回：tradeNo={}, rtnCode={}", tradeNo, rtnCode);
-	        
-	        // 建立返回結果，使用所有變數
-	        Map<String, Object> result = new HashMap<>();
-	        result.put("tradeNo", tradeNo);          // ✅ 使用 tradeNo
-	        result.put("rtnCode", rtnCode);          // ✅ 使用 rtnCode  
-	        result.put("success", "1".equals(rtnCode));
-	        result.put("timestamp", System.currentTimeMillis());
-	        
-	        if ("1".equals(rtnCode)) {
-	            result.put("message", "付款成功！");
-	            result.put("status", "SUCCESS");
-	        } else {
-	            result.put("message", "付款失敗：" + (rtnMsg != null ? rtnMsg : "未知錯誤"));
-	            result.put("status", "FAILED");
-	            result.put("error", rtnMsg);         // ✅ 使用 rtnMsg
-	        }
-	        
-	        return ResponseEntity.ok(result);
-	        
-	    } catch (Exception e) {
-	        log.error("處理付款返回失敗", e);
-	        
-	        Map<String, Object> errorResult = new HashMap<>();
-	        errorResult.put("success", false);
-	        errorResult.put("status", "ERROR");
-	        errorResult.put("message", "系統錯誤，請聯繫客服");
-	        return ResponseEntity.ok(errorResult);
-	    }
-	}
+	// *** 移到PaymentCallbackController *** //
 	 
 	 
 	// ***** 查詢預購產品等待狀態 ***** //
@@ -450,34 +455,83 @@ public class OrderController {
 	
 	
 	 // ***** 發起付款 (訂單詳情頁的「立即付款」按鈕) ***** //
-	 @PostMapping("/{orderNo}/payment")
+	 @PostMapping("/orders/{orderNo}/payment")
 	    public ResponseEntity<?> initiatePayment(
 	            @PathVariable Integer orderNo, 
-	            HttpSession session) {
+	            HttpServletRequest httpRequest) {
+		 
+		 	// ✅ 最基本的除錯 - 一定要看到這行！
+		    System.out.println("🔥🔥🔥 OrderController.initiatePayment 被調用了！orderNo=" + orderNo + " 🔥🔥🔥");
+		    
+		 
 	        try {
-	            Integer memNo = getMemNoFromSession(session);
-	            String paymentForm = paymentService.createPayment(orderNo, memNo);
+	        	
+	        	// 加入詳細除錯日誌
+	            log.info("=== 開始發起付款流程 ===");
+	            log.info("訂單編號：{}", orderNo);
+	        	
+	        	
+	        	Integer memNo = extractMemNoFromRequest(httpRequest);
+	        	if (memNo == null) {
+	        		log.error("JWT 驗證失敗，無法取得會員編號");
+	                return ResponseEntity.status(401)
+	                        .body(Map.of("success", false, "message", "請先登入"));
+	            }
+	        	
+	        	log.info("會員編號驗證成功：{}", memNo);
 	            
+	            // ✅ 檢查 PaymentService 是否正常
+	            log.info("PaymentService 狀態檢查：{}", paymentService != null ? "正常" : "NULL");
+	            
+	            if (paymentService == null) {
+	                log.error("PaymentService 注入失敗！");
+	                return ResponseEntity.status(500)
+	                        .body(Map.of("success", false, "message", "付款服務初始化失敗"));
+	            }
+	            
+	         // ✅ 調用付款服務
+	            log.info("準備調用 PaymentService.initiatePayment()");
+	            String paymentForm = paymentService.initiatePayment(orderNo);
+	            log.info("PaymentService 調用完成，返回表單長度：{}", 
+	                    paymentForm != null ? paymentForm.length() : "NULL");
+	            
+	            if (paymentForm == null || paymentForm.trim().isEmpty()) {
+	                log.error("PaymentService 返回空的付款表單");
+	                return ResponseEntity.badRequest()
+	                        .body(Map.of("success", false, "message", "生成付款表單失敗"));
+	            }
+	            
+	            log.info("=== 付款流程成功完成 ===");
 	            return ResponseEntity.ok()
 	                    .header("Content-Type", "text/html; charset=UTF-8")
 	                    .body(paymentForm);
 	                    
 	        } catch (Exception e) {
-	            log.error("發起付款失敗：orderNo={}", orderNo, e);
+	            log.error("=== 發起付款失敗 ===");
+	            log.error("訂單編號：{}", orderNo);
+	            log.error("錯誤類型：{}", e.getClass().getSimpleName());
+	            log.error("錯誤訊息：{}", e.getMessage());
+	            log.error("完整堆疊：", e);
+	            
 	            return ResponseEntity.badRequest()
 	                    .body(Map.of("success", false, "message", e.getMessage()));
 	        }
 	    }
-	 
+	            
+	        	
 	 
 	 
 	 // ***** 查詢付款狀態 (付款頁面的 AJAX 輪詢) ***** //
-	 @GetMapping("/{orderNo}/payment/status")
+	 @GetMapping("/orders/{orderNo}/payment/status")
 	    public ResponseEntity<?> getPaymentStatus(
 	            @PathVariable Integer orderNo,
-	            HttpSession session) {
+	            HttpServletRequest httpRequest) {
 	        try {
-	            Integer memNo = getMemNoFromSession(session);
+	        	Integer memNo = extractMemNoFromRequest(httpRequest);
+	            if (memNo == null) {
+	                return ResponseEntity.status(401)
+	                        .body(Map.of("success", false, "message", "請先登入"));
+	            }
 	            
 	            // 驗證訂單所有權
 	            OrderDTO order = orderService.getOrderDetail(orderNo);
@@ -513,13 +567,19 @@ public class OrderController {
 	 
 	 
 	 // ***** 重新付款 (付款失敗後的重試) ***** //
-	 @PostMapping("/{orderNo}/payment/retry")
+	 @PostMapping("/orders/{orderNo}/payment/retry")
 	    public ResponseEntity<?> retryPayment(
 	            @PathVariable Integer orderNo,
-	            HttpSession session) {
+	            HttpServletRequest httpRequest) {
 	        try {
-	            Integer memNo = getMemNoFromSession(session);
-	            String paymentForm = paymentService.retryPayment(orderNo, memNo);
+	        	Integer memNo = extractMemNoFromRequest(httpRequest);
+	            if (memNo == null) {
+	                return ResponseEntity.status(401)
+	                        .body(Map.of("success", false, "message", "請先登入"));
+	            }
+
+	            
+	            String paymentForm = paymentService.initiatePayment(orderNo);
 	            
 	            return ResponseEntity.ok()
 	                    .header("Content-Type", "text/html; charset=UTF-8")
@@ -534,13 +594,18 @@ public class OrderController {
 	 
 	 
 	 // ***** 取消付款 ***** //
-	 @DeleteMapping("/{orderNo}/payment")
+	 @DeleteMapping("/orders/{orderNo}/payment")
 	    public ResponseEntity<?> cancelPayment(
 	            @PathVariable Integer orderNo,
 	            @RequestParam(required = false) String reason,
-	            HttpSession session) {
+	            HttpServletRequest httpRequest) {
 	        try {
-	            Integer memNo = getMemNoFromSession(session);
+	        	Integer memNo = extractMemNoFromRequest(httpRequest);
+	            if (memNo == null) {
+	                return ResponseEntity.status(401)
+	                        .body(Map.of("success", false, "message", "請先登入"));
+	            }
+	        	
 	            boolean success = paymentService.cancelPayment(orderNo, memNo, reason);
 	            
 	            return ResponseEntity.ok(Map.of(
@@ -558,12 +623,17 @@ public class OrderController {
 	 
 	 
 	 // ***** 查詢付款詳情 (可選功能，在訂單詳情頁顯示付款詳細資訊) ***** //
-	 @GetMapping("/{orderNo}/payment/detail")
+	 @GetMapping("/orders/{orderNo}/payment/detail")
 	    public ResponseEntity<?> getPaymentDetail(
 	            @PathVariable Integer orderNo,
-	            HttpSession session) {
+	            HttpServletRequest httpRequest) {
 	        try {
-	            Integer memNo = getMemNoFromSession(session);
+	        	Integer memNo = extractMemNoFromRequest(httpRequest);
+	            if (memNo == null) {
+	                return ResponseEntity.status(401)
+	                        .body(Map.of("success", false, "message", "請先登入"));
+	            }
+	        	
 	            Map<String, Object> detail = paymentService.getOrderPaymentDetail(orderNo, memNo);
 	            
 	            return ResponseEntity.ok(detail);
@@ -578,12 +648,16 @@ public class OrderController {
 	 
 	 
 	 // ***** 查詢付款進度 (可選功能，顯示付款流程進度條) ***** //
-	 @GetMapping("/{orderNo}/payment/progress")
+	 @GetMapping("/orders/{orderNo}/payment/progress")
 	    public ResponseEntity<?> getPaymentProgress(
 	            @PathVariable Integer orderNo,
-	            HttpSession session) {
+	            HttpServletRequest httpRequest) {
 	        try {
-	            Integer memNo = getMemNoFromSession(session);
+	        	Integer memNo = extractMemNoFromRequest(httpRequest);
+	            if (memNo == null) {
+	                return ResponseEntity.status(401)
+	                        .body(Map.of("success", false, "message", "請先登入"));
+	            }
 	            Map<String, Object> progress = paymentService.getPaymentProgress(orderNo, memNo);
 	            
 	            return ResponseEntity.ok(progress);
@@ -807,9 +881,9 @@ public class OrderController {
 	 
 	 // ***** 付款統計儀表板 ***** //
 	 @GetMapping("/admin/payment/dashboard")
-	    public ResponseEntity<?> getPaymentDashboard(HttpSession session) {
+	 @PreAuthorize("hasRole('ADMIN')")
+	    public ResponseEntity<?> getPaymentDashboard() {
 	        try {
-	            validateAdminPermission(session);
 	            
 	            Map<String, Object> dashboard = Map.of(
 	                "statistics", paymentService.getPaymentStatistics(),
@@ -829,9 +903,10 @@ public class OrderController {
 	 
 	 // ***** 查詢付款統計 ***** //
 	 @GetMapping("/admin/payment/statistics")
-	    public ResponseEntity<?> getPaymentStatistics(HttpSession session) {
+	 @PreAuthorize("hasRole('ADMIN')")
+	    public ResponseEntity<?> getPaymentStatistics() {
 	        try {
-	            validateAdminPermission(session);
+	            
 	            Map<String, Object> stats = paymentService.getPaymentStatistics();
 	            
 	            return ResponseEntity.ok(stats);
@@ -846,11 +921,11 @@ public class OrderController {
 	 
 	 // ***** 查詢付款趨勢 ***** //
 	 @GetMapping("/admin/payment/trends")
+	 @PreAuthorize("hasRole('ADMIN')")
 	    public ResponseEntity<?> getPaymentTrends(
-	            @RequestParam(defaultValue = "30") Integer days,
-	            HttpSession session) {
+	            @RequestParam(defaultValue = "30") Integer days) {
 	        try {
-	            validateAdminPermission(session);
+	            
 	            List<Map<String, Object>> trends = paymentService.getPaymentTrends(days);
 	            
 	            return ResponseEntity.ok(Map.of(
@@ -869,13 +944,13 @@ public class OrderController {
 	 
 	 // ***** 查詢所有付款記錄 ***** //
 	 @GetMapping("/admin/payment/records")
+	 @PreAuthorize("hasRole('ADMIN')")
 	    public ResponseEntity<?> getAllPaymentRecords(
 	            @RequestParam(defaultValue = "0") Integer page,
 	            @RequestParam(defaultValue = "20") Integer size,
-	            @RequestParam Map<String, Object> filters,
-	            HttpSession session) {
+	            @RequestParam Map<String, Object> filters) {
 	        try {
-	            validateAdminPermission(session);
+	            
 	            
 	            // 移除分頁參數，只保留篩選條件
 	            filters.remove("page");
@@ -894,12 +969,12 @@ public class OrderController {
 	 
 	 // ***** 重置卡單付款 ***** //
 	 @PostMapping("/admin/{orderNo}/payment/reset")
+	 @PreAuthorize("hasRole('ADMIN')")
 	    public ResponseEntity<?> resetStuckPayment(
 	            @PathVariable Integer orderNo,
-	            @RequestParam String reason,
-	            HttpSession session) {
+	            @RequestParam String reason) {
 	        try {
-	            validateAdminPermission(session);
+	            
 	            
 	            // ✅ 使用 PaymentService 原有方法 (不需要 adminId)
 	            boolean success = paymentService.resetStuckPayment(orderNo, reason);
@@ -920,12 +995,12 @@ public class OrderController {
 	 
 	 // ***** 手動標記付款成功 ***** //
 	 @PostMapping("/admin/{orderNo}/payment/mark-success")
+	 @PreAuthorize("hasRole('ADMIN')")
 	    public ResponseEntity<?> markPaymentSuccess(
 	            @PathVariable Integer orderNo,
-	            @RequestParam String reason,
-	            HttpSession session) {
+	            @RequestParam String reason) {
 	        try {
-	            validateAdminPermission(session);
+	            
 	            
 	            // ✅ 傳入固定的 adminId
 	            boolean success = paymentService.adminMarkPaymentSuccess(orderNo, FIXED_ADMIN_ID, reason);
@@ -946,12 +1021,12 @@ public class OrderController {
 	 
 	 // ***** 批量處理異常訂單 ***** //
 	 @PostMapping("/admin/payment/batch-process")
+	 @PreAuthorize("hasRole('ADMIN')")
 	    public ResponseEntity<?> batchProcessOrders(
 	            @RequestParam List<Integer> orderNos,
-	            @RequestParam String action,
-	            HttpSession session) {
+	            @RequestParam String action) {
 	        try {
-	            validateAdminPermission(session);
+	            
 	            
 	            // ✅ 傳入固定的 adminId
 	            Map<String, Object> result = paymentService.batchProcessAbnormalOrders(orderNos, action, FIXED_ADMIN_ID);
@@ -967,12 +1042,12 @@ public class OrderController {
 	 
 	 // ***** 更新付款方式狀態 ***** //
 	 @PostMapping("/admin/payment/method/{method}/toggle")
+	 @PreAuthorize("hasRole('ADMIN')")
 	    public ResponseEntity<?> togglePaymentMethod(
 	            @PathVariable String method,
-	            @RequestParam Boolean enabled,
-	            HttpSession session) {
+	            @RequestParam Boolean enabled) {
 	        try {
-	            validateAdminPermission(session);
+	            
 	            
 	            // ✅ 傳入固定的 adminId
 	            boolean success = paymentService.updatePaymentMethodStatus(method, enabled, FIXED_ADMIN_ID);
@@ -994,9 +1069,10 @@ public class OrderController {
 	 
 	 // ***** 系統清理 ***** //
 	 @PostMapping("/admin/payment/system/cleanup")
-	    public ResponseEntity<?> cleanupExpiredPayments(HttpSession session) {
+	 @PreAuthorize("hasRole('ADMIN')")
+	    public ResponseEntity<?> cleanupExpiredPayments() {
 	        try {
-	            validateAdminPermission(session);
+	            
 	            
 	            // ✅ 傳入固定的 adminId
 	            Map<String, Object> result = paymentService.cleanupExpiredPayments(FIXED_ADMIN_ID);
@@ -1013,9 +1089,10 @@ public class OrderController {
 	 
 	 // ***** 查詢預購商品等待狀況 ***** //
 	 @GetMapping("/admin/payment/preorder-waiting")
-	    public ResponseEntity<?> getPreOrderWaitingInfo(HttpSession session) {
+	 @PreAuthorize("hasRole('ADMIN')")
+	    public ResponseEntity<?> getPreOrderWaitingInfo() {
 	        try {
-	            validateAdminPermission(session);
+	            
 	            Map<String, Object> waitingInfo = paymentService.getAllPreOrderWaitingInfo();
 	            
 	            return ResponseEntity.ok(waitingInfo);
@@ -1030,11 +1107,11 @@ public class OrderController {
 	 
 	 // ***** 查詢商品序號庫存 ***** //
 	 @GetMapping("/admin/payment/serial-stock/{proNo}")
-	    public ResponseEntity<?> getProductSerialStock(
-	            @PathVariable Integer proNo,
-	            HttpSession session) {
+	 @PreAuthorize("hasRole('ADMIN')")
+	    public ResponseEntity<?> getProductSerialStockForAdmin(
+	            @PathVariable Integer proNo) {
 	        try {
-	            validateAdminPermission(session);
+	            
 	            Map<String, Object> stockInfo = paymentService.getProductSerialStock(proNo);
 	            
 	            return ResponseEntity.ok(stockInfo);

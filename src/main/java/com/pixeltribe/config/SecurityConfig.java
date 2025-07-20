@@ -118,6 +118,7 @@ class SecurityConfig {
 
                                 // 2. 設定需要登入才能訪問的端點
                                 .requestMatchers("/api/cart/**").authenticated()    // 購物車需要認證的設定 (會覆蓋上面的 permitAll)
+                                .requestMatchers("/payment/**").permitAll()         //綠界付款才能回調
                                 .requestMatchers(HttpMethod.PUT, "/api/forums/*/collect").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/forums/collect/me").authenticated()
 //                                .requestMatchers(HttpMethod.GET, "/api/admin/orderitem/**").authenticated()

@@ -89,19 +89,9 @@ public class CartService {
             
             // 檢查庫存邏輯...
             Integer availableStock = getProductStock(product);
-            boolean hasStockIssue = false;
-            String stockWarning = null;
-            
-            if (availableStock == 0) {
-                hasStockIssue = true;
-                stockWarning = getStockWarningMessage(product, newTotalQuantity, availableStock);
-            } else if (availableStock != Integer.MAX_VALUE && newTotalQuantity > availableStock) {
-                hasStockIssue = true;
-                stockWarning = getStockWarningMessage(product, newTotalQuantity, availableStock);
-            } else if (availableStock <= STOCK_WARNING_THRESHOLD && !PREORDER_STATUS.equals(product.getProStatus())) {
-                hasStockIssue = true;
-                stockWarning = getStockWarningMessage(product, newTotalQuantity, availableStock);
-            }
+            boolean hasStockIssue = (availableStock == 0);  // 只要有庫存就能賣
+            String stockWarning = null;  // 移除警告訊息
+
             
             existingItem.setProNum(newTotalQuantity);
             existingItem.calculateTotal();
@@ -118,19 +108,9 @@ public class CartService {
             
             // 檢查庫存邏輯...
             Integer availableStock = getProductStock(product);
-            boolean hasStockIssue = false;
-            String stockWarning = null;
-            
-            if (availableStock == 0) {
-                hasStockIssue = true;
-                stockWarning = getStockWarningMessage(product, proNum, availableStock);
-            } else if (availableStock != Integer.MAX_VALUE && proNum > availableStock) {
-                hasStockIssue = true;
-                stockWarning = getStockWarningMessage(product, proNum, availableStock);
-            } else if (availableStock <= STOCK_WARNING_THRESHOLD && !PREORDER_STATUS.equals(product.getProStatus())) {
-                hasStockIssue = true;
-                stockWarning = getStockWarningMessage(product, proNum, availableStock);
-            }
+            boolean hasStockIssue = (availableStock == 0);  // 只要有庫存就能賣
+            String stockWarning = null;  // 移除警告訊息
+ 
             
             CartDTO.CartItem newItem = new CartDTO.CartItem();
             newItem.setProNo(proNo);
@@ -260,20 +240,11 @@ public class CartService {
 	            // 重新檢查庫存狀況
 	            Product product = productRepository.findById(proNo).orElse(null);
 	            if (product != null) {
-	                Integer availableStock = getProductStock(product);
-	                boolean hasStockIssue = false;
-	                String stockWarning = null;
+	            	Integer availableStock = getProductStock(product);
+	                boolean hasStockIssue = (availableStock == 0);  // ✅ 【新的簡化邏輯】
+	                String stockWarning = null;  // 移除警告訊息
 	                
-	                if (availableStock == 0) {
-	                    hasStockIssue = true;
-	                    stockWarning = getStockWarningMessage(product, proNum, availableStock);
-	                } else if (availableStock != Integer.MAX_VALUE && proNum > availableStock) {
-	                    hasStockIssue = true;
-	                    stockWarning = getStockWarningMessage(product, proNum, availableStock);
-	                } else if (availableStock <= STOCK_WARNING_THRESHOLD && !PREORDER_STATUS.equals(product.getProStatus())) {
-	                    hasStockIssue = true;
-	                    stockWarning = getStockWarningMessage(product, proNum, availableStock);
-	                }
+	             
 	                
 	                item.setHasStockIssue(hasStockIssue);
 	                item.setStockWarning(stockWarning);
@@ -419,20 +390,11 @@ public class CartService {
 	                // 重新檢查庫存狀況
 	                Product product = productRepository.findById(updateItem.getProNo()).orElse(null);
 	                if (product != null) {
-	                    Integer availableStock = getProductStock(product);
-	                    boolean hasStockIssue = false;
-	                    String stockWarning = null;
+	                	Integer availableStock = getProductStock(product);
+	                    boolean hasStockIssue = (availableStock == 0);  // ✅ 【新的簡化邏輯】
+	                    String stockWarning = null;  // 移除警告訊息
 	                    
-	                    if (availableStock == 0) {
-	                        hasStockIssue = true;
-	                        stockWarning = getStockWarningMessage(product, updateItem.getQuantity(), availableStock);
-	                    } else if (availableStock != Integer.MAX_VALUE && updateItem.getQuantity() > availableStock) {
-	                        hasStockIssue = true;
-	                        stockWarning = getStockWarningMessage(product, updateItem.getQuantity(), availableStock);
-	                    } else if (availableStock <= STOCK_WARNING_THRESHOLD && !PREORDER_STATUS.equals(product.getProStatus())) {
-	                        hasStockIssue = true;
-	                        stockWarning = getStockWarningMessage(product, updateItem.getQuantity(), availableStock);
-	                    }
+	                    
 	                    
 	                    item.setHasStockIssue(hasStockIssue);
 	                    item.setStockWarning(stockWarning);
@@ -545,10 +507,9 @@ public class CartService {
 	        if (availableStock == 0) {
 	            response.setValid(false);
 	            response.getIssues().add(String.format("商品 %s 目前缺貨", item.getProName()));
-	        } else if (availableStock != Integer.MAX_VALUE && item.getProNum() > availableStock) {
-	            response.setValid(false);
-	            response.getIssues().add(String.format("商品 %s 庫存不足，僅剩 %d 個", item.getProName(), availableStock));
 	        }
+	        
+	        
 	    }
 	    
 	    response.setTotalItems(cart.getTotalItem());

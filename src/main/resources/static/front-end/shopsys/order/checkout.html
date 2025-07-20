@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>像素部落 - 結帳</title>
+    <meta name="description" content="像素部落, Pixel Tribe, 結帳付款">
+    <meta name="keywords" content="結帳, 付款, 遊戲商品, 綠界">
+    <meta name="robots" content="all,follow">
+    
+    <script>
+        // Check local storage for theme
+        let localS = localStorage.getItem('theme')
+        themeToSet = localS
+        
+        if (!localS) {
+            themeToSet = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        
+        document.documentElement.setAttribute('data-theme', themeToSet)
+    </script>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="/assets/vendors/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="/assets/vendors/simplebar/simplebar.min.css">
+    <link rel="stylesheet" href="/assets/vendors/aos/aos.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/responsive.css">
+    <link rel="stylesheet" href="/assets/css/custom-style.css">
+    <link rel="stylesheet" href="/front-end/shopsys/order/checkout-style.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Theme Switcher -->
+    <div class="switcher switcher-show" id="theme-switcher">
+        <i id="switcher-icon" class="bi bi-moon"></i>
+    </div>
+
+    <!-- Back to Top -->
+    <a href="#" id="back-to-top"></a>
+
+    <div class="vine-wrapper">
+        <!-- Header -->
+        <div id="header-placeholder"></div>
+
+        <!-- Hero Section -->
+        <section class="vine-hero-2 bg-img-1">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="hero-content" data-aos="fade-down" data-aos-easing="linear">
+                            <h1><i class="bi bi-credit-card me-3"></i>結帳付款</h1>
+                            <p>安全快速的付款流程</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <section class="vine-main">
+            <div class="container">
+                <!-- 載入狀態 -->
+                <div id="loading-container" class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">載入中...</span>
+                    </div>
+                    <p class="mt-3 text-muted">正在載入結帳資訊...</p>
+                </div>
+
+               
+
+                <!-- 空購物車 -->
+                <div id="empty-cart-container" class="d-none">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="card">
+                                <div class="card-body text-center p-5">
+                                    <i class="bi bi-cart-x" style="font-size: 4rem; color: #6c757d;"></i>
+                                    <h3 class="mt-4 mb-3">購物車是空的</h3>
+                                    <p class="text-muted mb-4">請先將商品加入購物車再進行結帳。</p>
+                                    <div class="d-grid gap-2 d-md-block">
+                                        <button class="btn btn-primary" onclick="goToShop()">
+                                            <i class="bi bi-shop me-2"></i>開始購物
+                                        </button>
+                                        <button class="btn btn-outline-secondary" onclick="goToCart()">
+                                            <i class="bi bi-cart me-2"></i>查看購物車
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 錯誤狀態 -->
+                <div id="error-container" class="d-none">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="alert alert-danger" role="alert">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>載入失敗！</strong>
+                                <span id="error-message">無法載入結帳資訊，請稍後再試。</span>
+                                <div class="mt-3">
+                                    <button class="btn btn-outline-danger me-2" onclick="CheckoutManager.loadCheckoutData()">
+                                        <i class="bi bi-arrow-clockwise me-1"></i>重新載入
+                                    </button>
+                                    <button class="btn btn-outline-secondary" onclick="goToCart()">
+                                        <i class="bi bi-cart me-1"></i>回到購物車
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 結帳主內容 -->
+                <div id="checkout-container" class="d-none">
+                    <div class="row">
+                        <!-- 左側結帳表單 -->
+                        <div class="col-lg-8">
+                            <!-- 進度條 -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="checkout-progress">
+                                        <div class="progress-step active">
+                                            <div class="step-number">1</div>
+                                            <div class="step-label">確認商品</div>
+                                        </div>
+                                        <div class="progress-line"></div>
+                                        <div class="progress-step active">
+                                            <div class="step-number">2</div>
+                                            <div class="step-label">填寫資訊</div>
+                                        </div>
+                                        <div class="progress-line"></div>
+                                        <div class="progress-step">
+                                            <div class="step-number">3</div>
+                                            <div class="step-label">完成付款</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 購物車商品確認 -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-cart-check me-2"></i>商品確認
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- 商品列表容器 -->
+                                    <div id="cart-items-container">
+                                        <!-- 商品將動態載入 -->
+                                    </div>
+                                    
+                                    <!-- 庫存警告 -->
+                                    <div id="stock-warning-container" class="d-none">
+                                        <div class="alert alert-warning">
+                                            <i class="bi bi-exclamation-triangle me-2"></i>
+                                            <strong>庫存提醒：</strong>
+                                            <span id="stock-warning-text"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 聯絡資訊表單 -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-person-lines-fill me-2"></i>聯絡資訊
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="checkout-form" novalidate>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="contact-email" class="form-label">
+                                                    聯絡 Email <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="email" class="form-control" id="contact-email" 
+                                                       name="contactEmail" required 
+                                                       placeholder="請輸入您的 Email">
+                                                <div class="invalid-feedback">
+                                                    請輸入正確的 Email 格式
+                                                </div>
+                                                <div class="form-text">
+                                                    遊戲序號將發送至此信箱
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="contact-phone" class="form-label">
+                                                    聯絡電話 <span class="text-muted">(選填)</span>
+                                                </label>
+                                                <input type="tel" class="form-control" id="contact-phone" 
+                                                       name="contactPhone" 
+                                                       placeholder="請輸入聯絡電話">
+                                                <div class="form-text">
+                                                    用於緊急聯繫或客服需要
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 會員資訊顯示 -->
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="member-info-display p-3 bg-light rounded">
+                                                    <h6 class="mb-2">
+                                                        <i class="bi bi-person-badge me-2"></i>會員資訊
+                                                    </h6>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <small class="text-muted">會員姓名：</small>
+                                                            <span id="member-name">載入中...</span>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <small class="text-muted">註冊信箱：</small>
+                                                            <span id="member-email">載入中...</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- 付款方式 -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-credit-card me-2"></i>付款方式
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="payment-method-info">
+                                        <div class="d-flex align-items-center">
+                                            <img src="/images/ecpay-logo.png" alt="綠界科技" 
+                                                 style="height: 40px;" class="me-3"
+                                                 onerror="this.style.display='none'">
+                                            <div>
+                                                <h6 class="mb-1">綠界科技 ECPay</h6>
+                                                <small class="text-muted">
+                                                    支援信用卡、ATM轉帳、超商代碼等多種付款方式
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="payment-methods">
+                                                <span class="badge bg-primary me-2">信用卡</span>
+                                                <span class="badge bg-success me-2">ATM轉帳</span>
+                                                <span class="badge bg-warning me-2">超商代碼</span>
+                                                <span class="badge bg-info">Apple Pay</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右側訂單摘要 -->
+                        <div class="col-lg-4">
+                            <div class="card position-sticky" style="top: 100px;">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-receipt me-2"></i>訂單摘要
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="order-summary">
+                                        <div class="summary-row">
+                                            <span>商品種類：</span>
+                                            <span id="summary-items">0 種</span>
+                                        </div>
+                                        
+                                        <div class="summary-row">
+                                            <span>商品總數：</span>
+                                            <span id="summary-quantity">0 件</span>
+                                        </div>
+                                        
+                                        <div class="summary-row">
+                                            <span>小計：</span>
+                                            <span>NT$ <span id="summary-subtotal">0</span></span>
+                                        </div>
+                                        
+                                        <div class="summary-row">
+                                            <span>運費：</span>
+                                            <span class="text-success">
+                                                <i class="bi bi-gift me-1"></i>數位商品免運費
+                                            </span>
+                                        </div>
+                                        
+                                        <hr>
+                                        
+                                        <div class="summary-row total">
+                                            <span>總計：</span>
+                                            <span class="fs-4 fw-bold text-primary">
+                                                NT$ <span id="summary-total">0</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 結帳按鈕 -->
+                                    <div class="d-grid gap-2 mt-4">
+                                        <button class="btn btn-primary btn-lg" id="checkout-btn" type="button">
+                                            <i class="bi bi-credit-card me-2"></i>
+                                            <span id="checkout-btn-text">前往付款</span>
+                                        </button>
+                                        <button class="btn btn-outline-secondary" onclick="goToCart()">
+                                            <i class="bi bi-arrow-left me-2"></i>返回購物車
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- 安全保障 -->
+                                    <div class="security-info mt-3 p-3 bg-light rounded">
+                                        <div class="text-center">
+                                            <i class="bi bi-shield-check text-success me-2"></i>
+                                            <small class="text-muted">
+                                                256位元 SSL 加密保護<br>
+                                                您的付款資訊完全安全
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <div id="footer-placeholder"></div>
+    </div>
+
+    <!-- 提示訊息 -->
+    <div class="cute-alert" id="cute-alert">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span id="alert-icon" style="font-size: 1.5rem;">ℹ️</span>
+            <span id="alert-message">訊息內容</span>
+        </div>
+    </div>
+
+    <!-- 付款處理 Modal -->
+    <div class="modal fade" id="payment-modal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-4">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">處理中...</span>
+                    </div>
+                    <h5 class="mb-2">正在處理您的訂單</h5>
+                    <p class="text-muted mb-0">請稍候，即將跳轉至付款頁面...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="/js/dynamicHeaderInfo.js"></script>
+    <script src="/assets/vendors/jquery/jquery.min.js"></script>
+    <script src="/assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+    <script src="/assets/vendors/popper/popper.min.js"></script>
+    <script src="/assets/vendors/simplebar/simplebar.min.js"></script>
+    <script src="/assets/vendors/aos/aos.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/global-loader.js"></script>
+    
+    <!-- 結帳功能 JS -->
+    <script src="/front-end/shopsys/order/checkout-api-client.js"></script>
+    <script src="/front-end/shopsys/order/checkout.js"></script>
+
+    <script>
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 載入 Header/Footer
+            const headerPlaceholder = document.getElementById('header-placeholder');
+            const footerPlaceholder = document.getElementById('footer-placeholder');
+            
+            if (headerPlaceholder && typeof $ !== 'undefined') {
+                $('#header-placeholder').load('/templates/_header.html', function() {
+                    console.log('Header 載入完成');
+                });
+            }
+            
+            if (footerPlaceholder && typeof $ !== 'undefined') {
+                $('#footer-placeholder').load('/templates/_footer.html', function() {
+                    console.log('Footer 載入完成');
+                });
+            }
+            
+            // 初始化結帳管理器
+            CheckoutManager.init();
+        });
+
+        // 全域導航方法
+        window.goToCart = () => window.location.href = '/front-end/shopsys/cart/cart.html';
+        window.goToShop = () => window.location.href = '/front-end/shopsys/shopindex.html';
+        window.goToLogin = () => {
+            const currentUrl = encodeURIComponent(window.location.pathname);
+            window.location.href = `/front-end/mem/MemberLogin.html?redirect=${currentUrl}`;
+        };
+    </script>
+
+</body>
+</html>
