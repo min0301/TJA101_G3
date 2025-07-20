@@ -14,6 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@Component
 @Transactional
 public class PaymentService {
 	
@@ -92,11 +94,27 @@ public class PaymentService {
     
     // ***** 啟動付款 (@param orderNo // @return付款頁面HTML)  ***** //
     public String initiatePayment(Integer orderNo) {
+    	
+    	System.out.println("🔥🔥🔥 PaymentService.initiatePayment 開始執行！orderNo=" + orderNo + " 🔥🔥🔥");
+    	
     	try {
     		log.info("開始付款:orderNo={}", orderNo);
     		
+    		// ✅ 加入每個步驟的除錯
+            System.out.println("=== 步驟1：檢查訂單狀態 ===");
+            OrderDTO order = orderService.getOrderDetail(orderNo);
+            System.out.println("訂單狀態：" + order.getOrderStatus());
+            
+            System.out.println("=== 步驟2：驗證訂單狀態 ===");
+            if (!"PENDING".equals(order.getOrderStatus())) {
+                System.out.println("❌ 訂單狀態不是 PENDING：" + order.getOrderStatus());
+                throw new RuntimeException("訂單狀態錯誤，無法付款");
+            }
+            
+            System.out.println("=== 步驟3：準備綠界付款參數 ===");
+    		
+    		
     		// 1. 檢查訂單狀態
-    		OrderDTO order = orderService.getOrderDetail(orderNo);
             if (!order.canRetryPayment()) {
                 throw new IllegalStateException("訂單狀態不允許付款：" + order.getOrderStatusInfo().getDisplayName());
             }
@@ -750,22 +768,18 @@ public class PaymentService {
 	    
 	    // ========== 私有工具方法 ========== //
 
-	    /* 
-	   	 1. 生成交易編號
-	   	 2. @param orderNo 訂單編號
-	   	 3. @return 交易編號
-	   	 */
+	    // *** 生成交易編號 ***//
 	    private String generateTradeNo(Integer orderNo) {
-	        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-	        return "TXN" + timestamp + String.format("%06d", orderNo);
+	    	// 只取年月日時分 (10位) + 訂單號後6位
+	        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmm")); // 10位
+	        String orderSuffix = String.valueOf(orderNo).substring(Math.max(0, String.valueOf(orderNo).length() - 6)); // 最多6位
+	        return "O" + timestamp + orderSuffix; // 1+10+6=17字元 ✅
+
 	    }
 	    
 	    
-	    /* 
-	   	 1. 檢查是否有進行中的付款
-	   	 2. @param orderNo 訂單編號
-	   	 3. @return 是否有進行中的付款
-	   	 */
+	    // *** 檢查是否有進行中的付款 ***//
+	   	
 	    private boolean hasOngoingPayment(Integer orderNo) {
 	        String redisKey = "payment:" + orderNo;
 	        String status = (String) redisTemplate.opsForHash().get(redisKey, "status");
@@ -773,12 +787,7 @@ public class PaymentService {
 	    }
 	    
 	    
-	    /* 
-	   	 1. 存儲付款資訊到 Redis
-	   	 2. @param orderNo 訂單編號
-	   	 3. @param tradeNo 交易編號
-	   	 4. @param order 訂單資訊
-	   	 */
+	    // *** 存儲付款資訊到 Redis *** //
 	    private void storePaymentInfoToRedis(Integer orderNo, String tradeNo, OrderDTO order) {
 	        String redisKey = "payment:" + orderNo;
 	        
@@ -896,6 +905,22 @@ public class PaymentService {
 	        try {
 	            log.debug("開始生成綠界付款表單");
 	            
+	            // ✅ 加入除錯
+	            String itemName = getItemDescription(order);
+	            System.out.println("🔥 ItemName 除錯：" + itemName);
+	            System.out.println("🔥 OrderItems 數量：" + (order.getOrderItems() != null ? order.getOrderItems().size() : "null"));
+	            if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
+	                System.out.println("🔥 第一個商品名稱：" + order.getOrderItems().get(0).getProductName());
+	            }
+	            
+	            // ✅ 強制確保不是 null
+	            if (itemName == null || itemName.trim().isEmpty()) {
+	                itemName = "像素部落商城商品";
+	                System.out.println("🔥 強制設定 ItemName：" + itemName);
+	            }	
+	            
+	            
+	            
 	            // 準備綠界參數
 	            Map<String, String> params = new TreeMap<>();
 	            params.put("MerchantID", merchantId);
@@ -904,7 +929,7 @@ public class PaymentService {
 	            params.put("PaymentType", "aio");
 	            params.put("TotalAmount", order.getOrderTotal().toString());
 	            params.put("TradeDesc", "像素部落商城購物");
-	            params.put("ItemName", getItemDescription(order));
+	            params.put("ItemName", itemName);
 	            params.put("ReturnURL", returnUrl);
 	            params.put("OrderResultURL", notifyUrl);
 	            params.put("ChoosePayment", "ALL");
@@ -930,11 +955,7 @@ public class PaymentService {
 	    }
 	        
 	        
-	        /* 
-		   	 1. 取得商品描述
-		   	 2. @param order 訂單
-		   	 3. @return 商品描述
-		   	 */
+	        // *** 取得商品描述 *** // 
 	        private String getItemDescription(OrderDTO order) {
 	            if (order.getOrderItems() == null || order.getOrderItems().isEmpty()) {
 	                return "遊戲產品";

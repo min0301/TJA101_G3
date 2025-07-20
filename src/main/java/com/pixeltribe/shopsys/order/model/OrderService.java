@@ -15,7 +15,7 @@ import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.shopsys.cart.model.CartService;
 import com.pixeltribe.shopsys.cart.model.CartDTO;
 import com.pixeltribe.shopsys.order.exception.OrderNotFoundException;
-import com.pixeltribe.shopsys.order.model.CreateOrderRequest;
+
 import com.pixeltribe.shopsys.orderItem.model.CreateOrderItemRequest;
 import com.pixeltribe.shopsys.orderItem.model.OrderItem;
 import com.pixeltribe.shopsys.orderItem.model.OrderItemDTO;
@@ -23,6 +23,7 @@ import com.pixeltribe.shopsys.orderItem.model.OrderItemRepository;
 import com.pixeltribe.shopsys.product.exception.ProductNotFoundException;
 import com.pixeltribe.shopsys.product.model.Product;
 import com.pixeltribe.shopsys.product.model.ProductRepository;
+
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,6 +49,8 @@ public class OrderService {
     
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    
+
 	
 	//  ========== 新增 ========== //
 	//  訂單編號、會員編號、優惠票夾代碼、訂購時間、訂購狀態、訂單總額、使用積分
@@ -272,6 +275,10 @@ public class OrderService {
 	        Order order = new Order();
 	        order.setMemNo(member);
 	        order.setOrderStatus("PENDING"); // 初始狀態：待付款
+	        
+	        // 先設定訂單編號（讓 MySQL 觸發器覆蓋）
+	        order.setOrderNo(0);  // 臨時編號，MySQL 觸發器會覆蓋
+	        
 
 	        // 計算總金額
 	        Integer totalAmount = calculateTotalAmount(createOrderRequest.getOrderItems());
@@ -279,6 +286,21 @@ public class OrderService {
 
 	        // 保存訂單
 	        Order savedOrder = orderRepository.save(order);
+	        
+	        //  重新查詢，獲得 MySQL 觸發器生成的真實訂單編號
+	        try {
+	            List<Order> recentOrders = orderRepository.findByMemNoOrderByOrderDatetimeDesc(memNo);
+	            if (!recentOrders.isEmpty()) {
+	                savedOrder = recentOrders.get(0);
+	                log.debug("觸發器生成的訂單編號：{}", savedOrder.getOrderNo());
+	            } else {
+	                log.warn("無法找到剛建立的訂單，使用原始值：{}", savedOrder.getOrderNo());
+	            }
+	        } catch (Exception e) {
+	            log.warn("重新查詢訂單編號失敗：{}", e.getMessage());
+	        }
+	        
+	        
 
 	        // 3. 記錄創建訂單的審計日誌（包含客戶指定的聯絡資訊）
 	        log.info("ORDER_CREATED|orderNo={}|memNo={}|total={}|contactEmail={}|contactPhone={}|timestamp={}", 
