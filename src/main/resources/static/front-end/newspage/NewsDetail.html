@@ -215,6 +215,14 @@ Scripts
 <script src="news-carousel.js"></script>
 <script src="/js/dynamicHeaderInfo.js"></script>
 <script src="newsdetail.js" ></script>
+<script>
+    // Initialize AOS animations
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.AOS) {
+            AOS.init();
+        }
+    });
+</script>
 
 <!--<script>-->
 <!--    document.getElementById('theme-switcher')?.addEventListener('click', () => {-->
