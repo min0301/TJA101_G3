@@ -380,7 +380,8 @@
 
             if (edit) {
                 const id = edit.dataset.id;
-                location.href = `../newssys/news/updateNews.html?newsId=${id}`;
+                loadExternalPage(`../newssys/news/updateNews.html?newsId=${id}`)
+                // location.href = `../newssys/news/updateNews.html?newsId=${id}`;
             } else if (toggle) {
                 const id = toggle.dataset.id;
                 const newStatus = !(toggle.dataset.showed === 'true');

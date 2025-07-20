@@ -7,7 +7,7 @@
         margin: 0;
     }
 
-    .comment-container {
+    .report-management-container {
         width: 100%;
         max-width: 1400px;
         margin: 0 auto;
@@ -167,24 +167,23 @@
             }
         }
 
-        function renderList(list) {
-            const tb = document.getElementById('reportTableBody');
-            if (!Array.isArray(list) || list.length === 0) {
-                tb.innerHTML = `<tr><td colspan="6">查無資料</td></tr>`;
+        function renderList(list){
+            const tb=document.getElementById('reportTableBody');
+            if(!Array.isArray(list)||list.length===0){
+                tb.innerHTML=`<tr><td colspan="6">查無資料</td></tr>`;
                 return;
             }
-            tb.innerHTML = list.map(r => `
+            tb.innerHTML=list.map(r=>`
       <tr>
         <td>${r.id}</td>
-        <td class="text-start">${r.newsComment ?? '-'}</td>
+        <td class="text-start" title="${r.newsComment ?? ''}">${r.newsComment ?? '-'}</td>
         <td>${r.reportTypeRpiType ?? '-'}</td>
         <td>${formatDate(r.createTime)}</td>
         <td>${renderStatus(r.newsComReportStatus)}</td>
         <td>
-          <a href="#"
-             class="btn btn-outline-primary btn-sm"
+          <a href="#" class="btn btn-outline-primary btn-sm"
              onclick="event.preventDefault();
-                      loadExternalPage('../newssys/report/processNewsReport.html?id=${r.id}')">
+                      loadExternalPage('../newssys/report/processNewsReport.html?id=${encodeURIComponent(r.id)}')">
              處理
           </a>
         </td>

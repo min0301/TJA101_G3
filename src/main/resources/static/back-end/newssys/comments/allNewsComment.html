@@ -266,7 +266,7 @@
             if (typeof loadExternalPage === 'function') {
                 loadExternalPage(`${EDIT_PAGE}?id=${id}`);
             } else {
-                window.location.href = `${EDIT_PAGE}?id=${id}`;
+                loadExternalPage(`${EDIT_PAGE}?id=${id}`);
             }
         }
 
