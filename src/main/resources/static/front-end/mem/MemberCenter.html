@@ -20,7 +20,7 @@
 
 body {
 	background: white;
-	padding-top: 100px;
+	padding-top: 0;
 }
 
 .member-center-card {
@@ -241,12 +241,22 @@ body {
 	font-size: 2.2em;
 	margin-bottom: 4px;
 }
+
+.vine-navbar.fixed-top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    background: #fff; /* 可改為你的 header 顏色 */
+    z-index: 1100;
+    box-shadow: 0 2px 12px #0002;
+}
 </style>
 </head>
 <body>
-	<!-- 動態載入 header -->
-	<div id="header-placeholder"></div>
-
+<!-- 	<header class="vine-navbar fixed-top"> -->
+		<div id="header-placeholder"></div>
+	</header>
 	<!-- 上方按鈕連結至會員中心各區塊 -->
 	<div class="container" style="padding-bottom: 60px;">
 		<div

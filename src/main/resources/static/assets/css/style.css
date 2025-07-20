@@ -1142,8 +1142,9 @@ input, select {
 .vine-hero {
     position: relative;
     overflow: hidden;
-    margin-top: 100px;
+    margin-top: 0;
     padding: 60px 0px;
+    padding-top: 0;
     width: 100%;
 }
 
@@ -1152,6 +1153,8 @@ input, select {
     overflow: hidden;
     margin-top: 100px;
     padding: 40px 0px;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
 }
 
 .vine-hero-3 {

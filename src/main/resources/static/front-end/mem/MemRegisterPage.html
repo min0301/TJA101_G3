@@ -4,194 +4,195 @@
 <meta charset="UTF-8">
 <title>會員註冊 - PIXEL TRIBE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- 統一像素風字體 -->
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- 像素風英文字型 -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-    --main-bg: #f7f4ed;
-    --main-brown: #3b3327;
-    --light-yellow: #fffbe7;
-    --deep-yellow: #ffe98a;
-    --input-bg: #f8f7e7;
-    --input-border: #d88e24;
-    --box-shadow: 0 6px 32px #0003;
-    --pixel-font: 'Noto Sans Mono', Arial, 'Microsoft JhengHei', 'PingFang TC', sans-serif;
-    --main-font: 'Noto Sans Mono', Arial, 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  --gboy-red: #b52824;
+  --gboy-yellow: #f6e18a;
+  --gboy-green: #d3ffd6;
+  --gboy-blue: #d5eaf7;
+  --gboy-outline: #18130e;
+  --screen-bg: #faf5cb;
+  --main-font: 'Noto Sans Mono', 'Microsoft JhengHei', Arial, sans-serif;
+  --pixel-font: 'Press Start 2P', 'Noto Sans Mono', Arial, sans-serif;
 }
-
 body {
-    margin: 0;
-    background: var(--main-bg);
-    font-family: var(--main-font);
-    color: var(--main-brown);
+  margin: 0;
+  background: var(--gboy-red);
+  min-height: 100vh;
+  width: 100vw;
+  font-family: var(--main-font);
+  color: var(--gboy-outline);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.header {
-    width: 100%;
-    background: #fffbea;
-    padding: 32px 0 0 0;
-    text-align: center;
+/* 居中 screen */
+.gb-screen {
+  margin: 70px auto 0 auto;
+  width: 420px;
+  max-width: 98vw;
+  background: var(--screen-bg);
+  border: 8px solid var(--gboy-outline);
+  border-radius: 28px;
+  box-shadow: 0 3px 28px #1112 inset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 36px 28px 28px 28px;
 }
 
-.header .logo {
-    font-family: var(--pixel-font);
-    font-size: 2.4em;
-    letter-spacing: 4px;
-    color: #d88e24;
-    text-shadow: 2px 2px 0 #efe7c7, 4px 4px 0 #a19e89;
-    display: inline-block;
-    font-weight: 700;
+.pixel-title {
+  font-size: 2.1rem;
+  letter-spacing: 7px;
+  font-family: var(--pixel-font);
+  color: var(--gboy-yellow);
+  text-shadow: 3px 3px 0 #bcae58, 0 1px 0 #222;
+  margin-bottom: 13px;
+  text-align: center;
+  font-weight: bold;
 }
-
-.register-container {
-    max-width: 410px;
-    margin: 44px auto 0 auto;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: var(--box-shadow);
-    padding: 34px 30px 28px 30px;
-    text-align: center;
-}
-
-.register-title {
-    font-family: var(--pixel-font);
-    font-size: 1.5em;
-    margin-bottom: 15px;
-    letter-spacing: 2px;
-    color: #d88e24;
-    font-weight: 700;
-    text-shadow: 1px 1px 0 #efe7c7;
-}
-
 .register-desc {
-    margin-bottom: 20px;
-    color: #7d6848;
-    font-size: 1em;
-    font-family: var(--main-font);
+  margin-bottom: 22px;
+  color: #7d6848;
+  font-size: 1.07em;
+  font-family: var(--main-font);
+  text-align: center;
 }
-
+#memRegister {
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .input-box {
-    margin-bottom: 18px;
-    text-align: left;
+  width: 100%;
+  margin-bottom: 15px;
+  text-align: left;
 }
-
 .input-label {
-    display: block;
-    font-size: 1em;
-    color: #856f4d;
-    margin-bottom: 6px;
-    margin-left: 4px;
-    font-family: var(--pixel-font);
-    font-weight: 700;
+  display: block;
+  font-size: 1em;
+  color: #856f4d;
+  margin-bottom: 6px;
+  margin-left: 4px;
+  font-family: var(--pixel-font);
+  font-weight: 700;
+  letter-spacing: 1px;
 }
-
 .input-field {
-    width: 100%;
-    padding: 13px 13px;
-    border: 1.5px solid var(--input-border);
-    border-radius: 9px;
-    background: var(--input-bg);
-    font-size: 1.04em;
-    font-family: var(--main-font);
-    outline: none;
-    transition: border 0.18s;
-    box-sizing: border-box;
-    color: #3b3327;
-    letter-spacing: 0.5px;
+  width: 100%;
+  padding: 11px 13px;
+  border: 2px solid #bfd7ea;
+  border-radius: 10px;
+  background: #e8f2fd;
+  font-size: 1.09em;
+  font-family: var(--main-font);
+  outline: none;
+  transition: border 0.18s;
+  box-sizing: border-box;
+  color: #3b3327;
+  letter-spacing: 0.7px;
+  box-shadow: 1.5px 1.5px 0 #a9bed3;
 }
 .input-field:focus {
-    border: 1.5px solid #ab8556;
-    background: #f4eede;
+  border: 2.5px solid #ab8556;
+  background: #f4eede;
 }
 #emailMsg {
-    color: #c14444; font-size: 0.97em; margin: 4px 0 0 6px; font-family: var(--main-font);
+  color: #c14444; font-size: 0.96em; margin: 4px 0 0 6px; font-family: var(--main-font);
 }
-
 .btns {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: 15px;
+  width: 100%;
 }
 .btn {
-    padding: 13px 0;
-    border: none;
-    border-radius: 9px;
-    background: var(--light-yellow);
-    color: #d88e24;
-    font-size: 1.08em;
-    font-family: var(--pixel-font);
-    cursor: pointer;
-    font-weight: 700;
-    box-shadow: 0 2px 6px #0002;
-    letter-spacing: 1px;
-    transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  padding: 12px 0 10px 0;
+  border: 3px solid var(--gboy-outline);
+  border-radius: 9px;
+  background: var(--gboy-yellow);
+  color: var(--gboy-outline);
+  font-size: 1.08em;
+  font-family: var(--pixel-font);
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 2px;
+  box-shadow: 0 3px 0 #bdb75a;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  text-shadow: 1.5px 1.5px 0 #eee5a5;
 }
 .btn:hover {
-    background: var(--deep-yellow);
-    color: #a5731d;
-    box-shadow: 0 4px 16px #0001;
+  background: #fff2b2;
+  color: #b26b11;
+  box-shadow: 0 7px 16px #0001;
 }
 
-/* 響應式優化 */
+/* 響應式 */
 @media (max-width: 520px) {
-    .register-container {padding: 18px 2vw;}
-    .header .logo {font-size: 1.6em;}
+  .gb-screen { width: 98vw; max-width: 99vw; border-radius: 16px; padding: 6vw 1vw 4vw 1vw;}
+  .pixel-title { font-size: 1.13rem;}
+  #memRegister { max-width: 97vw;}
 }
 </style>
 </head>
 <body>
-	<div class="header">
-		<span class="logo">PIXEL TRIBE</span>
-	</div>
-	<div class="register-container">
-		<div class="register-title">會員註冊</div>
-		<div class="register-desc">請填寫以下資料，完成會員註冊</div>
-		<form id="memRegister" method="post" autocomplete="off">
-			<div class="input-box">
-				<label class="input-label" for="memAccount">帳號</label>
-				<input class="input-field" type="text" id="memAccount" name="memAccount" required placeholder="請輸入帳號">
-			</div>
-			<div class="input-box">
-				<label class="input-label" for="memEmail">信箱</label>
-				<input class="input-field" type="text" id="memEmail" name="memEmail" required placeholder="請輸入信箱" autocomplete="email" onblur="checkEmailDuplicate()">
-				<div id="emailMsg"></div>
-			</div>
-			<div class="input-box">
-				<label class="input-label" for="memName">姓名</label>
-				<input class="input-field" type="text" id="memName" name="memName" required placeholder="請輸入姓名">
-			</div>
-			<div class="input-box">
-				<label class="input-label" for="memNickName">暱稱</label>
-				<input class="input-field" type="text" id="memNickName" name="memNickName" required placeholder="請輸入暱稱">
-			</div>
-			<div class="input-box">
-				<label class="input-label" for="memBirthday">生日</label>
-				<input class="input-field" type="date" id="memBirthday" name="memBirthday" required>
-			</div>
-			<div class="input-box">
-				<label class="input-label" for="memAddr">地址</label>
-				<input class="input-field" type="text" id="memAddr" name="memAddr" required placeholder="請輸入聯絡地址" autocomplete="address-line1">
-			</div>
-			<div class="input-box">
-				<label class="input-label" for="memPhone">電話</label>
-				<input class="input-field" type="text" id="memPhone" name="memPhone" required placeholder="請輸入聯絡電話" autocomplete="tel">
-			</div>
-			<div class="input-box">
-				<label class="input-label" for="memPassword">密碼</label>
-				<input class="input-field" type="password" id="memPassword" name="memPassword" required placeholder="請輸入密碼">
-			</div>
-			<div class="input-box">
-				<label class="input-label" for="confirmPassword">確認密碼</label>
-				<input class="input-field" type="password" id="confirmPassword" name="confirmPassword" required placeholder="請再輸入一次密碼">
-			</div>
-			<div class="btns">
-				<button class="btn" type="submit">完成註冊</button>
-				<button class="btn" type="button" onclick="window.location.href='/index.html'">返回首頁</button>
-			</div>
-		</form>
-	</div>
-	<script src="/front-end/mem/MemRegisterPage.js"></script>
+  <div class="gb-screen">
+    <div class="pixel-title">PIXEL TRIBE</div>
+    <div class="register-desc">請填寫以下資料，完成會員註冊</div>
+    <form id="memRegister" method="post" autocomplete="off">
+      <div class="input-box">
+        <label class="input-label" for="memAccount">帳號</label>
+        <input class="input-field" type="text" id="memAccount" name="memAccount" required placeholder="請輸入帳號">
+      </div>
+      <div class="input-box">
+        <label class="input-label" for="memEmail">信箱</label>
+        <input class="input-field" type="text" id="memEmail" name="memEmail" required placeholder="請輸入信箱" autocomplete="email" onblur="checkEmailDuplicate()">
+        <div id="emailMsg"></div>
+      </div>
+      <div class="input-box">
+        <label class="input-label" for="memName">姓名</label>
+        <input class="input-field" type="text" id="memName" name="memName" required placeholder="請輸入姓名">
+      </div>
+      <div class="input-box">
+        <label class="input-label" for="memNickName">暱稱</label>
+        <input class="input-field" type="text" id="memNickName" name="memNickName" required placeholder="請輸入暱稱">
+      </div>
+      <div class="input-box">
+        <label class="input-label" for="memBirthday">生日</label>
+        <input class="input-field" type="date" id="memBirthday" name="memBirthday" required>
+      </div>
+      <div class="input-box">
+        <label class="input-label" for="memAddr">地址</label>
+        <input class="input-field" type="text" id="memAddr" name="memAddr" required placeholder="請輸入聯絡地址" autocomplete="address-line1">
+      </div>
+      <div class="input-box">
+        <label class="input-label" for="memPhone">電話</label>
+        <input class="input-field" type="text" id="memPhone" name="memPhone" required placeholder="請輸入聯絡電話" autocomplete="tel">
+      </div>
+      <div class="input-box">
+        <label class="input-label" for="memPassword">密碼</label>
+        <input class="input-field" type="password" id="memPassword" name="memPassword" required placeholder="請輸入密碼">
+      </div>
+      <div class="input-box">
+        <label class="input-label" for="confirmPassword">確認密碼</label>
+        <input class="input-field" type="password" id="confirmPassword" name="confirmPassword" required placeholder="請再輸入一次密碼">
+      </div>
+      <div class="btns">
+        <button class="btn" type="submit">完成註冊</button>
+        <button class="btn" type="button" onclick="window.location.href='/index.html'">返回首頁</button>
+      </div>
+    </form>
+  </div>
+  <script src="/front-end/mem/MemRegisterPage.js"></script>
 </body>
 </html>
