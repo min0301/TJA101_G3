@@ -273,7 +273,7 @@
         const originalForNoIdInput = document.getElementById('originalForNoId');
 
         // --- API & 參數定義 ---
-        const apiBaseUrl = 'http://localhost:8080/api';
+        const apiBaseUrl = '/api';
         const allForumsApiUrl = `${apiBaseUrl}/forums`;
         const allTagsApiUrl = `${apiBaseUrl}/forumtag`; // 【不可變】根據 ForumTagController.java
         const defaultImageUrlApiBase = `${apiBaseUrl}/forumtag/default-image`; // 【重要】假設 ForumTagController 提供了此 API，或您需在後端實作

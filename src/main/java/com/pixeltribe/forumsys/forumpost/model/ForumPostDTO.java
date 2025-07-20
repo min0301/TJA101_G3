@@ -25,6 +25,7 @@ public class ForumPostDTO {
     private String memberNickName;
     private Integer forumTagId;
     private String forumTagName;
+    private boolean isCollected; // 新增：表示文章是否被當前使用者收藏
 
     // 建構子：將 ForumPost Entity 轉換為 ForumPostDTO
     public ForumPostDTO(ForumPost forumPost) {
@@ -38,9 +39,8 @@ public class ForumPostDTO {
         this.mesNumbers = forumPost.getMesNumbers();
         this.postLikeCount = forumPost.getPostLikeCount();
         this.postLikeDlc = forumPost.getPostLikeDlc();
-        // 假設 ForumPost Entity 中存在 getPostCoverImageUrl() 方法來獲取圖片 URL
-        // 如果您原本是 byte[]，需要將其轉換為 URL 儲存後才能使用此欄位
-        this.postImageUrl = forumPost.getPostImageUrl(); // 請根據實際圖片儲存方式調整
+        this.postImageUrl = forumPost.getPostImageUrl();
+
 
         // 處理關聯實體，避免 N+1 問題及 LazyInitializationException
         if (forumPost.getForNo() != null) {
@@ -54,9 +54,10 @@ public class ForumPostDTO {
         }
         if (forumPost.getFtagNo() != null) {
             this.forumTagId = forumPost.getFtagNo().getId();
-//             假設 ForumTag 有 getTagName() 方法
-//             this.forumTagName = forumPost.getFtagNo().getTagName();
-//             請根據 ForumTag 實際的名稱欄位調整
+            // 假設 ForumTag 有 getTagName() 方法
+            // this.forumTagName = forumPost.getFtagNo().getTagName();
+            // 請根據 ForumTag 實際的名稱欄位調整
         }
+        // isCollected 欄位將在 Service 層設定，因為這需要會員登入資訊
     }
 }

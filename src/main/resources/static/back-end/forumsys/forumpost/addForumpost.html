@@ -258,10 +258,10 @@
 
 
         // --- API 路徑定義 ---
-        const addPostApiUrl = 'http://localhost:8080/api/forumpost/insert';
-        const allForumsApiUrl = 'http://localhost:8080/api/forums';
-        const allTagsApiUrl = 'http://localhost:8080/api/forumtag'; // 【不可變】根據 ForumTagController.java
-        const defaultImageUrlApiBase = 'http://localhost:8080/api/forumtag/default-image'; // 【重要】假設 ForumTagController 提供了此 API，或您需在後端實作
+        const addPostApiUrl = '/api/forumpost/insert';
+        const allForumsApiUrl = '/api/forums';
+        const allTagsApiUrl = '/api/forumtag'; // 【不可變】根據 ForumTagController.java
+        const defaultImageUrlApiBase = '/api/forumtag/default-image'; // 【重要】假設 ForumTagController 提供了此 API，或您需在後端實作
 
 
         // --- 載入討論區和文章類別下拉選單 ---

@@ -55,11 +55,21 @@ public class PostCollectService {
     public List<PostCollectDTO> getPostCollectForMember(Integer memberId){
         Member member = memRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到會員, 編號: " + memberId));
-        List<PostCollect> postCollect = postCollectRepository.findByMemNo(member);
+        List<PostCollect> postCollect = postCollectRepository.findByMemNoAndPostCollectStatus(member,PostCollectStatus.COLLECT);
         return postCollect.stream()
                 .map(PostCollectDTO::convertToPostCollectDTO)
                 .toList();
 
     }
+
+    public boolean isPostCollected(Integer memberId, Integer postId) {
+     Member member = memRepository.findById(memberId).orElse(null);
+     ForumPost forumPost = forumPostRepository.findById(postId).orElse(null);
+     if (member == null || forumPost == null) {
+         return false;
+     }
+     Optional<PostCollect> collect = postCollectRepository.findByPostNoAndMemNo(forumPost, member);
+     return collect.isPresent() && collect.get().getPostCollectStatus() == PostCollectStatus.COLLECT;
+ }
 }
 

@@ -1,5 +1,6 @@
 package com.pixeltribe.forumsys.postlike.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pixeltribe.forumsys.shared.LikeStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.EnumType;
@@ -14,6 +15,7 @@ public class PostLikeUpdateDTO {
     private Integer memberId;
 
     @Schema(description = "喜愛狀態")
+    @JsonProperty("pLikeStatus")
     @Enumerated(EnumType.STRING)
     private LikeStatus pLikeStatus;
 

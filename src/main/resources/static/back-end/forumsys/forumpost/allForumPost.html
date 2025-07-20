@@ -5,102 +5,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章管理後台</title>
     <style>
+        /* --- 核心修改：樣式與 allForum.html 及主模板同步 --- */
         /* 從 allForum.html 複製並調整，確保風格一致 */
         :root {
             /* 假設您有定義這些變數，確保它們在實際環境中存在 */
-            --border-color: #e0e0e0;
-            --text-color: #333;
-            --light-text-color: #666; /* 新增用於提示文字 */
+            --primary-bg: #f0f2f5;
             --component-bg: #ffffff;
-            --primary-bg: #f5f5f5;
-            --brand-green: #28a745;
-            --brand-green-light: #e6f5ea;
-            --brand-green-hover: #218838;
-            --box-shadow-light: rgba(0, 0, 0, 0.08) 0px 4px 12px; /* 柔和陰影 */
-            --box-shadow-hover: rgba(0, 0, 0, 0.12) 0px 6px 16px; /* 懸停陰影 */
-            --dark-gray: #495057; /* 篩選標籤顏色 */
+            --border-color: #e0e0e0;
+            --text-color: #5d5d66;
+            --text-muted: #6c757d;
+            --brand-green: #08beab;
+            --brand-green-hover: #07a897;
+            --brand-green-light: rgba(8, 190, 171, 0.1);
+            --dark-gray: #495057;
         }
 
         body {
-            font-family: 'Segoe UI', 'Microsoft JhengHei', 'PingFang SC', sans-serif; /* 優先中文字體 */
-            background-color: var(--primary-bg);
+            font-family: 'Karla', '微軟正黑體', Arial, sans-serif;
+            /* 這些樣式通常由主模板或共同的 layout CSS 定義，這裡移除以避免衝突 */
+            /* background-color: var(--primary-bg); */
             color: var(--text-color);
             line-height: 1.6;
             margin: 0;
-            padding: 30px 20px; /* 增加整體邊距，讓內容有更多呼吸空間 */
+            /* padding: 30px 20px; */
         }
 
         .forumpost-management-container {
             width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 25px; /* 增加容器內邊距 */
+            max-width: 1400px; /* 與 allForum.html 的 .forum-management-container 相同 */
+            margin: 0 auto; /* 與 allForum.html 的 .forum-management-container 相同 */
+            padding: 25px; /* 添加整體內邊距，這樣內部組件就不需要獨立的左右 margin */
             box-sizing: border-box;
-            background-color: var(--component-bg); /* 將背景色應用到容器，形成一個卡片 */
+            background-color: var(--component-bg);
             border-radius: 12px;
-            box-shadow: var(--box-shadow-light); /* 為整個容器添加陰影 */
+            box-shadow: none; /* 與 allForum.html 的 .table-container 或 .forum-management-container 相同，無陰影 */
+            border: 1px solid var(--border-color);
         }
 
         .page-title-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px; /* 增加標題下方間距 */
-            padding-bottom: 20px; /* 增加標題下邊線的間距 */
+            margin-bottom: 25px; /* 與 allForum.html 相同 */
+            padding-bottom: 15px; /* 與 allForum.html 相同 */
+            /* 移除原有的左右 padding，因為已由父容器 .forumpost-management-container 提供 */
             border-bottom: 1px solid var(--border-color);
         }
 
         .page-title-header h2 {
-            font-family: 'Karla', sans-serif; /* 標題字體不變 */
-            font-size: 28px;
-            color: var(--dark-gray); /* 標題顏色可以更深一點 */
+            font-family: 'Karla', sans-serif;
+            font-size: 24px; /* 與 allForum.html 的 h2 保持一致 */
+            color: var(--text-color);
             font-weight: 700;
             margin: 0;
             display: flex;
             align-items: center;
         }
 
-        .page-title-header h2 .item-icon { /* 假設 bi bi-file-text-fill 是圖標 */
+        .page-title-header h2 .item-icon {
             margin-right: 10px;
             color: var(--brand-green);
         }
 
-
         .control-bar {
-            background: var(--component-bg); /* 保持背景色，但去掉原本的邊框和陰影 */
-            padding: 20px 25px; /* 增加內邊距 */
+            background: var(--component-bg);
+            padding: 15px 20px; /* 與 allForum.html 相同 */
             border-radius: 10px;
-            margin-bottom: 25px; /* 增加下方間距 */
-            /* border: 1px solid var(--border-color); */ /* 移除邊框 */
+            margin-bottom: 20px; /* 與 allForum.html 相同 */
+            /* 移除原有的左右 margin，讓父容器 .forumpost-management-container 提供整體邊距 */
+            margin-left: 0;
+            margin-right: 0;
+            border: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 20px; /* 增加間距 */
+            gap: 15px;
         }
 
         .filter-group {
             display: flex;
             align-items: center;
             flex-wrap: wrap;
-            gap: 25px; /* 增加篩選器之間間距 */
+            gap: 20px;
         }
 
         .filter-group label {
-            color: var(--dark-gray); /* 篩選標籤顏色 */
+            color: var(--text-color);
             font-weight: 500;
         }
 
         .filter-select {
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 9px 15px; /* 稍微增加 padding */
-            background: var(--component-bg); /* 背景色改為白色 */
+            padding: 8px 12px;
+            background: var(--component-bg);
             color: var(--text-color);
-            transition: border-color 0.2s, box-shadow 0.2s; /* 增加陰影過渡 */
-            min-width: 140px; /* 稍微增加最小寬度 */
-            appearance: none; /* 移除默認箭頭 */
-            background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23333%22%3E%3Cpath%20d%3D%22M7%2C10L12%2C15L17%2C10H7Z%22%2F%3E%3C%2Fsvg%3E'); /* 自定義下拉箭頭 */
+            transition: border-color 0.2s, box-shadow 0.2s;
+            min-width: 140px;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%235d5d66%22%3E%3Cpath%20d%3D%22M7%2C10L12%2C15L17%2C10H7Z%22%2F%3E%3C%2Fsvg%3E');
             background-repeat: no-repeat;
             background-position: right 10px center;
             background-size: 18px;
@@ -108,8 +112,8 @@
 
         .filter-select:focus {
             border-color: var(--brand-green);
-            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25); /* Focus 時的柔和陰影 */
             outline: none;
+            box-shadow: none;
         }
 
         .table-container {
@@ -117,14 +121,17 @@
             border-radius: 12px;
             overflow-x: auto;
             border: 1px solid var(--border-color);
-            box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px; /* 表格容器的輕微陰影 */
+            box-shadow: none;
+            /* 移除原有的左右 margin，讓父容器 .forumpost-management-container 提供整體邊距 */
+            margin-left: 0;
+            margin-right: 0;
         }
 
         .table {
             width: 100%;
             border-collapse: collapse;
             margin: 0;
-            min-width: 1200px; /* 根據欄位數量和內容，調整為一個更合理的最小寬度 */
+            min-width: 1200px;
         }
 
         .table thead {
@@ -136,60 +143,60 @@
             font-weight: 700;
             text-align: center;
             vertical-align: middle;
-            padding: 18px 10px; /* 增加垂直 padding */
+            padding: 15px;
             border: none;
             position: sticky;
             top: 0;
             background: var(--brand-green-light);
             z-index: 10;
-            white-space: nowrap; /* 確保表頭文字不換行 */
+            white-space: nowrap;
         }
 
         .table td {
             text-align: center;
             vertical-align: middle;
-            padding: 15px 10px; /* 增加垂直 padding */
+            padding: 12px;
             border-top: 1px solid var(--border-color);
             color: var(--text-color);
         }
 
-        .table tbody tr:hover { /* 新增表格行懸停效果 */
+        .table tbody tr:hover {
             background-color: var(--brand-green-light);
             transition: background-color 0.15s ease-in-out;
         }
 
-        /* 圖片欄位 */
+        /* 圖片欄位 (保留 allForumPost.html 的特定尺寸) */
         .table th:nth-child(1), .table td:nth-child(1) {
-            width: 100px; /* 稍微縮小圖片欄位寬度 */
+            width: 100px;
             min-width: 100px;
             max-width: 100px;
         }
 
-        /* ID 欄位 */
+        /* ID 欄位 (保留 allForumPost.html 的特定尺寸) */
         .table th:nth-child(2), .table td:nth-child(2) {
-            width: 60px; /* 固定 ID 欄位寬度 */
+            width: 60px;
             min-width: 60px;
             max-width: 60px;
         }
 
-        /* 標題欄位 */
+        /* 標題欄位 (保留 allForumPost.html 的特定樣式) */
         .table th:nth-child(3), .table td:nth-child(3) {
-            max-width: 250px; /* 允許標題更寬一點 */
+            max-width: 250px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            text-align: left; /* 標題左對齊 */
-            padding-left: 20px; /* 增加左側 padding */
+            text-align: left;
+            padding-left: 20px;
         }
 
-        /* 討論區欄位 */
+        /* 討論區欄位 (保留 allForumPost.html 的特定尺寸) */
         .table th:nth-child(4), .table td:nth-child(4) {
             width: 100px;
             min-width: 100px;
             max-width: 100px;
         }
 
-        /* 作者欄位 */
+        /* 作者欄位 (保留 allForumPost.html 的特定尺寸) */
         .table th:nth-child(5), .table td:nth-child(5) {
             width: 100px;
             min-width: 100px;
@@ -200,57 +207,55 @@
         }
 
 
-        /* 內容摘要欄位 */
+        /* 內容摘要欄位 (保留 allForumPost.html 的特定樣式) */
         .table th:nth-child(6), .table td:nth-child(6) {
-            max-width: 300px; /* 允許內容摘要更寬一點 */
+            max-width: 300px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            text-align: left; /* 內容摘要左對齊 */
+            text-align: left;
             padding-left: 20px;
         }
 
-        /* 創建時間與更新時間 */
+        /* 創建時間與更新時間 (保留 allForumPost.html 的特定尺寸) */
         .table th:nth-child(7), .table td:nth-child(7),
         .table th:nth-child(8), .table td:nth-child(8) {
             white-space: nowrap;
-            width: 160px; /* 稍微增加固定寬度 */
+            width: 160px;
             min-width: 160px;
             max-width: 160px;
         }
 
-        /* 留言數、按讚數 */
+        /* 留言數、按讚數 (保留 allForumPost.html 的特定尺寸) */
         .table th:nth-child(9), .table td:nth-child(9),
         .table th:nth-child(10), .table td:nth-child(10) {
-            width: 70px; /* 固定寬度 */
+            width: 70px;
             min-width: 70px;
             max-width: 70px;
         }
 
-        /* 狀態與置頂 */
+        /* 狀態與置頂 (保留 allForumPost.html 的特定尺寸) */
         .table th:nth-child(11), .table td:nth-child(11),
         .table th:nth-child(12), .table td:nth-child(12) {
-            width: 80px; /* 固定寬度 */
+            width: 80px;
             min-width: 80px;
             max-width: 80px;
         }
 
-        /* 操作 */
+        /* 操作 (保留 allForumPost.html 的特定尺寸) */
         .table th:nth-child(13), .table td:nth-child(13) {
-            width: 100px; /* 操作按鈕固定寬度 */
+            width: 100px;
             min-width: 100px;
             max-width: 100px;
         }
 
-
         .status-badge {
-            padding: 6px 14px; /* 稍微增大 padding */
-            border-radius: 20px; /* 讓圓角更圓滑 */
+            padding: 5px 12px;
+            border-radius: 15px;
             font-size: 13px;
-            font-weight: 600; /* 加粗字體 */
+            font-weight: 500;
             display: inline-block;
             white-space: nowrap;
-            min-width: 60px; /* 確保 badge 有最小寬度 */
             text-align: center;
         }
 
@@ -263,7 +268,7 @@
             background-color: #f8d7da;
             color: #721c24;
         }
-
+        /* allForumPost.html 獨有，保留 */
         .status-pinned {
             background-color: #ffeeb2;
             color: #b38b00;
@@ -273,15 +278,15 @@
         .action-btn {
             display: inline-block;
             text-decoration: none;
-            background: var(--component-bg); /* 背景色為白色 */
+            background: none;
             border: 1px solid var(--border-color);
             color: var(--text-color);
-            padding: 9px 18px; /* 增加 padding */
-            border-radius: 8px; /* 稍微增大圓角 */
+            padding: 8px 15px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s ease;
             white-space: nowrap;
-            font-size: 15px; /* 稍微增大字體 */
+            font-size: 15px;
             font-weight: 500;
         }
 
@@ -289,7 +294,6 @@
             background: var(--brand-green-light);
             color: var(--brand-green);
             border-color: var(--brand-green);
-            box-shadow: rgba(40, 167, 69, 0.1) 0px 2px 8px; /* 懸停陰影 */
         }
 
         .action-btn.btn-add {
@@ -297,22 +301,21 @@
             border-color: var(--brand-green);
             color: white;
             font-weight: bold;
-            padding: 10px 20px; /* 增加新增按鈕的 padding */
-            font-size: 16px; /* 增大新增按鈕字體 */
-            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 6px;
         }
 
         .action-btn.btn-add:hover {
             background-color: var(--brand-green-hover);
             border-color: var(--brand-green-hover);
-            box-shadow: rgba(40, 167, 69, 0.2) 0px 4px 12px; /* 新增按鈕懸停陰影 */
         }
 
         .pagination-controls {
             display: flex;
             justify-content: flex-end;
             align-items: center;
-            padding: 25px 0; /* 增加分頁上下間距 */
+            padding: 20px 0; /* 移除左右 padding，讓父容器提供 */
         }
 
         .pagination {
@@ -320,32 +323,29 @@
             padding-left: 0;
             list-style: none;
             margin: 0;
-            box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px; /* 分頁條輕微陰影 */
-            border-radius: 8px; /* 圓角 */
-            overflow: hidden; /* 確保陰影和圓角正確顯示 */
         }
 
         .pagination-controls .page-item .page-link {
             color: var(--brand-green);
             background-color: var(--component-bg);
-            border: none; /* 移除單個按鈕邊框 */
-            border-right: 1px solid var(--border-color); /* 只保留右邊框 */
-            margin: 0; /* 移除間距 */
-            padding: 10px 16px; /* 增加 padding */
+            border: 1px solid var(--border-color);
+            margin: 0 3px;
+            padding: 8px 14px;
+            border-radius: 6px;
             transition: all 0.2s;
             text-decoration: none;
             display: block;
         }
 
         .pagination-controls .page-item:first-child .page-link {
-            border-top-left-radius: 8px;
-            border-bottom-left-radius: 8px;
+            border-top-left-radius: 6px;
+            border-bottom-left-radius: 6px;
         }
 
         .pagination-controls .page-item:last-child .page-link {
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
-            border-right: none; /* 最後一個按鈕無右邊框 */
+            border-top-right-radius: 6px;
+            border-bottom-right-radius: 6px;
+            border-right: 1px solid var(--border-color);
         }
 
         .pagination-controls .page-item.active .page-link {
@@ -356,45 +356,47 @@
         }
 
         .pagination-controls .page-item.disabled .page-link {
-            color: #b0b0b0; /* 禁用狀態顏色 */
+            color: var(--text-muted);
             pointer-events: none;
-            background-color: #f8f8f8; /* 禁用狀態背景色 */
+            background-color: #e9ecef;
             border-color: var(--border-color);
         }
 
         .pagination-controls .page-item .page-link:hover:not(.active) {
             background-color: var(--brand-green-light);
-            color: var(--brand-green);
+            border-color: var(--brand-green);
         }
 
-        /* 提示文字 */
         .text-muted {
-            color: var(--light-text-color);
-            font-style: italic; /* 讓提示文字帶有斜體 */
+            color: var(--text-muted);
+            font-style: italic;
         }
 
         #error-message {
-            color: #d8000c; /* 更明顯的錯誤顏色 */
-            background-color: #ffbaba; /* 更明顯的錯誤背景 */
-            border: 1px solid #d8000c;
+            color: #e74c3c;
+            background-color: #fbecec;
+            border: 1px solid #e74c3c;
             padding: 15px;
             margin-top: 20px;
-            margin-bottom: 20px; /* 增加下方間距 */
-            border-radius: 8px; /* 稍微增大圓角 */
+            margin-bottom: 20px;
+            /* 移除原有的左右 margin，讓父容器 .forumpost-management-container 提供整體邊距 */
+            margin-left: 0;
+            margin-right: 0;
+            border-radius: 5px;
             display: none;
             font-weight: 500;
         }
 
-        /* 圖片與燈箱 (從 allForum.html 複製) */
+        /* 圖片縮圖樣式與 allForum.html 的 .forum-thumbnail 保持一致 (無陰影) */
         .post-thumbnail {
-            width: 80px; /* 稍微縮小縮圖尺寸 */
+            width: 80px;
             height: 60px;
             object-fit: cover;
-            border-radius: 6px; /* 圓角更柔和 */
+            border-radius: 4px;
             vertical-align: middle;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s; /* 增加陰影過渡 */
+            transition: transform 0.2s ease-in-out;
             cursor: pointer;
-            box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px; /* 縮圖輕微陰影 */
+            box-shadow: none;
         }
 
         td a:has(.post-thumbnail) {
@@ -404,9 +406,10 @@
 
         td a:has(.post-thumbnail):hover .post-thumbnail {
             transform: scale(1.1);
-            box-shadow: rgba(0, 0, 0, 0.15) 0px 4px 12px; /* 懸停時明顯陰影 */
+            box-shadow: none;
         }
 
+        /* 燈箱樣式與 allForum.html 保持一致 */
         .lightbox {
             display: none;
             position: fixed;
@@ -415,32 +418,30 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.88); /* 燈箱背景更深 */
+            background-color: rgba(0, 0, 0, 0.85);
             justify-content: center;
             align-items: center;
         }
 
         .lightbox-content {
-            max-width: 90%; /* 燈箱圖片更大 */
-            max-height: 90%;
-            border-radius: 8px;
-            box-shadow: rgba(0, 0, 0, 0.5) 0px 8px 24px; /* 燈箱圖片陰影 */
+            max-width: 85%;
+            max-height: 85%;
+            border-radius: 5px;
         }
 
         .lightbox-close {
             position: absolute;
-            top: 25px; /* 調整關閉按鈕位置 */
-            right: 40px;
+            top: 20px;
+            right: 35px;
             color: #fff;
-            font-size: 45px; /* 稍微增大關閉按鈕尺寸 */
+            font-size: 40px;
             font-weight: bold;
             cursor: pointer;
             transition: color 0.3s;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* 增加文字陰影 */
         }
 
         .lightbox-close:hover {
-            color: #ddd; /* 懸停顏色更亮 */
+            color: #bbb;
         }
     </style>
 </head>
@@ -467,10 +468,9 @@
                 </select>
             </div>
             <div>
-                <label for="forumFilter">篩選討論區：</label> <!-- 新增討論區篩選下拉選單 -->
+                <label for="forumFilter">篩選討論區：</label>
                 <select id="forumFilter" class="filter-select" onchange="filterByForum()">
                     <option value="">全部討論區</option>
-                    <!-- 討論區選項將由 JS 動態載入 -->
                 </select>
             </div>
             <div>
@@ -535,20 +535,20 @@
 
         // --- 變數定義區 ---
         // 【不可變】API 路徑，與 ForumPostController.java 對應
-        const allPostsApiUrl = 'http://localhost:8080/api/forumposts/all'; // 獲取所有文章
-        const allForumsApiUrl = 'http://localhost:8080/api/forums/all'; // 【新增】獲取所有討論區
+        const allPostsApiUrl = '/api/forumposts/all';
+        const allForumsApiUrl = '/api/forums/all';
 
         // 【可變】這些是 DOM 元素的引用，名稱可依個人習慣修改，但要與 HTML 的 id 對應
         const tableBody = document.getElementById('forumPostTableBody');
         const errorMessageDiv = document.getElementById('error-message');
         const paginationContainer = document.getElementById('paginationContainer');
         const itemsPerPageFilter = document.getElementById('itemsPerPageFilter');
-        const forumFilter = document.getElementById('forumFilter'); // 【新增】討論區篩選
+        const forumFilter = document.getElementById('forumFilter');
         const statusFilter = document.getElementById('statusFilter');
         const pinFilter = document.getElementById('pinFilter');
 
         // 【可變】應用程式狀態變數
-        let allForumPostsData = []; // 存放從 API 獲取的原始文章資料
+        let allForumPostsData = [];
         let currentPage = 1;
         let itemsPerPage = 10;
 
@@ -562,7 +562,7 @@
                 // 同時載入文章資料和討論區資料
                 const [postsResponse, forumsResponse] = await Promise.all([
                     fetch(allPostsApiUrl),
-                    fetch(allForumsApiUrl) // 【新增】載入所有討論區
+                    fetch(allForumsApiUrl)
                 ]);
 
                 if (!postsResponse.ok) {
@@ -573,10 +573,10 @@
                 }
 
                 allForumPostsData = await postsResponse.json();
-                const forumsData = await forumsResponse.json(); // 獲取討論區資料
+                const forumsData = await forumsResponse.json();
 
                 // 填充討論區篩選下拉選單
-                populateForumFilter(forumsData); // 【新增】填充討論區篩選
+                populateForumFilter(forumsData);
 
                 itemsPerPage = parseInt(itemsPerPageFilter.value) || 10;
                 currentPage = 1;
@@ -590,8 +590,8 @@
          * @description 填充討論區篩選下拉選單
          * @param {Array} forums - 討論區資料列表 (包含 id 和 name)
          */
-        function populateForumFilter(forums) { // 【新增】
-            forumFilter.innerHTML = '<option value="">全部討論區</option>'; // 預設選項
+        function populateForumFilter(forums) {
+            forumFilter.innerHTML = '<option value="">全部討論區</option>';
             forums.forEach(forum => {
                 const option = document.createElement('option');
                 option.value = forum.id;
@@ -605,16 +605,16 @@
          * @description 更新頁面顯示，包含表格和分頁
          */
         function updateDisplay() {
-            const currentForumFilter = forumFilter.value; // 【新增】獲取討論區篩選值
+            const currentForumFilter = forumFilter.value;
             const currentStatusFilter = statusFilter.value;
             const currentPinFilter = pinFilter.value;
 
             // 根據討論區、狀態和置頂篩選資料
             let filteredData = allForumPostsData.filter(post => {
-                const forumMatch = currentForumFilter ? post.forumId === parseInt(currentForumFilter) : true; // 【新增】討論區篩選邏輯
+                const forumMatch = currentForumFilter ? post.forumId === parseInt(currentForumFilter) : true;
                 const statusMatch = currentStatusFilter ? post.postStatus === currentStatusFilter : true;
                 const pinMatch = currentPinFilter ? post.postPin === currentPinFilter : true;
-                return forumMatch && statusMatch && pinMatch; // 【修改】組合所有篩選條件
+                return forumMatch && statusMatch && pinMatch;
             });
 
             const startIndex = (currentPage - 1) * itemsPerPage;
@@ -630,7 +630,7 @@
          * @param {Array} posts - 要顯示在當前頁面的文章資料
          */
         function renderTableBody(posts) {
-            tableBody.innerHTML = ''; // 清空表格
+            tableBody.innerHTML = '';
 
             if (!posts || posts.length === 0) {
                 tableBody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding: 40px;"><span class="text-muted">找不到符合條件的文章</span></td></tr>`;
@@ -732,7 +732,6 @@
         }
 
         // --- 事件處理函式 ---
-        // 【不可變】以下函式名稱需與 HTML 中的 onchange, onclick 對應，所以名稱是固定的
         window.filterByStatus = function () {
             currentPage = 1;
             updateDisplay();
@@ -743,7 +742,7 @@
             updateDisplay();
         }
 
-        window.filterByForum = function () { // 【新增】討論區篩選事件處理
+        window.filterByForum = function () {
             currentPage = 1;
             updateDisplay();
         }
@@ -755,15 +754,15 @@
         }
 
         window.changePage = function (page) {
-            const currentForumFilter = forumFilter.value; // 【新增】
+            const currentForumFilter = forumFilter.value;
             const currentStatusFilter = statusFilter.value;
             const currentPinFilter = pinFilter.value;
 
             const filteredData = allForumPostsData.filter(post => {
-                const forumMatch = currentForumFilter ? post.forumId === parseInt(currentForumFilter) : true; // 【新增】
+                const forumMatch = currentForumFilter ? post.forumId === parseInt(currentForumFilter) : true;
                 const statusMatch = currentStatusFilter ? post.postStatus === currentStatusFilter : true;
                 const pinMatch = currentPinFilter ? post.postPin === currentPinFilter : true;
-                return forumMatch && statusMatch && pinMatch; // 【修改】
+                return forumMatch && statusMatch && pinMatch;
             });
             const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 

@@ -103,6 +103,8 @@ class SecurityConfig {
                                         "/api/category/**",// 查單一討論區類別
                                         "/api/categorys", // 查全部討論區類別
                                         "/api/forumtag", // 查全部文章類別
+                                        "/api/posts/{postId}/collect/status",
+                                        "/api/posts/{postId}/like/status",
                                         //===========================================
                                         //========新聞========
                                         "/api/News/admin/redis/create",

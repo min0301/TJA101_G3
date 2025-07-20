@@ -4,12 +4,15 @@ import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
 import com.pixeltribe.forumsys.forumpost.model.ForumPostDTO;
 import com.pixeltribe.forumsys.forumpost.model.ForumPostService;
 import com.pixeltribe.forumsys.forumpost.model.ForumPostUpdateDTO;
+import com.pixeltribe.forumsys.postcollect.model.PostCollectService;
+import com.pixeltribe.membersys.security.MemberDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,14 +24,31 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:8080"}, allowedHeaders = "*")
 public class ForumPostController {
 
     private final ForumPostService forumPostSvc;
+    private final PostCollectService postCollectService;
 
     @Autowired
-    public ForumPostController(ForumPostService forumPostSvc) {
+    public ForumPostController(ForumPostService forumPostSvc, PostCollectService postCollectService) { // 3. 透過建構子注入
         this.forumPostSvc = forumPostSvc;
+        this.postCollectService = postCollectService; // 4. 初始化
+    }
+
+    @GetMapping("/forum/{forumId}/posts/sorted")
+    @Operation(summary = "查特定討論區文章並按更新時間倒序", description = "根據討論區ID查詢該討論區下的所有文章，並依更新時間倒序排列")
+    public ResponseEntity<List<ForumPostDTO>> findPostsByForumSortedByUpdateDesc(
+            @Parameter(description = "討論區編號", example = "1")
+            @PathVariable("forumId") Integer forumId,
+            @AuthenticationPrincipal MemberDetails currentUser) { // 新增 currentUser 參數
+
+        Integer memberId = (currentUser != null) ? currentUser.getMemberId() : null; // 獲取會員ID，未登入則為 null
+        List<ForumPostDTO> posts = forumPostSvc.findAllByOrderByPostUpdateDesc(forumId, memberId); // 調用服務層的方法，傳入 memberId
+
+        if (posts.isEmpty()) {
+            return ResponseEntity.ok(posts);
+        }
+        return ResponseEntity.ok(posts);
     }
 
     /**
@@ -41,8 +61,10 @@ public class ForumPostController {
     @Operation(summary = "查單一文章", description = "根據文章ID查詢單篇文章詳細資訊")
     public ResponseEntity<ForumPostDTO> getForumPostById(
             @Parameter(description = "文章編號", example = "1")
-            @PathVariable("id") Integer id) {
-        return forumPostSvc.getForumPostDTOById(id)
+            @PathVariable("id") Integer id,
+            @AuthenticationPrincipal MemberDetails currentUser) { // 新增 currentUser 參數
+        Integer memberId = (currentUser != null) ? currentUser.getMemberId() : null; // 獲取會員ID，未登入則為 null
+        return forumPostSvc.getForumPostDTOById(id, memberId) // 傳入 memberId
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -54,8 +76,10 @@ public class ForumPostController {
      */
     @GetMapping("/forumposts/all")
     @Operation(summary = "查所有文章 (含討論區與會員資訊)", description = "獲取所有文章的列表，包含其所屬討論區和發文會員資訊")
-    public ResponseEntity<List<ForumPostDTO>> listAllForumPosts() {
-        List<ForumPostDTO> forumPosts = forumPostSvc.getAllForumPost();
+    public ResponseEntity<List<ForumPostDTO>> listAllForumPosts(
+            @AuthenticationPrincipal MemberDetails currentUser) { // 新增 currentUser 參數
+        Integer memberId = (currentUser != null) ? currentUser.getMemberId() : null; // 獲取會員ID，未登入則為 null
+        List<ForumPostDTO> forumPosts = forumPostSvc.getAllForumPost(memberId); // 傳入 memberId
         return ResponseEntity.ok(forumPosts);
     }
 
@@ -69,8 +93,10 @@ public class ForumPostController {
     @Operation(summary = "查討論區下的文章", description = "根據討論區ID查詢該討論區下的所有文章列表")
     public ResponseEntity<List<ForumPostDTO>> findPostsByForum(
             @Parameter(description = "討論區編號", example = "1")
-            @PathVariable("forNo") Integer forNo) {
-        List<ForumPostDTO> posts = forumPostSvc.getPostsByForumId(forNo);
+            @PathVariable("forNo") Integer forNo,
+            @AuthenticationPrincipal MemberDetails currentUser) { // 新增 currentUser 參數
+        Integer memberId = (currentUser != null) ? currentUser.getMemberId() : null; // 獲取會員ID，未登入則為 null
+        List<ForumPostDTO> posts = forumPostSvc.getPostsByForumId(forNo, memberId); // 傳入 memberId
         if (posts.isEmpty()) {
             return ResponseEntity.ok(posts);
         }
@@ -157,6 +183,16 @@ public class ForumPostController {
         }
     }
 
+    @GetMapping("/api/posts/{postId}/collect/status")
+    @Operation(summary = "檢查文章是否已被當前會員收藏")
+    public ResponseEntity<?> checkPostCollectStatus(@PathVariable Integer postId, @AuthenticationPrincipal MemberDetails currentUser) {
+        if (currentUser == null) {
+            return ResponseEntity.ok(Map.of("isCollected", false)); // 未登入則視為未收藏
+        }
+        boolean isCollected = postCollectService.isPostCollected(currentUser.getMemberId(), postId);
+        return ResponseEntity.ok(Map.of("isCollected", isCollected));
+    }
+
     /**
      * 更新文章
      *
@@ -211,8 +247,7 @@ public class ForumPostController {
 
     /**
      * 刪除文章
-     *
-     * @param forNo  討論區編號
+     * @param forNo 討論區編號
      * @param postId 文章編號
      * @return 成功訊息
      */
@@ -240,9 +275,4 @@ public class ForumPostController {
 //            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-    @GetMapping("admin/forumpost/count")
-    @Operation(summary = "取得討論區文章數量")
-    public Long getPostCount() {
-        return forumPostSvc.getPostCount();
-    }
 }
