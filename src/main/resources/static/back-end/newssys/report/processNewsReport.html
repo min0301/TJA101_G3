@@ -10,37 +10,113 @@
 
     <!-- ====== 共用樣式 ====== -->
     <style>
-        body { padding: 20px; font-family: "Segoe UI", Roboto, "Noto Sans TC", sans-serif; }
+        body {
+            padding: 20px;
+            font-family: "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+        }
 
-        .page-title-header  { margin-bottom: 16px; }
-        .page-title-header h2 { font-size: 1.8rem; font-weight: 700; }
+        .page-title-header {
+            margin-bottom: 16px;
+        }
 
-        .main-layout        { display: flex; gap: 24px; flex-wrap: wrap; }
-        .panel              { flex: 1 1 320px; border: 1px solid #dee2e6; border-radius: 8px;
-            padding: 20px; background: #f8f9fa; }
-        .panel-title        { font-size: 1.25rem; font-weight: 600; margin-bottom: 12px; }
+        .page-title-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
 
-        .info-group         { margin-bottom: 10px; }
-        .info-group label   { font-weight: 600; min-width: 92px; display: inline-block; }
-        .info-group .content{ display: inline-block; }
+        .main-layout {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .panel {
+            flex: 1 1 320px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .info-group {
+            margin-bottom: 10px;
+        }
+
+        .info-group label {
+            font-weight: 600;
+            min-width: 92px;
+            display: inline-block;
+        }
+
+        .info-group .content {
+            display: inline-block;
+        }
 
         /* 狀態 Badge */
-        .status-badge       { padding: 2px 12px; border-radius: 999px; font-weight: 600; font-size: .875rem; }
-        .status-normal      { background:#0d6efd; color:#fff; }
-        .status-hidden      { background:#6c757d; color:#fff; }
+        .status-badge {
+            padding: 2px 12px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: .875rem;
+        }
+
+        .status-normal {
+            background: #0d6efd;
+            color: #fff;
+        }
+
+        .status-hidden {
+            background: #6c757d;
+            color: #fff;
+        }
 
         /* 表單 */
-        #handleForm .form-group   { margin-bottom: 12px; }
-        #handleForm select        { max-width: 160px; }
-        #handleForm .form-actions { display: flex; gap: 10px; }
+        #handleForm .form-group {
+            margin-bottom: 12px;
+        }
 
-        .btn-submit   { background:#198754; color:#fff; border:none; min-width:120px; }
-        .btn-submit:disabled{ background:#adb5bd; }
-        .btn-cancel   { background:#fff; border:1px solid #343a40; color:#343a40; }
+        #handleForm select {
+            max-width: 160px;
+        }
+
+        #handleForm .form-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-submit {
+            background: #198754;
+            color: #fff;
+            border: none;
+            min-width: 120px;
+        }
+
+        .btn-submit:disabled {
+            background: #adb5bd;
+        }
+
+        .btn-cancel {
+            background: #fff;
+            border: 1px solid #343a40;
+            color: #343a40;
+        }
 
         /* 成功 & 錯誤訊息 */
-        #message-area .success { color: #198754; font-weight: 600; }
-        #message-area .error   { color: #dc3545; font-weight: 600; }
+        #message-area .success {
+            color: #198754;
+            font-weight: 600;
+        }
+
+        #message-area .error {
+            color: #dc3545;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -62,21 +138,23 @@
 <script>
     (function () {
         /* ---- 取得 ID 與 JWT ---- */
-        const params   = new URLSearchParams(
+        const params = new URLSearchParams(
             document.getElementById("content-area")?.dataset.pageParams || location.search);
-        const id       = params.get('id');
+        const id = params.get('id');
+        const BASE = window.location.origin;
         const jwtToken = localStorage.getItem('jwt') || '';
 
         /* ---- DOM ---- */
         const commentPanel = document.getElementById("commentPanel");
-        const reportPanel  = document.getElementById("reportPanel");
-        const msgArea      = document.getElementById("message-area");
+        const reportPanel = document.getElementById("reportPanel");
+        const msgArea = document.getElementById("message-area");
 
         /* ---- 先載入檢舉資料 ---- */
         (async function loadData() {
             try {
-                const res  = await fetch(`/api/admin/NewsComReport/${id}`, {
-                    headers:{ 'Authorization':'Bearer '+ jwtToken }
+                // const res  = await fetch(`/api/admin/NewsComReport/${id}`, {
+                const res = await fetch(`${BASE}/api/admin/NewsComReport/${id}`, {
+                    headers: {'Authorization': 'Bearer ' + jwtToken}
                 });
                 if (!res.ok) throw new Error(`(${res.status}) 無法取得資料`);
 
@@ -98,9 +176,9 @@
         }
 
         function renderReport(data) {
-            const handled   = data.newsComReportStatus === '1';
-            const disabled  = handled ? 'disabled' : '';
-            const btnText   = handled ? '已處理' : '確認處理';
+            const handled = data.newsComReportStatus === '1';
+            const disabled = handled ? 'disabled' : '';
+            const btnText = handled ? '已處理' : '確認處理';
 
             reportPanel.innerHTML = `
       <h3 class="panel-title">檢舉資訊</h3>
@@ -134,15 +212,16 @@
             const hide = document.getElementById("hideOption").value === "true";
 
             try {
-                const resp = await fetch(`/api/admin/update/newscommentreport`, {
-                    method:'PATCH',
-                    headers:{
-                        'Content-Type':'application/json',
-                        'Authorization':'Bearer ' + jwtToken
+                // const resp = await fetch(`/api/admin/update/newscommentreport`, {
+                const resp = await fetch(`${BASE}/api/admin/update/newscommentreport`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + jwtToken
                     },
                     body: JSON.stringify({
                         id,
-                        newsComReportStatus:"1",
+                        newsComReportStatus: "1",
                         ncomNoNcomStatus: hide ? "1" : null
                     })
                 });
@@ -157,14 +236,15 @@
         /* ========= 工具 ========= */
         const fmtDate = s => s ? new Date(s).toLocaleString('zh-TW') : '尚未處理';
 
-        function commentStatus(code){
-            return code==='1'
+        function commentStatus(code) {
+            return code === '1'
                 ? '<span class="status-badge status-hidden">已隱藏</span>'
                 : '<span class="status-badge status-normal">正常</span>';
         }
-        function reportStatus(code){
-            if (code==='0') return '未處理';
-            if (code==='1') return '已處理';
+
+        function reportStatus(code) {
+            if (code === '0') return '未處理';
+            if (code === '1') return '已處理';
             return '未知';
         }
     })();   // IIFE end

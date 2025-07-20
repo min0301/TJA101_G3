@@ -183,8 +183,8 @@
     </div>
     <div class="control-bar">
         <div>
-<!--            <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/news/addNews.html')"-->
-<!--               class="action-btn btn-add"><i class="bi bi-plus-lg"></i> 新增新聞(廢棄)</a>-->
+            <!--            <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/news/addNews.html')"-->
+            <!--               class="action-btn btn-add"><i class="bi bi-plus-lg"></i> 新增新聞(廢棄)</a>-->
             <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/news/addNews2.html')"
                class="action-btn btn-add"><i class="bi bi-plus-lg"></i> 新增新聞</a>
             <!--            <a href="#" onclick="event.preventDefault(); loadExternalPage('../newssys/addNews2.html')"-->
@@ -208,7 +208,7 @@
                     <option value="false">隱藏</option>
                 </select>
             </div>
-\
+            \
             <div>
                 <label for="searchInput">搜尋：</label>
                 <input id="searchInput" type="text" class="form-control-sm" placeholder="標題關鍵字">
@@ -246,8 +246,12 @@
 
 <script>
     (function () {
-        const apiUrl = 'http://localhost:8080/api/News/admin/allNews';
-        const token = localStorage.getItem('jwt');
+        /* === 共用設定 === */
+        const base = window.location.origin;          // 動態取得當前網域
+        const token = localStorage.getItem('jwt');     // JWT
+        const headers = {'Authorization': `Bearer ${token}`};
+
+        /* === DOM === */
         const tableBody = document.getElementById('newsTableBody');
         const paginationContainer = document.getElementById('paginationNav');
         const pageSizeSelect = document.getElementById('pageSizeSelect');
@@ -255,191 +259,156 @@
         const errorAlert = document.getElementById('errorAlert');
 
         if (!pageSizeSelect || !tableBody || !paginationContainer) {
-            console.error('必要的 DOM 元素未正確初始化。請檢查 HTML 結構。');
+            console.error('必要的 DOM 元素未正確初始化，請檢查 HTML 結構。');
             return;
         }
 
+        /* === 狀態 === */
         let allNewsData = [];
         let currentPage = 1;
         let itemsPerPage = parseInt(pageSizeSelect.value) || 5;
         let currentKeyword = '';
 
+        /* === 讀取列表 === */
         async function loadNews() {
             try {
-                const url = `${apiUrl}?page=0&size=9999&sort=id,desc&keyword=${encodeURIComponent(currentKeyword)}`;
-                const response = await fetch(url, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`HTTP 錯誤：${response.status} - ${errorText}`);
-                }
+                const url =
+                    `${base}/api/News/admin/allNews` +
+                    `?page=0&size=9999&sort=id,desc&keyword=${encodeURIComponent(currentKeyword)}`;
 
-                const res = await response.json();
-                if (!res.content || !Array.isArray(res.content)) {
-                    throw new Error('API 返回的數據格式不正確');
-                }
+                const res = await fetch(url, {headers});
+                if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
 
-                allNewsData = res.content;
+                const json = await res.json();
+                if (!Array.isArray(json.content)) throw new Error('API 回傳格式不正確');
+
+                allNewsData = json.content;
                 updateDisplay();
             } catch (err) {
                 errorAlert.classList.remove('d-none');
                 errorAlert.textContent = `載入失敗：${err.message}`;
-                console.error('載入失敗', err);
+                console.error(err);
             }
         }
 
-        function updateDisplay() {
-            const selectedStatus = document.getElementById("statusFilter")?.value;
-
-            let filtered = [...allNewsData];
-
-            if (selectedStatus === "true") {
-                filtered = filtered.filter(n => n.isShowed === true);
-            } else if (selectedStatus === "false") {
-                filtered = filtered.filter(n => n.isShowed === false);
+        /* === 切換顯示 / 隱藏 === */
+        async function switchStatus(id, newStatus) {
+            try {
+                await fetch(
+                    `${base}/api/News/admin/updateShowStatus/${id}`,
+                    {
+                        method: 'PUT',
+                        headers: {...headers, 'Content-Type': 'application/json'},
+                        body: JSON.stringify({isShowed: newStatus})
+                    }
+                );
+                await loadNews(); // 重新整理
+            } catch (err) {
+                alert('切換狀態失敗！' + err);
             }
+        }
+
+        /* === 表格 + 分頁 === */
+        function updateDisplay() {
+            const status = document.getElementById('statusFilter')?.value;
+
+            let filtered = status === 'true' ? allNewsData.filter(n => n.isShowed)
+                : status === 'false' ? allNewsData.filter(n => !n.isShowed)
+                    : allNewsData;
 
             const start = (currentPage - 1) * itemsPerPage;
             const end = start + itemsPerPage;
-            const pageData = filtered.slice(start, end);
-            renderTable(pageData);
+            renderTable(filtered.slice(start, end));
             renderPagination(filtered.length);
         }
 
-        async function switchStatus(btn) {
-            const id         = btn.dataset.id;
-            const current    = btn.dataset.showed === "true";
-            const newStatus  = !current;
-
-            try {
-                await fetch(`http://localhost:8080/api/News/admin/updateShowStatus/${id}`, {
-                    method : "PUT",
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type" : "application/json"
-                    },
-                    body   : JSON.stringify({ isShowed: newStatus })
-                });
-                // 更新完成後重新載入資料
-                loadNews();
-            } catch (err) {
-                alert("切換狀態失敗！" + err);
-            }
-        }
-
-        /* ★ 用事件委派一次綁在 document 就好 */
-        document.addEventListener("click", e => {
-            const editBtn = e.target.closest(".edit-btn");
-            const toggle  = e.target.closest(".toggle-btn");
-            if (editBtn) {
-                const id = editBtn.dataset.id;
-                loadExternalPage(`../newssys/news/updateNews.html?newsId=${id}`);
-            } else if (toggle) {
-                switchStatus(toggle);      // 原本的切換顯示 / 隱藏函式
-            }
-        });
-
         function renderTable(newsList) {
-            tableBody.innerHTML = '';
+            tableBody.innerHTML = newsList.length
+                ? ''
+                : `<tr><td colspan="7" class="text-center">目前沒有任何新聞資料。</td></tr>`;
 
-            if (!newsList || newsList.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="text-center">目前沒有任何新聞資料。</td></tr>`;
-                return;
-            }
-
-            for (const news of newsList) {
-                const createTime = news.newsCrdate ? new Date(news.newsCrdate).toLocaleString() : '未提供';
-                const updateTime = news.newsUpdate ? new Date(news.newsUpdate).toLocaleString() : '未修改';
-
+            for (const n of newsList) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                <td>${news.id}</td>
-                <td>${news.newsTit}</td>
-                <td>${news.isShowed ? '顯示' : '隱藏'}</td>
-                <td>${createTime}</td>
-                <td>${updateTime}</td>
-                <td>${news.adminNoAdmName || '未指定'}</td>
+                <td>${n.id}</td>
+                <td>${n.newsTit}</td>
+                <td>${n.isShowed ? '顯示' : '隱藏'}</td>
+                <td>${n.newsCrdate ? new Date(n.newsCrdate).toLocaleString() : '未提供'}</td>
+                <td>${n.newsUpdate ? new Date(n.newsUpdate).toLocaleString() : '未修改'}</td>
+                <td>${n.adminNoAdmName || '未指定'}</td>
                 <td>
-                        <button class="btn btn-sm btn-outline-primary action-btn edit-btn"
-                                data-id="${news.id}"> 編輯
-                        </button>
-                        <button class="btn btn-sm btn-outline-warning action-btn toggle-btn"
-                                data-id="${news.id}" data-showed="${news.isShowed}">
-                            ${news.isShowed ? '隱藏' : '顯示'}
-                        </button>
-                </td>`;
-
+                    <button class="btn btn-sm btn-outline-primary edit-btn"
+                            data-id="${n.id}">編輯</button>
+                    <button class="btn btn-sm btn-outline-warning toggle-btn"
+                            data-id="${n.id}"
+                            data-showed="${n.isShowed}">
+                        ${n.isShowed ? '隱藏' : '顯示'}
+                    </button>
+                </td>
+            `;
                 tableBody.appendChild(row);
             }
-
-            document.querySelectorAll('.toggle-btn').forEach(btn => {
-                btn.addEventListener('click', async function () {
-                    const id = this.dataset.id;
-                    const currentStatus = this.dataset.showed === 'true';
-                    const newStatus = !currentStatus;
-
-                    try {
-                        await fetch(`http://localhost:8080/api/News/admin/updateShowStatus/${id}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({isShowed: newStatus})
-                        });
-                        loadNews();
-                    } catch (err) {
-                        alert('切換狀態失敗！');
-                    }
-                });
-            });
         }
 
-        function renderPagination(totalItems) {
-            const totalPages = Math.ceil(totalItems / itemsPerPage);
+        function renderPagination(total) {
+            const totalPages = Math.ceil(total / itemsPerPage);
             paginationContainer.innerHTML = '';
 
-            for (let i = 1; i <= totalPages; i++) {
+            for (let p = 1; p <= totalPages; p++) {
                 const li = document.createElement('li');
-                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                li.className = `page-item ${p === currentPage ? 'active' : ''}`;
 
                 const a = document.createElement('a');
                 a.className = 'page-link';
                 a.href = '#';
-                a.textContent = i;
-                a.addEventListener('click', function (e) {
+                a.textContent = p;
+                a.onclick = e => {
                     e.preventDefault();
-                    currentPage = i;
+                    currentPage = p;
                     updateDisplay();
-                });
+                };
 
                 li.appendChild(a);
                 paginationContainer.appendChild(li);
             }
         }
 
-        window.filterByStatus = function () {
-            currentPage = 1;
-            updateDisplay();
-        }
+        /* === 事件 === */
+        document.addEventListener('click', e => {
+            const edit = e.target.closest('.edit-btn');
+            const toggle = e.target.closest('.toggle-btn');
 
-        pageSizeSelect.addEventListener('change', function () {
-            itemsPerPage = parseInt(this.value);
-            currentPage = 1;
-            updateDisplay();
+            if (edit) {
+                const id = edit.dataset.id;
+                location.href = `../newssys/news/updateNews.html?newsId=${id}`;
+            } else if (toggle) {
+                const id = toggle.dataset.id;
+                const newStatus = !(toggle.dataset.showed === 'true');
+                switchStatus(id, newStatus);
+            }
         });
 
-        searchInput.addEventListener('input', function () {
-            currentKeyword = this.value;
+        pageSizeSelect.onchange = () => {
+            itemsPerPage = parseInt(pageSizeSelect.value);
+            currentPage = 1;
+            updateDisplay();
+        };
+
+        searchInput.oninput = () => {
+            currentKeyword = searchInput.value;
             currentPage = 1;
             loadNews();
-        });
+        };
 
+        window.filterByStatus = () => {
+            currentPage = 1;
+            updateDisplay();
+        };
+
+        /* === 初始化 === */
         loadNews();
     })();
 </script>
+
 </body>
 </html>

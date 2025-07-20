@@ -140,7 +140,9 @@
             </tr>
             </thead>
             <tbody id="commentTableBody">
-            <tr><td colspan="8" class="text-center text-muted">載入中…</td></tr>
+            <tr>
+                <td colspan="8" class="text-center text-muted">載入中…</td>
+            </tr>
             </tbody>
         </table>
     </div>
@@ -154,7 +156,9 @@
 
 <script>
     (function () {
-        const API_BASE = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : location.origin;
+        // const API_BASE = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : location.origin;
+        const BASE = window.location.origin;                 // 動態基底
+        const API_BASE = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : BASE;
         const COMMENT_API = '/api/admin/NewsComment';
         const COMMENT_HIDE_API = id => `/api/admin/NewsComment/${id}/hide`;
         const EDIT_PAGE = '../newssys/comments/editNewsComment.html';
@@ -187,7 +191,10 @@
             });
 
             try {
-                const res = await fetch(`${API_BASE}${COMMENT_API}?${params}`);
+                // const res = await fetch(`${API_BASE}${COMMENT_API}?${params}`);
+                const res = await fetch(`${API_BASE}${COMMENT_API}?${params}`, {
+                    headers: {'Authorization': 'Bearer ' + token}
+                });     // 如果後端有保護，順便加上
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
                 renderTable(data.content);
