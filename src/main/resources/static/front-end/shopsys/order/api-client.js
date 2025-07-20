@@ -147,8 +147,8 @@
 		    // 從商品明細中構建訂單基本資訊
 		    let orderInfo = {
 		    	orderNo: orderNo,
-		        orderStatus: '已完成', // 暫時固定為已完成以測試評價功能
-		        orderDatetime: '2025-07-11T11:45:00',
+		        orderStatus: 'COMPLETED', // 暫時固定為已完成以測試評價功能
+		        orderDatetime: new Date().toISOString(),
 		        orderTotal: 0,
 		        contactEmail: 'v4w5x6y@TJA101.com.tw',
 		        contactPhone: '未提供'
@@ -166,8 +166,10 @@
 		        if (firstItem.orderDate) {
 		        	orderInfo.orderDatetime = firstItem.orderDate;
 		        }
+				
+				
 		        if (firstItem.orderStatus) {
-		        	orderInfo.orderStatus = firstItem.orderStatus;
+		        	orderInfo.orderStatus = this.normalizeStatus(firstItem.orderStatus);
 		        }
 		        // 如果有其他訂單相關欄位，也可以在這裡取得
 		        if (firstItem.contactEmail) {
@@ -185,7 +187,45 @@
 		        orderItems
 		    };
 		},
-				
+			
+		
+		// *** 新增：在 api-client.js 中新增狀態標準化方法 *** //
+		normalizeStatus(status) {
+		    if (!status) return 'COMPLETED';
+		    
+		    // ✅ 中文狀態映射到英文大寫
+		    const statusMapping = {
+		        '等待付款': 'PENDING',
+		        '付款處理中': 'PAYING',
+		        '處理中': 'PROCESSING',
+		        '已發貨': 'SHIPPED',
+		        '已出貨': 'SHIPPED',
+		        '已完成': 'COMPLETED',
+		        '處理失敗': 'FAILED',
+		        '已取消': 'CANCELLED',
+		        
+		        // 英文狀態統一轉大寫
+		        'pending': 'PENDING',
+		        'paying': 'PAYING', 
+		        'processing': 'PROCESSING',
+		        'shipped': 'SHIPPED',
+		        'completed': 'COMPLETED',
+		        'failed': 'FAILED',
+		        'cancelled': 'CANCELLED'
+		    };
+		    
+		    // 如果有映射，使用映射值
+		    if (statusMapping[status]) {
+		        console.log('狀態標準化:', status, '->', statusMapping[status]);
+		        return statusMapping[status];
+		    }
+		    
+		    // 否則轉為大寫
+		    const normalized = status.toString().toUpperCase();
+		    console.log('狀態轉大寫:', status, '->', normalized);
+		    return normalized;
+		},
+			
 
 		
         // *** 取得訂單明細列表 (根據訂單編號) *** //
@@ -247,21 +287,48 @@
         // ========== 工具方法 ========== //
 
         // *** 格式化日期顯示 *** //
-        formatDate(dateString) {
-            if (!dateString) return '未知日期';
-            
-            try {
-                return new Date(dateString).toLocaleString('zh-TW', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-            } catch (error) {
-                return '日期格式錯誤';
-            }
-        },
+		formatDate(dateString) {
+		    if (!dateString) return '未知時間';
+		    
+		    try {
+		        let date;
+		        
+		        // ✅ 處理不同的日期格式
+		        if (typeof dateString === 'string') {
+		            // 處理可能的格式：'2025-07-21 11:45:00' 或 ISO 格式
+		            date = new Date(dateString);
+		        } else {
+		            date = new Date(dateString);
+		        }
+		        
+		        // ✅ 檢查日期是否有效
+		        if (isNaN(date.getTime())) {
+		            console.warn('無效的日期格式:', dateString);
+		            return '時間格式錯誤';
+		        }
+		        
+		        // ✅ 格式化為台灣時間顯示
+		        return date.toLocaleString('zh-TW', {
+		            year: 'numeric',
+		            month: '2-digit',
+		            day: '2-digit',
+		            hour: '2-digit',
+		            minute: '2-digit',
+		            second: '2-digit',
+		            timeZone: 'Asia/Taipei' // 明確指定台灣時區
+		        });
+		        
+		    } catch (error) {
+		        console.error('日期格式化錯誤:', error, '原始值:', dateString);
+		        return '日期格式錯誤';
+		    }
+		},
+		
+		
+		
+		
+		
+		
 		
 
         // *** 格式化金額顯示 *** //
@@ -356,7 +423,13 @@
 		        }
 		    }
 		    return starsHtml;
-		}
+		},
+		
+		
+	
+		
+		
+		
     };
 
 })();

@@ -116,8 +116,11 @@ public class OrderDTO {
 	
 	// ***** 檢查是否可以取消 (付款終究不能取消了! 只有等待付款時可以取消) ***** //
 	public boolean canBeCancelled() {
-		return "PENDING".equals(orderStatus);
-	}
+		return "PENDING".equals(orderStatus) || 
+		       "PAYING".equals(orderStatus) || 
+		       "PROCESSING".equals(orderStatus);
+		    // 注意：SHIPPED 和 COMPLETED 不能取消
+		}
 	
 	// ***** 檢查是否可以重新付款 (避免用戶有信用卡結帳問題、網路問題、操作問題等狀況發生)***** //
 	public boolean canRetryPayment() {

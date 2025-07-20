@@ -2,13 +2,20 @@ package com.pixeltribe.shopsys.order.controller;
 
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pixeltribe.shopsys.order.model.*;
 import com.pixeltribe.shopsys.orderItem.model.CreateOrderItemRequest;
+import com.pixeltribe.shopsys.orderItem.model.OrderItemDTO;
 import com.pixeltribe.util.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,6 +63,12 @@ public class OrderController {
     @Autowired
     private JwtUtil jwtUtil;  // 驗證用
     
+    @Autowired
+    private EmailService emailService;  // 驗證用
+    
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+    
     
     private static final String FIXED_ADMIN_ID = "ADMIN_USER";
     
@@ -70,10 +84,209 @@ public class OrderController {
         return ResponseEntity.ok("測試成功");
     }
     
+ // *** 測試郵件功能 (開發測試用) *** //
+    @GetMapping("/check-order-email/{orderNo}")
+    @ResponseBody
+    public ResponseEntity<String> checkOrderEmail(@PathVariable Integer orderNo) {
+        try {
+            log.info("🔍 檢查訂單信箱：orderNo={}", orderNo);
+            
+            // 1. 從訂單取得信箱
+            OrderDTO order = orderService.getOrderDetail(orderNo);
+            String orderEmail = order.getContactEmail();
+            
+            // 2. 從 Redis 取得客戶指定信箱
+            String redisKey = "order:contact:" + orderNo;
+            String redisEmail = (String) redisTemplate.opsForValue().get(redisKey);
+            
+            String response = String.format(
+                "📧 信箱來源檢查報告\n" +
+                "═══════════════════════\n" +
+                "📋 訂單編號：%d\n" +
+                "📊 訂單狀態：%s\n" +
+                "📧 目前使用信箱：%s\n" +
+                "💾 Redis儲存信箱：%s\n" +
+                "═══════════════════════\n" +
+                "🎯 結論：%s",
+                orderNo,
+                order.getOrderStatus(),
+                orderEmail,
+                redisEmail != null ? redisEmail : "無",
+                redisEmail != null && redisEmail.equals(orderEmail) ? 
+                    "✅ 正確使用客戶指定信箱" : "❌ 信箱來源有問題"
+            );
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("檢查訂單信箱失敗：orderNo={}", orderNo, e);
+            return ResponseEntity.ok("❌ 檢查失敗：" + e.getMessage());
+        }
+    }
+
+    // *** 測試付款回調功能 (開發測試用) *** //
+    @GetMapping("/test-payment-callback/{orderNo}")
+    @ResponseBody
+    public ResponseEntity<String> testPaymentCallback(@PathVariable Integer orderNo) {
+        try {
+            log.info("🧪 測試付款回調：orderNo={}", orderNo);
+            
+            // 1. 檢查訂單狀態
+            OrderDTO order = orderService.getOrderDetail(orderNo);
+            if (!"PENDING".equals(order.getOrderStatus())) {
+                return ResponseEntity.ok("❌ 訂單狀態不是 PENDING：" + order.getOrderStatus() + 
+                                       "\n如需重複測試，請先重置訂單狀態");
+            }
+            
+            // 🔍 1.5 詳細檢查信箱來源
+            String contactEmail = order.getContactEmail();
+            String emailSource = checkEmailSource(orderNo, contactEmail);
+            
+            log.info("📧 信箱檢查：orderNo={}, email={}, source={}", orderNo, contactEmail, emailSource);
+            
+            // 2. 更新為付款中
+            orderService.updateOrderStatus(orderNo, "PAYING");
+            log.info("📝 訂單狀態已更新為：PAYING");
+            
+            // 3. 模擬綠界回調參數
+            String mockTradeNo = "O" + order.getOrderNo();
+            Map<String, Object> paymentInfo = new HashMap<>();
+            paymentInfo.put("orderNo", orderNo);
+            paymentInfo.put("tradeNo", mockTradeNo);
+            paymentInfo.put("amount", order.getOrderTotal());
+            paymentInfo.put("status", "PAYING");
+            paymentInfo.put("method", "ECPAY");
+            paymentInfo.put("createdAt", System.currentTimeMillis());
+            paymentInfo.put("memNo", order.getMemNo());
+
+            String redisKey = "payment:" + orderNo;
+            redisTemplate.opsForHash().putAll(redisKey, paymentInfo);
+            redisTemplate.expire(redisKey, 30, TimeUnit.MINUTES);
+            log.info("🧪 測試：已手動存入付款資訊到 Redis，tradeNo={}", mockTradeNo);
+            
+            // 4. 直接調用付款成功處理
+            Map<String, String> fakeEcpayResponse = new HashMap<>();
+            fakeEcpayResponse.put("MerchantID", "2000132");
+            fakeEcpayResponse.put("MerchantTradeNo", mockTradeNo);
+            fakeEcpayResponse.put("RtnCode", "1");  // 👈 加入這行！
+            fakeEcpayResponse.put("RtnMsg", "Succeeded");  // 👈 加入這行！
+            fakeEcpayResponse.put("TradeAmt", order.getOrderTotal().toString());  // 👈 加入這行！
+            fakeEcpayResponse.put("PaymentType", "Test_CreditCard");  // 👈 加入這行！
+            fakeEcpayResponse.put("PaymentDate", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));  // 👈 加入這行！
+            fakeEcpayResponse.put("TradeNo", "TEST" + System.currentTimeMillis());  // 👈 加入這行！
+            fakeEcpayResponse.put("CheckMacValue", "TEST_CHECKSUM");  // 👈 最重要！
+
+            String result = paymentService.handlePaymentCallback(fakeEcpayResponse);
+            
+            log.info("🎭 模擬綠界回調參數：{}", fakeEcpayResponse);
+            
+            // 5. 重新查詢訂單狀態
+            OrderDTO updatedOrder = orderService.getOrderDetail(orderNo);
+            
+            String response = String.format(
+                "🎉 測試付款回調完成！\n" +
+                "═══════════════════════\n" +
+                "📋 訂單編號：%d\n" +
+                "📧 聯絡信箱：%s\n" +
+                "🔍 信箱來源：%s\n" +
+                "💰 訂單金額：NT$ %d\n" +
+                "📊 最終狀態：%s\n" +
+                "🔄 處理結果：%s\n" +
+                "═══════════════════════\n" +
+                "✅ 請檢查信箱 %s 是否收到序號郵件！\n" +
+                "📱 (記得檢查垃圾郵件匣)",
+                orderNo,
+                updatedOrder.getContactEmail(),
+                emailSource,
+                updatedOrder.getOrderTotal(),
+                updatedOrder.getOrderStatus(),
+                result,
+                updatedOrder.getContactEmail()
+            );
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("測試付款回調失敗：orderNo={}", orderNo, e);
+            return ResponseEntity.ok("❌ 測試失敗：" + e.getMessage() + 
+                                   "\n💡 提示：請確認訂單存在且狀態為 PENDING");
+        }
+    }
+
+    // *** 重置訂單狀態 (方便重複測試) *** //
+    @GetMapping("/reset-order-status/{orderNo}")
+    @ResponseBody  
+    public ResponseEntity<String> resetOrderStatus(@PathVariable Integer orderNo) {
+        try {
+            log.info("🔄 重置訂單狀態：orderNo={}", orderNo);
+            
+            // 1. 檢查訂單是否存在
+            OrderDTO order = orderService.getOrderDetail(orderNo);
+            
+            // 2. 🔥 強制重置為待付款狀態（繞過狀態轉換檢查）
+            // 直接調用 OrderRepository 更新，不走 updateOrderStatus
+            Order orderEntity = orderRepository.findByOrderNo(orderNo);
+            if (orderEntity != null) {
+                orderEntity.setOrderStatus("PENDING");
+                orderRepository.save(orderEntity);
+                log.info("強制重置訂單狀態為 PENDING：orderNo={}", orderNo);
+            }
+            
+            // 3. 清理 Redis 付款記錄
+            String paymentRedisKey = "payment:" + orderNo;
+            Boolean paymentDeleted = redisTemplate.delete(paymentRedisKey);
+            
+            String response = String.format(
+                "✅ 訂單重置完成！\n" +
+                "═══════════════════════\n" +
+                "📋 訂單編號：%d\n" +
+                "📊 新狀態：PENDING (強制重置)\n" +
+                "🗑️ Redis清理：%s\n" +
+                "═══════════════════════\n" +
+                "🎯 現在可以重新測試付款流程了！",
+                orderNo,
+                paymentDeleted ? "成功" : "無需清理"
+            );
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("重置訂單狀態失敗：orderNo={}", orderNo, e);
+            return ResponseEntity.ok("❌ 重置失敗：" + e.getMessage());
+        }
+    }
+
+    // 🔍 檢查信箱來源的輔助方法
+    private String checkEmailSource(Integer orderNo, String currentEmail) {
+        try {
+            // 檢查 Redis 中是否有儲存客戶指定信箱
+            String redisKey = "order:contact:" + orderNo;
+            String redisEmail = (String) redisTemplate.opsForValue().get(redisKey);
+            
+            if (redisEmail != null && !redisEmail.trim().isEmpty()) {
+                if (redisEmail.equals(currentEmail)) {
+                    return "✅ Redis儲存的客戶指定信箱";
+                } else {
+                    return "⚠️ Redis有信箱但不一致: " + redisEmail;
+                }
+            } else {
+                return "❌ Redis中無客戶信箱，使用會員預設信箱";
+            }
+        } catch (Exception e) {
+            return "🔥 Redis查詢失敗: " + e.getMessage();
+        }
+    }
     
     
     
- // 手動驗證 JWT 的方法（不影響 Security 設定）
+    
+    
+    
+    
+    
+    
+    
+    // 手動驗證 JWT 的方法（不影響 Security 設定）
     private Integer extractMemNoFromRequest(HttpServletRequest request) {
         try {
             // 1. 嘗試從 Authorization Header 取得 JWT
@@ -565,6 +778,58 @@ public class OrderController {
 	        }
 	    }
 	 
+	// ***** 手動觸發付款超時檢查 ***** //
+	 @GetMapping("/debug/check-timeout")
+	 public ResponseEntity<?> manualCheckTimeout() {
+	     try {
+	         log.info("🔧 手動觸發付款超時檢查");
+	         
+	         // 直接調用 PaymentService 的超時檢查方法
+	         paymentService.handlePaymentTimeout();
+	         
+	         // 查看當前所有付款狀態
+	         Set<String> paymentKeys = redisTemplate.keys("payment:*");
+	         List<Map<String, Object>> payments = new ArrayList<>();
+	         
+	         if (paymentKeys != null) {
+	             for (String key : paymentKeys) {
+	                 Map<Object, Object> paymentInfo = redisTemplate.opsForHash().entries(key);
+	                 if (!paymentInfo.isEmpty()) {
+	                     Map<String, Object> payment = new HashMap<>();
+	                     payment.put("orderNo", paymentInfo.get("orderNo"));
+	                     payment.put("status", paymentInfo.get("status"));
+	                     payment.put("createdAt", paymentInfo.get("createdAt"));
+	                     
+	                     // 計算時間差
+	                     Long createdAt = (Long) paymentInfo.get("createdAt");
+	                     if (createdAt != null) {
+	                         long diffMinutes = (System.currentTimeMillis() - createdAt) / 60000;
+	                         payment.put("ageMinutes", diffMinutes);
+	                         payment.put("isTimeout", diffMinutes > 30);
+	                     }
+	                     
+	                     payments.add(payment);
+	                 }
+	             }
+	         }
+	         
+	         Map<String, Object> result = Map.of(
+	             "message", "超時檢查完成",
+	             "totalPayments", payments.size(),
+	             "payments", payments,
+	             "timestamp", System.currentTimeMillis()
+	         );
+	         
+	         return ResponseEntity.ok(result);
+	         
+	     } catch (Exception e) {
+	         log.error("手動檢查超時失敗", e);
+	         return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+	     }
+	 }
+	 
+	 
+	 
 	 
 	 // ***** 重新付款 (付款失敗後的重試) ***** //
 	 @PostMapping("/orders/{orderNo}/payment/retry")
@@ -941,6 +1206,43 @@ public class OrderController {
 	        }
 	    }
 	 
+	// ***** 查看特定訂單的詳細狀態 ***** //
+	 @GetMapping("/debug/order-status/{orderNo}")
+	 public ResponseEntity<?> getOrderStatus(@PathVariable Integer orderNo) {
+	     try {
+	         // 從資料庫查詢訂單狀態
+	         OrderDTO order = orderService.getOrderDetail(orderNo);
+	         
+	         // 從 Redis 查詢付款狀態
+	         Map<String, Object> paymentStatus = paymentService.getPaymentStatus(orderNo);
+	         
+	         // 從 Redis 直接查詢原始資料
+	         String redisKey = "payment:" + orderNo;
+	         Map<Object, Object> rawRedisData = redisTemplate.opsForHash().entries(redisKey);
+	         
+	         Map<String, Object> result = new HashMap<>();
+	         result.put("orderNo", orderNo);
+	         result.put("databaseStatus", order.getOrderStatus());
+	         result.put("paymentStatus", paymentStatus);
+	         result.put("rawRedisData", rawRedisData);
+	         result.put("timestamp", System.currentTimeMillis());
+	         
+	         // 檢查是否超時
+	         if (rawRedisData.containsKey("createdAt")) {
+	             Long createdAt = (Long) rawRedisData.get("createdAt");
+	             long ageMinutes = (System.currentTimeMillis() - createdAt) / 60000;
+	             result.put("ageMinutes", ageMinutes);
+	             result.put("shouldTimeout", ageMinutes > 30);
+	         }
+	         
+	         return ResponseEntity.ok(result);
+	         
+	     } catch (Exception e) {
+	         return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+	     }
+	 }
+	 
+	 
 	 
 	 // ***** 查詢所有付款記錄 ***** //
 	 @GetMapping("/admin/payment/records")
@@ -1017,6 +1319,10 @@ public class OrderController {
 	                    .body(Map.of("success", false, "message", e.getMessage()));
 	        }
 	    }
+	 
+	 
+	 
+	 
 	 
 	 
 	 // ***** 批量處理異常訂單 ***** //
@@ -1151,6 +1457,65 @@ public class OrderController {
 	            return ResponseEntity.badRequest().body(response);
 	        }
 	    }
+	 
+	 
+	// ***** 強制更新訂單狀態 ***** //
+	 @PostMapping("/debug/force-update-status/{orderNo}")
+	 public ResponseEntity<?> forceUpdateStatus(
+	         @PathVariable Integer orderNo,
+	         @RequestParam String status) {
+	     try {
+	         // 直接更新資料庫
+	         orderService.updateOrderStatus(orderNo, status);
+	         
+	         // 更新 Redis 狀態
+	         String redisKey = "payment:" + orderNo;
+	         if (redisTemplate.hasKey(redisKey)) {
+	             redisTemplate.opsForHash().put(redisKey, "status", 
+	                 status.equals("FAILED") ? "TIMEOUT" : status);
+	             redisTemplate.opsForHash().put(redisKey, "updatedAt", System.currentTimeMillis());
+	         }
+	         
+	         Map<String, Object> result = Map.of(
+	             "message", "訂單狀態已更新",
+	             "orderNo", orderNo,
+	             "newStatus", status
+	         );
+	         
+	         return ResponseEntity.ok(result);
+	         
+	     } catch (Exception e) {
+	         return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+	     }
+	 }
+
+	 // ***** 檢查定時任務是否正常 ***** //
+	 @GetMapping("/debug/scheduler-info")
+	 public ResponseEntity<?> getSchedulerInfo() {
+	     try {
+	         // 檢查是否有 @EnableScheduling 註解
+	         boolean schedulingEnabled = true; // 假設已啟用
+	         
+	         // 模擬執行一次定時任務並記錄
+	         long startTime = System.currentTimeMillis();
+	         paymentService.handlePaymentTimeout();
+	         long executionTime = System.currentTimeMillis() - startTime;
+	         
+	         Map<String, Object> info = Map.of(
+	             "schedulingEnabled", schedulingEnabled,
+	             "lastManualExecution", new Date(),
+	             "executionTimeMs", executionTime,
+	             "message", "定時任務手動執行完成"
+	         );
+	         
+	         return ResponseEntity.ok(info);
+	         
+	     } catch (Exception e) {
+	         return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+	     }
+	 }
+	 
+	 
 	 
 	 
 	 
@@ -1321,6 +1686,7 @@ public class OrderController {
 	    private Integer proNo;
 	    private Integer quantity;
 	}
+	
 	
 	
 }
