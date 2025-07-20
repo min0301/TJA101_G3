@@ -93,6 +93,16 @@ public class ProductDTOMapper {
 			psDTO.setMallTagNo(product.getMallTagNo().getId());
 	        }
 		psDTO.setProIsmarket(product.getProIsmarket());
+		
+		// MallTag 處理
+	    if (product.getMallTagNo() != null) {
+	        psDTO.setMallTagNo(product.getMallTagNo().getId());
+	    }
+		
+		// 新增兩行映射：
+	    psDTO.setProDetails(product.getProDetails());
+	    psDTO.setProInclude(product.getProInclude());
+		
 		return psDTO;
 	}
 	

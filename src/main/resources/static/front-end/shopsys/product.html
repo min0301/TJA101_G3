@@ -113,40 +113,120 @@
 	
 	//*** 頁面初始化 - 適配組員的混淆結構 ***//
 	document.addEventListener('DOMContentLoaded', function() {
-	    setTimeout(function() {
-	        try {
-	            console.log('商品頁面初始化...');
-	            
-	            // 檢查 URL 參數
-	            const urlParams = new URLSearchParams(window.location.search);
-	            const productId = urlParams.get('id');
-	            
-	            if (productId) {
-	                // 有商品ID，顯示商品詳情
-	                console.log('顯示商品詳情，ID:', productId);
-	                showProductDetail(productId);
-	            } else {
-	                // 沒有商品ID，顯示商品列表
-	                console.log('顯示商品列表，初始化 MallTagManager...');
-	                
-	                if (window.mallTagManager && typeof window.mallTagManager.init === 'function') {
-	                    window.mallTagManager.init();
-	                } else {
-	                    console.warn('MallTagManager 未找到，嘗試手動初始化...');
-	                    // 如果 malltag.js 還沒載入，稍後再試
-	                    setTimeout(() => {
-	                        if (window.mallTagManager) {
-	                            window.mallTagManager.init();
-	                        }
-	                    }, 500);
-	                }
-	            }
-	            
-	        } catch (error) {
-	            console.error('頁面初始化錯誤:', error);
+    console.log('=== 商品頁面開始初始化 ===');
+    
+    setTimeout(function() {
+        try {
+            // 檢查 URL 參數
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            
+            console.log('當前 URL 參數:', {
+                productId: productId,
+                fullUrl: window.location.href,
+                pathname: window.location.pathname
+            });
+            
+            if (productId) {
+                console.log('📱 有商品ID，顯示商品詳情');
+                initProductDetailMode(productId);
+            } else {
+                console.log('📋 沒有商品ID，顯示商品列表');
+                initProductListMode();
+            }
+            
+        } catch (error) {
+            console.error('❌ 頁面初始化錯誤:', error);
 	        }
 	    }, 300);
 	});
+	
+	// *** 初始化商品詳情模式
+	async function initProductDetailMode(productId) {
+	    console.log('🔧 初始化商品詳情模式，商品ID:', productId);
+	    
+	    try {
+	        // 1. 先初始化左側分類
+	        await initLeftSidebar();
+	        
+	        // 2. 再載入商品詳情
+	        await showProductDetail(productId);
+	        
+	        console.log('✅ 商品詳情模式初始化完成');
+	        
+	    } catch (error) {
+	        console.error('❌ 商品詳情模式初始化失敗:', error);
+	        showProductError('初始化失敗：' + error.message);
+	    }
+	}
+	
+	/**
+	 * 初始化商品列表模式
+	 */
+	async function initProductListMode() {
+	    console.log('🔧 初始化商品列表模式');
+	    
+	    try {
+	        if (window.mallTagManager && typeof window.mallTagManager.init === 'function') {
+	            await window.mallTagManager.init();
+	        } else {
+	            console.warn('MallTagManager 未找到，嘗試手動初始化...');
+	            setTimeout(async () => {
+	                if (window.mallTagManager) {
+	                    await window.mallTagManager.init();
+	                }
+	            }, 500);
+	        }
+	        
+	        console.log('✅ 商品列表模式初始化完成');
+	        
+	    } catch (error) {
+	        console.error('❌ 商品列表模式初始化失敗:', error);
+	    }
+	}
+	
+	/**
+	 * 初始化左側分類側邊欄
+	 */
+	async function initLeftSidebar() {
+	    console.log('🏷️ 開始初始化左側分類側邊欄...');
+	    
+	    if (window.MallTagManager && !window.sidebarMallTagManager) {
+	        try {
+	            // 創建專門用於側邊欄的實例
+	            window.sidebarMallTagManager = new window.MallTagManager();
+	            
+	            // 修改其行為：只顯示分類，不控制右側內容
+	            window.sidebarMallTagManager.displayProducts = function() {
+	                console.log('🚫 側邊欄模式：阻止控制右側商品顯示');
+	            };
+	            
+	            // 修改點擊行為
+	            window.sidebarMallTagManager.handleMalltagClick = function(malltagItem) {
+	                const tagId = malltagItem.dataset.malltagId;
+	                const tagName = malltagItem.dataset.malltagName;
+	                
+	                console.log(`🔗 側邊欄分類點擊: ${tagName} (ID: ${tagId})`);
+	                
+	                if (tagId === 'all') {
+	                    window.location.href = '/front-end/shopsys/product.html';
+	                } else {
+	                    window.location.href = `/front-end/shopsys/product.html?category=${tagId}`;
+	                }
+	            };
+	            
+	            await window.sidebarMallTagManager.init();
+	            console.log('✅ 左側分類側邊欄初始化完成');
+	            
+	        } catch (error) {
+	            console.error('❌ 左側分類側邊欄初始化失敗:', error);
+	        }
+	    } else if (!window.MallTagManager) {
+	        console.warn('⚠️ MallTagManager 類別未找到');
+	    }
+	}
+	
+	
 
 	// *** 顯示商品詳情 - 整合庫存 API (薰妤修) ***//
 	async function showProductDetail(productId) {
@@ -224,16 +304,61 @@
 		    }
 		}
 	
+	
+	
+	// 商品平台顯示 修正
+	// 高亮對應的左側標籤
+	function highlightCorrespondingTag(mallTagNo) {
+	    try {
+	        console.log('🎯 嘗試高亮標籤:', mallTagNo);
+	        
+	        // 清除所有標籤的高亮
+	        const allTags = document.querySelectorAll('.malltag-item, [data-malltag-id]');
+	        allTags.forEach(tag => {
+	            tag.classList.remove('active', 'malltag-active');
+	        });
+	        
+	        // 確定要高亮的標籤ID
+	        let tagId;
+	        if (mallTagNo && mallTagNo.id) {
+	            tagId = mallTagNo.id;
+	        } else if (typeof mallTagNo === 'number') {
+	            tagId = mallTagNo;
+	        }
+	        
+	        if (tagId) {
+	            const targetTag = document.querySelector(`[data-malltag-id="${tagId}"]`);
+	            if (targetTag) {
+	                targetTag.classList.add('active');
+	                console.log(`✅ 已高亮標籤 ID: ${tagId}`);
+	            }
+	        }
+	        
+	    } catch (error) {
+	        console.error('❌ 高亮標籤失敗:', error);
+	    }
+	}
+
+
+	
 	 
 
 	
 	
 	// ***  顯示商品詳情內容 包含庫存 (薰妤修) ***//
 	function displayProductDetailWithStock(product, stockInfo) {
+		// 加入除錯資訊
+	    console.log('🔍 檢查商品描述資料:');
+	    console.log('product.proDetails:', product.proDetails);
+	    console.log('product.proInclude:', product.proInclude);
+	    console.log('完整商品物件:', product);
+
+		
 	    const container = document.getElementById('dynamic-content-container');
 	    
 	    // 平台名稱邏輯
 	    let platformName = '測試平台';
+	    
 	    if (product.mallTagNo) {
 	        if (typeof product.mallTagNo === 'object' && product.mallTagNo.mallTagName) {
 	            platformName = product.mallTagNo.mallTagName;
@@ -248,6 +373,8 @@
 	            platformName = platformMap[product.mallTagNo] || `平台 ${product.mallTagNo}`;
 	        }
 	    }
+	    
+	    const productDescription = getProductDescription(product);
 	    
 	    // 整合庫存邏輯
 	    const proIsmarket = product.proIsmarket;
@@ -327,7 +454,7 @@
 	                            <div class="stock-quantity">
 	                                <span class="text-muted">庫存數量：</span>
 	                                <span class="fw-bold ${statusInfo.stockClass}">${statusInfo.stockCount}</span>
-	                                ${statusInfo.stockSource ? `<small class="text-muted d-block">資料來源：${statusInfo.stockSource}</small>` : ''}
+	                                
 	                            </div>
 	                        </div>
 	                        
@@ -347,9 +474,9 @@
 	                        
 	                        <div class="product-description mb-4">
 	                            <h5>商品描述</h5>
-	                            <p class="text-muted">
-	                                ${product.proDetails || '商品詳細資訊暫未提供'}
-	                            </p>
+	                            <div class="description-content p-3 bg-light rounded">
+	                            	${productDescription}
+	                        	</div>
 	                        </div>
 	                        
 	                        <!-- 操作按鈕根據庫存狀態調整 -->
@@ -379,9 +506,114 @@
 	            </div>
 	        </div>
 	    `;
+	    
+	    highlightCorrespondingTag(product.mallTagNo);
 	}
 	 
-	 
+	
+	// 🔥 新增：缺少的 getProductDescription 函數
+	function getProductDescription(product) {
+	    console.log('🔍 Entity 檢查 - 商品完整資料:');
+	    console.log('完整商品物件:', JSON.stringify(product, null, 2));
+	    
+	    // 🎯 根據你的 Entity，應該要有這些欄位
+	    console.log('🔍 檢查 Entity 欄位:');
+	    console.log('proDetails (PRO_DETAILS):', product.proDetails);
+	    console.log('proInclude (PRO_INCLUDE):', product.proInclude);
+	    console.log('proName:', product.proName);
+	    console.log('id:', product.id);
+	    
+	    // 嘗試不同的欄位，優先使用 proDetails
+	    let description = null;
+	    let sourceField = null;
+	    
+	    // 第一優先：proDetails
+	    if (product.proDetails && product.proDetails.toString().trim()) {
+	        description = product.proDetails.toString().trim();
+	        sourceField = 'proDetails';
+	        console.log('✅ 使用 proDetails 欄位');
+	    }
+	    // 第二優先：proInclude
+	    else if (product.proInclude && product.proInclude.toString().trim()) {
+	        description = product.proInclude.toString().trim();
+	        sourceField = 'proInclude';
+	        console.log('✅ 使用 proInclude 欄位');
+	    }
+	    
+	    if (!description) {
+	        console.error('❌ proDetails 和 proInclude 都沒有內容');
+	        
+	        // 顯示所有字串欄位
+	        const allStringFields = Object.keys(product).filter(key => {
+	            const value = product[key];
+	            return typeof value === 'string' && value.length > 0;
+	        });
+	        
+	        console.log('📋 所有有內容的字串欄位:', allStringFields);
+	        allStringFields.forEach(key => {
+	            const value = product[key];
+	            console.log(`  ${key}: "${value.substring(0, 50)}..."`);
+	        });
+	        
+	        return `
+	            <div class="alert alert-warning">
+	                <h6><i class="bi bi-exclamation-triangle"></i> 商品描述資料檢查</h6>
+	                <p><strong>Entity 欄位狀態：</strong></p>
+	                <ul class="mb-2">
+	                    <li>proDetails: ${product.proDetails ? '有資料 (' + product.proDetails.length + ' 字元)' : '無資料或空白'}</li>
+	                    <li>proInclude: ${product.proInclude ? '有資料 (' + product.proInclude.length + ' 字元)' : '無資料或空白'}</li>
+	                </ul>
+	                <p class="mb-0">請檢查資料庫中 PRO_DETAILS 或 PRO_INCLUDE 欄位是否有內容。</p>
+	            </div>
+	        `;
+	    }
+	    
+	    console.log(`🎯 使用欄位: ${sourceField}`);
+	    console.log(`📄 內容長度: ${description.length} 字元`);
+	    console.log(`📝 內容預覽: ${description.substring(0, 100)}...`);
+	    
+	    return formatDescriptionText(description);
+	}
+	
+	
+	
+	
+	
+	
+	
+
+	
+
+	// 🔥 新增：格式化描述文字的函數
+	function formatDescriptionText(text) {
+	    if (!text) return '<p class="text-muted">商品詳細資訊暫未提供</p>';
+	    
+	    // 清理和格式化文字
+	    let formattedText = text.toString().trim();
+	    
+	    // 處理換行符號
+	    formattedText = formattedText
+	        .replace(/\r\n/g, '\n')        // 統一換行符號
+	        .replace(/\r/g, '\n')          // 處理舊式換行
+	        .replace(/\n{3,}/g, '\n\n')    // 避免過多空行
+	        .replace(/\n/g, '<br>')        // 換行轉為 HTML
+	        .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;'); // Tab 轉空格
+	    
+	    // 如果文字很長，添加滾動樣式
+	    if (formattedText.length > 500) {
+	        return `
+	            <div style="max-height: 300px; overflow-y: auto; line-height: 1.6; padding: 10px; border: 1px solid #e0e0e0; border-radius: 5px;">
+	                <p style="margin: 0; white-space: pre-wrap;">${formattedText}</p>
+	            </div>
+	        `;
+	    } else {
+	        return `<p style="line-height: 1.6; white-space: pre-wrap; margin: 0;">${formattedText}</p>`;
+	    }
+	}
+		
+	
+	
+	
 	
 	
 	// ***  根據庫存資訊生成狀態 (薰妤修) ***//
@@ -392,7 +624,7 @@
 	        stockText: '庫存狀態未知',
 	        stockClass: 'text-muted',
 	        stockCount: '查詢中...',
-	        stockSource: null,
+	        
 	        canPurchase: false,
 	        buttonText: '無法購買'
 	    };
@@ -412,7 +644,7 @@
 	                        stockText: '預購商品，發售後出貨',
 	                        stockClass: 'text-warning',
 	                        stockCount: `${realStock} 件`,
-	                        stockSource: stockSource,
+	                        
 	                        canPurchase: true,
 	                        buttonText: '立即預購'
 	                    };
@@ -423,7 +655,7 @@
 	                        stockText: realStock <= 10 ? '庫存偏低，欲購從速' : '有現貨，立即發貨',
 	                        stockClass: realStock <= 10 ? 'text-warning' : 'text-success',
 	                        stockCount: `${realStock} 件`,
-	                        stockSource: stockSource,
+	                        
 	                        canPurchase: true,
 	                        buttonText: '加入購物車'
 	                    };
@@ -436,7 +668,7 @@
 	                    stockText: '商品暫時缺貨',
 	                    stockClass: 'text-danger',
 	                    stockCount: '0 件',
-	                    stockSource: stockSource,
+	                    
 	                    canPurchase: false,
 	                    buttonText: '暫時缺貨'
 	                };
@@ -449,7 +681,7 @@
 	                stockText: '商品暫時下架',
 	                stockClass: 'text-danger',
 	                stockCount: '0 件',
-	                stockSource: stockSource,
+	                
 	                canPurchase: false,
 	                buttonText: '暫停販售'
 	            };
@@ -465,7 +697,7 @@
 	                stockText: '商品可購買',
 	                stockClass: 'text-success',
 	                stockCount: '查詢中...',
-	                stockSource: null,
+	                
 	                canPurchase: true,
 	                buttonText: '加入購物車'
 	            };
@@ -476,7 +708,7 @@
 	                stockText: '商品暫時下架',
 	                stockClass: 'text-danger',
 	                stockCount: '0 件',
-	                stockSource: null,
+	                
 	                canPurchase: false,
 	                buttonText: '暫停販售'
 	            };

@@ -14,4 +14,8 @@ public class ProductSearchDTO {
     private Integer proPrice;
     private Integer mallTagNo;
     private Character proIsmarket;
+    
+    private String proDetails;    // 商品詳細描述
+    private String proInclude;    // 商品包含內容
+    
 }
