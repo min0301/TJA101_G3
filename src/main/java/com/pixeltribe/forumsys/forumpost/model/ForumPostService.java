@@ -6,7 +6,7 @@ import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.forumsys.forum.model.ForumRepository;
 import com.pixeltribe.forumsys.forumtag.model.ForumTag;
 import com.pixeltribe.forumsys.forumtag.model.ForumTagRepository;
-import com.pixeltribe.forumsys.postcollect.model.PostCollectService; // 導入 PostCollectService
+import com.pixeltribe.forumsys.postcollect.model.PostCollectService;
 import com.pixeltribe.membersys.member.model.MemRepository;
 import com.pixeltribe.membersys.member.model.Member;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -382,4 +382,10 @@ public class ForumPostService {
         }
         return null; // 沒有上傳圖片，返回 null
     }
+
+
+    public Long getPostCount() {
+        return forumPostRepository.count();
+    }
+
 }

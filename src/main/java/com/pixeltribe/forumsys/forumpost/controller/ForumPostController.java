@@ -275,4 +275,10 @@ public class ForumPostController {
 //            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
+    @GetMapping("admin/forumpost/count")
+    @Operation(summary = "取得討論區文章數量")
+    public Long getPostCount() {
+        return forumPostSvc.getPostCount();
+    }
+
 }
