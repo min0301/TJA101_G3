@@ -1,453 +1,490 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<title>像素部落 Pixel Tribe</title>
+    <meta charset="UTF-8">
+    <title>像素部落 Pixel Tribe</title>
 
-<link
-	href="https://cdn.jsdelivr.net/npm/pixel-emulator@1.0.0/webfont/PixelEmulator.woff2"
-	rel="stylesheet" as="font" type="font/woff2" crossorigin>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-<style>
-@font-face {
-	font-family: 'Zpix';
-	src:
-		url('https://cdn.jsdelivr.net/gh/SolidZORO/zpix-pixel-font@1.2.0/zpix.ttf')
-		format('truetype');
-	font-display: swap;
-}
 
-@font-face {
-	font-family: 'Pixel Emulator';
-	src:
-		url('https://cdn.jsdelivr.net/npm/pixel-emulator@1.0.0/webfont/PixelEmulator.woff2')
-		format('woff2');
-	font-display: swap;
-}
+    <link
+            href="https://cdn.jsdelivr.net/npm/pixel-emulator@1.0.0/webfont/PixelEmulator.woff2"
+            rel="stylesheet" as="font" type="font/woff2" crossorigin>
 
-/* ========================== */
-/* 全站預設使用 Zpix 中文像素字 */
-/* ========================== */
-body {
-	margin: 0;
-	background: #ececec;
-	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
-		sans-serif;
-}
+    <style>
+        @font-face {
+            font-family: 'Zpix';
+            src: url('https://cdn.jsdelivr.net/gh/SolidZORO/zpix-pixel-font@1.2.0/zpix.ttf') format('truetype');
+            font-display: swap;
+        }
 
-/* ======================== */
-/* 像素英文專用字型區         */
-/* ======================== */
-.pixel-btn, .pixel-btn-login, .pixel-btn-blue, .pixel-nav-link, .btn-en,
-	.english-pixel, #login, #signup {
-	font-family: 'Pixel Emulator', 'Zpix', 'Noto Sans TC', Arial,
-		sans-serif !important;
-	font-size: 1.35rem;
-	letter-spacing: 0.15em;
-	text-transform: uppercase;
-}
+        @font-face {
+            font-family: 'Pixel Emulator';
+            src: url('https://cdn.jsdelivr.net/npm/pixel-emulator@1.0.0/webfont/PixelEmulator.woff2') format('woff2');
+            font-display: swap;
+        }
 
-/* ============= 你的原本設定 ============== */
-:root {
-	--pixel-bg: #b2402b; /* gameboy主體紅 */
-	--pixel-green: #9bf2b6; /* gameboy青綠 按鈕色 */
-	--pixel-blue: #7ecff2; /* gameboy青藍 搜尋欄與按鈕 */
-	--pixel-yellow: #ffe05c; /* gameboy亮黃 */
-	--pixel-btn-shadow: #7e2621; /* 深紅陰影 */
-	--pixel-outline: #000000; /* 黑色外框 */
-	--pixel-font-yellow: #ffe05c; /* 黃色字 */
-	--pixel-font-black: #221d15; /* 字體黑色(主機字色) */
-	--pixel-font-shadow: #000000; /* 字體陰影 */
-}
+        /* ========================== */
+        /* 全站預設使用 Zpix 中文像素字 */
+        /* ========================== */
+        body {
+            margin: 0;
+            background: #ececec;
+            font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
+            sans-serif;
+        }
 
-/* === HEADER === */
-.pixel-header {
-	background: #DB0000;
-	width: 100%;
-	min-width: 360px;
-	margin: 0;
-	position: relative;
-	z-index: 100;
-	padding-top: 22px;
-	padding-bottom: 22px;
-	border: 5px solid var(--pixel-outline);
-	box-shadow: 0 8px 40px #0002;
-}
+        /* ======================== */
+        /* 像素英文專用字型區         */
+        /* ======================== */
+        .pixel-btn, .pixel-btn-login, .pixel-btn-blue, .pixel-nav-link, .btn-en,
+        .english-pixel, #login, #signup {
+            font-family: 'Pixel Emulator', 'Zpix', 'Noto Sans TC', Arial,
+            sans-serif !important;
+            font-size: 1.35rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
 
-.pixel-header-inner {
-	width: 100%;
-	min-width: 0;
-	max-width: 1780px;
-	margin: 0 auto;
-	box-sizing: border-box;
-	display: flex;
-	align-items: center;
-	gap: 28px;
-	flex-wrap: nowrap;
-	padding: 0;
-	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
-		sans-serif;
-}
+        /* ============= 你的原本設定 ============== */
+        :root {
+            --pixel-bg: #b2402b; /* gameboy主體紅 */
+            --pixel-green: #9bf2b6; /* gameboy青綠 按鈕色 */
+            --pixel-blue: #7ecff2; /* gameboy青藍 搜尋欄與按鈕 */
+            --pixel-yellow: #ffe05c; /* gameboy亮黃 */
+            --pixel-btn-shadow: #7e2621; /* 深紅陰影 */
+            --pixel-outline: #000000; /* 黑色外框 */
+            --pixel-font-yellow: #ffe05c; /* 黃色字 */
+            --pixel-font-black: #221d15; /* 字體黑色(主機字色) */
+            --pixel-font-shadow: #000000; /* 字體陰影 */
+        }
 
-.pixel-logo {
-	flex: 0 0 auto;
-	margin-left: 22px;
-}
+        /* === HEADER === */
+        .pixel-header {
+            background: #DB0000;
+            width: 100%;
+            min-width: 360px;
+            margin: 0;
+            position: relative;
+            z-index: 100;
+            padding-top: 22px;
+            padding-bottom: 22px;
+            border: 5px solid var(--pixel-outline);
+            box-shadow: 0 8px 40px #0002;
+        }
 
-.pixel-logo img {
-	height: 70px;
-	width: auto;
-	display: block;
-	filter: drop-shadow(3px 5px 0px var(--pixel-outline));
-}
+        .pixel-header-inner {
+            width: 100%;
+            min-width: 0;
+            max-width: 1780px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            flex-wrap: nowrap;
+            padding: 0;
+            font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
+            sans-serif;
+        }
 
-/* === 搜尋欄(青藍) === */
-.pixel-search-wrap {
-	flex: 1 1 0;
-	min-width: 90px;
-	max-width: 600px;
-	margin-right: 10px;
-	margin-left: 0;
-	display: flex;
-	align-items: center;
-}
+        .pixel-logo {
+            flex: 0 0 auto;
+            margin-left: 22px;
+        }
 
-.pixel-search-area {
-	width: 100%;
-	position: relative;
-}
+        .pixel-logo img {
+            height: 70px;
+            width: auto;
+            display: block;
+            filter: drop-shadow(3px 5px 0px var(--pixel-outline));
+        }
 
-.pixel-search {
-	width: 100%;
-	background: var(--pixel-blue);
-	border: 3px solid var(--pixel-outline);
-	border-radius: 18px;
-	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
-		sans-serif;
-	font-size: 1.15rem;
-	color: var(--pixel-font-black);
-	padding: 18px 22px 14px 48px;
-	box-shadow: 0 2px 0 var(--pixel-btn-shadow), 0 4px 8px #0001;
-	letter-spacing: 1.2px;
-	outline: none;
-	font-weight: bold;
-}
+        /* === 【已修改】搜尋欄 === */
+        .pixel-search-wrap {
+            flex: 1 1 0;
+            min-width: 90px;
+            max-width: 600px;
+            margin-right: 10px;
+            margin-left: 0;
+            display: flex;
+            align-items: center;
+        }
 
-.pixel-search::placeholder {
-	color: var(--pixel-font-black);
-	opacity: 0.88;
-	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
-		sans-serif;
-}
+        .pixel-search-area {
+            width: 100%;
+            position: relative;
+        }
 
-.pixel-search-icon {
-	position: absolute;
-	left: 16px;
-	top: 53%;
-	transform: translateY(-50%);
-	font-size: 1.45rem;
-	color: var(--pixel-green);
-	pointer-events: none;
-}
+        .pixel-search {
+            /* 【修改】移除圓角以配合 input-group */
+            width: 100%;
+            background: var(--pixel-blue);
+            border: 3px solid var(--pixel-outline);
+            font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
+            sans-serif;
+            font-size: 1.15rem;
+            color: var(--pixel-font-black);
+            padding: 10px 18px 8px 18px; /* 【修改】微調 padding */
+            box-shadow: 0 2px 0 var(--pixel-btn-shadow), 0 4px 8px #0001;
+            letter-spacing: 1.2px;
+            outline: none;
+            font-weight: bold;
+            height: 56px; /* 【新增】固定高度 */
+        }
 
-/* === 主功能按鈕區（三色漸變）=== */
-.pixel-nav {
-	display: flex;
-	align-items: center;
-	gap: 36px;
-	flex-shrink: 0;
-	min-width: 0;
-	background: transparent;
-	padding: 0;
-}
+        /* 【新增】搜尋下拉選單按鈕樣式 */
+        #search-scope-btn {
+            background-color: var(--pixel-green);
+            border: 3px solid var(--pixel-outline);
+            color: var(--pixel-font-black);
+            font-family: 'Pixel Emulator', 'Zpix', sans-serif;
+            font-size: 0.9rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 0 var(--pixel-btn-shadow);
+            height: 56px;
+            min-width: 100px;
+        }
 
-.pixel-nav-link {
-	color: var(--pixel-font-black);
-	display: flex;
-	align-items: center;
-	justify-content: center; /* 水平置中 */
-	min-width: 140px;
-	min-height: 70px;
-	background: var(--pixel-green);
-	border: 5px solid var(--pixel-outline);
-	border-radius: 26px;
-	box-shadow: 4px 6px 0 var(--pixel-btn-shadow);
-	/* 字型已由 .pixel-nav-link 字型控管 */
-	font-size: 1.5rem;
-	font-weight: bold;
-	margin: 0;
-	text-align: center;
-	letter-spacing: 2px;
-	text-shadow: 1.5px 1.5px 0 #fff8, 3px 3px 0 #0002;
-	transition: box-shadow 0.13s, background 0.13s, color 0.12s;
-}
+        /* 【新增】搜尋按鈕樣式 */
+        #header-search-submit {
+            background-color: var(--pixel-yellow);
+            border: 3px solid var(--pixel-outline);
+            color: var(--pixel-font-black);
+            box-shadow: 0 2px 0 var(--pixel-btn-shadow);
+            height: 56px;
+        }
 
-.pixel-nav-link:nth-child(2) {
-	background: var(--pixel-blue);
-}
+        /* 【新增】調整 Bootstrap dropdown 的外觀 */
+        .search-dropdown-menu {
+            border-radius: 10px;
+            border: 3px solid var(--pixel-outline);
+            background-color: #fffbe7;
+            font-family: 'Zpix', sans-serif;
+        }
 
-.pixel-nav-link:nth-child(3) {
-	background: var(--pixel-yellow);
-}
+        .search-dropdown-menu .dropdown-item {
+            font-weight: bold;
+        }
 
-.pixel-nav-link:hover {
-	box-shadow: 0 2px 0 #222, 0 6px 14px #0006;
-	filter: brightness(1.08);
-	color: #395db5;
-}
+        .search-dropdown-menu .dropdown-item:hover {
+            background-color: var(--pixel-green);
+        }
 
-.pixel-nav-text {
-	width: 100%;
-	text-align: center;
-	letter-spacing: 4px;
-	font-family: inherit;
-	color: inherit;
-	font-size: inherit;
-}
 
-/* === 會員區 or 訪客登入區 === */
-.pixel-member-area, #header-member-area, .pixel-login-group,
-	#header-guest-area {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	margin-left: 10px;
-	margin-right: 36px;
-	min-width: 120px;
-	flex-shrink: 0;
-	justify-content: flex-end;
-	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
-		sans-serif;
-}
+        /* === 主功能按鈕區（三色漸變）=== */
+        .pixel-nav {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+            flex-shrink: 0;
+            min-width: 0;
+            background: transparent;
+            padding: 0;
+        }
 
-/* === 會員頭像、暱稱 === */
-.header-avatar {
-	width: 48px;
-	height: 48px;
-	border-radius: 50%;
-	border: 3.5px solid var(--pixel-outline);
-	object-fit: cover;
-	background: #fff;
-}
+        .pixel-nav-link {
+            color: var(--pixel-font-black);
+            display: flex;
+            align-items: center;
+            justify-content: center; /* 水平置中 */
+            min-width: 140px;
+            min-height: 70px;
+            background: var(--pixel-green);
+            border: 5px solid var(--pixel-outline);
+            border-radius: 26px;
+            box-shadow: 4px 6px 0 var(--pixel-btn-shadow);
+            /* 字型已由 .pixel-nav-link 字型控管 */
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+            text-align: center;
+            letter-spacing: 2px;
+            text-shadow: 1.5px 1.5px 0 #fff8, 3px 3px 0 #0002;
+            transition: box-shadow 0.13s, background 0.13s, color 0.12s;
+        }
 
-.profile-text {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	text-align: center;
-	margin-left: 12px;
-	min-width: 0;
-	max-width: 140px;
-	overflow: hidden;
-	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
-		sans-serif;
-}
+        .pixel-nav-link:nth-child(2) {
+            background: var(--pixel-blue);
+        }
 
-/* Hello! 主機風黃色大字+黑陰影 */
-.profile-head.profile-hello, .profile-text .profile-head:first-child {
-	font-size: 2.15rem;
-	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
-		sans-serif;
-	color: var(--pixel-font-yellow);
-	letter-spacing: 2.5px;
-	line-height: 1.0;
-	text-shadow: 3px 3px 0 var(--pixel-font-shadow), 1px 1px 0
-		var(--pixel-font-shadow), 0.5px 2px 0 #ce9726;
-	margin-bottom: -7px;
-}
-/* 會員暱稱 */
-.profile-nick, #headerMemNickName {
-	font-size: 1.28rem;
-	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
-		sans-serif;
-	color: var(--pixel-blue);
-	font-weight: bold;
-	max-width: 120px;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	letter-spacing: 0.5px;
-	margin-top: 10px;
-}
+        .pixel-nav-link:nth-child(3) {
+            background: var(--pixel-yellow);
+        }
 
-.profile-head#listMemEmail {
-	font-size: 0.92em;
-	color: #777;
-	max-width: 100%;
-	word-break: break-all;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	display: block;
-	letter-spacing: 0;
-	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
-		sans-serif;
-}
+        .pixel-nav-link:hover {
+            box-shadow: 0 2px 0 #222, 0 6px 14px #0006;
+            filter: brightness(1.08);
+            color: #395db5;
+        }
 
-/* === Pixel 按鈕 === */
-.pixel-btn {
-	/* 英文會被 .pixel-btn 上面的 .pixel-btn, .pixel-btn-login, .pixel-btn-blue 控管 */
-	font-size: 1.25rem;
-	padding: 12px 28px 10px 28px;
-	border: 3px solid var(--pixel-outline);
-	border-radius: 16px;
-	outline: none;
-	cursor: pointer;
-	box-shadow: 0 5px 0 var(--pixel-btn-shadow), 0 4px 12px #0002;
-	text-align: center;
-	text-decoration: none;
-	min-width: 98px;
-	max-width: 180px;
-	letter-spacing: 1.2px;
-	white-space: nowrap;
-	display: inline-block;
-	flex-shrink: 0;
-	margin-right: 6px;
-}
+        .pixel-nav-text {
+            width: 100%;
+            text-align: center;
+            letter-spacing: 4px;
+            font-family: inherit;
+            color: inherit;
+            font-size: inherit;
+        }
 
-.pixel-btn-red {
-	background: var(--pixel-green);
-	color: var(--pixel-font-black);
-	border: 3px solid #000;
-	box-shadow: 4px 6px 0 #4a8d62;
-	letter-spacing: 2px;
-}
+        /* === 會員區 or 訪客登入區 === */
+        .pixel-member-area, #header-member-area, .pixel-login-group,
+        #header-guest-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 10px;
+            margin-right: 36px;
+            min-width: 120px;
+            flex-shrink: 0;
+            justify-content: flex-end;
+            font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
+            sans-serif;
+        }
 
-.pixel-btn-red:hover {
-	background: #b6ffd3 !important; /* hover 亮一點 */
-	color: var(--pixel-bg) !important;
-}
+        /* === 會員頭像、暱稱 === */
+        .header-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 3.5px solid var(--pixel-outline);
+            object-fit: cover;
+            background: #fff;
+        }
 
-.pixel-btn-blue {
-	background: var(--pixel-blue);
-	color: var(--pixel-font-black);
-	letter-spacing: 2px;
-}
+        .profile-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-left: 12px;
+            min-width: 0;
+            max-width: 140px;
+            overflow: hidden;
+            font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
+            sans-serif;
+        }
 
-.pixel-btn-blue:hover {
-	background: #b3e4f7;
-	color: var(--pixel-bg);
-}
+        /* Hello! 主機風黃色大字+黑陰影 */
+        .profile-head.profile-hello, .profile-text .profile-head:first-child {
+            font-size: 2.15rem;
+            font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
+            sans-serif;
+            color: var(--pixel-font-yellow);
+            letter-spacing: 2.5px;
+            line-height: 1.0;
+            text-shadow: 3px 3px 0 var(--pixel-font-shadow), 1px 1px 0 var(--pixel-font-shadow), 0.5px 2px 0 #ce9726;
+            margin-bottom: -7px;
+        }
 
-/* 下拉選單 */
-.pixel-member-area .dropdown-menu {
-	max-width: 250px;
-	min-width: 160px;
-	border-radius: 15px;
-	border: 3px solid var(--pixel-yellow);
-	box-shadow: 0 6px 0 var(--pixel-btn-shadow), 0 8px 16px #0002;
-	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
-		sans-serif;
-	background: #fffbe7;
-}
+        /* 會員暱稱 */
+        .profile-nick, #headerMemNickName {
+            font-size: 1.28rem;
+            font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
+            sans-serif;
+            color: var(--pixel-blue);
+            font-weight: bold;
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
 
-/* RWD: 小螢幕自動換行，避免爆版 */
-@media ( max-width : 1100px) {
-	.pixel-header-inner {
-		flex-wrap: wrap;
-		gap: 10px;
-	}
-	.pixel-logo {
-		margin-left: 3px;
-	}
-	.pixel-search-wrap {
-		max-width: 100vw;
-	}
-	.pixel-nav-link, .pixel-btn {
-		max-width: 97vw;
-	}
-	.pixel-member-area, #header-member-area, .pixel-login-group,
-		#header-guest-area {
-		margin-right: 8px;
-		min-width: 80px;
-	}
-	.profile-head#listMemEmail {
-		max-width: 80px;
-		font-size: 0.85em;
-	}
-	.profile-head.profile-hello {
-		font-size: 1.5rem;
-	}
-}
+        .profile-head#listMemEmail {
+            font-size: 0.92em;
+            color: #777;
+            max-width: 100%;
+            word-break: break-all;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            letter-spacing: 0;
+            font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
+            sans-serif;
+        }
 
-/* 亮色搜尋icon */
-.pixel-search-icon svg path, .pixel-search-icon svg ellipse,
-	.pixel-search-icon svg circle {
-	fill: var(--pixel-green) !important;
-}
-</style>
+        /* === Pixel 按鈕 === */
+        .pixel-btn {
+            /* 英文會被 .pixel-btn 上面的 .pixel-btn, .pixel-btn-login, .pixel-btn-blue 控管 */
+            font-size: 1.25rem;
+            padding: 12px 28px 10px 28px;
+            border: 3px solid var(--pixel-outline);
+            border-radius: 16px;
+            outline: none;
+            cursor: pointer;
+            box-shadow: 0 5px 0 var(--pixel-btn-shadow), 0 4px 12px #0002;
+            text-align: center;
+            text-decoration: none;
+            min-width: 98px;
+            max-width: 180px;
+            letter-spacing: 1.2px;
+            white-space: nowrap;
+            display: inline-block;
+            flex-shrink: 0;
+            margin-right: 6px;
+        }
+
+        .pixel-btn-red {
+            background: var(--pixel-green);
+            color: var(--pixel-font-black);
+            border: 3px solid #000;
+            box-shadow: 4px 6px 0 #4a8d62;
+            letter-spacing: 2px;
+        }
+
+        .pixel-btn-red:hover {
+            background: #b6ffd3 !important; /* hover 亮一點 */
+            color: var(--pixel-bg) !important;
+        }
+
+        .pixel-btn-blue {
+            background: var(--pixel-blue);
+            color: var(--pixel-font-black);
+            letter-spacing: 2px;
+        }
+
+        .pixel-btn-blue:hover {
+            background: #b3e4f7;
+            color: var(--pixel-bg);
+        }
+
+        /* 下拉選單 */
+        .pixel-member-area .dropdown-menu {
+            max-width: 250px;
+            min-width: 160px;
+            border-radius: 15px;
+            border: 3px solid var(--pixel-yellow);
+            box-shadow: 0 6px 0 var(--pixel-btn-shadow), 0 8px 16px #0002;
+            font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
+            sans-serif;
+            background: #fffbe7;
+        }
+
+        /* RWD: 小螢幕自動換行，避免爆版 */
+        @media ( max-width: 1100px) {
+            .pixel-header-inner {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .pixel-logo {
+                margin-left: 3px;
+            }
+
+            .pixel-search-wrap {
+                max-width: 100vw;
+                /* 【新增】確保搜尋欄在換行後置中 */
+                order: 3;
+                width: 100%;
+                padding: 0 15px;
+            }
+
+            .pixel-nav-link, .pixel-btn {
+                max-width: 97vw;
+            }
+
+            .pixel-member-area, #header-member-area, .pixel-login-group,
+            #header-guest-area {
+                margin-right: 8px;
+                min-width: 80px;
+            }
+
+            .profile-head#listMemEmail {
+                max-width: 80px;
+                font-size: 0.85em;
+            }
+
+            .profile-head.profile-hello {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-	<header class="pixel-header">
-		<div class="pixel-header-inner">
-			<!-- LOGO -->
-			<a class="pixel-logo" href="/index.html"> <img
-				src="/images/logo.png" alt="Logo">
-			</a>
-			<!-- 搜尋欄 -->
-			<div class="pixel-search-wrap">
-				<div class="pixel-search-area">
-					<span class="pixel-search-icon"> <svg
-							xmlns="http://www.w3.org/2000/svg" width="21" height="21"
-							fill="none" viewBox="0 0 24 24">
-							<path fill="#87bba2"
-								d="M15.95 14.536h-.843l-.299-.288a6.456 6.456 0 0 0 1.567-4.23A6.478 6.478 0 1 0 9.897 16.49a6.456 6.456 0 0 0 4.23-1.567l.288.299v.843l4.982 4.96a1.46 1.46 0 1 0 2.067-2.067l-4.96-4.982Zm-6.054 0A4.54 4.54 0 1 1 14.436 10a4.544 4.544 0 0 1-4.54 4.536Z" /></svg>
-					</span> <input class="pixel-search" type="search" placeholder="Search"
-						aria-label="Search">
-				</div>
-			</div>
-			<!-- 三大主功能橫長按鈕 -->
-			<nav class="pixel-nav">
-				<a class="pixel-nav-link" href="/front-end/newspage/NewsIndex.html">
-					<span class="pixel-nav-icon"></span> <span class="pixel-nav-text">新聞</span>
-				</a> <a class="pixel-nav-link"
-					href="/front-end/forumsys/forumindex.html"> <span
-					class="pixel-nav-icon"></span> <span class="pixel-nav-text">討論區</span>
-				</a> <a class="pixel-nav-link" href="/front-end/shopsys/shopindex.html">
-					<span class="pixel-nav-icon"></span> <span class="pixel-nav-text">商城</span>
-				</a>
-			</nav>
-			<!-- 會員專區（登入才顯示） -->
-			<div id="header-member-area" class="pixel-member-area"
-				style="display: none;">
-				<a href="#" id="navbarMemberDropdown" data-bs-toggle="dropdown"
-					aria-expanded="false" style="display: flex; align-items: center;">
-					<img id="headerAvatar" class="header-avatar"
-					src="/uploads/memberAvatar/defaultmem.png" alt="會員頭像"> <span
-					class="profile-text"> <span
-						class="profile-head profile-hello">Hello!</span> <span
-						class="profile-nick" id="headerMemNickName">暱稱</span>
+<header class="pixel-header">
+    <div class="pixel-header-inner">
+        <a class="pixel-logo" href="/index.html"> <img
+                src="/images/logo.png" alt="Logo">
+        </a>
+
+        <div class="pixel-search-wrap">
+            <div class="pixel-search-area">
+                <form id="header-search-form" class="w-100">
+                    <div class="input-group">
+                        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                id="search-scope-btn" data-scope="forum">討論區
+                        </button>
+                        <ul class="dropdown-menu search-dropdown-menu">
+                            <li><a class="dropdown-item search-scope-option" href="#" data-scope="forum">討論區</a></li>
+                            <li><a class="dropdown-item search-scope-option" href="#" data-scope="news">新聞</a></li>
+                        </ul>
+                        <input type="text" class="form-control pixel-search" placeholder="搜尋..."
+                               id="header-search-keyword" required>
+                        <button class="btn" type="submit" id="header-search-submit">
+                            <i class="bi bi-search fs-5"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <nav class="pixel-nav">
+            <a class="pixel-nav-link" href="/front-end/newspage/NewsIndex.html">
+                <span class="pixel-nav-icon"></span> <span class="pixel-nav-text">新聞</span>
+            </a> <a class="pixel-nav-link"
+                    href="/front-end/forumsys/forumindex.html"> <span
+                class="pixel-nav-icon"></span> <span class="pixel-nav-text">討論區</span>
+        </a> <a class="pixel-nav-link" href="/front-end/shopsys/shopindex.html">
+            <span class="pixel-nav-icon"></span> <span class="pixel-nav-text">商城</span>
+        </a>
+        </nav>
+        <div id="header-member-area" class="pixel-member-area"
+             style="display: none;">
+            <a href="#" id="navbarMemberDropdown" data-bs-toggle="dropdown"
+               aria-expanded="false" style="display: flex; align-items: center;">
+                <img id="headerAvatar" class="header-avatar"
+                     src="/uploads/memberAvatar/defaultmem.png" alt="會員頭像"> <span
+                    class="profile-text"> <span
+                    class="profile-head profile-hello">Hello!</span> <span
+                    class="profile-nick" id="headerMemNickName">暱稱</span>
 				</span>
-				</a>
-				<div class="dropdown-menu dropdown-menu-end shadow"
-					aria-labelledby="navbarMemberDropdown">
-					<div class="px-3 py-2">
-						<span class="profile-nick" id="listMemName">會員姓名</span><br> <span
-							class="profile-head" id="listMemEmail">Email</span>
-					</div>
-					<div class="dropdown-divider"></div>
-					<a class="dropdown-item"
-						href="/front-end/mem/MemberCenter.html?tab=profile"><i
-						class="bi bi-person me-1"></i>個人資料</a> <a class="dropdown-item"
-						href="/front-end/mem/MemberCenter.html?tab=orders"><i
-						class="bi bi-receipt me-1"></i>消費紀錄</a> <a class="dropdown-item"
-						href="/front-end/mem/MemberCenter.html?tab=coupons"><i
-						class="bi bi-ticket me-1"></i>優惠券</a>
-					<!-- 						<a class="dropdown-item" -->
-					<!-- 						href="/front-end/mem/MemberCenter.html?tab=collections"><i -->
-					<!-- 						class="bi bi-bookmark me-1"></i>關注討論區</a> -->
-					<div class="dropdown-divider"></div>
-					<a class="dropdown-item" id="logout-btn" href="#"><i
-						class="bi-box-arrow-right"></i> LOG OUT</a>
-				</div>
-			</div>
-			<!-- 訪客專區（未登入才顯示） -->
-			<div id="header-guest-area" class="pixel-login-group"
-				style="display: flex;">
-				<a href="/front-end/mem/MemberLogin.html"
-					class="pixel-btn pixel-btn-red" id="login">LOG IN</a> <a
-					href="/front-end/mem/MemRegisterPage.html"
-					class="pixel-btn pixel-btn-blue" id="signup">JOIN US</a>
-			</div>
-		</div>
-	</header>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end shadow"
+                 aria-labelledby="navbarMemberDropdown">
+                <div class="px-3 py-2">
+                    <span class="profile-nick" id="listMemName">會員姓名</span><br> <span
+                        class="profile-head" id="listMemEmail">Email</span>
+                </div>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item"
+                   href="/front-end/mem/MemberCenter.html?tab=profile"><i
+                        class="bi bi-person me-1"></i>個人資料</a> <a class="dropdown-item"
+                                                                      href="/front-end/mem/MemberCenter.html?tab=orders"><i
+                    class="bi bi-receipt me-1"></i>消費紀錄</a> <a class="dropdown-item"
+                                                                   href="/front-end/mem/MemberCenter.html?tab=coupons"><i
+                    class="bi bi-ticket me-1"></i>優惠券</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" id="logout-btn" href="#"><i
+                        class="bi-box-arrow-right"></i> LOG OUT</a>
+            </div>
+        </div>
+        <div id="header-guest-area" class="pixel-login-group"
+             style="display: flex;">
+            <a href="/front-end/mem/MemberLogin.html"
+               class="pixel-btn pixel-btn-red" id="login">LOG IN</a> <a
+                href="/front-end/mem/MemRegisterPage.html"
+                class="pixel-btn pixel-btn-blue" id="signup">JOIN US</a>
+        </div>
+    </div>
+</header>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -2,6 +2,7 @@ package com.pixeltribe.forumsys.forumcollect.controller;
 
 import com.pixeltribe.forumsys.forumcollect.model.ForumCollectDTO;
 import com.pixeltribe.forumsys.forumcollect.model.ForumCollectService;
+import com.pixeltribe.forumsys.shared.CollectStatus;
 import com.pixeltribe.membersys.security.MemberDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
@@ -39,9 +40,10 @@ public class ForumCollectController {
     )
     public List<ForumCollectDTO> getForumCollectForMenber(
             @AuthenticationPrincipal MemberDetails currentUser
-    ){
+    ) {
         Integer memberId = currentUser.getMemberId();
-        return forumCollectService.getForumCollectForMenber(memberId);
+        CollectStatus collectStatus = CollectStatus.COLLECT;
+        return forumCollectService.findByMemNoAndCollectStatus(memberId, collectStatus);
     }
 
 }
