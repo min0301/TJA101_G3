@@ -66,11 +66,11 @@ public class ProductController {
 		            @RequestPart("ProductAddDTO") @Valid ProductAddDTO productAddDTO,
 		            BindingResult result,
 		            @RequestPart(value = "imageFile", required = false) MultipartFile[] imageFile
-		            ) throws IOException{
+		            )throws IOException{
 		    if (result.hasErrors()) {
 		        return ResponseEntity.badRequest().body("輸入資料有誤！");
 		    }     
-			if (imageFile[0].isEmpty()) { // 使用者未選擇要上傳的新圖片時
+			if (imageFile == null || imageFile.length == 0 || imageFile[0].isEmpty()) { // 使用者未選擇要上傳的新圖片時
 					
 			} else {
 				for (MultipartFile multipartFile : imageFile) {
@@ -104,36 +104,46 @@ public class ProductController {
 		    public ResponseEntity<?> updateProduct(
 		            @PathVariable Integer id,
 		            @RequestPart("ProductEditDTO") @Valid ProductEditDTO productEditDTO,
-		            @RequestPart(value = "imageFile", required = false) MultipartFile[] imageFile,
-		            BindingResult result) throws IOException{
+		            BindingResult result,
+		            @RequestPart(value = "imageFile", required = false) MultipartFile[] imageFile
+		            ) throws IOException{
 			 	productEditDTO.setId(id); 
 		        if (result.hasErrors()) {
 		            // 如果 JSON 資料驗證失敗，回傳 400 錯誤
 		            return ResponseEntity.badRequest().body("輸入資料有誤！");
 		        }
 		        
+		      
 		        result = removeFieldError(productEditDTO, result, "upFiles");
-				if (imageFile[0].isEmpty()) { // 使用者未選擇要上傳的新圖片時
-					byte[] upFiles = productService.getOneProduct(id).getProCover();
-					productEditDTO.setProCover(upFiles);
+				if (imageFile == null || imageFile.length == 0 || imageFile[0].isEmpty()) { // 使用者未選擇要上傳的新圖片時
+					System.out.println("我在這");
+					if(productService.getOneProduct(id).getProCover() != null) {
+						System.out.println("岔路又走錯");
+						byte[] upFiles = productService.getOneProduct(id).getProCover();
+						productEditDTO.setProCover(upFiles);
+					}
 				} else {
+					System.out.println("走錯路");
 					for (MultipartFile multipartFile : imageFile) {
 						byte[] upFiles = multipartFile.getBytes();
 						productEditDTO.setProCover(upFiles);
 					}
 				}
 				try {
-					Product updateProduct = productService.update(productDTOMapper.peDTOToProduct(productEditDTO));
+					System.out.println("1");
+					ProductEditDTO updateProduct = productService.update(productDTOMapper.peDTOToProduct(productEditDTO));
 			        return ResponseEntity.ok(updateProduct);
 			        
-			    } catch (ProductExistException e) {
-					  
-			        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());        
+			    } catch (ProductExistException e) {  
+			    	System.out.println("2");
+			        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());       
 			        
 			    } catch (ProductIncompleteException e) {
+			    	System.out.println("3");
 			        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 			        
 			    }catch (Exception e) {
+			    	System.out.println("4");
 			        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 			        
 			    } 

@@ -158,10 +158,6 @@
       }
     }
 
-    /* 數量輸入欄位特殊樣式 */
-    .form-group input[type="number"] {
-      max-width: 200px;
-    }
 
     /* 按鈕群組 */
     .button-group {
@@ -296,7 +292,7 @@
 
       <div class="form-group">
         <label for="product_price" required>價格</label>
-        <input type="text" id="product_price" name="proPrice" required placeholder="請輸入價格">
+        <input type="number" id="product_price" name="proPrice" required placeholder="請輸入價格" min="0">
       </div>
 
       <div class="form-group">
@@ -319,20 +315,20 @@
       </div>
       
       <div class="form-group">
-        <label for="product_image_upload">商品圖片（可選）</label>
+        <label for="product_image_upload">商品圖片（限64KB）</label>
         <input type="file" id="product_image_upload" name="imageFile" accept="image/*">
         <p class="preview-text">圖片預覽：</p>
-        <img id="image_preview" src="" alt="圖片預覽" class="image-preview" style="display: none;">
+        <img id="image_preview" src="/images/product_img/noimage.png" alt="圖片預覽" class="image-preview">
+      </div>
+      
+       <div class="form-group">
+        <label for="product_include">內容物</label>
+        <textarea id="product_include" name="proInclude" placeholder="請輸入商品內容物"></textarea>
       </div>
       
       <div class="form-group">
         <label for="product_details">描述</label>
         <textarea id="product_details" name="proDetails" placeholder="請輸入商品描述"></textarea>
-      </div>
-      
-      <div class="form-group">
-        <label for="product_include">內容物</label>
-        <textarea id="product_include" name="proInclude" placeholder="請輸入商品內容物"></textarea>
       </div>
     
       <div class="form-group">
@@ -432,6 +428,22 @@
     async function handleFormSubmit(event) {
       event.preventDefault(); // 阻止瀏覽器預設的提交行為
       
+      // 驗證必填欄位不能只有空白
+      const trimmedName = nameInput.value.trim();
+      const trimmedVersion = versionInput.value.trim();
+      
+      if (!trimmedName) {
+        showError('商品名稱不能為空白');
+        nameInput.focus();
+        return;
+      }
+      
+      if (!trimmedVersion) {
+        showError('商品版本不能為空白');
+        versionInput.focus();
+        return;
+      }
+      
       // 顯示載入狀態
       const submitBtn = form.querySelector('.btn-save');
       const originalText = submitBtn.textContent;
@@ -443,15 +455,15 @@
         // 1. 建立 FormData 物件
         const formData = new FormData();
 
-        // 2. 定義要轉換成 JSON 的純資料物件
+        // 2. 定義要轉換成 JSON 的純資料物件，使用已經 trim 過的值
         const productAddDTO = {
-          proName: nameInput.value,
+          proName: trimmedName,
           proPrice: priceInput.value,
           proStatus: statusSelect.value,
-          proVersion: versionInput.value,
+          proVersion: trimmedVersion,
           proDate: dateInput.value,
-          proDetails: detailsTextarea.value,
-          proInclude: includeTextarea.value,
+          proDetails: detailsTextarea.value.trim(),
+          proInclude: includeTextarea.value.trim(),
           mallTagNo: parseInt(malltagSelect.value)
         };
 
@@ -522,7 +534,6 @@
         imagePreview.src = localImageUrl;
         imagePreview.style.display = 'block';
       } else {
-        imagePreview.style.display = 'none';
       }
     }
 

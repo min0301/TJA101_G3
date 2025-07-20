@@ -704,7 +704,7 @@
     const complexQueryApiUrl = '/api/product/complexquery'; // 複合查詢 API (修改為GET)
     const mallTagApiUrl = '/api/malltag'; // 商品平台 API
     const stockApiUrl = '/api/productsn/allstock';
-
+    
     // 可變：這些是 DOM 元素的引用，名稱可依個人習慣修改，但要與 HTML 的 id 對應
     const tableBody = document.getElementById('product-data-body');
     const errorMessageDiv = document.getElementById('error-message');
@@ -793,7 +793,7 @@
         const mallTagNo = document.getElementById('search-platform').value;
         const proStatus = document.getElementById('search-status').value;
         const proIsMarke = document.getElementById('search-market-status').value;
-
+        
         // 只添加有值的參數
         if (productName) params.append('proName', productName);
         if (priceMin) params.append('minPrice', priceMin);
@@ -972,6 +972,7 @@
         const stock = stockData.get(product.id);
         const stockClass = stock !== undefined && stock !== '查詢失敗' ? getStockClass(stock) : 'stock-loading';
         const stockDisplay = stock !== undefined ? stock : '載入中...';
+        const imageUrl = ( product.proCover != null ) ? `/api/product/cover/${product.id}` : "/images/product_img/noimage.png";
         
         row.setAttribute('data-product-id', product.id);
         row.innerHTML = `
@@ -982,8 +983,8 @@
           <td>${product.proVersion}</td>
           <td>${formatDate(product.proDate)}</td>
           <td>
-            <a href="/api/product/cover/${product.id}">
-              <img src="/api/product/cover/${product.id}" class="forum-thumbnail" alt="商品圖片"/>
+            <a href="${imageUrl}" >
+              <img src="${imageUrl}" class="forum-thumbnail" alt="商品圖片"/>
             </a>
           </td>
           <td class="content-cell" title="${product.proInclude}">${product.proInclude}</td>

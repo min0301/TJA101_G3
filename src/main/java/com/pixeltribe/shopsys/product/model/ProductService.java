@@ -47,7 +47,7 @@ public class ProductService {
 		return productRepository.save(product);
     }
 	@Transactional
-	public Product update(Product product) {
+	public ProductEditDTO update(Product product) {
 		isExistProduct(product);
 		Integer proNo = product.getId();
 		if(product.getProIsmarket().charValue() == '0') {
@@ -58,7 +58,8 @@ public class ProductService {
 				throw new ProductIncompleteException("商品庫存不足");
 			}
 		}
-		return productRepository.save(product);
+		Product updateProduct =  productRepository.save(product);
+		return productDTOMapper.toProductEditDTO(updateProduct);	
 	}
 
 	public void delete(Product product) {
@@ -113,11 +114,12 @@ public class ProductService {
 	
 	private Boolean isExistProduct(Product product) {
 		Integer exist = productRepository.isExistProduct(product.getProName(), product.getProVersion(), product.getMallTagNo().getId());
-		if(product.getId() == null || exist != product.getId()) {
-			throw new ProductExistException("商品已存在，請重新確認");
-		}else {
-			return false;
+		Integer productId = product.getId();
+		if( exist != null){
+			if( productId == null || productId != exist) {
+				throw new ProductExistException("商品已存在，請重新確認");
+			}
 		}
+		return false;
 	}
-    
 }
