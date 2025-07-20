@@ -11,6 +11,7 @@ import com.pixeltribe.forumsys.shared.CollectStatus;
 import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.membersys.security.MemberDetails;
 import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -46,6 +47,7 @@ public class ForumService {
     public ForumService(ForumRepository forumRepository,
                         ForumCategoryRepository forumCategoryRepository,
                         RedisTemplate<String, Object> redisTemplate,
+                        //    註解掉kafka，避免錯誤
 //                        KafkaTemplate<String, Integer> kafkaTemplate,
                         ForumCollectRepository forumCollectRepository
     ) {
@@ -60,7 +62,8 @@ public class ForumService {
 
 
     private static final String HOT_FORUMS_KEY = "forums:hot";
-    private static final String FORUM_CATEGORY_UPDATE_TOPIC = "forum-category-update-topic";
+    //    註解掉kafka，避免錯誤
+//    private static final String FORUM_CATEGORY_UPDATE_TOPIC = "forum-category-update-topic";
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -106,20 +109,9 @@ public class ForumService {
 
     public List<ForumDetailDTO> getAllForum() {
 
-        // 1. 從資料庫取得原始的 Entity 列表，
-        // 討論區狀態為'0'(正常)
         List<Forum> forums = forumRepository.findAllByForStatusOrderByForUpdateDesc('0');
-
-//  TODO
-//        for (Forum x : forums) {
-//          ForumDetailDTO.convertToForumDetailDTO(x);
-//        }
-
-        // 2. 使用 Stream API 將 List<Forum> 轉換為 List<ForumDetailDTO>
         return forums.stream()
-                .map(x -> convertToForumDetailDTO(x))
-                //  TODO
-                //      .map(ForumDetailDTO::convertToForumDetailDTO) // 對每個 forum 執行轉換
+                .map(ForumDetailDTO::convertToForumDetailDTO)
                 .toList();
     }
 
@@ -137,7 +129,7 @@ public class ForumService {
         List<Forum> forums = forumRepository.findByCatNo_Id(catNO);
 
         return forums.stream()
-                .map(ForumDetailDTO::convertToForumDetailDTO) // 對每個 forum 執行轉換
+                .map(ForumDetailDTO::convertToForumDetailDTO)
                 .toList();
     }
 
@@ -149,7 +141,6 @@ public class ForumService {
 
         ForumDetailDTO dto = convertToForumDetailDTO(forum);
 
-        // 2. 如果使用者未登入，isCollected 直接為 false
         if (currentUser == null) {
             dto.setCollected(false);
             return dto;
@@ -181,68 +172,27 @@ public class ForumService {
         forum.setCatNo(category);
 
 
-        // 1. 處理檔案儲存
         if (imageFile != null && !imageFile.isEmpty()) {
             try {
-                // 2. 產生一個唯一的檔名，避免檔名衝突
                 String originalFilename = imageFile.getOriginalFilename();
                 String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
-                // 3. 儲存檔案到伺服器指定路徑
                 Path uploadPath = Paths.get(uploadDir + "/forumsys/forum");
                 if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath); // 如果目錄不存在，則建立
+                    Files.createDirectories(uploadPath);
                 }
                 Path filePath = uploadPath.resolve(uniqueFilename);
                 try (InputStream inputStream = imageFile.getInputStream()) {
                     Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
                 }
-                // 4. 產生公開存取 URL
-                String imageUrl = baseUrl + "/uploads/forumsys/forum/" + uniqueFilename; // 靜態資源路徑是 /uploads/
-                // 5. 將 URL 設定到 forum 物件中
+                String imageUrl = baseUrl + "/uploads/forumsys/forum/" + uniqueFilename;
                 forum.setForImgUrl(imageUrl);
 
             } catch (IOException e) {
                 throw new FileStorageException("檔案儲存失敗，無法寫入目標路徑。", e);
             }
         }
-        // 6. 將包含 imageURL 的 forum 物件存入資料庫
         return forumRepository.save(forum);
-
-    }
-
-
-    public List<ForumDetailDTO> getHotForums() {
-        List<Forum> forums = forumRepository.findAllByForStatusOrderByForUpdateDesc('0');
-        if (forums.isEmpty()) {
-            return List.of();
-        }
-        // 計算查詢起始時間（n天前）
-        Instant since = Instant.now().minus(30, ChronoUnit.DAYS);
-
-        Map<Integer, Object[]> forumHotMap = forumRepository.findForumHotSince(since).stream()
-                .collect(Collectors.toMap(
-                        row -> (Integer) row[0], // Key: Forum ID
-                        row -> new Object[]{row[1], row[2]} // Value: [留言數, 最後留言時間]
-                ));
-        List<ForumDetailDTO> hotForumDTOs = forums.stream()
-                .map(forum -> {
-                    ForumDetailDTO dto = convertToForumDetailDTO(forum);
-                    Object[] stats = forumHotMap.get(forum.getId());
-                    if (stats != null) {
-                        // 如果找到了，表示n天內有留言
-                        dto.setHotScore((Long) stats[0]);
-                        dto.setLastMessageTime((Instant) stats[1]);
-                    } else {
-                        // 如果沒找到，表示n天內沒有留言，都設為預設值
-                        dto.setHotScore(0L);
-                    }
-                    return dto;
-                })
-                .collect(Collectors.toList());
-
-        hotForumDTOs.sort(Comparator.comparing(ForumDetailDTO::getHotScore).reversed());
-        return hotForumDTOs;
 
     }
 
@@ -256,25 +206,23 @@ public class ForumService {
     public void refreshHotForumsInRedis() {
         List<Forum> forums = forumRepository.findAllByForStatusOrderByForUpdateDesc('0');
         if (forums.isEmpty()) {
-            // 如果沒有任何討論區，也更新一個空列表到快取，避免前端拿到舊資料
             redisTemplate.opsForValue().set(HOT_FORUMS_KEY, List.of(), 2, TimeUnit.HOURS);
             return;
         }
         Instant since = Instant.now().minus(30, ChronoUnit.DAYS);
 
-        Map<Integer, Object[]> forumHotMap = forumRepository.findForumHotSince(since).stream()
+        Map<Integer, Long> forumHotMap = forumRepository.findForumHotSince(since).stream()
                 .collect(Collectors.toMap(
                         row -> (Integer) row[0],
-                        row -> new Object[]{row[1], row[2]}
+                        row -> (Long) row[1]
                 ));
 
         List<ForumDetailDTO> hotForumDTOs = forums.stream()
                 .map(forum -> {
                     ForumDetailDTO dto = convertToForumDetailDTO(forum);
-                    Object[] stats = forumHotMap.get(forum.getId());
-                    if (stats != null) {
-                        dto.setHotScore((Long) stats[0]); // 注意：COUNT(id) 在 JPA 中通常返回 Long
-                        dto.setLastMessageTime((Instant) stats[1]);
+                    Long hotScore = forumHotMap.get(forum.getId());
+                    if (hotScore != null) {
+                        dto.setHotScore(hotScore);
                     } else {
                         dto.setHotScore(0L);
                     }
@@ -284,24 +232,21 @@ public class ForumService {
 
         hotForumDTOs.sort(Comparator.comparing(ForumDetailDTO::getHotScore).reversed());
 
-        // --- 最重要的一步：將計算好的結果存入 Redis ---
-        // 方法 'opsForValue().set()': 不可變，是 RedisTemplate 的 API。
-        // 我們設定 2 小時過期，比定時任務的 1 小時長，確保資料不會在更新前就失效。
         redisTemplate.opsForValue().set(HOT_FORUMS_KEY, hotForumDTOs, 2, TimeUnit.HOURS);
 
     }
 
     public List<ForumDetailDTO> searchForumsByKeyword(String keyword) {
-        if (keyword == null || keyword.isBlank()) {
-            return List.of();
+        if (StringUtils.isBlank(keyword)) {
+            return Collections.emptyList();
         }
 
-        Optional<List<Forum>> searchForum = forumRepository.searchForumsByKeyword(keyword);
+        List<Forum> searchForum = forumRepository.searchForumsByKeyword(keyword);
         if (searchForum.isEmpty()) {
             return List.of();
         }
 
-        List<Forum> forums = searchForum.get();
+        List<Forum> forums = searchForum;
         return forums.stream()
                 .map(ForumDetailDTO::convertToForumDetailDTO)
                 .collect(Collectors.toList());

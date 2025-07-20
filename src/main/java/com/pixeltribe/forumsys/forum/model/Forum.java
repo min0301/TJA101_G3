@@ -2,8 +2,8 @@ package com.pixeltribe.forumsys.forum.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pixeltribe.forumsys.entity.ForumChatMessage;
-import com.pixeltribe.forumsys.forumcollect.model.ForumCollect;
 import com.pixeltribe.forumsys.forumcategory.model.ForumCategory;
+import com.pixeltribe.forumsys.forumcollect.model.ForumCollect;
 import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -55,7 +55,6 @@ public class Forum {
     @ColumnDefault("'0'")
     @Column(name = "FOR_STATUS", nullable = false)
     private Character forStatus;
-
 
     @OneToMany(mappedBy = "forNo")
     @JsonIgnore

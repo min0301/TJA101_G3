@@ -21,7 +21,7 @@ public interface ForumRepository extends JpaRepository<Forum, Integer> {
 
     Optional<Forum> findByForName(String forName);
 
-    @Query("SELECT f.id, COUNT(m.id), MAX(m.mesCrdate) " +
+    @Query("SELECT f.id, COUNT(m.id) " +
             "FROM ForumMes m " +
             "JOIN m.postNo p " +
             "JOIN p.forNo f " +
@@ -32,6 +32,6 @@ public interface ForumRepository extends JpaRepository<Forum, Integer> {
     @Query("SELECT f FROM Forum f " +
             "WHERE LOWER (f.forName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(f.forDes) LIKE LOWER(CONCAT('%', :keyword, '%')) ")
-    Optional<List<Forum>> searchForumsByKeyword(@Param("keyword") String keyword);
+    List<Forum> searchForumsByKeyword(@Param("keyword") String keyword);
 
 }

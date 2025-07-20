@@ -130,7 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const resultsHTML = newsList.map(news => {
-                const newsLink = `/front-end/news/NewsDetail.html?newsId=${news.id}`;
+                // const newsLink = `/front-end/news/NewsDetail.html?newsId=${news.id}`;
+                const newsLink = `/front-end/newspage/NewsDetail.html?newsId=${news.id}`;
                 return `
                     <a href="${newsLink}" class="card mb-3 text-decoration-none text-dark">
                         <div class="card-body">

@@ -52,10 +52,10 @@ public class ForumCollectService {
         return ForumCollectDTO.convertToForumCollectDTO(forumCollectRepository.save(forumCollect));
     }
 
-    public List<ForumCollectDTO> getForumCollectForMenber(Integer memberId) {
+    public List<ForumCollectDTO> findByMemNoAndCollectStatus(Integer memberId, CollectStatus collectStatus) {
         Member member = memRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到會員, 編號: " + memberId));
-        List<ForumCollect> forumCollect = forumCollectRepository.findByMemNo(member);
+        List<ForumCollect> forumCollect = forumCollectRepository.findByMemNoAndCollectStatus(member, collectStatus);
         return forumCollect.stream()
                 .map(ForumCollectDTO::convertToForumCollectDTO)
                 .toList();
