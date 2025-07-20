@@ -178,27 +178,27 @@ public class ImageUpload {
      * 4) 會員頭像  member_head_img/memX.png  + defaultmem.png
      * -------------------------------------------------------------------*/
     private static void seedMemberHead(Connection conn) throws IOException, SQLException {
-        Path dir = Paths.get(ROOT, "member_head_img");
-        Pattern p = Pattern.compile("mem(\\d+)\\.png");
-        String sql = "UPDATE MEMBER SET MEM_ICON_DATA = ? WHERE MEM_NO = ?";
-        uploadByPattern(conn, dir, p, sql, 1);
-        // defaultmem.png → 沒頭像的會員
-        Path def = dir.resolve("defaultmem.png");
-        if (Files.exists(def)) {
-            String q = "SELECT MEM_NO FROM MEMBER WHERE MEM_ICON_DATA IS NULL";
-            try (PreparedStatement psQ = conn.prepareStatement(q);
-                 ResultSet rs = psQ.executeQuery();
-                 PreparedStatement psU = conn.prepareStatement("UPDATE MEMBER SET MEM_ICON_DATA = ? WHERE MEM_NO = ?");
-                 FileInputStream fis = new FileInputStream(def.toFile())) {
-                while (rs.next()) {
-                    psU.setBinaryStream(1, fis);
-                    psU.setInt(2, rs.getInt(1));
-                    psU.addBatch();
-                }
-                psU.executeBatch();
-                System.out.println("[member_head] defaultmem.png applied to members without avatar");
-            }
-        }
+//        Path dir = Paths.get(ROOT, "member_head_img");
+//        Pattern p = Pattern.compile("mem(\\d+)\\.png");
+//        String sql = "UPDATE MEMBER SET MEM_ICON_DATA = ? WHERE MEM_NO = ?";
+//        uploadByPattern(conn, dir, p, sql, 1);
+//        // defaultmem.png → 沒頭像的會員
+//        Path def = dir.resolve("defaultmem.png");
+//        if (Files.exists(def)) {
+//            String q = "SELECT MEM_NO FROM MEMBER WHERE MEM_ICON_DATA IS NULL";
+//            try (PreparedStatement psQ = conn.prepareStatement(q);
+//                 ResultSet rs = psQ.executeQuery();
+//                 PreparedStatement psU = conn.prepareStatement("UPDATE MEMBER SET MEM_ICON_DATA = ? WHERE MEM_NO = ?");
+//                 FileInputStream fis = new FileInputStream(def.toFile())) {
+//                while (rs.next()) {
+//                    psU.setBinaryStream(1, fis);
+//                    psU.setInt(2, rs.getInt(1));
+//                    psU.addBatch();
+//                }
+//                psU.executeBatch();
+//                System.out.println("[member_head] defaultmem.png applied to members without avatar");
+//            }
+//        }
     }
 
     /* ---------------------------------------------------------------------

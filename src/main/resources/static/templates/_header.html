@@ -213,7 +213,35 @@
         .pixel-nav-link:nth-child(3) {
             background: var(--pixel-yellow);
         }
-
+        
+/* Hello! 主機風黃色大字+黑陰影 */
+.profile-head.profile-hello, .profile-text .profile-head:first-child {
+	font-size: 2.15rem;
+	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
+		sans-serif;
+	color: var(--pixel-font-yellow);
+	letter-spacing: 2.5px;
+	line-height: 1.0;
+	text-shadow: 3px 3px 0 var(--pixel-font-shadow), 1px 1px 0
+		var(--pixel-font-shadow), 0.5px 2px 0 #ce9726;
+	margin-bottom: -7px;
+}
+/* 會員暱稱 */
+.profile-nick, #headerMemNickName {
+	font-size: 1.28rem;
+	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
+		sans-serif;
+	color: var(--pixel-blue);
+	font-weight: bold;
+	max-width: 120px;
+	overflow-wrap: break-word;
+	text-overflow: ellipsis;
+	letter-spacing: 0.5px;
+	margin-top: 10px;
+	word-break: break-all;
+	white-space: pre-wrap;
+	display: block;	
+}
         .pixel-nav-link:hover {
             box-shadow: 0 2px 0 #222, 0 6px 14px #0006;
             filter: brightness(1.08);

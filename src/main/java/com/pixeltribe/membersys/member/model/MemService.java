@@ -155,13 +155,24 @@ public class MemService {
 		boolean mailExist = memRepository.existsByMemEmail(email);
 		result.put("exist", mailExist);
 		if (mailExist) {
-			result.put("message", "此信箱已被註冊");
+			result.put("message", "❌信箱已被註冊");
 		} else {
-			result.put("message", "✅此信箱可使用");
+			result.put("message", "		✅ +1");
 		}
 		return result;
 	}
-
+	// 註冊時檢查帳號是否存在
+	public Map<String, Object> checkAccount(String account){
+		Map<String, Object> result = new HashMap<>();
+		boolean accountExist = memRepository.existsByMemAccount(account);
+		result.put("exist", accountExist);
+		if(accountExist) {
+			result.put("message", "❌帳號名稱已被註冊");
+		} else {
+			result.put("message", "		✅ +1");
+		}
+		return result;
+	}
 	// 註冊會員
 	@Transactional
 	public Map<String, Object> registerMember(Map<String, String> payload) {

@@ -5,8 +5,23 @@
 <title>會員註冊 - PIXEL TRIBE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- 像素風英文字型 -->
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
+@font-face {
+	font-family: 'Zpix';
+	src:
+		url('https://cdn.jsdelivr.net/gh/SolidZORO/zpix-pixel-font@1.2.0/zpix.ttf')
+		format('truetype');
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Pixel Emulator';
+	src:
+		url('https://cdn.jsdelivr.net/npm/pixel-emulator@1.0.0/webfont/PixelEmulator.woff2')
+		format('woff2');
+	font-display: swap;
+}
 :root {
   --gboy-red: #b52824;
   --gboy-yellow: #f6e18a;
@@ -18,11 +33,11 @@
   --pixel-font: 'Press Start 2P', 'Noto Sans Mono', Arial, sans-serif;
 }
 body {
+  font-family: 'Press Start 2P', 'Noto Sans TC', 'Microsoft JhengHei', Arial, sans-serif;
   margin: 0;
   background: var(--gboy-red);
   min-height: 100vh;
   width: 100vw;
-  font-family: var(--main-font);
   color: var(--gboy-outline);
   display: flex;
   flex-direction: column;
@@ -32,6 +47,7 @@ body {
 
 /* 居中 screen */
 .gb-screen {
+  font-family: 'Press Start 2P', 'Noto Sans TC', 'Microsoft JhengHei', Arial, sans-serif;
   margin: 70px auto 0 auto;
   width: 420px;
   max-width: 98vw;
@@ -49,7 +65,6 @@ body {
 .pixel-title {
   font-size: 2.1rem;
   letter-spacing: 7px;
-  font-family: var(--pixel-font);
   color: var(--gboy-yellow);
   text-shadow: 3px 3px 0 #bcae58, 0 1px 0 #222;
   margin-bottom: 13px;
@@ -60,7 +75,6 @@ body {
   margin-bottom: 22px;
   color: #7d6848;
   font-size: 1.07em;
-  font-family: var(--main-font);
   text-align: center;
 }
 #memRegister {
@@ -82,7 +96,6 @@ body {
   color: #856f4d;
   margin-bottom: 6px;
   margin-left: 4px;
-  font-family: var(--pixel-font);
   font-weight: 700;
   letter-spacing: 1px;
 }
@@ -93,7 +106,6 @@ body {
   border-radius: 10px;
   background: #e8f2fd;
   font-size: 1.09em;
-  font-family: var(--main-font);
   outline: none;
   transition: border 0.18s;
   box-sizing: border-box;
@@ -106,7 +118,7 @@ body {
   background: #f4eede;
 }
 #emailMsg {
-  color: #c14444; font-size: 0.96em; margin: 4px 0 0 6px; font-family: var(--main-font);
+  color: #c14444; font-size: 0.96em; margin: 4px 0 0 6px;
 }
 .btns {
   display: flex;
@@ -123,7 +135,6 @@ body {
   background: var(--gboy-yellow);
   color: var(--gboy-outline);
   font-size: 1.08em;
-  font-family: var(--pixel-font);
   cursor: pointer;
   font-weight: 700;
   letter-spacing: 2px;
@@ -148,24 +159,27 @@ body {
 <body>
   <div class="gb-screen">
     <div class="pixel-title">PIXEL TRIBE</div>
-    <div class="register-desc">請填寫以下資料，完成會員註冊</div>
+    <div class="register-desc">請填寫您的個人資料</div>
     <form id="memRegister" method="post" autocomplete="off">
       <div class="input-box">
         <label class="input-label" for="memAccount">帳號</label>
-        <input class="input-field" type="text" id="memAccount" name="memAccount" required placeholder="請輸入帳號">
+          <input class="input-field" type="text" id="memAccount" name="memAccount" required placeholder="ACCOUNT..." onblur="checkAccountDuplicate()">
+ 		  <div id="accountMsg"></div>
       </div>
       <div class="input-box">
         <label class="input-label" for="memEmail">信箱</label>
-        <input class="input-field" type="text" id="memEmail" name="memEmail" required placeholder="請輸入信箱" autocomplete="email" onblur="checkEmailDuplicate()">
+        <input class="input-field" type="text" id="memEmail" name="memEmail" required placeholder="EMAIL..." autocomplete="email" onblur="checkEmailDuplicate()">
         <div id="emailMsg"></div>
       </div>
       <div class="input-box">
         <label class="input-label" for="memName">姓名</label>
-        <input class="input-field" type="text" id="memName" name="memName" required placeholder="請輸入姓名">
+          <input class="input-field" type="text" id="memName" name="memName" required placeholder="NAME..." onblur="validateName()">
+  			<div id="nameMsg"></div>
       </div>
       <div class="input-box">
         <label class="input-label" for="memNickName">暱稱</label>
-        <input class="input-field" type="text" id="memNickName" name="memNickName" required placeholder="請輸入暱稱">
+          <input class="input-field" type="text" id="memNickName" name="memNickName" required placeholder="NICKNAME..." onblur="validateNickName()">
+  		  <div id="nickNameMsg"></div>
       </div>
       <div class="input-box">
         <label class="input-label" for="memBirthday">生日</label>
@@ -173,23 +187,26 @@ body {
       </div>
       <div class="input-box">
         <label class="input-label" for="memAddr">地址</label>
-        <input class="input-field" type="text" id="memAddr" name="memAddr" required placeholder="請輸入聯絡地址" autocomplete="address-line1">
+        <input class="input-field" type="text" id="memAddr" name="memAddr" required placeholder="ADDRESS..." autocomplete="address-line1" onblur="validateAddr()">
+  		<div id="addrMsg"></div>
       </div>
       <div class="input-box">
         <label class="input-label" for="memPhone">電話</label>
-        <input class="input-field" type="text" id="memPhone" name="memPhone" required placeholder="請輸入聯絡電話" autocomplete="tel">
+          <input class="input-field" type="text" id="memPhone" name="memPhone" required placeholder="PHONE..." autocomplete="tel" onblur="validatePhone()">
+  		  <div id="phoneMsg"></div>
       </div>
       <div class="input-box">
         <label class="input-label" for="memPassword">密碼</label>
-        <input class="input-field" type="password" id="memPassword" name="memPassword" required placeholder="請輸入密碼">
+        <input class="input-field" type="password" id="memPassword" name="memPassword" required placeholder="PASSWORD..." onblur="validatePassword()">
+ 	    <div id="passwordMsg"></div>
       </div>
       <div class="input-box">
         <label class="input-label" for="confirmPassword">確認密碼</label>
-        <input class="input-field" type="password" id="confirmPassword" name="confirmPassword" required placeholder="請再輸入一次密碼">
+        <input class="input-field" type="password" id="confirmPassword" name="confirmPassword" required placeholder="PASSWORD#...">
       </div>
       <div class="btns">
-        <button class="btn" type="submit">完成註冊</button>
-        <button class="btn" type="button" onclick="window.location.href='/index.html'">返回首頁</button>
+        <button class="btn" type="submit">OK</button>
+        <button class="btn" type="button" onclick="window.location.href='/index.html'">RETURN</button>
       </div>
     </form>
   </div>

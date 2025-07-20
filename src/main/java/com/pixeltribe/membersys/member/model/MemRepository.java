@@ -18,6 +18,8 @@ public interface MemRepository extends JpaRepository<Member, Integer> {
 	Member findByMemEmail(String memEmail);
 
 	boolean existsByMemEmail(String memEmail);
+	
+	boolean existsByMemAccount(String memAccount);
 
 	@Query("SELECT m FROM Member m WHERE " + "CAST(m.id AS string) LIKE %:keyword% OR "
 			+ "LOWER(m.memNickName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "

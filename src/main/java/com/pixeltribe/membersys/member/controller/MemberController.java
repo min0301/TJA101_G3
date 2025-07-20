@@ -71,6 +71,12 @@ public class MemberController {
 	public Map<String, Object> registerMailCheck(@RequestBody Map<String, String> payload) {
 		return memService.checkEmail(payload.get("email"));
 	}
+	
+	// 註冊時檢查帳號重複
+	@PostMapping("/check-account")
+	public Map<String, Object> registerAccountCheck(@RequestBody Map<String, String> payload){
+		return memService.checkAccount(payload.get("account"));
+	}
 
 	// 註冊
 	@PostMapping("/register")
