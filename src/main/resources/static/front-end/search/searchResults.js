@@ -129,18 +129,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // const resultsHTML = newsList.map(news => {
+            //     // const newsLink = `/front-end/news/NewsDetail.html?newsId=${news.id}`;
+            //     const newsLink = `/front-end/newspage/NewsDetail.html?newsId=${news.id}`;
+            //     return `
+            //         <a href="${newsLink}" class="card mb-3 text-decoration-none text-dark">
+            //             <div class="card-body">
+            //                 <h5 class="card-title">${news.newsTit}</h5>
+            //                 <p class="card-text text-muted">${news.newsCon.slice(0, 100)}...</p>
+            //                 <span class="badge bg-secondary">${news.categoryTags?.join(', ') || '未分類'}</span>
+            //             </div>
+            //         </a>`;
+            // }).join('');
             const resultsHTML = newsList.map(news => {
-                // const newsLink = `/front-end/news/NewsDetail.html?newsId=${news.id}`;
                 const newsLink = `/front-end/newspage/NewsDetail.html?newsId=${news.id}`;
+                const tagsHTML = (news.categoryTags || [])
+                    .map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`)
+                    .join('');
+
                 return `
-                    <a href="${newsLink}" class="card mb-3 text-decoration-none text-dark">
-                        <div class="card-body">
-                            <h5 class="card-title">${news.newsTit}</h5>
-                            <p class="card-text text-muted">${news.newsCon.slice(0, 100)}...</p>
-                            <span class="badge bg-secondary">${news.categoryTags?.join(', ') || '未分類'}</span>
-                        </div>
-                    </a>`;
+        <a href="${newsLink}" class="card mb-3 text-decoration-none text-dark">
+            <div class="card-body">
+                <h5 class="card-title">${news.newsTit}</h5>
+                <p class="card-text text-muted">${news.newsCon.replace(/<[^>]*>/g, '').slice(0, 100)}...</p>
+                <div>${tagsHTML || '<span class="badge bg-secondary">未分類</span>'}</div>
+            </div>
+        </a>`;
             }).join('');
+
+
             resultsContainer.innerHTML = resultsHTML;
 
         } catch (error) {
