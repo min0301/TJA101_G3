@@ -72,7 +72,9 @@ public class NewsComReportService {
         report.setFinishTime(Instant.now());
         if (dto.getNcomNoNcomStatus() != null) {
             NewsComment comment = report.getNcomNo();
+//            System.out.printf(comment.toString());
             comment.setNcomStatus(dto.getNcomNoNcomStatus());
+            newsCommentRepository.save(comment);
         }
 
         NewsComReport saved = newsComReportRepository.save(report);

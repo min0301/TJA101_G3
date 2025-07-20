@@ -222,7 +222,7 @@
                     body: JSON.stringify({
                         id,
                         newsComReportStatus: "1",
-                        ncomNoNcomStatus: hide ? "1" : null
+                        ncomNoNcomStatus: hide ? "2" : "1"
                     })
                 });
                 if (!resp.ok) throw new Error(`(${resp.status}) 處理失敗`);
@@ -238,8 +238,8 @@
 
         function commentStatus(code) {
             return code === '1'
-                ? '<span class="status-badge status-hidden">已隱藏</span>'
-                : '<span class="status-badge status-normal">正常</span>';
+                ? '<span class="status-badge status-hidden">正常</span>'
+                : '<span class="status-badge status-normal">已隱藏</span>';
         }
 
         function reportStatus(code) {
