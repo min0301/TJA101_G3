@@ -1,5 +1,6 @@
 package com.pixeltribe.shopsys.product.model;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -7,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.pixeltribe.shopsys.malltag.model.MallTagRepository;
 import com.pixeltribe.shopsys.proSerialNumber.model.ProSerialNumberService;
@@ -23,12 +25,15 @@ public class ProductPreorderService {
 	@Autowired
 	RedisTemplate<String, Object> redisTemplate;
 	@Autowired
+	ProductPreorderRepository productPreorderRepository;
+	@Autowired
 	ProSerialNumberService proSerialNumberService;
 	
+	@Transactional
 	public void setPreorderInventory(String proNo, Integer quantity) {
 		 redisTemplate.opsForValue().set(proNo, quantity);
    }
-
+	
    public Integer getPreorderInventory(String proNo) {
        if (proNo == null) {
            return null;
@@ -36,11 +41,14 @@ public class ProductPreorderService {
        Object value = redisTemplate.opsForValue().get(proNo);
        return value != null ? (Integer) value : 0;
    }
-
-   public void deletePreorderInventory(String proNo) {
-       if (proNo != null) {
-           redisTemplate.delete(proNo);
-       }
+   
+   @Transactional
+   public Boolean deletePreorderInventory(String proNo) {
+	   return Boolean.TRUE.equals(redisTemplate.delete(proNo));
+   }
+   
+   public boolean preorderExists(String proNo) {
+       return Boolean.TRUE.equals(redisTemplate.hasKey(proNo));
    }
    
    public List<ProductInventoryDTO> getAllInventory(List<Integer> proNo) {
@@ -105,6 +113,24 @@ public class ProductPreorderService {
            display.setDisplayText("現貨");
        } else {
            display.setDisplayText("暫時缺貨");
+       }
+   }
+   
+   @Transactional
+   public Integer updaeProductStatus() {
+       LocalDate today = LocalDate.now();
+       return productPreorderRepository.updateProductStatus(today);
+   }
+   @Transactional
+   public void cleanupRedis() {
+       LocalDate yesterday = LocalDate.now().minusDays(1);
+       List<Product> products = productPreorderRepository.findProductsByDate(yesterday);
+       
+       for (Product product : products) {
+           if (preorderExists(product.getId().toString())) {
+               if (deletePreorderInventory(product.getId().toString())) {
+               }
+           }
        }
    }
 

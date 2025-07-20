@@ -64,6 +64,7 @@
     .form-group input[type="text"],
     .form-group input[type="date"],
     .form-group input[type="file"],
+    .form-group input[type="number"],
     .form-group textarea,
     .form-group select {
       width: 100%;
@@ -305,7 +306,7 @@
 
       <div class="form-group">
         <label for="product_price" required>價格</label>
-        <input type="text" id="product_price" name="proPrice" required placeholder="請輸入價格">
+        <input type="number" id="product_price" name="proPrice" required placeholder="請輸入價格" min="0">
       </div>
 
       <div class="form-group">
@@ -327,20 +328,20 @@
       </div>
       
       <div class="form-group">
-        <label for="product_image_upload">更新圖片（可選）</label>
+        <label for="product_image_upload">商品圖片(限64KB)</label>
         <input type="file" id="product_image_upload" name="imageFile" accept="image/*">
         <p class="preview-text">目前圖片預覽：</p>
-        <img id="image_preview" src="" alt="圖片預覽" class="image-preview" style="display: none;">
+        <img id="image_preview" src="" alt="圖片預覽" class="image-preview">
+      </div>
+      
+       <div class="form-group">
+        <label for="product_include">內容物</label>
+        <textarea id="product_include" name="proInclude" placeholder="請輸入商品內容物"></textarea>
       </div>
       
       <div class="form-group">
         <label for="product_details">描述</label>
         <textarea id="product_details" name="proDetails" placeholder="請輸入商品描述"></textarea>
-      </div>
-      
-      <div class="form-group">
-        <label for="product_include">內容物</label>
-        <textarea id="product_include" name="proInclude" placeholder="請輸入商品內容物"></textarea>
       </div>
     
       <div class="form-group">
@@ -372,315 +373,323 @@
 </div>
 
 <script>
-  // 使用 IIFE (Immediately Invoked Function Expression) 避免污染全域範疇
-  (function() {
-    // --- 變數定義區 ---
-    // 這些是 DOM 元素的引用，名稱可依個人習慣修改，但要與 HTML 的 id 對應
-    const form = document.getElementById('edit-form');
-    const productIdInput = document.getElementById('productId');
-    const nameInput = document.getElementById('product_name');
-    const priceInput = document.getElementById('product_price');
-    const statusSelect = document.getElementById('product_status');
-    const versionInput = document.getElementById('product_version');
-    const dateInput = document.getElementById('product_date');
-    const imageUploadInput = document.getElementById('product_image_upload');
-    const imagePreview = document.getElementById('image_preview');
-    const detailsTextarea = document.getElementById('product_details');
-    const includeTextarea = document.getElementById('product_include');
-    const malltagSelect = document.getElementById('product_malltag');
-    const ismarketSelect = document.getElementById('product_ismarket');
-    const errorMessageDiv = document.getElementById('error-message');
-    const loadingOverlay = document.getElementById('loadingOverlay');
+	//使用 IIFE (Immediately Invoked Function Expression) 避免污染全域範疇
+	(function() {
+	  // --- 變數定義區 ---
+	  // 這些是 DOM 元素的引用，名稱可依個人習慣修改，但要與 HTML 的 id 對應
+	  const form = document.getElementById('edit-form');
+	  const productIdInput = document.getElementById('productId');
+	  const nameInput = document.getElementById('product_name');
+	  const priceInput = document.getElementById('product_price');
+	  const statusSelect = document.getElementById('product_status');
+	  const versionInput = document.getElementById('product_version');
+	  const dateInput = document.getElementById('product_date');
+	  const imageUploadInput = document.getElementById('product_image_upload');
+	  const imagePreview = document.getElementById('image_preview');
+	  const detailsTextarea = document.getElementById('product_details');
+	  const includeTextarea = document.getElementById('product_include');
+	  const malltagSelect = document.getElementById('product_malltag');
+	  const ismarketSelect = document.getElementById('product_ismarket');
+	  const errorMessageDiv = document.getElementById('error-message');
+	  const loadingOverlay = document.getElementById('loadingOverlay');
+	
+	  // 從 URL 讀取要編輯的商品 ID
+	  const contentArea = document.getElementById('content-area');
+	  const pageParamsString = contentArea ? contentArea.getAttribute('data-page-params') : '';
+	  const urlParams = new URLSearchParams(pageParamsString);
+	  let productId = urlParams.get('id');
+	
+	  // --- 核心功能函式 ---
+	
+	  /**
+	   * @description 檢查商品ID是否存在
+	   */
+	  function validateProductId() {
+	    if (!productId) {
+	      showError("錯誤：URL中缺少商品ID。");
+	      return false;
+	    }
+	    return true;
+	  }
+	
+	  /**
+	   * @description 顯示載入狀態
+	   */
+	   function showLoading() {
+	    if (loadingOverlay) {
+	      loadingOverlay.style.display = 'flex';
+	    }
+	  }
+	
+	  /**
+	   * @description 隱藏載入狀態
+	   */
+	   function hideLoading() {
+	    if (loadingOverlay) {
+	      loadingOverlay.style.display = 'none';
+	    }
+	  }
+	  /**
+	   * @description 初始化頁面，獲取所有必要資料
+	   */
+	  async function initializePage() {
+	    if (!validateProductId()) return;
+	
+	    try {
+	      showLoading();
+	      
+	      // 使用 Promise.all 平行發送請求，提高效率
+	      const [malltagData, productData] = await Promise.all([
+	        fetch(`/api/malltag`).then(handleResponse),
+	        fetch(`/api/product/${productId}`).then(handleResponse)
+	      ]);
+	
+	      // 填充表單內容
+	      populateMallTag(malltagData, productData.mallTagNo);
+	      populateForm(productData);
+	
+	    } catch (error) {
+	      showError(`資料載入失敗: ${error.message}`);
+	    } finally {
+	      hideLoading();
+	    }
+	  }
+	
+	  /**
+	   * @description 統一處理 fetch 的回應
+	   */
+	  function handleResponse(response) {
+	    if (!response.ok) {
+	      throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
+	    }
+	    return response.json();
+	  }
+	
+	  /**
+	   * @description 填充平台下拉選單，並設置正確的預設選項
+	   */
+	  function populateMallTag(malltagData, selectedMallTagId) {
+	    malltagSelect.innerHTML = ''; // 清空現有選項
+	
+	    malltagData.forEach(malltag => {
+	      const option = document.createElement('option');
+	      option.value = malltag.id;
+	      option.textContent = malltag.mallTagName;
+	
+	      // 設置選中狀態
+	      if (Number(malltag.id) === Number(selectedMallTagId)) {
+	        option.selected = true;
+	      }
+	      malltagSelect.appendChild(option);
+	    });
+	  }
+	
+	  /**
+	   * @description 將商品資料填充到表單的各個欄位
+	   */
+	  function populateForm(data) {
+	    productIdInput.value = data.id;
+	    nameInput.value = data.proName;
+	    priceInput.value = data.proPrice;
+	    statusSelect.value = data.proStatus;
+	    versionInput.value = data.proVersion;
+	    dateInput.value = data.proDate;
+	    detailsTextarea.value = data.proDetails;
+	    includeTextarea.value = data.proInclude;
+	    malltagSelect.value = data.mallTagNo;
+	    ismarketSelect.value = data.proIsmarket;
+	   
+	    // 如果有圖片 URL，則顯示預覽圖
+	    if (data.proCover) {
+	      imagePreview.src = `/api/product/cover/${data.id}`;
+	      imagePreview.style.display = 'block';
+	    }else{
+	      imagePreview.src = "/images/product_img/noimage.png";
+	    }
+	  }
+	
+	  /**
+	   * @description 處理表單提交
+	   */
+	  async function handleFormSubmit(event) {
+	      event.preventDefault(); // 阻止瀏覽器預設的提交行為
 
-    // 從 URL 讀取要編輯的商品 ID
-    const contentArea = document.getElementById('content-area');
-	const pageParamsString = contentArea ? contentArea.getAttribute('data-page-params') : '';
-	const urlParams = new URLSearchParams(pageParamsString);
-	let productId = urlParams.get('id');
+	      // 表單驗證
+	      if (!validateForm()) {
+	          showError('請填寫所有必填欄位');
+	          return;
+	      }
 
-    // --- 核心功能函式 ---
+	      // 顯示載入狀態
+	      const submitBtn = form.querySelector('.btn-save');
+	      const originalText = submitBtn.textContent;
+	      submitBtn.textContent = '處理中...';
+	      submitBtn.disabled = true;
+	      form.classList.add('loading');
 
-    /**
-     * @description 檢查商品ID是否存在
-     */
-    function validateProductId() {
-      if (!productId) {
-        showError("錯誤：URL中缺少商品ID。");
-        return false;
-      }
-      return true;
-    }
+	      try {
+	          // 1. 建立 FormData 物件
+	          const formData = new FormData();
 
-    /**
-     * @description 顯示載入狀態
-     */
-     function showLoading() {
-    	  if (loadingOverlay) {
-    	    loadingOverlay.style.display = 'flex';
-    	  }
-    	}
+	          // 2. 定義要轉換成 JSON 的純資料物件
+	          const productEditDTO = {
+	              proName: nameInput.value,
+	              proPrice: priceInput.value,
+	              proStatus: statusSelect.value,
+	              proVersion: versionInput.value,
+	              proDate: dateInput.value || null,
+	              proDetails: detailsTextarea.value || null,
+	              proInclude: includeTextarea.value || null,
+	              mallTagNo: parseInt(malltagSelect.value),
+	              proIsmarket: ismarketSelect.value
+	          };
 
-    /**
-     * @description 隱藏載入狀態
-     */
-     function hideLoading() {
-    	  if (loadingOverlay) {
-    	    loadingOverlay.style.display = 'none';
-    	  }
-    	}
-    /**
-     * @description 初始化頁面，獲取所有必要資料
-     */
-    async function initializePage() {
-      if (!validateProductId()) return;
+	          // 3. 將資料包裝成 JSON 並加入 FormData
+	          formData.append('ProductEditDTO', new Blob([JSON.stringify(productEditDTO)], { type: 'application/json' }));
 
-      try {
-        showLoading();
-        
-        // 使用 Promise.all 平行發送請求，提高效率
-        const [malltagData, productData] = await Promise.all([
-          fetch(`/api/malltag`).then(handleResponse),
-          fetch(`/api/product/${productId}`).then(handleResponse)
-        ]);
+	          // 4. 處理圖片檔案 - 修正重點
+	          const imageFile = imageUploadInput.files[0];
+	          if (imageFile) {
+	              // 有選擇新圖片時才加入
+	              formData.append('imageFile', imageFile);
+	          }else {
+	        	
+	          }
+	          // 沒有圖片時不加入任何圖片相關的欄位到 FormData
 
-        // 填充表單內容
-        populateMallTag(malltagData, productData.mallTagNo);
-        populateForm(productData);
+	          // 5. 發送請求
+	          const response = await fetch(`/api/admin/product/${productId}`, {
+	              method: 'PUT',
+	              body: formData,
+	          });
 
-      } catch (error) {
-        showError(`資料載入失敗: ${error.message}`);
-      } finally {
-        hideLoading();
-      }
-    }
+	          // 檢查回應狀態
+	          if (response.ok) {
+	              // 成功處理
+	              alert('更新成功！');
+	              if (typeof loadExternalPage === 'function') {
+	                  loadExternalPage('../shopsys/product/listAllProduct.html');
+	              } else {
+	                  window.location.href = 'listAllProduct.html';
+	              }
+	          } else {
+	              // 失敗處理
+	              const responseText = await response.text();
+	              console.log('錯誤回應內容:', responseText);
+	              console.log('回應狀態碼:', response.status);
 
-    /**
-     * @description 統一處理 fetch 的回應
-     */
-    function handleResponse(response) {
-      if (!response.ok) {
-        throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
-      }
-      return response.json();
-    }
+	              let errorMessage = '更新失敗';
 
-    /**
-     * @description 填充平台下拉選單，並設置正確的預設選項
-     */
-    function populateMallTag(malltagData, selectedMallTagId) {
-      malltagSelect.innerHTML = ''; // 清空現有選項
+	              // 檢查不同的狀態碼
+	              if (response.status === 409) {
+	                  errorMessage = responseText || '商品已存在';
+	              } else if (response.status === 400) {
+	                  errorMessage = responseText || '輸入資料有誤';
+	              } else if (response.status === 500) {
+	                  errorMessage = responseText || '伺服器內部錯誤';
+	              } else {
+	                  try {
+	                      const errorData = JSON.parse(responseText);
+	                      errorMessage = errorData.message || errorMessage;
+	                  } catch (e) {
+	                      errorMessage = responseText || errorMessage;
+	                  }
+	              }
 
-      malltagData.forEach(malltag => {
-        const option = document.createElement('option');
-        option.value = malltag.id;
-        option.textContent = malltag.mallTagName;
+	              throw new Error(errorMessage);
+	          }
 
-        // 設置選中狀態
-        if (Number(malltag.id) === Number(selectedMallTagId)) {
-          option.selected = true;
-        }
-        malltagSelect.appendChild(option);
-      });
-    }
-
-    /**
-     * @description 將商品資料填充到表單的各個欄位
-     */
-    function populateForm(data) {
-      productIdInput.value = data.id;
-      nameInput.value = data.proName;
-      priceInput.value = data.proPrice;
-      statusSelect.value = data.proStatus;
-      versionInput.value = data.proVersion;
-      dateInput.value = data.proDate;
-      detailsTextarea.value = data.proDetails;
-      includeTextarea.value = data.proInclude;
-      malltagSelect.value = data.mallTagNo;
-      ismarketSelect.value = data.proIsmarket;
-     
-      // 如果有圖片 URL，則顯示預覽圖
-      if (data.proCover) {
-        imagePreview.src = `/api/product/cover/${data.id}`;
-        imagePreview.style.display = 'block';
-      }
-    }
-
-    /**
-     * @description 處理表單提交
-     */
-    async function handleFormSubmit(event) {
-      event.preventDefault(); // 阻止瀏覽器預設的提交行為
-      
-      // 表單驗證
-      if (!validateForm()) {
-        showError('請填寫所有必填欄位');
-        return;
-      }
-
-      // 顯示載入狀態
-      const submitBtn = form.querySelector('.btn-save');
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = '處理中...';
-      submitBtn.disabled = true;
-      form.classList.add('loading');
-      
-      try {
-        // 1. 建立 FormData 物件
-        const formData = new FormData();
-
-        // 2. 定義要轉換成 JSON 的純資料物件
-        const productEditDTO = {
-          proName: nameInput.value,
-          proPrice: priceInput.value,
-          proStatus: statusSelect.value,
-          proVersion: versionInput.value,
-          proDate: dateInput.value || null,
-          proDetails: detailsTextarea.value || null,
-          proInclude: includeTextarea.value || null,
-          mallTagNo: parseInt(malltagSelect.value),
-          proIsmarket: ismarketSelect.value
-        };
-
-        // 3. 將資料包裝成 JSON 並加入 FormData
-        formData.append('ProductEditDTO', new Blob([JSON.stringify(productEditDTO)], { type: 'application/json' }));
-
-        // 4. 加入圖片檔案
-        const imageFile = imageUploadInput.files[0];
-        if (imageFile) {
-          formData.append('imageFile', imageFile);
-        } else {
-          formData.append('imageFile', new File([], '', { type: 'image/gif' }));
-        }
-
-        // 5. 發送請求
-        const response = await fetch(`/api/admin/product/${productId}`, {
-          method: 'PUT',
-          body: formData,
-        });
-
-        if (!response.ok) {
-            const responseText = await response.text();
-            console.log('錯誤回應內容:', responseText);
-            
-            let errorMessage = '新增失敗';
-            
-            // 檢查不同的狀態碼
-            if (response.status === 409) {
-                errorMessage = responseText || '商品已存在';
-            } else if (response.status === 400) {
-                errorMessage = responseText || '輸入資料有誤';
-            } else if (response.status === 500) {
-                errorMessage = responseText || '伺服器內部錯誤';
-            } else {
-                try {
-                    const errorData = JSON.parse(responseText);
-                    errorMessage = errorData.message || errorMessage;
-                } catch (e) {
-                    errorMessage = responseText || errorMessage;
-                }
-            }
-            
-            throw new Error(errorMessage);
-        }
-
-        // 成功提示
-        alert('更新成功！');
-        if (typeof loadExternalPage === 'function') {
-        	  loadExternalPage('../shopsys/product/listAllProduct.html');
-        	} else {
-        	  window.location.href = 'listAllProduct.html';
-        	}
-
-      } catch(error) {
-        showError(`儲存失敗: ${error.message}`);
-      } finally {
-        // 恢復按鈕狀態
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-        form.classList.remove('loading');
-      }
-    }
-
-    /**
-     * @description 處理圖片預覽
-     */
-    function handleImagePreview(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const localImageUrl = URL.createObjectURL(file);
-        imagePreview.src = localImageUrl;
-        imagePreview.style.display = 'block';
-      }
-    }
-
-    /**
-     * @description 表單驗證
-     */
-    function validateForm() {
-      let isValid = true;
-      const requiredFields = [nameInput, priceInput, versionInput];
-      
-      requiredFields.forEach(field => {
-        const formGroup = field.closest('.form-group');
-        if (!field.value.trim()) {
-          formGroup.classList.add('error');
-          formGroup.classList.remove('success');
-          isValid = false;
-        } else {
-          formGroup.classList.add('success');
-          formGroup.classList.remove('error');
-        }
-      });
-      
-      return isValid;
-    }
-
-    /**
-     * @description 即時驗證處理
-     */
-    function handleInputValidation(e) {
-      const formGroup = e.target.closest('.form-group');
-      if (e.target.value.trim()) {
-        formGroup.classList.add('success');
-        formGroup.classList.remove('error');
-      } else {
-        formGroup.classList.remove('success');
-        formGroup.classList.remove('error');
-      }
-    }
-
-    // --- 輔助函式 ---
-    function showError(message) {
-      errorMessageDiv.style.display = 'block';
-      errorMessageDiv.textContent = message;
-      console.error(message);
-      
-      // 滾動到錯誤訊息處
-      errorMessageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    function hideError() {
-      errorMessageDiv.style.display = 'none';
-    }
-
-    // --- 事件處理 ---
-    
-    // 表單提交事件
-    form.addEventListener('submit', handleFormSubmit);
-
-    // 圖片上傳預覽事件
-    imageUploadInput.addEventListener('change', handleImagePreview);
-
-    // 表單輸入時隱藏錯誤訊息和即時驗證
-    form.addEventListener('input', function(e) {
-      hideError();
-      handleInputValidation(e);
-    });
-
-    // --- 初始化頁面 ---
-    initializePage();
-
-  })();
+	      } catch(error) {
+	          console.error('提交錯誤:', error);
+	          showError(`儲存失敗: ${error.message}`);
+	      } finally {
+	          // 恢復按鈕狀態
+	          submitBtn.textContent = originalText;
+	          submitBtn.disabled = false;
+	          form.classList.remove('loading');
+	      }
+	  }
+	  
+	  /**
+	   * @description 處理圖片預覽
+	   */
+	  function handleImagePreview(event) {
+	    const file = event.target.files[0];
+	    if (file) {
+	      const localImageUrl = URL.createObjectURL(file);
+	      imagePreview.src = localImageUrl;
+	      imagePreview.style.display = 'block';
+	    }
+	  }
+	
+	  /**
+	   * @description 表單驗證
+	   */
+	  function validateForm() {
+	    let isValid = true;
+	    const requiredFields = [nameInput, priceInput, versionInput];
+	    
+	    requiredFields.forEach(field => {
+	      const formGroup = field.closest('.form-group');
+	      if (!field.value.trim()) {
+	        formGroup.classList.add('error');
+	        formGroup.classList.remove('success');
+	        isValid = false;
+	      } else {
+	        formGroup.classList.add('success');
+	        formGroup.classList.remove('error');
+	      }
+	    });
+	    
+	    return isValid;
+	  }
+	
+	  /**
+	   * @description 即時驗證處理
+	   */
+	  function handleInputValidation(e) {
+	    const formGroup = e.target.closest('.form-group');
+	    if (e.target.value.trim()) {
+	      formGroup.classList.add('success');
+	      formGroup.classList.remove('error');
+	    } else {
+	      formGroup.classList.remove('success');
+	      formGroup.classList.remove('error');
+	    }
+	  }
+	
+	  // --- 輔助函式 ---
+	  function showError(message) {
+	    errorMessageDiv.style.display = 'block';
+	    errorMessageDiv.textContent = message;
+	    console.error(message);
+	    
+	    // 滾動到錯誤訊息處
+	    errorMessageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+	  }
+	
+	  function hideError() {
+	    errorMessageDiv.style.display = 'none';
+	  }
+	
+	  // --- 事件處理 ---
+	  
+	  // 表單提交事件
+	  form.addEventListener('submit', handleFormSubmit);
+	
+	  // 圖片上傳預覽事件
+	  imageUploadInput.addEventListener('change', handleImagePreview);
+	
+	  // 表單輸入時隱藏錯誤訊息和即時驗證
+	  form.addEventListener('input', function(e) {
+	    hideError();
+	    handleInputValidation(e);
+	  });
+	
+	  // --- 初始化頁面 ---
+	  initializePage();
+	
+	})();
 </script>
 
 </body>
