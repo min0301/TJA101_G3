@@ -171,8 +171,110 @@ document.addEventListener('DOMContentLoaded', async function() {
         `;
 			}
 		},
-		// ... (其他tab如 orders/coupons/collections 省略不動)
-		// 請把你原本的 orders、coupons、collections 填進來，和 profile 並列
+		orders: async function(member) {
+			let html = `
+		        <div class="member-center-card mb-4 bg-white">
+		          <div class="card-body py-4 px-4">
+		            <div class="card-section-title">消費紀錄</div>
+		            <div class="table-responsive">
+		              <table class="table align-middle mb-0">
+		                <thead>
+		                  <tr>
+		                    <th>訂單編號</th>
+		                    <th>訂購時間</th>
+		                    <th>訂單狀態</th>
+		                  </tr>
+		                </thead>
+		                <tbody id="orders-tbody">
+		                  <tr><td colspan="4" class="text-center text-muted">資料載入中...</td></tr>
+		                </tbody>
+		              </table>
+		            </div>
+		          </div>
+		        </div>
+		      `;
+			document.getElementById('memberMainArea').innerHTML = html;
+
+			const jwt = localStorage.getItem('jwt');
+			const id = memberInfo.id;
+			try {
+				const res = await fetch(`/api/orders/member/${id}`, {
+					method: 'GET',
+					headers: { 'Authorization': 'Bearer ' + jwt }
+				});
+				const orders = await res.json();
+
+				let rows = '';
+				if (orders && orders.length > 0) {
+					rows = orders.map(order => `
+		                <tr>
+		                  <td>${order.orderNo}</td>
+		                  <td>${order.orderDatetime ? order.orderDatetime.replace('T', ' ').slice(0, 16) : ''}</td>
+		                  <td>${order.orderStatus || '-'}</td>
+		                </tr>
+		              `).join('');
+				} else {
+					rows = `<tr><td colspan="4" class="text-center text-muted">您目前尚未有任何訂單紀錄</td></tr>`;
+				}
+				document.getElementById('orders-tbody').innerHTML = rows;
+			} catch (e) {
+				document.getElementById('orders-tbody').innerHTML = `<tr><td colspan="4" class="text-danger text-center">資料取得失敗</td></tr>`;
+			}
+		},
+		coupons: async function(member) {
+			let html = `
+		        <div class="member-center-card mb-4 bg-white">
+		          <div class="card-body py-4 px-4">
+		            <div class="card-section-title">我的優惠券</div>
+		            <div class="table-responsive">
+		              <table class="table align-middle mb-0">
+		                <thead>
+		                  <tr>
+		                    <th>名稱</th>
+		                    <th>序號</th>
+		                    <th>適用範圍</th>
+		                    <th>到期日</th>
+		                    <th>狀態</th>
+		                  </tr>
+		                </thead>
+		                <tbody id="coupons-tbody">
+		                  <tr><td colspan="5" class="text-center text-muted">資料載入中...</td></tr>
+		                </tbody>
+		              </table>
+		            </div>
+		          </div>
+		        </div>
+		      `;
+			document.getElementById('memberMainArea').innerHTML = html;
+
+			const jwt = localStorage.getItem('jwt');
+			const id = memberInfo.id;
+			try {
+				const res = await fetch(`/api/coupon/member/${id}`, {
+					method: 'GET',
+					headers: { 'Authorization': 'Bearer ' + jwt }
+				});
+				const coupons = await res.json();
+
+				let rows = '';
+				if (coupons && coupons.length > 0) {
+					rows = coupons.map(coupon => `
+		                <tr>
+		                  <td>${coupon.couName || '-'}</td>
+		                  <td>${coupon.couCode || '-'}</td>
+		                  <td>全部商品</td>
+		                  <td>${coupon.couUseEnd ? coupon.couUseEnd.replace('T', ' ').slice(0, 10) : '-'}</td>
+		                  <td>${coupon.couStatus === '1' ? '已使用' : '未使用'}</td>
+		                </tr>
+		              `).join('');
+				} else {
+					rows = `<tr><td colspan="5" class="text-center text-muted">您尚未擁有任何優惠券</td></tr>`;
+				}
+				document.getElementById('coupons-tbody').innerHTML = rows;
+			} catch (e) {
+				document.getElementById('coupons-tbody').innerHTML = `<tr><td colspan="5" class="text-danger text-center">資料取得失敗</td></tr>`;
+			}
+		},
 	};
 
 	// 集中綁定所有動態事件
