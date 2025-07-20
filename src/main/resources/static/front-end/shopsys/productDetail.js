@@ -420,6 +420,40 @@ class ProductDetailManager {
 	}
 	
 	
+	// ========== 處理長內容的展開/收起功能 ========== //
+	processLongContent(element) {
+	    if (!element) return;
+	    
+	    // 檢查內容高度
+	    const contentHeight = element.scrollHeight;
+	    const visibleHeight = element.offsetHeight;
+	    
+	    // 如果內容超過 300px，添加展開/收起功能
+	    if (contentHeight > 300) {
+	        element.classList.add('expandable', 'collapsed');
+	        
+	        // 創建展開按鈕
+	        const expandButton = document.createElement('button');
+	        expandButton.className = 'expand-button';
+	        expandButton.textContent = '展開完整內容';
+	        
+	        expandButton.addEventListener('click', () => {
+	            if (element.classList.contains('collapsed')) {
+	                element.classList.remove('collapsed');
+	                expandButton.textContent = '收起內容';
+	            } else {
+	                element.classList.add('collapsed');
+	                expandButton.textContent = '展開完整內容';
+	                // 收起時滾動到內容開始位置
+	                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	            }
+	        });
+	        
+	        // 將按鈕插入到內容後面
+	        element.parentNode.insertBefore(expandButton, element.nextSibling);
+	    }
+	}
+	
 
 	
 	
@@ -450,15 +484,13 @@ class ProductDetailManager {
 
 	    console.log('顯示商品詳情:', product);
 
-	    // 生成庫存區域 HTML
-	    console.log('=== 生成庫存區域 ===');
-	    const inventoryHtml = this.generateInventorySection(inventoryData);
-	    console.log('生成的庫存 HTML:', inventoryHtml);
+	    // 修正：處理可能很長的商品描述
+	    const processedInclude = this.processProductContent(product.proInclude);
+	    const processedDetails = this.processProductContent(product.proDetails);
 
-	    // 生成操作按鈕區域 HTML
-	    console.log('=== 生成操作按鈕區域 ===');
+	    // 生成庫存區域 HTML
+	    const inventoryHtml = this.generateInventorySection(inventoryData);
 	    const actionHtml = this.generateActionSection(product, inventoryData);
-	    console.log('生成的操作按鈕 HTML:', actionHtml);
 
 	    const detailHtml = `
 	        <div class="product-detail-page">
@@ -489,35 +521,31 @@ class ProductDetailManager {
 	                        
 	                        <!-- 商品基本資訊 -->
 	                        <div class="product-specs">
+	                            <div class="spec-item">
+	                                <span class="spec-label">狀態</span>
+	                                <span class="spec-value">${this.escapeHtml(product.proStatus || '未知')}</span>
+	                            </div>
 	                            
-								<div class="spec-item">
-							        <span class="spec-label">狀態</span>
-							        <span class="spec-value">${this.escapeHtml(product.proStatus || '未知')}</span>
-							    </div>
-							    
-							    <div class="spec-item">
-							        <span class="spec-label">版本</span>
-							        <span class="spec-value">${this.escapeHtml(product.proVersion || '標準版')}</span>
-							    </div>
-							    
-							    <div class="spec-item">
-							        <span class="spec-label">平台</span>
-							        <span class="spec-value">${this.escapeHtml(this.getPlatformName(product))}</span>
-							    </div>
-							    
-							    <div class="spec-item">
-							        <span class="spec-label">發布日期</span>
-							        <span class="spec-value">${this.formatDate(product.proDate)}</span>
-							    </div>
-								
-								
-
+	                            <div class="spec-item">
+	                                <span class="spec-label">版本</span>
+	                                <span class="spec-value">${this.escapeHtml(product.proVersion || '標準版')}</span>
+	                            </div>
+	                            
+	                            <div class="spec-item">
+	                                <span class="spec-label">平台</span>
+	                                <span class="spec-value">${this.escapeHtml(this.getPlatformName(product))}</span>
+	                            </div>
+	                            
+	                            <div class="spec-item">
+	                                <span class="spec-label">發布日期</span>
+	                                <span class="spec-value">${this.formatDate(product.proDate)}</span>
+	                            </div>
 	                        </div>
 	                        
-	                        <!-- 庫存顯示區域 - 動態生成 -->
+	                        <!-- 庫存顯示區域 -->
 	                        ${inventoryHtml}
 	                        
-	                        <!-- 操作按鈕區域 - 動態生成 -->
+	                        <!-- 操作按鈕區域 -->
 	                        ${actionHtml}
 	                    </div>
 	                </div>
@@ -528,16 +556,16 @@ class ProductDetailManager {
 	                <!-- 商品內容 -->
 	                <div class="content-block">
 	                    <h3 class="content-title">商品內容：</h3>
-	                    <div class="content-text">
-	                        ${this.escapeHtml(product.proInclude || '商品內容資訊暫未提供')}
+	                    <div class="content-text" data-content-type="include">
+	                        ${processedInclude}
 	                    </div>
 	                </div>
 
 	                <!-- 遊戲簡介 -->
 	                <div class="content-block">
 	                    <h3 class="content-title">遊戲簡介：</h3>
-	                    <div class="content-text">
-	                        ${this.escapeHtml(product.proDetails || '遊戲簡介暫未提供')}
+	                    <div class="content-text" data-content-type="details">
+	                        ${processedDetails}
 	                    </div>
 	                </div>
 	            </div>
@@ -545,7 +573,6 @@ class ProductDetailManager {
 	            <!-- 遊戲畫面展示區域 -->
 	            <div class="game-gallery-section">
 	                <div class="game-screenshots">
-	                    <!-- 這裡可以添加遊戲截圖輪播 -->
 	                    <div class="screenshot-placeholder">
 	                        <p>遊戲畫面展示區域</p>
 	                        <small>此功能可在後續開發中擴展</small>
@@ -556,8 +583,45 @@ class ProductDetailManager {
 	    `;
 
 	    this.mainContainer.innerHTML = detailHtml;
+
+	    // 新增：處理長內容的展開/收起功能
+	    setTimeout(() => {
+	        const contentTexts = this.mainContainer.querySelectorAll('.content-text');
+	        contentTexts.forEach(element => {
+	            this.processLongContent(element);
+	        });
+	    }, 100);
+
 	    console.log('=== 商品詳情顯示完成 ===');
 	}
+	
+	
+	/**
+	 * 🔥 新增：處理產品內容，確保格式正確
+	 */
+	processProductContent(content) {
+	    if (!content) {
+	        return '內容暫未提供';
+	    }
+	    
+	    // 清理和格式化內容
+	    let processed = content.toString().trim();
+	    
+	    // 如果內容太長，添加適當的段落分隔
+	    if (processed.length > 500) {
+	        // 將長句子分段（在句號、驚嘆號、問號後分段）
+	        processed = processed.replace(/([。！？])\s*/g, '$1\n\n');
+	    }
+	    
+	    // 轉義 HTML 但保留換行
+	    processed = this.escapeHtml(processed);
+	    
+	    return processed;
+	}
+	
+	
+	
+	
 	
 	displayInventoryInfo(inventoryData) {
 	       if (!inventoryData) {
@@ -1165,18 +1229,20 @@ class ProductDetailManager {
                 pointer-events: none;
             }
 
-            /* 內容區域 */
-            .product-content-section {
-                display: grid;
-                gap: 2rem;
-                margin-bottom: 2rem;
-            }
+            /* 內容區域  */
+			.product-content-section {
+				display: grid;
+			    gap: 2rem;
+			    margin-bottom: 2rem;
+			}
 
             .content-block {
                 background: var(--theme-white);
                 border-radius: 10px;
                 padding: 2rem;
                 box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.05);
+				min-height: auto;
+				height: auto;
             }
 
             .content-title {
@@ -1187,12 +1253,71 @@ class ProductDetailManager {
                 border-left: 4px solid #4CAF50;
                 padding-left: 1rem;
             }
+			
+			
+			/* 關鍵修正：產品描述文字區域 */
+			.content-text {
+				color: #555;
+			    line-height: 1.7;
+			    font-size: 1rem;
+			    /* 移除高度限制，允許內容完全顯示 */
+			    max-height: none !important;
+			    height: auto !important;
+			    overflow: visible !important;
+			    /* 確保文字換行正常 */
+			    word-wrap: break-word;
+			    word-break: break-word;
+			    white-space: pre-wrap; /* 保留換行符 */
+			    /*為長內容增加更好的可讀性 */
+			    padding: 1rem;
+			    background: #f8f9fa;
+			    border-radius: 8px;
+			    border: 1px solid #e9ecef;
+			}
 
-            .content-text {
-                color: #555;
-                line-height: 1.7;
-                font-size: 1rem;
-            }
+			/* 新增：展開/收起功能（用於超長內容） */
+			.content-text.expandable {
+			    position: relative;
+			}
+
+			.content-text.collapsed {
+			    max-height: 200px;
+			    overflow: hidden;
+			}
+
+			.content-text.collapsed::after {
+			    content: '';
+			    position: absolute;
+			    bottom: 0;
+			    left: 0;
+			    right: 0;
+			    height: 60px;
+			    background: linear-gradient(transparent, #f8f9fa);
+			    pointer-events: none;
+			}
+
+			.expand-button {
+			    display: inline-block;
+			    margin-top: 1rem;
+			    padding: 0.5rem 1rem;
+			    background: #4CAF50;
+			    color: white;
+			    border: none;
+			    border-radius: 5px;
+			    cursor: pointer;
+			    font-size: 0.9rem;
+			    transition: all 0.3s ease;
+			 }
+
+			 .expand-button:hover {
+			    background: #45a049;
+			    transform: translateY(-1px);
+			 }
+			
+			
+			
+			
+			
 
             /* 遊戲畫面展示區域 */
             .game-gallery-section {
@@ -1313,6 +1438,9 @@ class ProductDetailManager {
                     flex-direction: column;
                     gap: 0.5rem;
                 }
+				
+				
+				
             }
 			
 			/*庫存樣式*/
@@ -1362,6 +1490,13 @@ class ProductDetailManager {
         document.head.appendChild(style);
     }
 }
+
+
+
+
+
+
+
 
 // 防止重複創建實例的全域檢查
 if (!window.productDetailManagerCreated) {
