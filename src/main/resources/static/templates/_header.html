@@ -5,10 +5,10 @@
 <title>像素部落 Pixel Tribe</title>
 
 <link
-	href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
-	rel="stylesheet">
+	href="https://cdn.jsdelivr.net/npm/pixel-emulator@1.0.0/webfont/PixelEmulator.woff2"
+	rel="stylesheet" as="font" type="font/woff2" crossorigin>
+
 <style>
-/* --- Zpix 像素中文字體引入（建議全站最前面）--- */
 @font-face {
 	font-family: 'Zpix';
 	src:
@@ -17,6 +17,37 @@
 	font-display: swap;
 }
 
+@font-face {
+	font-family: 'Pixel Emulator';
+	src:
+		url('https://cdn.jsdelivr.net/npm/pixel-emulator@1.0.0/webfont/PixelEmulator.woff2')
+		format('woff2');
+	font-display: swap;
+}
+
+/* ========================== */
+/* 全站預設使用 Zpix 中文像素字 */
+/* ========================== */
+body {
+	margin: 0;
+	background: #ececec;
+	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
+		sans-serif;
+}
+
+/* ======================== */
+/* 像素英文專用字型區         */
+/* ======================== */
+.pixel-btn, .pixel-btn-login, .pixel-btn-blue, .pixel-nav-link, .btn-en,
+	.english-pixel, #login, #signup {
+	font-family: 'Pixel Emulator', 'Zpix', 'Noto Sans TC', Arial,
+		sans-serif !important;
+	font-size: 1.35rem;
+	letter-spacing: 0.15em;
+	text-transform: uppercase;
+}
+
+/* ============= 你的原本設定 ============== */
 :root {
 	--pixel-bg: #b2402b; /* gameboy主體紅 */
 	--pixel-green: #9bf2b6; /* gameboy青綠 按鈕色 */
@@ -27,14 +58,6 @@
 	--pixel-font-yellow: #ffe05c; /* 黃色字 */
 	--pixel-font-black: #221d15; /* 字體黑色(主機字色) */
 	--pixel-font-shadow: #000000; /* 字體陰影 */
-}
-
-body {
-	margin: 0;
-	background: #ececec;
-	font-family: 'Zpix', 
-    'Press Start 2P', 
-    'Noto Sans TC', 'Microsoft JhengHei', Arial, sans-serif;
 }
 
 /* === HEADER === */
@@ -149,8 +172,7 @@ body {
 	border: 5px solid var(--pixel-outline);
 	border-radius: 26px;
 	box-shadow: 4px 6px 0 var(--pixel-btn-shadow);
-	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
-		sans-serif;
+	/* 字型已由 .pixel-nav-link 字型控管 */
 	font-size: 1.5rem;
 	font-weight: bold;
 	margin: 0;
@@ -264,8 +286,7 @@ body {
 
 /* === Pixel 按鈕 === */
 .pixel-btn {
-	font-family: 'Zpix', 'Noto Sans TC', 'Microsoft JhengHei', Arial,
-		sans-serif;
+	/* 英文會被 .pixel-btn 上面的 .pixel-btn, .pixel-btn-login, .pixel-btn-blue 控管 */
 	font-size: 1.25rem;
 	padding: 12px 28px 10px 28px;
 	border: 3px solid var(--pixel-outline);
@@ -411,22 +432,22 @@ body {
 						href="/front-end/mem/MemberCenter.html?tab=orders"><i
 						class="bi bi-receipt me-1"></i>消費紀錄</a> <a class="dropdown-item"
 						href="/front-end/mem/MemberCenter.html?tab=coupons"><i
-						class="bi bi-ticket me-1"></i>優惠券</a> 
-<!-- 						<a class="dropdown-item" -->
-<!-- 						href="/front-end/mem/MemberCenter.html?tab=collections"><i -->
-<!-- 						class="bi bi-bookmark me-1"></i>關注討論區</a> -->
+						class="bi bi-ticket me-1"></i>優惠券</a>
+					<!-- 						<a class="dropdown-item" -->
+					<!-- 						href="/front-end/mem/MemberCenter.html?tab=collections"><i -->
+					<!-- 						class="bi bi-bookmark me-1"></i>關注討論區</a> -->
 					<div class="dropdown-divider"></div>
 					<a class="dropdown-item" id="logout-btn" href="#"><i
-						class="bi-box-arrow-right"></i> Log out</a>
+						class="bi-box-arrow-right"></i> LOG OUT</a>
 				</div>
 			</div>
 			<!-- 訪客專區（未登入才顯示） -->
 			<div id="header-guest-area" class="pixel-login-group"
 				style="display: flex;">
 				<a href="/front-end/mem/MemberLogin.html"
-					class="pixel-btn pixel-btn-red" id="login">Log in</a> <a
+					class="pixel-btn pixel-btn-red" id="login">LOG IN</a> <a
 					href="/front-end/mem/MemRegisterPage.html"
-					class="pixel-btn pixel-btn-blue" id="signup">Join us</a>
+					class="pixel-btn pixel-btn-blue" id="signup">JOIN US</a>
 			</div>
 		</div>
 	</header>

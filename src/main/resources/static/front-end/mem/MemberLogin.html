@@ -3,298 +3,421 @@
 <head>
 <meta charset="UTF-8">
 <title>會員登入 - Pixel Tribe</title>
-<!-- 統一像素風字體 (中英文都支援) -->
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 :root {
-    --main-bg: #f7f4ed;
-    --main-brown: #3b3327;
-    --light-yellow: #fffbe7;
-    --deep-yellow: #ffe98a;
-    --input-bg: #f8f7e7;
-    --input-border: #d88e24;
-    --box-shadow: 0 6px 32px #0003;
-    --pixel-font: 'Noto Sans Mono', Arial, 'Microsoft JhengHei', 'PingFang TC', sans-serif;
-    --main-font: 'Noto Sans Mono', Arial, 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  --gboy-red: #b52824;
+  --gboy-yellow: #f6e18a;
+  --gboy-green: #d3ffd6;
+  --gboy-blue: #d5eaf7;
+  --gboy-outline: #18130e;
+  --screen-bg: #faf5cb;
 }
 body {
-    background: var(--main-bg);
-    margin: 0;
-    padding: 0;
-    font-family: var(--main-font);
-    color: var(--main-brown);
+  font-family: 'Press Start 2P', 'Noto Sans TC', 'Microsoft JhengHei', Arial, sans-serif;
+  background: #ededed;
+  margin: 0; padding: 0;
 }
-.banner {
-    width: 100%;
-    height: 140px;
-    background: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.gb-login-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding-top: 38px;
 }
-.banner img {
-    width: 100%;
-    max-width: 700px;
-    object-fit: cover;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px #0002;
+.gb-gameboy {
+  position: relative;
+  width: 1050px;
+  background: var(--gboy-red);
+  border: 11px solid var(--gboy-outline);
+  border-radius: 60px;
+  box-shadow: 0 10px 60px #0005;
+  margin-bottom: 36px;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 610px;
 }
-.login-container {
-    background: #fff;
-    width: 350px;
-    margin: 40px auto;
-    border-radius: 16px;
-    box-shadow: var(--box-shadow);
-    padding: 32px 32px 24px 32px;
-    text-align: center;
+.gb-screen {
+  margin: 0 auto;
+  margin-top: 34px;
+  width: 96%;
+  max-width: 810px;
+  min-height: 400px;
+  background: var(--screen-bg);
+  border: 8px solid var(--gboy-outline);
+  border-radius: 40px;
+  box-shadow: 0 2px 28px #2222 inset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 36px 38px 30px 38px;
+  position: relative;
 }
-.pixel-title,
-.modal-title {
-    font-family: var(--pixel-font);
-    color: #d88e24;
-    font-size: 2rem;
-    margin-bottom: 16px;
-    letter-spacing: 2px;
-    text-shadow: 1px 1px 0 #efe7c7, 2px 2px 0 #a19e89;
-    font-weight: 700;
-}
-.modal-title {
-    font-size: 1.18rem;
-    margin-bottom: 12px;
+.pixel-title {
+  font-size: 3.1rem;
+  letter-spacing: 12px;
+  font-family: 'Press Start 2P', 'Noto Sans TC', Arial, sans-serif;
+  color: var(--gboy-yellow);
+  text-shadow: 4px 4px 0 #bcae58, 0 1px 0 #222;
+  margin-bottom: 18px;
+  text-align: center;
+  font-weight: bold;
 }
 .login-label {
-    font-size: 1.07rem;
-    margin-bottom: 24px;
-    color: var(--main-brown);
-    letter-spacing: 1px;
-    font-family: var(--main-font);
-    font-weight: 700;
+  font-size: 1.21rem;
+  color: var(--gboy-outline);
+  font-family: 'Press Start 2P', 'Noto Sans TC', Arial, sans-serif;
+  text-align: center;
+  margin-bottom: 30px;
+  margin-top: 0;
+  letter-spacing: 3.5px;
+  text-shadow: 1.5px 1.5px 0 #ffe27c;
+}
+#loginForm {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .input-area {
-    margin-bottom: 12px;
+  width: 100%;
+  margin-bottom: 20px;
 }
 .login-input {
-    width: 90%;
-    padding: 10px;
-    font-size: 1rem;
-    border: 1.5px solid var(--input-border);
-    border-radius: 6px;
-    margin-bottom: 10px;
-    font-family: var(--main-font);
-    background: var(--input-bg);
-    color: #635d4c;
+  width: 100%;
+  font-family: inherit;
+  font-size: 1.19rem;
+  padding: 13px 22px;
+  border: 3px solid #bfd7ea;
+  border-radius: 14px;
+  background: #e8f2fd;
+  color: #444;
+  box-shadow: 1.5px 2px 0 #a9bed3;
+  margin-bottom: 0;
 }
 .login-input::placeholder {
-    color: #dddcc6;
-    font-family: var(--main-font);
-    font-size: 1rem;
+  color: #bbb;
+  font-size: 1.17rem;
+}
+.forgot-row {
+  width: 100%;
+  text-align: right;
+  margin-bottom: 19px;
+}
+.forgot-link {
+  color: #b1704e;
+  font-family: inherit;
+  font-size: 1.08rem;
+  text-decoration: none;
+  font-weight: bold;
+  letter-spacing: 1px;
+  transition: color 0.16s;
+}
+.forgot-link:hover { color: #ad5e16; }
+#loginBtn, #backHomeBtn {
+  width: 100%;
+  padding: 19px 0 14px 0;
+  margin: 0 0 22px 0;
+  font-family: 'Press Start 2P', Arial, sans-serif;
+  font-size: 1.28rem;
+  letter-spacing: 2.5px;
+  border-radius: 19px;
+  border: 4px solid var(--gboy-outline);
+  box-shadow: 0 6px 0 #c6b875;
+  font-weight: bold;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, box-shadow 0.12s;
+  text-shadow: 1.5px 1.5px 0 #eee5a5;
+  display: block;
 }
 #loginBtn {
-    width: 90%;
-    padding: 10px 0;
-    background: var(--light-yellow);
-    color: #d88e24;
-    font-family: var(--pixel-font);
-    font-size: 1.05rem;
-    border: 1.5px solid #d88e24;
-    border-radius: 6px;
-    margin-top: 10px;
-    cursor: pointer;
-    font-weight: 700;
-    letter-spacing: 1px;
-    transition: background .2s, color .2s;
+  background: var(--gboy-yellow);
+  color: var(--gboy-outline);
+  box-shadow: 0 5px 0 #bdb75a;
+  margin-bottom: 22px;
 }
 #loginBtn:hover {
-    background: var(--deep-yellow);
-    color: #a5731d;
+  background: #fff2b2;
+  color: #b26b11;
 }
 #backHomeBtn {
-    width: 90%;
-    padding: 10px 0;
-    background: #fff;
-    color: #d88e24;
-    font-family: var(--pixel-font);
-    font-size: 1.05rem;
-    border: 1.5px solid #d88e24;
-    border-radius: 6px;
-    margin-top: 12px;
-    cursor: pointer;
-    font-weight: 700;
-    letter-spacing: 1px;
-    transition: background .2s, color .2s;
+  background: var(--gboy-green);
+  color: #253e31;
+  border: 4px solid var(--gboy-outline);
+  box-shadow: 0 5px 0 #5ab37a;
 }
 #backHomeBtn:hover {
-    background: #fffbe7;
-    color: #c17a1f;
+  background: #d7ffe2;
+  color: #197c44;
 }
 #result {
-    display: block;
-    margin-top: 12px;
-    color: #b94040;
-    font-size: 1rem;
-    min-height: 1.3em;
-    font-family: var(--main-font);
-    font-weight: 700;
+  width: 100%;
+  color: #b94040;
+  font-size: 1.12rem;
+  min-height: 1.4em;
+  text-align: center;
+  margin-top: 2px;
+  font-family: inherit;
+  font-weight: bold;
 }
-/* ==== 忘記密碼 Modal ==== */
+/* 控制區 */
+.gb-controls {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  margin-top: -10px;
+  margin-bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  z-index: 2;
+  padding: 0 45px;
+  box-sizing: border-box;
+}
+/* 十字鍵（SVG 純十字，不含圓心） */
+.gb-dpad-svg {
+  width: 130px;
+  height: 130px;
+  margin-left: 0;
+  margin-bottom: 12px;
+  z-index: 2;
+  display: block;
+}
+/* 上方三顆青綠燈 */
+.gb-lights {
+  position: absolute;
+  left: 50%;
+  top: 32px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 27px;
+  z-index: 1;
+}
+.gb-light {
+  width: 45px; height: 25px;
+  background: var(--gboy-green);
+  border: 3px solid var(--gboy-outline);
+  border-radius: 13px;
+  box-shadow: 0 2px 0 #aad5b7;
+}
+/* 右側ABXY */
+.gb-buttons {
+  position: relative;
+  width: 220px;
+  height: 138px;
+  margin-right: 0;
+  margin-bottom: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.gb-btn-circle {
+  position: absolute;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: 5px solid var(--gboy-outline);
+  background: var(--gboy-yellow);
+  box-shadow: 0 4px 0 #c5b64b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Press Start 2P', Arial, sans-serif;
+  font-size: 1.27em;
+  color: #b18816;
+  z-index: 1;
+}
+.gb-btn-blue {
+  background: var(--gboy-blue);
+  color: #253e31;
+  box-shadow: 0 4px 0 #7ca3b3;
+}
+/* 右下四顆按鈕定位（正方形區內圓排）*/
+.gb-btn-abxy.gb-btn-top    { left: 79px;  top: 0px;  }
+.gb-btn-abxy.gb-btn-bottom { left: 79px;  top: 76px; }
+.gb-btn-abxy.gb-btn-left   { left: 18px;  top: 38px; }
+.gb-btn-abxy.gb-btn-right  { left: 140px; top: 38px; }
+@media (max-width: 1050px) {
+  .gb-gameboy { width: 99vw; min-width: 0; border-radius: 28px;}
+  .gb-screen { max-width: 99vw; padding: 22px 5vw 30px 5vw;}
+  .pixel-title { font-size: 1.78rem;}
+  #loginForm { max-width: 99vw;}
+  .gb-controls { padding: 0 5vw; }
+  .gb-dpad-svg { width: 85px; height: 85px; }
+  .gb-buttons { width: 105px; height: 80px; }
+  .gb-btn-circle { width: 34px; height: 34px; font-size: 0.7em;}
+  .gb-btn-abxy.gb-btn-top    { left: 38px;  top: 0px;}
+  .gb-btn-abxy.gb-btn-bottom { left: 38px;  top: 40px;}
+  .gb-btn-abxy.gb-btn-left   { left: 6px;  top: 19px;}
+  .gb-btn-abxy.gb-btn-right  { left: 70px;  top: 19px;}
+  .gb-lights { gap: 10px; top: 12px;}
+  .gb-light { width: 20px; height: 11px; border-width: 2px;}
+}
+/* Modal 忘記密碼燈箱 */
 .modal {
-    display: none;
-    position: fixed;
-    z-index: 999;
-    left: 0; top: 0; width: 100vw; height: 100vh;
-    background: rgba(34,34,34,0.38);
-    justify-content: center; align-items: center;
-    font-family: var(--main-font);
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0; width: 100vw; height: 100vh;
+  background: rgba(34,34,34,0.38);
+  justify-content: center; align-items: center;
+  font-family: inherit;
 }
 .modal-content {
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: var(--box-shadow);
-    width: 330px; max-width: 90vw;
-    padding: 28px 24px 18px 24px;
-    display: flex; flex-direction: column;
-    align-items: center;
-    position: relative;
-    animation: popin 0.23s;
-    font-family: var(--main-font);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 48px #0004;
+  width: 340px; max-width: 90vw;
+  padding: 28px 24px 18px 24px;
+  display: flex; flex-direction: column;
+  align-items: center;
+  position: relative;
+  animation: popin 0.23s;
+  font-family: inherit;
 }
 @keyframes popin {
-    0% { transform: scale(0.86); opacity: 0;}
-    100% { transform: scale(1); opacity: 1;}
+  0% { transform: scale(0.86); opacity: 0;}
+  100% { transform: scale(1); opacity: 1;}
 }
 .close {
-    position: absolute; top: 10px; right: 20px;
-    font-size: 1.6rem; color: #bbb; cursor: pointer;
-    transition: color 0.18s;
-    z-index: 2;
-    font-family: var(--main-font);
+  position: absolute; top: 10px; right: 20px;
+  font-size: 1.6rem; color: #bbb; cursor: pointer;
+  transition: color 0.18s;
+  z-index: 2;
+  font-family: inherit;
 }
-.close:hover { color: #d88e24; }
+.close:hover { color: #b52824; }
 .modal-desc {
-    font-size: 1.01rem;
-    color: #7a6d54;
-    margin-bottom: 14px;
-    font-family: var(--main-font);
-    text-align: center;
+  font-size: 1.08rem;
+  color: #7a6d54;
+  margin-bottom: 14px;
+  font-family: inherit;
+  text-align: center;
 }
 .modal-btn {
-    margin-top: 12px;
-    width: 100%;
-    padding: 9px 0;
-    background: var(--light-yellow);
-    color: #d88e24;
-    font-family: var(--pixel-font);
-    font-size: 1.05rem;
-    border: 1.5px solid #d88e24;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 700;
-    letter-spacing: 1px;
-    transition: background .2s, color .2s;
+  margin-top: 12px;
+  width: 100%;
+  padding: 9px 0;
+  background: var(--gboy-yellow);
+  color: #ad7300;
+  font-family: 'Press Start 2P', Arial, sans-serif;
+  font-size: 1.05rem;
+  border: 2px solid #ad7300;
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 1px;
+  transition: background .2s, color .2s;
 }
 .modal-btn:hover {
-    background: var(--deep-yellow);
-    color: #a5731d;
+  background: #fffbc5;
+  color: #b52824;
 }
 #modalResult {
-    margin-top: 10px;
-    color: #b94040;
-    font-size: 0.96rem;
-    min-height: 1.2em;
-    font-family: var(--main-font);
-    font-weight: 700;
-}
-/* ===== Loading Spinner for 寄送認證信 ===== */
-#loadingBox {
-    display: none;
-    margin-top: 15px;
-    font-family: var(--main-font);
+  margin-top: 10px;
+  color: #b94040;
+  font-size: 0.99rem;
+  min-height: 1.2em;
+  font-family: inherit;
+  font-weight: bold;
 }
 .spinner {
-    border: 3px solid #eee7c2;
-    border-top: 3px solid #a9a27e;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    animation: spin 0.85s linear infinite;
-    margin: 0 auto;
+  border: 3px solid #eee7c2;
+  border-top: 3px solid #a9a27e;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  animation: spin 0.85s linear infinite;
+  margin: 0 auto;
 }
 @keyframes spin {
-    0% { transform: rotate(0deg);}
-    100% { transform: rotate(360deg);}
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
 }
 .loading-text {
-    color:#6d603d;
-    font-family: var(--main-font);
-    margin-top:6px;
-    font-size: 1.02rem;
-    letter-spacing: 1px;
-    text-align: center;
-}
-.forgot-row { text-align: right; }
-.forgot-link {
-    color: #b89b61;
-    text-decoration: none;
-    font-size: 0.99rem;
-    font-family: var(--pixel-font);
-    cursor: pointer;
-    transition: color .18s;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    padding-right: 2px;
-}
-.forgot-link:hover { color: #ce871a; }
-/* 強制 modal 裡全部元素都用主字型 */
-.modal * {
-    font-family: var(--main-font) !important;
-}
-.modal-title {
-    font-family: var(--pixel-font), var(--main-font) !important;
+  color:#6d603d;
+  font-family: inherit;
+  margin-top:6px;
+  font-size: 1.02rem;
+  letter-spacing: 1px;
+  text-align: center;
 }
 </style>
 </head>
 <body>
-<!--     Banner 區 -->
-<!--     <div class="banner"> -->
-<!--         <img src="your-banner.png" alt="PIXEL-TRIBE Banner"> -->
-<!--         請將 your-banner.png 換成你的像素風 banner 圖片路徑 -->
-<!--     </div> -->
-    <!-- 登入表單區 -->
-    <div class="login-container">
-        <div class="pixel-title">PIXEL TRIBE</div>
-        <div class="login-label">Welcome back，Pixi!!</div>
-        <form id="loginForm" autocomplete="off">
-            <div class="input-area">
-                <input type="text" id="memAccount" class="login-input"
-                    placeholder="帳號" autocomplete="username">
-            </div>
-            <div class="input-area">
-                <input type="password" id="memPassword" class="login-input"
-                    placeholder="密碼" autocomplete="current-password">
-            </div>
-            <div class="forgot-row">
-                <a href="javascript:void(0)" class="forgot-link" id="forgotLink">忘記密碼？</a>
-            </div>
-            <button type="submit" id="loginBtn">登入</button>
-            <button type="button" id="backHomeBtn" onclick="window.location.href='/index.html'">返回首頁</button>
-            <span id="result"></span>
-        </form>
-    </div>
-    <!-- 忘記密碼燈箱 Modal -->
-    <div id="forgotModal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="closeModal">&times;</span>
-            <div class="modal-desc">請輸入您的Email，我們會寄送認證信給您</div>
-            <input type="email" id="forgotEmail" class="login-input"
-                placeholder="請輸入Email" required>
-            <button id="sendMailBtn" class="modal-btn">寄送認證碼並前往驗證</button>
-            <div id="modalResult"></div>
-            <div id="loadingBox">
-                <div class="spinner"></div>
-                <div class="loading-text">正在寄出驗證信，請稍後...</div>
-            </div>
+<div class="gb-login-main">
+  <div class="gb-gameboy">
+    <div class="gb-screen">
+      <div class="pixel-title">PIXEL TRIBE</div>
+      <div class="login-label">Welcome back，Pixi!!</div>
+      <form id="loginForm" autocomplete="off">
+        <div class="input-area">
+          <input type="text" id="memAccount" class="login-input" placeholder="帳號" autocomplete="username">
         </div>
+        <div class="input-area">
+          <input type="password" id="memPassword" class="login-input" placeholder="密碼" autocomplete="current-password">
+        </div>
+        <div class="forgot-row">
+          <a href="javascript:void(0)" class="forgot-link" id="forgotLink">忘記密碼？</a>
+        </div>
+        <button type="submit" id="loginBtn">登入</button>
+        <button type="button" id="backHomeBtn" onclick="window.location.href='/index.html'">返回首頁</button>
+        <span id="result"></span>
+      </form>
     </div>
-    <script src="/front-end/mem/MemberLogin.js"></script>
+    <!-- 控制區 -->
+    <div class="gb-controls">
+      <!-- 十字鍵（SVG "純十字" 無圓心） -->
+      <svg class="gb-dpad-svg" viewBox="0 0 100 100">
+        <rect x="42" y="10" width="16" height="80" rx="12" fill="#d5eaf7" stroke="#18130e" stroke-width="6"/>
+        <rect x="10" y="42" width="80" height="16" rx="12" fill="#d5eaf7" stroke="#18130e" stroke-width="6"/>
+      </svg>
+      <!-- 指示燈 -->
+      <div class="gb-lights">
+        <div class="gb-light"></div>
+        <div class="gb-light"></div>
+        <div class="gb-light"></div>
+      </div>
+      <!-- ABXY 四顆不出框 -->
+      <div class="gb-buttons">
+        <div class="gb-btn-circle gb-btn-abxy gb-btn-top gb-btn-blue"></div>
+        <div class="gb-btn-circle gb-btn-abxy gb-btn-bottom gb-btn-blue"></div>
+        <div class="gb-btn-circle gb-btn-abxy gb-btn-left"></div>
+        <div class="gb-btn-circle gb-btn-abxy gb-btn-right"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal 忘記密碼 -->
+<div id="forgotModal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="closeModal">&times;</span>
+    <div class="modal-desc">請輸入您的Email，我們會寄送認證信給您</div>
+    <input type="email" id="forgotEmail" class="login-input" placeholder="請輸入Email" required>
+    <button id="sendMailBtn" class="modal-btn">寄送認證碼並前往驗證</button>
+    <div id="modalResult"></div>
+    <div id="loadingBox">
+      <div class="spinner"></div>
+      <div class="loading-text">正在寄出驗證信，請稍後...</div>
+    </div>
+  </div>
+</div>
+<script>
+  // Modal控制
+  const forgotModal = document.getElementById('forgotModal');
+  const forgotLink = document.getElementById('forgotLink');
+  const closeModal = document.getElementById('closeModal');
+  forgotLink.onclick = () => { forgotModal.style.display = "flex"; }
+  closeModal.onclick = () => { forgotModal.style.display = "none"; }
+  window.onclick = function(e) { if (e.target === forgotModal) forgotModal.style.display = "none"; }
+  window.addEventListener('keydown', e => { if (e.key === 'Escape') forgotModal.style.display = "none"; });
+</script>
+<script src="/front-end/mem/MemberLogin.js"></script>
 </body>
 </html>
