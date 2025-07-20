@@ -71,6 +71,7 @@ class SecurityConfig {
                                         "/back-end/**",
                                         "/images/**",
                                         "/js/**",
+                                        "/favicon.ico",
                                         "/out-statics/**",
                                         "/templates/**",
                                         "/front-end/**",

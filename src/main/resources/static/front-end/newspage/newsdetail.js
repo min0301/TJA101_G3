@@ -30,43 +30,43 @@ async function loadPage(id) {
     // news.categoryTags.forEach(t => $('.tags', box).append(tagSpan(t)));
 
     /* 圖片 ------------------------------------------------ */
-    const imgs = await fetch(`/api/news/image/${id}`).then(r => r.json());
-    if (imgs.length) {
-        const wrap = document.createElement('div');
-        wrap.className = 'news-images';
-
-        // ① 取得放置燈箱用的容器；若沒有就另外建立
-        const modalContainer = document.getElementById('newsLightboxes') ||
-            document.body.appendChild(Object.assign(
-                document.createElement('div'), {id: 'newsLightboxes'}));
-
-        imgs.forEach((i, idx) => {
-            /* === 產生圖片縮圖連結（點擊開燈箱） === */
-            const a = document.createElement('a');
-            a.href = 'javascript:void(0)';
-            a.setAttribute('data-bs-toggle', 'modal');
-            a.setAttribute('data-bs-target', `#imgModal-${idx}`);
-            a.innerHTML = `<img src="${i.imgUrl}" alt="news image">`;
-            wrap.append(a);
-
-            /* === 產生對應 Modal（燈箱本體） === */
-            const modal = document.createElement('div');
-            modal.className = 'modal fade';
-            modal.id = `imgModal-${idx}`;
-            modal.tabIndex = -1;
-            modal.setAttribute('aria-hidden', 'true');
-            modal.innerHTML = `
-          <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content bg-transparent border-0">
-              <img src="${i.imgUrl}" class="w-100 rounded-3" alt="news image">
-            </div>
-          </div>
-        `;
-            modalContainer.appendChild(modal);
-        });
-
-        box.append(wrap);
-    }
+    // const imgs = await fetch(`/api/news/image/${id}`).then(r => r.json());
+    // if (imgs.length) {
+    //     const wrap = document.createElement('div');
+    //     wrap.className = 'news-images';
+    //
+    //     // ① 取得放置燈箱用的容器；若沒有就另外建立
+    //     const modalContainer = document.getElementById('newsLightboxes') ||
+    //         document.body.appendChild(Object.assign(
+    //             document.createElement('div'), {id: 'newsLightboxes'}));
+    //
+    //     imgs.forEach((i, idx) => {
+    //         /* === 產生圖片縮圖連結（點擊開燈箱） === */
+    //         const a = document.createElement('a');
+    //         a.href = 'javascript:void(0)';
+    //         a.setAttribute('data-bs-toggle', 'modal');
+    //         a.setAttribute('data-bs-target', `#imgModal-${idx}`);
+    //         a.innerHTML = `<img src="${i.imgUrl}" alt="news image">`;
+    //         wrap.append(a);
+    //
+    //         /* === 產生對應 Modal（燈箱本體） === */
+    //         const modal = document.createElement('div');
+    //         modal.className = 'modal fade';
+    //         modal.id = `imgModal-${idx}`;
+    //         modal.tabIndex = -1;
+    //         modal.setAttribute('aria-hidden', 'true');
+    //         modal.innerHTML = `
+    //       <div class="modal-dialog modal-dialog-centered modal-xl">
+    //         <div class="modal-content bg-transparent border-0">
+    //           <img src="${i.imgUrl}" class="w-100 rounded-3" alt="news image">
+    //         </div>
+    //       </div>
+    //     `;
+    //         modalContainer.appendChild(modal);
+    //     });
+    //
+    //     box.append(wrap);
+    // }
 
     /* 內文 */
     const art = document.createElement('div');
