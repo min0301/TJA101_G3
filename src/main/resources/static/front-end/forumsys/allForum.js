@@ -1,4 +1,4 @@
-// allForum.js (SPA功能 + 整合聊天室 最終版)
+// allForum.js (SPA功能 + 整合聊天室 + 文章按讚功能)
 
 // --- 全域變數 ---
 // 可變：變數名稱 dynamicContentContainer 可依需求自行命名，但需確保與 HTML 中的 ID 一致。
@@ -15,11 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const urlParams = new URLSearchParams(window.location.search);
     const postId = urlParams.get('postId');
-    const view = urlParams.get('view'); // 新增：取得 view 參數
+    const view = urlParams.get('view');
 
     if (postId) {
         showPostDetailView(postId);
-    } else if (view === 'collected') { // 新增：處理收藏文章視圖
+    } else if (view === 'collected') {
         showCollectedPostsView();
     } else {
         showInitialView();
@@ -35,11 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
 function handlePopState(event) {
     const params = new URLSearchParams(window.location.search);
     const postId = params.get('postId');
-    const view = params.get('view'); // 新增：取得 view 參數
+    const view = params.get('view');
 
     if (postId) {
         showPostDetailView(postId);
-    } else if (view === 'collected') { // 新增：處理收藏文章視圖
+    } else if (view === 'collected') {
         showCollectedPostsView();
     } else {
         const activeForum = document.querySelector('.forum-link.active');
@@ -71,7 +71,6 @@ function showInitialView() {
  * @param {string} forumId - 討論區 ID
  */
 window.showPostListView = async function (forumId) {
-    // 可變：變數名稱 forumId 可自行命名，代表傳入的討論區ID。
     dynamicContentContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>`;
     if (window.innerWidth > 992) {
         window.scrollTo({top: 0, behavior: 'smooth'});
@@ -96,20 +95,14 @@ window.showPostListView = async function (forumId) {
         const forum = await forumRes.json();
         const posts = await postsRes.json();
 
-        // 【主要修改區域】
-        // 1. 首先渲染 Header
         renderForumHeader(dynamicContentContainer, forum);
 
-        // 2. 接著渲染聊天室 (從底部移到此處)
-        // 2.1. 每次切換討論區，都先嘗試斷開舊的聊天連線
         if (window.chatManager && typeof window.chatManager.disconnect === 'function') {
             window.chatManager.disconnect();
         }
 
-        // 2.2. 建立聊天室的 UI 容器並插入頁面
         const chatRoomContainer = document.createElement('div');
         chatRoomContainer.id = 'chat-room-container';
-        // 【註解】此處 className 從 'mt-5' 改為 'mb-4'，讓聊天室和下方文章列表間距更協調
         chatRoomContainer.className = 'mb-4';
         chatRoomContainer.innerHTML = `
             <div class="chat-room card">
@@ -118,8 +111,7 @@ window.showPostListView = async function (forumId) {
                     <span id="chat-status" class="badge bg-secondary">未連接</span>
                 </div>
                 <div class="card-body">
-                    <div id="chat-messages" class="chat-messages mb-3">
-                        </div>
+                    <div id="chat-messages" class="chat-messages mb-3"></div>
                     <form id="chat-form" class="d-flex gap-2">
                         <input type="text" id="chat-message-input" class="form-control" placeholder="輸入訊息..." autocomplete="off" disabled>
                         <button type="submit" class="btn btn-primary" disabled><i class="bi bi-send-fill"></i></button>
@@ -129,7 +121,6 @@ window.showPostListView = async function (forumId) {
         `;
         dynamicContentContainer.appendChild(chatRoomContainer);
 
-        // 2.3. 檢查登入狀態並連接到新的聊天室
         const memberInfo = JSON.parse(localStorage.getItem('memberInfo') || '{}');
         if (token && memberInfo.memNickName && window.chatManager) {
             window.chatManager.connect(forumId, memberInfo.memNickName, memberInfo.id);
@@ -140,13 +131,10 @@ window.showPostListView = async function (forumId) {
             }
         }
 
-        // 3. 最後渲染文章列表
-        renderPosts(dynamicContentContainer, posts, true); // true 表示需要顯示收藏按鈕
+        renderPosts(dynamicContentContainer, posts, false); // 修改：這裡傳遞 false，表示不顯示收藏按鈕和按讚按鈕。
 
-        // 更新瀏覽器歷史紀錄
         history.pushState({forumId: forumId}, ``, `?forumId=${forumId}`);
 
-        // 初始化 AOS 動畫
         setTimeout(() => {
             AOS.init({once: true});
             dynamicContentContainer.querySelectorAll('[data-aos]').forEach(el => el.classList.add('aos-animate'));
@@ -164,18 +152,42 @@ window.showPostListView = async function (forumId) {
  * @param {string} postId - 文章 ID
  */
 async function showPostDetailView(postId) {
-    // 可變：變數名稱 postId 可自行命名。
     dynamicContentContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border" role="status"></div></div>`;
 
     try {
-        const postRes = await fetch(`/api/forumpost/${postId}`);
+        const token = localStorage.getItem('jwt');
+        const headers = {};
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        const postRes = await fetch(`/api/forumpost/${postId}`, { headers: headers });
         if (!postRes.ok) throw new Error('文章載入失敗');
         const post = await postRes.json();
 
-        renderPostDetail(post);
+        // 收藏狀態直接從 post 物件中取得
+        const isCollected = post.collected;
+
+        // 按讚狀態不再從獨立 API 獲取，因為後端未提供此接口
+        // 按讚按鈕的顏色將固定，不反映會員個人狀態
+        // memberPostLikeStatus 參數將不再用於按鈕顏色變化
+        const memberPostLikeStatus = 'NEUTRAL'; // 固定為中立，僅為參數佔位
+
+        // 傳遞按讚狀態和收藏狀態給 renderPostDetail
+        renderPostDetail(post, memberPostLikeStatus, isCollected);
         await loadAndRenderComments(postId);
 
-        history.pushState({postId: postId}, ``, `?postId=${postId}`);
+        const forumIdForHistory = post.forumNo || post.forumId;
+
+        let newUrl = `?postId=${postId}`;
+        let historyState = {postId: postId};
+
+        if (forumIdForHistory) {
+            newUrl += `&forumId=${forumIdForHistory}`;
+            historyState.forumId = forumIdForHistory;
+        }
+
+        history.pushState(historyState, ``, newUrl); // 將 forumId 也存入 history state 和 URL
+        // --- 修改的重點結束 ---
 
     } catch (error) {
         console.error('載入文章詳細頁出錯:', error);
@@ -224,21 +236,18 @@ window.showCollectedPostsView = async function () {
 
         const collectedPosts = await response.json();
 
-        // 渲染收藏文章頁面標題
         const headerHtml = `
             <div class="d-flex align-items-center mb-4">
                 <i class="bi bi-bookmark-heart-fill fs-2 me-3 text-danger"></i>
                 <h2 class="fw-bold mb-0">我的收藏文章</h2>
             </div>
         `;
-        dynamicContentContainer.innerHTML = headerHtml; // 清空並加入標題
+        dynamicContentContainer.innerHTML = headerHtml;
 
-        // 渲染文章列表 (使用現有的 renderPosts 函式)
-        renderPosts(dynamicContentContainer, collectedPosts, false); // false 表示不需要顯示收藏按鈕，因為這是收藏列表本身
+        renderPosts(dynamicContentContainer, collectedPosts, false); // 收藏列表頁，不顯示收藏按鈕 (因為已經是收藏的了)
 
         history.pushState({view: 'collected'}, ``, `?view=collected`);
 
-        // 初始化 AOS 動畫
         setTimeout(() => {
             AOS.init({once: true});
             dynamicContentContainer.querySelectorAll('[data-aos]').forEach(el => el.classList.add('aos-animate'));
@@ -254,13 +263,15 @@ window.showCollectedPostsView = async function () {
 // --- 組件渲染輔助函式 ---
 
 /**
- * 渲染帶有橫幅圖片、標題、描述以及收藏按鈕的討論區頂部。
- * 注意：此函式現在用於渲染討論區頁面，收藏按鈕已移至文章列表項。
+ * 渲染帶有橫幅圖片、標題、描述以及討論區收藏按鈕的討論區頂部。
  */
 function renderForumHeader(container, forum) {
     const headerContainer = document.createElement('div');
     const imageUrl = forum.forImgUrl || '../assets/img/categories/1.jpg';
     const fallbackImageUrl = '../assets/img/categories/1.jpg';
+    const isCollected = forum.collected;
+    const buttonText = isCollected ? '已收藏' : '收藏';
+    const buttonClass = isCollected ? 'btn-primary' : 'btn-outline-light';
 
     headerContainer.innerHTML = `
         <div class="position-relative text-white mb-4" style="width: 100%; height: 200px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
@@ -272,23 +283,28 @@ function renderForumHeader(container, forum) {
                         <h2 class="fw-bold mb-1">${forum.forName}</h2>
                         <p class="mb-0 d-none d-md-block">${forum.forDes || ''}</p>
                     </div>
+                    <div class="flex-shrink-0">
+                        <button id="collect-forum-btn" class="btn ${buttonClass} btn-sm" data-forum-id="${forum.id}" data-is-collected="${isCollected}">
+                            <i class="bi bi-heart-fill"></i> ${buttonText}
+                        </button>
+                    </div>
                 </div>
                  <p class="mb-0 d-md-none mt-2">${forum.forDes || ''}</p>
             </div>
         </div>
     `;
-    container.innerHTML = ''; // 先清空
+    container.innerHTML = '';
     container.appendChild(headerContainer);
-    // 討論區收藏按鈕已移除，因為現在是文章收藏功能
+    addForumCollectButtonListener();
 }
 
 /**
  * 渲染文章列表。
  * @param {HTMLElement} container - 渲染文章的容器元素。
  * @param {Array<Object>} posts - 文章資料陣列。
- * @param {boolean} showCollectButton - 是否顯示收藏按鈕 (預設為 true)。
+ * @param {boolean} showPostActions - 此參數將被忽略，因為列表頁不應顯示操作按鈕。
  */
-function renderPosts(container, posts, showCollectButton = true) {
+function renderPosts(container, posts, showPostActions = false) { // 預設為 false，且在列表頁將會忽略此參數
     const postsContainer = document.createElement('div');
     postsContainer.id = 'post-list-container';
 
@@ -300,25 +316,22 @@ function renderPosts(container, posts, showCollectButton = true) {
             const postImageUrl = post.postImageUrl;
             const title = post.postTitle || "（無標題）";
             const content = post.postCon || "";
-            const memberId = post.memberNo; // 注意：這裡從 post.memberId 改為 post.memberNo 以符合 DTO
+            const memberId = post.memberNo || post.memberId;
             const memberNickName = post.memberNickName || '匿名';
-            const postUpdate = new Date(post.pcollUpdate || post.postUpdate).toLocaleString('zh-TW'); // 收藏時間或文章更新時間
-            const isCollected = post.postCollectStatus === 'COLLECT'; // 判斷是否已收藏
-
-            // 修正：根據 DTO 類型決定 postId 的來源
-            // 如果是 PostCollectDTO，文章ID在 postNo 欄位；如果是 ForumPostDTO，文章ID在 id 欄位。
+            const postUpdate = new Date(post.pcollUpdate || post.postUpdate).toLocaleString('zh-TW');
             const currentPostId = post.postNo || post.id;
 
-            // 收藏按鈕的 HTML
-            const collectButtonHtml = showCollectButton ? `
-                <button class="btn btn-sm ${isCollected ? 'btn-primary' : 'btn-outline-secondary'} collect-post-btn"
-                        data-post-id="${currentPostId}" data-is-collected="${isCollected}">
-                    <i class="bi bi-bookmark-heart-fill"></i> ${isCollected ? '已收藏' : '收藏'}
-                </button>
-            ` : '';
+            // 在文章列表頁，不顯示按讚/倒讚和收藏按鈕，只顯示統計數字
+            const postStatsHtml = `
+                <div class="post-stats d-flex align-items-center gap-2 text-muted">
+                    <span title="留言數"><i class="bi bi-chat-dots-fill"></i> ${post.mesNumbers || 0}</span>
+                    <span title="讚數"><i class="bi bi-hand-thumbs-up"></i> ${post.postLikeCount || 0}</span>
+                    <span title="倒讚數"><i class="bi bi-hand-thumbs-down"></i> ${post.postLikeDlc || 0}</span>
+                </div>
+            `;
 
             const postCardHTML = `
-                <div class="post-box d-flex mb-3" data-aos="fade-up">
+                <div class="post-box d-flex mb-3" data-aos="fade-up" data-post-id="${currentPostId}">
                     <div class="card w-100">
                         <div class="card-body d-flex">
                             <div class="flex-shrink-0 me-3">
@@ -342,13 +355,8 @@ function renderPosts(container, posts, showCollectButton = true) {
                                         <small class="ms-3">最後更新於: ${postUpdate}</small>
                                     </div>
                                     <div class="d-flex align-items-center gap-3">
-                                        <div class="post-stats">
-                                            <span class="me-3" title="留言數"><i class="bi bi-chat-dots-fill"></i> ${post.mesNumbers || 0}</span>
-                                            <span class="me-3" title="喜歡"><i class="bi bi-hand-thumbs-up-fill text-success"></i> ${post.postLikeCount || 0}</span>
-                                            <span title="不喜歡"><i class="bi bi-hand-thumbs-down-fill text-danger"></i> ${post.postLikeDlc || 0}</span>
+                                        ${postStatsHtml}
                                         </div>
-                                        ${collectButtonHtml}
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -358,33 +366,102 @@ function renderPosts(container, posts, showCollectButton = true) {
             postsContainer.innerHTML += postCardHTML;
         });
     }
-    // 如果是第一次渲染文章列表，清空容器；否則直接追加
-    if (container.querySelector('#post-list-container')) {
-        container.querySelector('#post-list-container').innerHTML = postsContainer.innerHTML;
+
+    const existingPostsContainer = container.querySelector('#post-list-container');
+    if (existingPostsContainer) {
+        existingPostsContainer.innerHTML = '';
+        Array.from(postsContainer.children).forEach(child => existingPostsContainer.appendChild(child));
     } else {
         container.appendChild(postsContainer);
     }
-    addPostCollectButtonListeners(); // 為新渲染的收藏按鈕綁定事件
+
+    // 在文章列表頁，不需要為按讚/收藏按鈕綁定事件，因為它們不會被生成。
+    // 所以這裡可以移除 addPostCollectButtonListeners() 和 addPostLikeButtonListeners() 的呼叫。
+    // 但是，由於文章連結 (.post-link) 仍然存在，它的點擊事件會在 setupEventListeners 中被委派處理，這是正常的。
+}
+
+/**
+ * 為討論區收藏按鈕綁定點擊事件。
+ */
+function addForumCollectButtonListener() {
+    const collectBtn = document.getElementById('collect-forum-btn');
+    if (!collectBtn) return;
+
+    collectBtn.removeEventListener('click', handleForumCollect);
+    collectBtn.addEventListener('click', handleForumCollect);
+}
+
+/**
+ * 處理討論區收藏/取消收藏的邏輯
+ */
+async function handleForumCollect(event) {
+    const button = event.currentTarget;
+    const forumId = button.dataset.forumId;
+    let isCollected = button.dataset.isCollected === 'true';
+
+    const token = localStorage.getItem('jwt');
+    if (!token) {
+        alert('請先登入才能使用收藏功能。');
+        return;
+    }
+    button.disabled = true;
+
+    try {
+        const response = await fetch(`/api/forums/${forumId}/collect`, {
+            method: 'PUT',
+            headers: {'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({})
+        });
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                alert('您的登入已過期或無效，請重新登入。');
+            }
+            throw new Error('API request failed');
+        }
+        const resultDTO = await response.json();
+        const newStatus = resultDTO.collectStatus;
+
+        if (newStatus === 'COLLECT') {
+            button.innerHTML = '<i class="bi bi-heart-fill"></i> 已收藏';
+            button.classList.replace('btn-outline-light', 'btn-primary');
+            button.dataset.isCollected = 'true';
+        } else {
+            button.innerHTML = '<i class="bi bi-heart-fill"></i> 收藏';
+            button.classList.replace('btn-primary', 'btn-outline-light');
+            button.dataset.isCollected = 'false';
+        }
+    } catch (error) {
+        console.error('收藏/取消收藏討論區操作失敗:', error);
+        alert('操作失敗，請稍後再試。');
+    } finally {
+        button.disabled = false;
+    }
 }
 
 
 /**
  * 為收藏文章按鈕綁定點擊事件。
+ * 註：由於現在收藏狀態直接從 post 物件取得，這個函式在文章列表頁已不被呼叫。
+ * 但在單篇文章詳情頁會直接綁定事件。
  */
 function addPostCollectButtonListeners() {
+    // 這個函式現在可能不再被直接呼叫，因為詳情頁的綁定是直接在 renderPostDetail 內部完成的。
+    // 留著以防萬一或作為範例。
     document.querySelectorAll('.collect-post-btn').forEach(button => {
-        button.removeEventListener('click', handlePostCollect); // 避免重複綁定
+        button.removeEventListener('click', handlePostCollect);
         button.addEventListener('click', handlePostCollect);
     });
 }
 
 /**
  * 處理文章收藏/取消收藏的邏輯
+ * 註：此函式現在更新的是單篇文章詳情頁的收藏按鈕狀態。
  */
 async function handlePostCollect(event) {
     const button = event.currentTarget;
     const postId = button.dataset.postId;
-    let isCollected = button.dataset.isCollected === 'true'; // 讀取當前狀態
+    // let isCollected = button.dataset.isCollected === 'true'; // 不再從 data 屬性讀取初始狀態，因為狀態從後端更新後會重新渲染
 
     const token = localStorage.getItem('jwt');
     if (!token) {
@@ -392,7 +469,7 @@ async function handlePostCollect(event) {
         return;
     }
 
-    button.disabled = true; // 禁用按鈕防止重複點擊
+    button.disabled = true;
 
     try {
         const response = await fetch(`/api/posts/${postId}/collect`, {
@@ -401,7 +478,6 @@ async function handlePostCollect(event) {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            // 在這裡傳送一個空的 body 即可，因為後端會根據現有狀態切換
             body: JSON.stringify({})
         });
 
@@ -415,41 +491,67 @@ async function handlePostCollect(event) {
         const resultDTO = await response.json();
         const newStatus = resultDTO.postCollectStatus;
 
+        // 直接更新被點擊的按鈕狀態
         if (newStatus === 'COLLECT') {
             button.innerHTML = '<i class="bi bi-bookmark-heart-fill"></i> 已收藏';
             button.classList.replace('btn-outline-secondary', 'btn-primary');
-            button.dataset.isCollected = 'true';
+            button.dataset.isCollected = 'true'; // 更新 data 屬性
         } else {
             button.innerHTML = '<i class="bi bi-bookmark-heart-fill"></i> 收藏';
             button.classList.replace('btn-primary', 'btn-outline-secondary');
-            button.dataset.isCollected = 'false';
-            // 如果是在「我的收藏」頁面取消收藏，則從列表中移除該文章
-            const currentView = new URLSearchParams(window.location.search).get('view');
-            if (currentView === 'collected') {
-                button.closest('.post-box').remove(); // 移除整個文章卡片
-                // 如果移除後沒有文章了，顯示提示
-                if (document.querySelectorAll('.post-box').length === 0) {
-                    dynamicContentContainer.appendChild(document.createElement('div')).outerHTML = '<div class="alert alert-info">目前沒有收藏文章喔！</div>';
+            button.dataset.isCollected = 'false'; // 更新 data 屬性
+        }
+
+        // 優化：這裡不再重新載入整個列表，而是直接更新單篇文章的收藏狀態
+        // 如果在文章列表頁，找到對應的文章卡片並更新其收藏按鈕狀態 (如果列表頁有顯示收藏按鈕的話)
+        const postCard = document.querySelector(`.post-box[data-post-id="${postId}"]`);
+        if (postCard) {
+            const collectBtn = postCard.querySelector('.collect-post-btn');
+            if (collectBtn) {
+                if (newStatus === 'COLLECT') {
+                    collectBtn.innerHTML = '<i class="bi bi-bookmark-heart-fill"></i> 已收藏';
+                    collectBtn.classList.replace('btn-outline-secondary', 'btn-primary');
+                    collectBtn.dataset.isCollected = 'true';
+                } else {
+                    collectBtn.innerHTML = '<i class="bi bi-bookmark-heart-fill"></i> 收藏';
+                    collectBtn.classList.replace('btn-primary', 'btn-outline-secondary');
+                    collectBtn.dataset.isCollected = 'false';
                 }
             }
         }
+        // 如果在單篇文章詳情頁，會自動更新，因為 renderPostDetail 會根據傳入的 isCollected 參數渲染按鈕狀態。
+        // 當執行 handlePostCollect 後，通常會觸發 UI 重新渲染，例如重新呼叫 showPostDetailView，
+        // 或者像上面這樣直接更新按鈕。這裡已經直接更新了按鈕，所以不用再呼叫 showPostDetailView。
+
     } catch (error) {
-        console.error('收藏/取消收藏操作失敗:', error);
+        console.error('收藏/取消收藏文章操作失敗:', error);
         alert('操作失敗，請稍後再試。');
     } finally {
-        button.disabled = false; // 重新啟用按鈕
+        button.disabled = false;
     }
 }
 
 
 /**
  * 渲染文章主體內容
+ * @param {Object} post - 文章資料
+ * @param {string} memberPostLikeStatus - 當前會員對該文章的按讚狀態 ('LIKE', 'DISLIKE', 'NEUTRAL')
+ * @param {boolean} isCollected - 當前會員是否收藏了該文章 (直接從 post 物件取得)
  */
-function renderPostDetail(post) {
-    const postDate = new Date(post.postCrdate).toLocaleString('zh-TW') ;
+function renderPostDetail(post, memberPostLikeStatus, isCollected) {
+    const postDate = new Date(post.postCrdate).toLocaleString('zh-TW');
     const postImageUrl = post.postImageUrl;
     const fallbackImageUrl = '../../assets/img/categories/1.jpg';
     const memberId = post.memberId;
+    const currentPostId = post.postNo || post.id; // 確保取得正確的 postId
+
+    // 固定按讚和倒讚按鈕的樣式，不再根據會員個人狀態變化顏色
+    const likeBtnClass = 'btn-outline-success'; // 固定為綠色外框
+    const dislikeBtnClass = 'btn-outline-danger'; // 固定為紅色外框
+
+    // 收藏按鈕樣式 (直接使用傳入的 isCollected 參數)
+    const collectBtnClass = isCollected ? 'btn-primary' : 'btn-outline-secondary';
+    const collectBtnText = isCollected ? '已收藏' : '收藏';
 
     const detailHTML = `
         <article class="post-content">
@@ -467,7 +569,20 @@ function renderPostDetail(post) {
                 <span class="mx-2">|</span>
                 <span>發布時間：${postDate}</span>
             </div>
-             <img src="${postImageUrl}" class="img-fluid rounded post-detail-main-img" alt="${post.postTitle}" onerror="this.onerror=null;this.src='${fallbackImageUrl}';">
+
+            <div class="d-flex justify-content-end align-items-center gap-3 mb-4">
+                <button class="btn btn-lg ${likeBtnClass} post-like-btn" data-post-id="${currentPostId}" data-action="LIKE">
+                    <i class="bi bi-hand-thumbs-up"></i> <span class="like-count">${post.postLikeCount || 0}</span>
+                </button>
+                <button class="btn btn-lg ${dislikeBtnClass} post-dislike-btn" data-post-id="${currentPostId}" data-action="DISLIKE">
+                    <i class="bi bi-hand-thumbs-down"></i> <span class="dislike-count">${post.postLikeDlc || 0}</span>
+                </button>
+                <button class="btn btn-lg ${collectBtnClass} collect-post-btn"
+                        data-post-id="${currentPostId}" data-is-collected="${isCollected}">
+                    <i class="bi bi-bookmark-heart-fill"></i> ${collectBtnText}
+                </button>
+            </div>
+            <img src="${postImageUrl}" class="img-fluid rounded post-detail-main-img" alt="${post.postTitle}" onerror="this.onerror=null;this.src='${fallbackImageUrl}';">
             <div class="fs-5 lh-lg">${post.postCon}</div>
         </article>
         <hr class="my-5">
@@ -478,6 +593,22 @@ function renderPostDetail(post) {
         </div>
     `;
     dynamicContentContainer.innerHTML = detailHTML;
+
+    // 確保單篇文章詳情頁的按讚/收藏按鈕事件正確綁定
+    const postLikeButtons = dynamicContentContainer.querySelectorAll('.post-like-btn, .post-dislike-btn');
+    postLikeButtons.forEach(button => {
+        button.removeEventListener('click', handlePostLikeAction); // 避免重複綁定
+        button.addEventListener('click', (event) => {
+            const btn = event.currentTarget;
+            handlePostLikeAction(btn.dataset.postId, btn.dataset.action, btn);
+        });
+    });
+
+    const collectPostButton = dynamicContentContainer.querySelector('.collect-post-btn');
+    if (collectPostButton) {
+        collectPostButton.removeEventListener('click', handlePostCollect); // 避免重複綁定
+        collectPostButton.addEventListener('click', handlePostCollect);
+    }
 }
 
 /**
@@ -600,36 +731,50 @@ function setupEventListeners() {
     dynamicContentContainer.addEventListener('click', (event) => {
         const target = event.target;
         const postLink = target.closest('.post-link');
-        const likeBtn = target.closest('.like-btn, .dislike-btn');
         const backBtn = target.closest('.back-to-list-btn');
+
+        // 留言的讚/倒讚按鈕
+        const commentLikeBtn = target.closest('.like-btn, .dislike-btn');
 
         if (postLink) {
             event.preventDefault();
-            // 確保 postId 存在且為有效值
             const postId = postLink.dataset.postId;
-            if (postId && postId !== 'undefined') { // 增加 undefined 檢查
+            if (postId && postId !== 'undefined') {
                 showPostDetailView(postId);
             } else {
                 console.error('點擊文章連結時，postId 為 undefined 或無效。');
             }
         }
 
-        if (likeBtn) {
-            handleLikeAction(likeBtn.dataset.commentId, likeBtn.dataset.action, likeBtn);
+        // 處理留言按讚
+        if (commentLikeBtn) {
+            handleLikeAction(commentLikeBtn.dataset.commentId, commentLikeBtn.dataset.action, commentLikeBtn);
         }
 
         if (backBtn) {
             event.preventDefault();
-            // 返回到上一個歷史狀態，這可能是文章列表或收藏列表
-            window.history.back();
+            // 判斷是從哪個視圖返回
+            const urlParams = new URLSearchParams(window.location.search);
+            const forumId = urlParams.get('forumId');
+            const view = urlParams.get('view');
+
+            if (view === 'collected') {
+                // 如果是從收藏頁進入單篇文章，返回到收藏列表
+                showCollectedPostsView();
+            } else if (forumId) {
+                // 如果是從某個討論區進入單篇文章，返回到該討論區的文章列表
+                showPostListView(forumId);
+            } else {
+                // 預設返回到初始頁面
+                showInitialView();
+            }
         }
     });
 
-    // 為「我的收藏」按鈕綁定點擊事件
     const myCollectionsTab = document.getElementById('my-collections-tab');
     if (myCollectionsTab) {
         myCollectionsTab.addEventListener('click', (event) => {
-            event.preventDefault(); // 阻止預設的 tab 切換行為
+            event.preventDefault();
             showCollectedPostsView();
         });
     }
@@ -650,7 +795,86 @@ function setupEventListeners() {
 }
 
 /**
- * 處理讚/倒讚的 API 請求與 UI 更新
+ * 處理文章讚/倒讚的 API 請求與 UI 更新
+ * @param {string} postId - 文章ID
+ * @param {string} action - 'LIKE' 或 'DISLIKE' (這個參數決定了要發送給後端的狀態)
+ * @param {HTMLElement} buttonElement - 被點擊的按鈕元素 (用於找到其父容器)
+ */
+async function handlePostLikeAction(postId, action, buttonElement) {
+    console.log('--- 開始處理文章按讚/倒讚動作 ---'); // 偵錯日誌
+    console.log('文章ID:', postId); // 偵錯日誌
+    console.log('動作:', action); // 偵錯日誌
+
+    const token = localStorage.getItem('jwt');
+    if (!token) {
+        alert('請先登入才能按讚喔！');
+        console.log('錯誤: 未找到 JWT Token，已提示用戶登入。'); // 偵錯日誌
+        return;
+    }
+    console.log('已獲取 JWT Token (前10字元):', token.substring(0, 10) + '...'); // 偵錯日誌
+
+    const postContainer = buttonElement.closest('.post-box') || buttonElement.closest('.post-content');
+    if (!postContainer) {
+        console.error('錯誤: 找不到文章容器元素。'); // 偵錯日誌
+        return;
+    }
+
+    // 禁用所有相關按鈕，防止重複點擊
+    postContainer.querySelectorAll('.post-like-btn, .post-dislike-btn, .collect-post-btn').forEach(btn => btn.disabled = true);
+    console.log('按鈕已禁用。'); // 偵錯日誌
+
+    try {
+        const requestBody = JSON.stringify({ pLikeStatus: action });
+        const apiUrl = `/api/posts/${postId}/like`;
+        console.log('發送請求到:', apiUrl); // 偵錯日誌
+        console.log('請求方法:', 'POST'); // 偵錯日誌
+        console.log('請求內容 (body):', requestBody); // 偵錯日誌
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: requestBody
+        });
+
+        console.log('接收到回應，狀態碼:', response.status, 'OK:', response.ok); // 偵錯日誌
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                alert('您的登入已過期或無效，請重新登入。');
+                console.warn('警告: 登入狀態無效 (401/403)。'); // 偵錯日誌
+            } else {
+                alert('操作失敗，伺服器返回錯誤。');
+                const errorText = await response.text(); // 嘗試獲取錯誤回應的文本
+                console.error('錯誤: API 請求失敗，狀態碼:', response.status, '錯誤回應:', errorText); // 偵錯日誌
+            }
+            throw new Error('操作失敗');
+        }
+
+        console.log('API 請求成功。'); // 偵錯日誌
+        // 成功後，重新載入文章詳細頁面以獲取最新數量
+        // 這會觸發 showPostDetailView -> fetch /api/forumpost/{id} -> renderPostDetail
+        // 確保顯示的讚/倒讚數量是最新的
+        showPostDetailView(postId);
+        console.log('已觸發文章詳情頁面重新載入以更新數量。'); // 偵錯日誌
+
+    } catch (error) {
+        console.error('捕獲到文章按讚/倒讚失敗的錯誤:', error); // 偵錯日誌
+        alert(`操作失敗：${error.message || '未知錯誤'}`); // 顯示更詳細的錯誤訊息
+    } finally {
+        // 因為會重新載入頁面，所以這裡不需要手動啟用按鈕
+        // 但如果 showPostDetailView 失敗，按鈕可能會保持禁用狀態，
+        // 為了健壯性，可以考慮在這裡重新啟用，或在 showPostDetailView 的錯誤處理中處理。
+        // 這裡暫時不變動，因為重新載入會重建按鈕。
+        console.log('--- 文章按讚/倒讚動作處理結束 ---'); // 偵錯日誌
+    }
+}
+
+
+/**
+ * 處理"留言"讚/倒讚的 API 請求與 UI 更新
  */
 async function handleLikeAction(commentId, action, buttonElement) {
     const token = localStorage.getItem('jwt');
@@ -668,6 +892,7 @@ async function handleLikeAction(commentId, action, buttonElement) {
         });
         if (!response.ok) throw new Error('操作失敗');
 
+        // 成功後，只重新載入留言區塊
         const currentPostId = new URLSearchParams(window.location.search).get('postId');
         if (currentPostId) {
             loadAndRenderComments(currentPostId);
@@ -676,6 +901,9 @@ async function handleLikeAction(commentId, action, buttonElement) {
     } catch (error) {
         console.error('按讚/倒讚失敗:', error);
         alert('操作失敗，請稍後再試。');
+    } finally {
+        // 因為留言區是局部刷新，所以不論成功失敗都應該在 finally 中 re-enable
+        buttonElement.disabled = false;
     }
 }
 

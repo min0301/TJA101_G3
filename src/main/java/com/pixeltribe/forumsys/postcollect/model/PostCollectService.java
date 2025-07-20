@@ -55,7 +55,7 @@ public class PostCollectService {
     public List<PostCollectDTO> getPostCollectForMember(Integer memberId){
         Member member = memRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到會員, 編號: " + memberId));
-        List<PostCollect> postCollect = postCollectRepository.findByMemNo(member);
+        List<PostCollect> postCollect = postCollectRepository.findByMemNoAndPostCollectStatus(member,PostCollectStatus.COLLECT);
         return postCollect.stream()
                 .map(PostCollectDTO::convertToPostCollectDTO)
                 .toList();

@@ -4,14 +4,12 @@ import com.pixeltribe.forumsys.forumpost.model.ForumPost;
 import com.pixeltribe.forumsys.shared.LikeStatus;
 import com.pixeltribe.membersys.member.model.Member;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "post_like")
 public class PostLike {
@@ -29,7 +27,7 @@ public class PostLike {
     private Member memNo;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "PLIKE_UPDATE")
+    @Column(name = "PLIKE_UPDATE", insertable = false, updatable = false)
     private Instant plikeUpdate;
 
     @Column(name = "PLIKE_STATUS")
@@ -37,7 +35,7 @@ public class PostLike {
     private LikeStatus plikeStatus;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "PLIKE_CRDATE")
+    @Column(name = "PLIKE_CRDATE", insertable = false, updatable = false)
     private Instant plikeCrdate;
 
 

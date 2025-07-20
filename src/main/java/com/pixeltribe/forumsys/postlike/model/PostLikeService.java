@@ -5,10 +5,12 @@ import com.pixeltribe.forumsys.forumpost.model.ForumPostRepository;
 import com.pixeltribe.forumsys.shared.LikeStatus;
 import com.pixeltribe.membersys.member.model.MemRepository;
 import com.pixeltribe.membersys.member.model.Member;
-import jakarta.transaction.Transactional;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service("postLikeService")
 public class PostLikeService {
@@ -32,6 +34,7 @@ public class PostLikeService {
 
     @Transactional
     public PostLikeDTO updatePostLike(Integer postNo, Integer memberId, LikeStatus requestedStatus) {
+
         Member member = memRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("找不到會員編號:" + memberId));
         ForumPost post = forumPostRepository.findById(postNo)
@@ -55,8 +58,10 @@ public class PostLikeService {
         if (newStatus == LikeStatus.LIKE) likeCnt++;
         if (newStatus == LikeStatus.DISLIKE) disLikeCnt++;
 
+
         post.setPostLikeCount(post.getPostLikeCount() + likeCnt);
         post.setPostLikeDlc(post.getPostLikeDlc() + disLikeCnt);
+
 
         likeRecord.setPlikeStatus(newStatus);
 

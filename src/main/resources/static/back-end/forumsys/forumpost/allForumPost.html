@@ -9,55 +9,53 @@
         /* 從 allForum.html 複製並調整，確保風格一致 */
         :root {
             /* 假設您有定義這些變數，確保它們在實際環境中存在 */
-            --primary-bg: #f0f2f5; /* 從AdmHomePage.html取值 */
-            --component-bg: #ffffff; /* 從AdmHomePage.html取值 */
-            --border-color: #e0e0e0; /* 從AdmHomePage.html取值 */
-            --text-color: #5d5d66; /* 從AdmHomePage.html取值 */
-            --text-muted: #6c757d; /* 從AdmHomePage.html取值 */
-            --brand-green: #08beab; /* 從AdmHomePage.html取值 */
-            --brand-green-hover: #07a897; /* 從AdmHomePage.html取值 */
-            --brand-green-light: rgba(8, 190, 171, 0.1); /* 從AdmHomePage.html取值 */
-            --dark-gray: #495057; /* 篩選標籤顏色 (allForum.html 也有類似概念) */
-            /* allForumPost.html 原有，但可調整或合併 */
-            --light-text-color: #6c757d; /* 與 --text-muted 相同 */
-            --box-shadow-light: rgba(0, 0, 0, 0.05) 0px 2px 8px; /* 柔和陰影，調整為與 allForum.html 接近 */
-            --box-shadow-hover: rgba(0, 0, 0, 0.1) 0px 4px 12px; /* 懸停陰影，調整為與 allForum.html 接近 */
+            --primary-bg: #f0f2f5;
+            --component-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --text-color: #5d5d66;
+            --text-muted: #6c757d;
+            --brand-green: #08beab;
+            --brand-green-hover: #07a897;
+            --brand-green-light: rgba(8, 190, 171, 0.1);
+            --dark-gray: #495057;
         }
 
         body {
-            font-family: 'Karla', '微軟正黑體', Arial, sans-serif; /* 統一字體 */
-            background-color: var(--primary-bg); /* 統一背景色 */
-            color: var(--text-color); /* 統一文字顏色 */
+            font-family: 'Karla', '微軟正黑體', Arial, sans-serif;
+            /* 這些樣式通常由主模板或共同的 layout CSS 定義，這裡移除以避免衝突 */
+            /* background-color: var(--primary-bg); */
+            color: var(--text-color);
             line-height: 1.6;
             margin: 0;
-            padding: 30px 20px;
+            /* padding: 30px 20px; */
         }
 
         .forumpost-management-container {
             width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 25px;
+            max-width: 1400px; /* 與 allForum.html 的 .forum-management-container 相同 */
+            margin: 0 auto; /* 與 allForum.html 的 .forum-management-container 相同 */
+            padding: 25px; /* 添加整體內邊距，這樣內部組件就不需要獨立的左右 margin */
             box-sizing: border-box;
-            background-color: var(--component-bg); /* 統一為白色背景 */
+            background-color: var(--component-bg);
             border-radius: 12px;
-            box-shadow: var(--box-shadow-light); /* 統一陰影 */
-            border: 1px solid var(--border-color); /* 新增邊框，與其他組件統一 */
+            box-shadow: none; /* 與 allForum.html 的 .table-container 或 .forum-management-container 相同，無陰影 */
+            border: 1px solid var(--border-color);
         }
 
         .page-title-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            margin-bottom: 25px; /* 與 allForum.html 相同 */
+            padding-bottom: 15px; /* 與 allForum.html 相同 */
+            /* 移除原有的左右 padding，因為已由父容器 .forumpost-management-container 提供 */
             border-bottom: 1px solid var(--border-color);
         }
 
         .page-title-header h2 {
             font-family: 'Karla', sans-serif;
-            font-size: 28px; /* 稍微大一點點，區分於allForum的h2 */
-            color: var(--text-color); /* 統一文字顏色 */
+            font-size: 24px; /* 與 allForum.html 的 h2 保持一致 */
+            color: var(--text-color);
             font-weight: 700;
             margin: 0;
             display: flex;
@@ -70,40 +68,43 @@
         }
 
         .control-bar {
-            background: var(--component-bg); /* 統一背景色 */
-            padding: 20px 25px;
+            background: var(--component-bg);
+            padding: 15px 20px; /* 與 allForum.html 相同 */
             border-radius: 10px;
-            margin-bottom: 25px;
-            border: 1px solid var(--border-color); /* 統一邊框 */
+            margin-bottom: 20px; /* 與 allForum.html 相同 */
+            /* 移除原有的左右 margin，讓父容器 .forumpost-management-container 提供整體邊距 */
+            margin-left: 0;
+            margin-right: 0;
+            border: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 15px;
         }
 
         .filter-group {
             display: flex;
             align-items: center;
             flex-wrap: wrap;
-            gap: 25px;
+            gap: 20px;
         }
 
         .filter-group label {
-            color: var(--text-color); /* 統一文字顏色 */
+            color: var(--text-color);
             font-weight: 500;
         }
 
         .filter-select {
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 9px 15px;
-            background: var(--component-bg); /* 統一背景色 */
+            padding: 8px 12px;
+            background: var(--component-bg);
             color: var(--text-color);
             transition: border-color 0.2s, box-shadow 0.2s;
             min-width: 140px;
             appearance: none;
-            background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%235d5d66%22%3E%3Cpath%20d%3D%22M7%2C10L12%2C15L17%2C10H7Z%22%2F%3E%3C%2Fsvg%3E'); /* 自定義下拉箭頭，顏色與 text-color 同步 */
+            background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%235d5d66%22%3E%3Cpath%20d%3D%22M7%2C10L12%2C15L17%2C10H7Z%22%2F%3E%3C%2Fsvg%3E');
             background-repeat: no-repeat;
             background-position: right 10px center;
             background-size: 18px;
@@ -111,8 +112,8 @@
 
         .filter-select:focus {
             border-color: var(--brand-green);
-            box-shadow: 0 0 0 3px rgba(8, 190, 171, 0.25); /* Focus 時的柔和陰影 */
             outline: none;
+            box-shadow: none;
         }
 
         .table-container {
@@ -120,7 +121,10 @@
             border-radius: 12px;
             overflow-x: auto;
             border: 1px solid var(--border-color);
-            box-shadow: var(--box-shadow-light); /* 統一陰影 */
+            box-shadow: none;
+            /* 移除原有的左右 margin，讓父容器 .forumpost-management-container 提供整體邊距 */
+            margin-left: 0;
+            margin-right: 0;
         }
 
         .table {
@@ -139,7 +143,7 @@
             font-weight: 700;
             text-align: center;
             vertical-align: middle;
-            padding: 18px 10px;
+            padding: 15px;
             border: none;
             position: sticky;
             top: 0;
@@ -151,7 +155,7 @@
         .table td {
             text-align: center;
             vertical-align: middle;
-            padding: 15px 10px;
+            padding: 12px;
             border-top: 1px solid var(--border-color);
             color: var(--text-color);
         }
@@ -246,13 +250,12 @@
         }
 
         .status-badge {
-            padding: 5px 12px; /* 統一為 allForum.html 的值 */
-            border-radius: 15px; /* 統一為 allForum.html 的值 */
+            padding: 5px 12px;
+            border-radius: 15px;
             font-size: 13px;
-            font-weight: 500; /* 統一為 allForum.html 的值 */
+            font-weight: 500;
             display: inline-block;
             white-space: nowrap;
-            /* min-width: 60px; */ /* allForum.html 無此屬性 */
             text-align: center;
         }
 
@@ -275,15 +278,15 @@
         .action-btn {
             display: inline-block;
             text-decoration: none;
-            background: none; /* 統一背景色 */
+            background: none;
             border: 1px solid var(--border-color);
             color: var(--text-color);
-            padding: 8px 15px; /* 統一 padding */
-            border-radius: 6px; /* 統一圓角 */
+            padding: 8px 15px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s ease;
             white-space: nowrap;
-            font-size: 15px; /* 統一字體 */
+            font-size: 15px;
             font-weight: 500;
         }
 
@@ -291,7 +294,6 @@
             background: var(--brand-green-light);
             color: var(--brand-green);
             border-color: var(--brand-green);
-            /* box-shadow: rgba(40, 167, 69, 0.1) 0px 2px 8px; */ /* allForum.html 無此屬性 */
         }
 
         .action-btn.btn-add {
@@ -301,24 +303,19 @@
             font-weight: bold;
             padding: 10px 20px;
             font-size: 16px;
-            border-radius: 6px; /* 統一圓角 */
+            border-radius: 6px;
         }
 
         .action-btn.btn-add:hover {
             background-color: var(--brand-green-hover);
             border-color: var(--brand-green-hover);
-            /* box-shadow: rgba(40, 167, 69, 0.2) 0px 4px 12px; */ /* allForum.html 無此屬性 */
         }
 
         .pagination-controls {
             display: flex;
             justify-content: flex-end;
             align-items: center;
-            padding: 20px 0; /* 統一 padding */
-            /* allForumPost.html 獨有，可以保留或移除，這裡選擇移除以完全統一 */
-            /* box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px; */
-            /* border-radius: 8px; */
-            /* overflow: hidden; */
+            padding: 20px 0; /* 移除左右 padding，讓父容器提供 */
         }
 
         .pagination {
@@ -326,38 +323,29 @@
             padding-left: 0;
             list-style: none;
             margin: 0;
-            /* allForumPost.html 獨有，可以移除 */
-            /* box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px; */
-            /* border-radius: 8px; */
-            /* overflow: hidden; */
         }
 
         .pagination-controls .page-item .page-link {
             color: var(--brand-green);
             background-color: var(--component-bg);
-            border: 1px solid var(--border-color); /* 統一邊框 */
-            margin: 0 3px; /* 統一 margin */
-            padding: 8px 14px; /* 統一 padding */
-            border-radius: 6px; /* 統一圓角 */
+            border: 1px solid var(--border-color);
+            margin: 0 3px;
+            padding: 8px 14px;
+            border-radius: 6px;
             transition: all 0.2s;
             text-decoration: none;
             display: block;
         }
 
-        /* allForumPost.html 獨有，保留，但調整值以配合新的 border-radius */
         .pagination-controls .page-item:first-child .page-link {
-            /* border-top-left-radius: 8px; */
-            /* border-bottom-left-radius: 8px; */
-            border-top-left-radius: 6px; /* 配合新的 6px */
-            border-bottom-left-radius: 6px; /* 配合新的 6px */
+            border-top-left-radius: 6px;
+            border-bottom-left-radius: 6px;
         }
 
         .pagination-controls .page-item:last-child .page-link {
-            /* border-top-right-radius: 8px; */
-            /* border-bottom-right-radius: 8px; */
-            border-top-right-radius: 6px; /* 配合新的 6px */
-            border-bottom-right-radius: 6px; /* 配合新的 6px */
-            border-right: 1px solid var(--border-color); /* 統一為有右邊框 */
+            border-top-right-radius: 6px;
+            border-bottom-right-radius: 6px;
+            border-right: 1px solid var(--border-color);
         }
 
         .pagination-controls .page-item.active .page-link {
@@ -368,9 +356,9 @@
         }
 
         .pagination-controls .page-item.disabled .page-link {
-            color: var(--text-muted); /* 統一顏色 */
+            color: var(--text-muted);
             pointer-events: none;
-            background-color: #e9ecef; /* 統一背景色 */
+            background-color: #e9ecef;
             border-color: var(--border-color);
         }
 
@@ -379,34 +367,36 @@
             border-color: var(--brand-green);
         }
 
-        /* 提示文字 (保留 allForumPost.html 獨有樣式) */
         .text-muted {
-            color: var(--text-muted); /* 統一顏色 */
+            color: var(--text-muted);
             font-style: italic;
         }
 
         #error-message {
-            color: #e74c3c; /* 統一顏色 */
-            background-color: #fbecec; /* 統一背景色 */
-            border: 1px solid #e74c3c; /* 統一邊框 */
+            color: #e74c3c;
+            background-color: #fbecec;
+            border: 1px solid #e74c3c;
             padding: 15px;
             margin-top: 20px;
             margin-bottom: 20px;
-            border-radius: 5px; /* 統一圓角 */
+            /* 移除原有的左右 margin，讓父容器 .forumpost-management-container 提供整體邊距 */
+            margin-left: 0;
+            margin-right: 0;
+            border-radius: 5px;
             display: none;
             font-weight: 500;
         }
 
-        /* 圖片與燈箱 - allForumPost.html 的 .post-thumbnail 與 allForum.html 的 .forum-thumbnail 相似，調整以保持風格一致性但保留尺寸差異 */
+        /* 圖片縮圖樣式與 allForum.html 的 .forum-thumbnail 保持一致 (無陰影) */
         .post-thumbnail {
-            width: 80px; /* 保持原尺寸 */
-            height: 60px; /* 保持原尺寸 */
+            width: 80px;
+            height: 60px;
             object-fit: cover;
-            border-radius: 4px; /* 統一為 allForum.html 的值 */
+            border-radius: 4px;
             vertical-align: middle;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+            transition: transform 0.2s ease-in-out;
             cursor: pointer;
-            box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px; /* 輕微陰影 */
+            box-shadow: none;
         }
 
         td a:has(.post-thumbnail) {
@@ -416,9 +406,10 @@
 
         td a:has(.post-thumbnail):hover .post-thumbnail {
             transform: scale(1.1);
-            box-shadow: rgba(0, 0, 0, 0.15) 0px 4px 12px; /* 懸停時明顯陰影 */
+            box-shadow: none;
         }
 
+        /* 燈箱樣式與 allForum.html 保持一致 */
         .lightbox {
             display: none;
             position: fixed;
@@ -427,32 +418,30 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.85); /* 統一背景色 */
+            background-color: rgba(0, 0, 0, 0.85);
             justify-content: center;
             align-items: center;
         }
 
         .lightbox-content {
-            max-width: 85%; /* 統一大小 */
-            max-height: 85%; /* 統一大小 */
-            border-radius: 5px; /* 統一圓角 */
-            /* box-shadow: rgba(0, 0, 0, 0.5) 0px 8px 24px; */ /* allForum.html 無此屬性 */
+            max-width: 85%;
+            max-height: 85%;
+            border-radius: 5px;
         }
 
         .lightbox-close {
             position: absolute;
-            top: 20px; /* 統一位置 */
-            right: 35px; /* 統一位置 */
+            top: 20px;
+            right: 35px;
             color: #fff;
-            font-size: 40px; /* 統一尺寸 */
+            font-size: 40px;
             font-weight: bold;
             cursor: pointer;
             transition: color 0.3s;
-            /* text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); */ /* allForum.html 無此屬性 */
         }
 
         .lightbox-close:hover {
-            color: #bbb; /* 統一懸停顏色 */
+            color: #bbb;
         }
     </style>
 </head>
@@ -546,8 +535,8 @@
 
         // --- 變數定義區 ---
         // 【不可變】API 路徑，與 ForumPostController.java 對應
-        const allPostsApiUrl = '/api/forumposts/all'; // 獲取所有文章
-        const allForumsApiUrl = '/api/forums/all'; // 獲取所有討論區，修改為相對路徑
+        const allPostsApiUrl = '/api/forumposts/all';
+        const allForumsApiUrl = '/api/forums/all';
 
         // 【可變】這些是 DOM 元素的引用，名稱可依個人習慣修改，但要與 HTML 的 id 對應
         const tableBody = document.getElementById('forumPostTableBody');
@@ -559,7 +548,7 @@
         const pinFilter = document.getElementById('pinFilter');
 
         // 【可變】應用程式狀態變數
-        let allForumPostsData = []; // 存放從 API 獲取的原始文章資料
+        let allForumPostsData = [];
         let currentPage = 1;
         let itemsPerPage = 10;
 
@@ -573,7 +562,7 @@
                 // 同時載入文章資料和討論區資料
                 const [postsResponse, forumsResponse] = await Promise.all([
                     fetch(allPostsApiUrl),
-                    fetch(allForumsApiUrl) // 【新增】載入所有討論區
+                    fetch(allForumsApiUrl)
                 ]);
 
                 if (!postsResponse.ok) {
@@ -584,10 +573,10 @@
                 }
 
                 allForumPostsData = await postsResponse.json();
-                const forumsData = await forumsResponse.json(); // 獲取討論區資料
+                const forumsData = await forumsResponse.json();
 
                 // 填充討論區篩選下拉選單
-                populateForumFilter(forumsData); // 【新增】填充討論區篩選
+                populateForumFilter(forumsData);
 
                 itemsPerPage = parseInt(itemsPerPageFilter.value) || 10;
                 currentPage = 1;
@@ -602,7 +591,7 @@
          * @param {Array} forums - 討論區資料列表 (包含 id 和 name)
          */
         function populateForumFilter(forums) {
-            forumFilter.innerHTML = '<option value="">全部討論區</option>'; // 預設選項
+            forumFilter.innerHTML = '<option value="">全部討論區</option>';
             forums.forEach(forum => {
                 const option = document.createElement('option');
                 option.value = forum.id;
@@ -641,7 +630,7 @@
          * @param {Array} posts - 要顯示在當前頁面的文章資料
          */
         function renderTableBody(posts) {
-            tableBody.innerHTML = ''; // 清空表格
+            tableBody.innerHTML = '';
 
             if (!posts || posts.length === 0) {
                 tableBody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding: 40px;"><span class="text-muted">找不到符合條件的文章</span></td></tr>`;

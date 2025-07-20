@@ -6,6 +6,7 @@ import com.pixeltribe.forumsys.forum.model.Forum;
 import com.pixeltribe.forumsys.forum.model.ForumRepository;
 import com.pixeltribe.forumsys.forumtag.model.ForumTag;
 import com.pixeltribe.forumsys.forumtag.model.ForumTagRepository;
+import com.pixeltribe.forumsys.postcollect.model.PostCollectService; // 導入 PostCollectService
 import com.pixeltribe.membersys.member.model.MemRepository;
 import com.pixeltribe.membersys.member.model.Member;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class ForumPostService {
     private final ForumRepository forumRepository; // 需要 ForumRepository 來獲取所有討論區
     private final ForumTagRepository forumTagRepository;
     private final MemRepository memRepository;
+    private final PostCollectService postCollectService; // 注入 PostCollectService
 
     // 引入圖片儲存相關配置
     @Value("${file.upload-dir}")
@@ -60,14 +62,14 @@ public class ForumPostService {
     public ForumPostService(ForumPostRepository forumPostRepository,
                             ForumRepository forumRepository,
                             ForumTagRepository forumTagRepository,
-                            MemRepository memRepository) {
+                            MemRepository memRepository,
+                            PostCollectService postCollectService) { // 注入 PostCollectService
         this.forumPostRepository = forumPostRepository;
         this.forumRepository = forumRepository;
         this.forumTagRepository = forumTagRepository;
         this.memRepository = memRepository;
+        this.postCollectService = postCollectService; // 初始化
     }
-
-    // --- CRUD 操作 (返回 DTO) ---
 
     /**
      * 根據文章類別 ID 獲取其預設圖片 URL。
@@ -218,25 +220,42 @@ public class ForumPostService {
      * 根據 ID 獲取單篇文章的 DTO。
      *
      * @param forumPostId 文章 ID。
+     * @param memberId    當前登入會員的 ID (可為 null，表示未登入)。
      * @return 包含 ForumPostDTO 的 Optional。
      */
     @Transactional(readOnly = true)
-    public Optional<ForumPostDTO> getForumPostDTOById(Integer forumPostId) { // 方法名稱 `getForumPostDTOById` 可變
-        // 使用 Repository 中 JOIN FETCH 的方法，避免 N+1 問題
+    public Optional<ForumPostDTO> getForumPostDTOById(Integer forumPostId, Integer memberId) {
         return forumPostRepository.findByIdWithForumAndMember(forumPostId)
-                .map(ForumPostDTO::new);
+                .map(forumPost -> {
+                    ForumPostDTO dto = new ForumPostDTO(forumPost);
+                    if (memberId != null) {
+                        dto.setCollected(postCollectService.isPostCollected(memberId, forumPostId));
+                    } else {
+                        dto.setCollected(false); // 未登入則視為未收藏
+                    }
+                    return dto;
+                });
     }
 
     /**
      * 獲取所有文章列表 (返回 DTO 列表)。
      *
+     * @param memberId 當前登入會員的 ID (可為 null，表示未登入)。
      * @return 所有文章的 ForumPostDTO 列表。
      */
     @Transactional(readOnly = true)
-    public List<ForumPostDTO> getAllForumPost() { // 方法名稱 `getAllForumPost` 可變
+    public List<ForumPostDTO> getAllForumPost(Integer memberId) {
         List<ForumPost> posts = forumPostRepository.findAllWithForumAndMember(); // 使用 JOIN FETCH 方法
         return posts.stream()
-                .map(ForumPostDTO::new)
+                .map(forumPost -> {
+                    ForumPostDTO dto = new ForumPostDTO(forumPost);
+                    if (memberId != null) {
+                        dto.setCollected(postCollectService.isPostCollected(memberId, forumPost.getId()));
+                    } else {
+                        dto.setCollected(false); // 未登入則視為未收藏
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -245,14 +264,23 @@ public class ForumPostService {
      * 獲取特定討論區的文章列表 (返回 DTO 列表)。
      *
      * @param forumId 討論區 ID。
+     * @param memberId 當前登入會員的 ID (可為 null，表示未登入)。
      * @return 特定討論區的文章 ForumPostDTO 列表。
      */
     @Transactional(readOnly = true)
-    public List<ForumPostDTO> getPostsByForumId(Integer forumId) { // 方法名稱 `getPostsByForumId` 可變
+    public List<ForumPostDTO> getPostsByForumId(Integer forumId, Integer memberId) {
         // 假設 findByForNo_Id 已經配置了 JOIN FETCH
         List<ForumPost> posts = forumPostRepository.findByForNo_Id(forumId);
         return posts.stream()
-                .map(ForumPostDTO::new)
+                .map(forumPost -> {
+                    ForumPostDTO dto = new ForumPostDTO(forumPost);
+                    if (memberId != null) {
+                        dto.setCollected(postCollectService.isPostCollected(memberId, forumPost.getId()));
+                    } else {
+                        dto.setCollected(false); // 未登入則視為未收藏
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -262,12 +290,21 @@ public class ForumPostService {
      *
      * @param postId  文章 ID。
      * @param forumId 討論區 ID。
+     * @param memberId 當前登入會員的 ID (可為 null，表示未登入)。
      * @return 包含 ForumPostDTO 的 Optional。
      */
     @Transactional(readOnly = true)
-    public Optional<ForumPostDTO> getPostByIdAndForumId(Integer postId, Integer forumId) { // 方法名稱 `getPostByIdAndForumId` 可變
+    public Optional<ForumPostDTO> getPostByIdAndForumId(Integer postId, Integer forumId, Integer memberId) {
         return forumPostRepository.findByIdAndForNoId(postId, forumId)
-                .map(ForumPostDTO::new);
+                .map(forumPost -> {
+                    ForumPostDTO dto = new ForumPostDTO(forumPost);
+                    if (memberId != null) {
+                        dto.setCollected(postCollectService.isPostCollected(memberId, forumPost.getId()));
+                    } else {
+                        dto.setCollected(false); // 未登入則視為未收藏
+                    }
+                    return dto;
+                });
     }
 
     /**
@@ -291,15 +328,24 @@ public class ForumPostService {
      * 獲取特定討論區的文章列表，並依 `postUpdate` 時間倒序排列。
      *
      * @param forumId 討論區 ID。
+     * @param memberId 當前登入會員的 ID (可為 null，表示未登入)。
      * @return 特定討論區的文章 ForumPostDTO 列表，依更新時間倒序排列。
      */
-    @Transactional(readOnly = true)
-    public List<ForumPostDTO> findAllByOrderByPostUpdateDesc(Integer forumId) { // 修正參數為 forumId
-        // 直接使用 Repository 中已經定義好的帶有 JOIN FETCH 和 ORDER BY 的方法
-        List<ForumPost> posts = forumPostRepository.findByForNo_IdOrderByPostUpdateDesc(forumId); //
+    public List<ForumPostDTO> findAllByOrderByPostUpdateDesc(Integer forumId, Integer memberId) {
+        List<ForumPost> forumPosts = forumPostRepository.findByForNo_IdOrderByPostUpdateDesc(forumId); // 假設有這個方法
 
-        return posts.stream()
-                .map(ForumPostDTO::new)
+        return forumPosts.stream()
+                .map(post -> {
+                    ForumPostDTO dto = new ForumPostDTO(post); // 假設 ForumPostDTO 有一個接受 ForumPost 實體的建構子
+                    if (memberId != null) {
+                        // 查詢當前會員是否收藏了這篇文章
+                        boolean isCollected = postCollectService.isPostCollected(memberId, post.getId());
+                        dto.setCollected(isCollected); // 設定收藏狀態到 DTO
+                    } else {
+                        dto.setCollected(false); // 未登入則預設為未收藏
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -335,9 +381,5 @@ public class ForumPostService {
             }
         }
         return null; // 沒有上傳圖片，返回 null
-    }
-
-    public Long getPostCount() {
-        return forumPostRepository.count();
     }
 }
