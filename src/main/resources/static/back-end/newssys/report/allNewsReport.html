@@ -138,11 +138,13 @@
         let currentPage = 0;
         let totalPages  = 0;
         const jwtToken  = localStorage.getItem('jwt') || '';
+        const BASE     = window.location.origin;
 
         /* -------- 抓取並渲染 -------- */
         async function fetchPage() {
             const status  = document.getElementById('statusFilter').value;
-            let url = `/api/admin/NewsComReport?page=${currentPage}&size=${pageSize}`;
+            // let url = `/api/admin/NewsComReport?page=${currentPage}&size=${pageSize}`;
+            let url = `${BASE}/api/admin/NewsComReport?page=${currentPage}&size=${pageSize}`;
             if (status) url += `&status=${status}`;
 
             try {

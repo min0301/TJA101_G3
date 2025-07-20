@@ -145,22 +145,29 @@
 </div>
 <script>
     (() => {
-        const params = new URLSearchParams(parent.document.getElementById('content-area')?.dataset?.pageParams || location.search);
+        const params = new URLSearchParams(
+            parent.document.getElementById('content-area')?.dataset?.pageParams || location.search
+        );
         const id = params.get('id');
-        const apiGet = `http://localhost:8080/api/admin/NewsCategory/${id}`;
-        const apiPatch = `http://localhost:8080/api/admin/NewsCategory/update/${id}`;
+
+        const base = window.location.origin;                              // ★新增
+        const apiGet   = `${base}/api/admin/NewsCategory/${id}`;          // ★修改
+        const apiPatch = `${base}/api/admin/NewsCategory/update/${id}`;   // ★修改
+
         const token = localStorage.getItem('jwt');
         const nameInput = document.getElementById('categoryName');
-        const idInput = document.getElementById('categoryId');
-        const msg = document.getElementById('message-area');
+        const idInput   = document.getElementById('categoryId');
+        const msg  = document.getElementById('message-area');
         const save = document.getElementById('saveBtn');
+
         if (!id) {
             msg.textContent = '缺少 ID';
-            msg.className = 'error';
+            msg.className   = 'error';
             msg.style.display = 'block';
             save.disabled = true;
             return;
         }
+
         load();
 
         async function load() {

@@ -151,27 +151,36 @@
 </div>
 <script>
     (() => {
+        /* ① 動態網域 ------------------------------ */
+        const base = window.location.origin;
+        const api  = `${base}/api/admin/NewsCategories/add`;
+        const token = localStorage.getItem('jwt');
+
         const form = document.getElementById('add-newsCat-form');
         const nameInput = document.getElementById('categoryName');
-        const msg = document.getElementById('message-area');
-        const btn = document.getElementById('submitBtn');
-        const api = 'http://localhost:8080/api/admin/NewsCategories/add';
-        const token = localStorage.getItem('jwt');
+        const msg  = document.getElementById('message-area');
+        const btn  = document.getElementById('submitBtn');
 
         form.addEventListener('submit', async e => {
             e.preventDefault();
             btn.disabled = true;
             btn.textContent = '新增中...';
             msg.style.display = 'none';
+
             try {
                 const res = await fetch(api, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json', Authorization: 'Bearer ' + token},
-                    body: JSON.stringify({categoryName: nameInput.value.trim()})
+                    method : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ categoryName: nameInput.value.trim() })
                 });
                 if (!res.ok) throw new Error(await res.text() || '新增失敗');
+
                 show('新增成功！2 秒後返回', 'success');
-                setTimeout(() => loadExternalPage('../newssys/category/allNewsCategory.html'), 2000);
+                setTimeout(() =>
+                    loadExternalPage('../newssys/category/allNewsCategory.html'), 2000);
             } catch (err) {
                 show('失敗: ' + err.message, 'error');
                 btn.disabled = false;
@@ -181,10 +190,11 @@
 
         function show(t, type) {
             msg.textContent = t;
-            msg.className = type;
+            msg.className   = type;
             msg.style.display = 'block';
         }
     })();
 </script>
+
 </body>
 </html>

@@ -162,25 +162,28 @@
 </div>
 <script>
     (() => {
-        const api = 'http://localhost:8080/api/admin/allNewsCategories';
+        const base  = window.location.origin;              // ★新增
+        const api   = `${base}/api/admin/allNewsCategories`; // ★修改
         const token = localStorage.getItem('jwt');
-        const body = document.getElementById('catBody');
+        const body  = document.getElementById('catBody');
         const pager = document.getElementById('pager');
-        const err = document.getElementById('errorMsg');
+        const err   = document.getElementById('errorMsg');
+
         let data = [];
         let page = 1;
         const size = 10;
+
         load();
 
         async function load() {
             try {
-                const res = await fetch(api, {headers: {Authorization: 'Bearer ' + token}});
+                const res = await fetch(api, { headers: { Authorization: 'Bearer ' + token } });
                 if (!res.ok) throw new Error(res.status);
                 data = await res.json();
                 render();
             } catch (e) {
                 err.style.display = 'block';
-                err.textContent = '載入失敗: ' + e.message;
+                err.textContent   = '載入失敗: ' + e.message;
             }
         }
 

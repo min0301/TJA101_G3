@@ -1,324 +1,3 @@
-<!--<!DOCTYPE html>-->
-<!--<html lang="zh-Hant">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8">-->
-<!--    <title>編輯留言</title>-->
-<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
-<!--    <style>-->
-<!--        body { font-family: sans-serif; background: #f4f6f9; }-->
-<!--        .comment-edit-container {-->
-<!--            max-width: 700px;-->
-<!--            margin: 40px auto;-->
-<!--        }-->
-<!--        .form-wrapper {-->
-<!--            background: #fff;-->
-<!--            padding: 30px;-->
-<!--            border-radius: 12px;-->
-<!--            border: 1px solid #ccc;-->
-<!--            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);-->
-<!--        }-->
-<!--        .form-group {-->
-<!--            margin-bottom: 20px;-->
-<!--        }-->
-<!--        .form-group label {-->
-<!--            font-weight: bold;-->
-<!--            margin-bottom: 10px;-->
-<!--            display: block;-->
-<!--        }-->
-<!--        .form-control {-->
-<!--            width: 100%;-->
-<!--            padding: 12px;-->
-<!--            font-size: 16px;-->
-<!--            border: 1px solid #ccc;-->
-<!--            border-radius: 6px;-->
-<!--            background: #f9f9f9;-->
-<!--        }-->
-<!--        textarea.form-control {-->
-<!--            resize: vertical;-->
-<!--            min-height: 120px;-->
-<!--        }-->
-<!--        .form-actions {-->
-<!--            display: flex;-->
-<!--            justify-content: flex-end;-->
-<!--            gap: 12px;-->
-<!--        }-->
-<!--        .action-btn {-->
-<!--            padding: 10px 20px;-->
-<!--            border: none;-->
-<!--            font-weight: bold;-->
-<!--            border-radius: 6px;-->
-<!--            cursor: pointer;-->
-<!--            font-size: 16px;-->
-<!--        }-->
-<!--        .btn-submit {-->
-<!--            background-color: #08beab;-->
-<!--            color: white;-->
-<!--        }-->
-<!--        .btn-cancel {-->
-<!--            background-color: #ced4da;-->
-<!--            color: #333;-->
-<!--        }-->
-<!--        .flex-row {-->
-<!--            display: flex;-->
-<!--            gap: 12px;-->
-<!--        }-->
-<!--        .flex-row .form-control {-->
-<!--            flex: 1;-->
-<!--        }-->
-<!--        #message-area {-->
-<!--            margin-top: 20px;-->
-<!--            padding: 12px;-->
-<!--            display: none;-->
-<!--            font-weight: bold;-->
-<!--            border-radius: 6px;-->
-<!--        }-->
-<!--        #message-area.success {-->
-<!--            background-color: #d4edda;-->
-<!--            color: #155724;-->
-<!--        }-->
-<!--        #message-area.error {-->
-<!--            background-color: #f8d7da;-->
-<!--            color: #721c24;-->
-<!--        }-->
-<!--    </style>-->
-<!--</head>-->
-<!--<body>-->
-<!--<div class="comment-edit-container">-->
-<!--    <h2>編輯留言</h2>-->
-<!--    <div class="form-wrapper">-->
-<!--        <form id="comment-edit-form">-->
-<!--            <input type="hidden" id="commentId">-->
-
-<!--            <div class="form-group">-->
-<!--                <label>所屬新聞編號</label>-->
-<!--                <input type="text" id="newsId" class="form-control" readonly>-->
-<!--            </div>-->
-
-<!--            <div class="form-group">-->
-<!--                <label>所屬新聞標題</label>-->
-<!--                <input type="text" id="newsTitle" class="form-control" readonly>-->
-<!--            </div>-->
-
-<!--            <div class="form-group">-->
-<!--                <label>留言會員</label>-->
-<!--                <div class="flex-row">-->
-<!--                    <input type="text" id="memberId" class="form-control" placeholder="會員編號" readonly>-->
-<!--                    <input type="text" id="memberNick" class="form-control" placeholder="暱稱" readonly>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            <div class="form-group">-->
-<!--                <label>留言時間</label>-->
-<!--                <input type="text" id="ncomCre" class="form-control" readonly>-->
-<!--            </div>-->
-
-<!--            <div class="form-group">-->
-<!--                <label for="commentContent">留言內容</label>-->
-<!--                <textarea id="commentContent" class="form-control" required></textarea>-->
-<!--            </div>-->
-
-<!--            <div class="form-group flex-row">-->
-<!--                <div style="flex: 1">-->
-<!--                    <label>👍 按讚數</label>-->
-<!--                    <input type="text" id="ncomLikeLc" class="form-control" readonly>-->
-<!--                </div>-->
-<!--                <div style="flex: 1">-->
-<!--                    <label>👎 倒讚數</label>-->
-<!--                    <input type="text" id="ncomLikeDlc" class="form-control" readonly>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            <div class="form-group">-->
-<!--                <label><input type="checkbox" id="isHidden"> 隱藏留言</label>-->
-<!--            </div>-->
-
-<!--            <div class="form-actions">-->
-<!--                <a href="#" class="action-btn btn-cancel" onclick="event.preventDefault(); backToList()">返回列表</a>-->
-<!--                <button type="submit" class="action-btn btn-submit">儲存修改</button>-->
-<!--            </div>-->
-
-<!--            <div id="message-area"></div>-->
-<!--        </form>-->
-<!--    </div>-->
-<!--</div>-->
-
-<!--&lt;!&ndash;<script>&ndash;&gt;-->
-<!--&lt;!&ndash;    (async function () {&ndash;&gt;-->
-<!--&lt;!&ndash;        const token = localStorage.getItem('jwt');&ndash;&gt;-->
-<!--&lt;!&ndash;        const authHeader = token ? { Authorization: 'Bearer ' + token } : {};&ndash;&gt;-->
-<!--&lt;!&ndash;        const msgBox = document.getElementById('message-area');&ndash;&gt;-->
-
-<!--&lt;!&ndash;        const parentArea = parent?.document?.getElementById('content-area');&ndash;&gt;-->
-<!--&lt;!&ndash;        const search = parentArea?.dataset?.pageParams || location.search;&ndash;&gt;-->
-<!--&lt;!&ndash;        const params = new URLSearchParams(search);&ndash;&gt;-->
-<!--&lt;!&ndash;        const id = params.get('id');&ndash;&gt;-->
-
-<!--&lt;!&ndash;        if (!id) return showMessage('❌ 缺少留言 ID', 'error');&ndash;&gt;-->
-<!--&lt;!&ndash;        document.getElementById('commentId').value = id;&ndash;&gt;-->
-
-<!--&lt;!&ndash;        try {&ndash;&gt;-->
-<!--&lt;!&ndash;            const res = await fetch(`/api/admin/NewsComment/${id}`, { headers: authHeader });&ndash;&gt;-->
-<!--&lt;!&ndash;            if (!res.ok) throw new Error('留言資料載入失敗');&ndash;&gt;-->
-<!--&lt;!&ndash;            const data = await res.json();&ndash;&gt;-->
-
-<!--&lt;!&ndash;            document.getElementById('newsId').value = data.newsNoId;&ndash;&gt;-->
-<!--&lt;!&ndash;            document.getElementById('newsTitle').value = data.newsNoNewsTit;&ndash;&gt;-->
-<!--&lt;!&ndash;            document.getElementById('memberId').value = data.memNoId;&ndash;&gt;-->
-<!--&lt;!&ndash;            document.getElementById('memberNick').value = data.memNoMemNickName;&ndash;&gt;-->
-<!--&lt;!&ndash;            document.getElementById('ncomCre').value = data.ncomCre;&ndash;&gt;-->
-<!--&lt;!&ndash;            document.getElementById('ncomLikeLc').value = data.ncomLikeLc;&ndash;&gt;-->
-<!--&lt;!&ndash;            document.getElementById('ncomLikeDlc').value = data.ncomLikeDlc;&ndash;&gt;-->
-<!--&lt;!&ndash;            document.getElementById('commentContent').value = data.ncomCon || '';&ndash;&gt;-->
-<!--&lt;!&ndash;            document.getElementById('isHidden').checked = data.ncomStatus === '2';&ndash;&gt;-->
-<!--&lt;!&ndash;        } catch (err) {&ndash;&gt;-->
-<!--&lt;!&ndash;            showMessage(err.message, 'error');&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-
-<!--&lt;!&ndash;        document.getElementById('comment-edit-form').addEventListener('submit', async (e) => {&ndash;&gt;-->
-<!--&lt;!&ndash;            e.preventDefault();&ndash;&gt;-->
-<!--&lt;!&ndash;            const id = parseInt(document.getElementById('commentId').value, 10);&ndash;&gt;-->
-<!--&lt;!&ndash;            const content = document.getElementById('commentContent').value.trim();&ndash;&gt;-->
-<!--&lt;!&ndash;            const ncomStatus = document.getElementById('isHidden').checked ? '2' : '1';&ndash;&gt;-->
-<!--&lt;!&ndash;            const newsNoId = parseInt(document.getElementById('newsId').value, 10);&ndash;&gt;-->
-<!--&lt;!&ndash;            const memNoId = parseInt(document.getElementById('memberId').value, 10);&ndash;&gt;-->
-
-<!--&lt;!&ndash;            const payload = {&ndash;&gt;-->
-<!--&lt;!&ndash;                id: Number(id),                         // 留言 ID&ndash;&gt;-->
-<!--&lt;!&ndash;                ncomCon: content,&ndash;&gt;-->
-<!--&lt;!&ndash;                ncomStatus: ncomStatus,&ndash;&gt;-->
-<!--&lt;!&ndash;                newsNoId: Number(document.getElementById('newsId').value),&ndash;&gt;-->
-<!--&lt;!&ndash;                memNoId: Number(document.getElementById('memberId').value)&ndash;&gt;-->
-<!--&lt;!&ndash;            };&ndash;&gt;-->
-
-
-<!--&lt;!&ndash;            try {&ndash;&gt;-->
-<!--&lt;!&ndash;                const res = await fetch(`/api/admin/NewsComment/update`, {&ndash;&gt;-->
-<!--&lt;!&ndash;                    method: 'PATCH',&ndash;&gt;-->
-<!--&lt;!&ndash;                    headers: {&ndash;&gt;-->
-<!--&lt;!&ndash;                        'Content-Type': 'application/json',&ndash;&gt;-->
-<!--&lt;!&ndash;                        ...authHeader&ndash;&gt;-->
-<!--&lt;!&ndash;                    },&ndash;&gt;-->
-<!--&lt;!&ndash;                    body: JSON.stringify(payload)&ndash;&gt;-->
-<!--&lt;!&ndash;                });&ndash;&gt;-->
-
-<!--&lt;!&ndash;                if (!res.ok) {&ndash;&gt;-->
-<!--&lt;!&ndash;                    const errText = await res.text();&ndash;&gt;-->
-<!--&lt;!&ndash;                    throw new Error(errText || '更新失敗');&ndash;&gt;-->
-<!--&lt;!&ndash;                }&ndash;&gt;-->
-
-<!--&lt;!&ndash;                showMessage('✅ 更新成功，2 秒後返回列表', 'success');&ndash;&gt;-->
-<!--&lt;!&ndash;                setTimeout(() => backToList(), 2000);&ndash;&gt;-->
-<!--&lt;!&ndash;            } catch (err) {&ndash;&gt;-->
-<!--&lt;!&ndash;                showMessage(err.message, 'error');&ndash;&gt;-->
-<!--&lt;!&ndash;            }&ndash;&gt;-->
-<!--&lt;!&ndash;        });&ndash;&gt;-->
-
-<!--&lt;!&ndash;        function showMessage(msg, type) {&ndash;&gt;-->
-<!--&lt;!&ndash;            msgBox.textContent = msg;&ndash;&gt;-->
-<!--&lt;!&ndash;            msgBox.className = `${type}`;&ndash;&gt;-->
-<!--&lt;!&ndash;            msgBox.classList.add('show');&ndash;&gt;-->
-<!--&lt;!&ndash;            msgBox.style.display = 'block';&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-
-<!--&lt;!&ndash;        function backToList() {&ndash;&gt;-->
-<!--&lt;!&ndash;            if (parent.loadExternalPage) {&ndash;&gt;-->
-<!--&lt;!&ndash;                parent.loadExternalPage('../newssys/comments/allNewsComment.html');&ndash;&gt;-->
-<!--&lt;!&ndash;            } else {&ndash;&gt;-->
-<!--&lt;!&ndash;                location.href = '../newssys/comments/allNewsComment.html';&ndash;&gt;-->
-<!--&lt;!&ndash;            }&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;    })();&ndash;&gt;-->
-<!--&lt;!&ndash;</script>&ndash;&gt;-->
-
-<!--<script>-->
-<!--    (function(){-->
-<!--        const id       = new URLSearchParams(location.search).get('id');-->
-<!--        const jwtToken = localStorage.getItem('jwt')||'';-->
-<!--        const dom = {-->
-<!--            comment : document.getElementById('commentPanel'),-->
-<!--            report  : document.getElementById('reportPanel'),-->
-<!--            msg     : document.getElementById('message-area')-->
-<!--        };-->
-
-<!--        load();-->
-
-<!--        async function load(){-->
-<!--            try{-->
-<!--                const r = await api('GET');-->
-<!--                render(r);-->
-<!--            }catch(e){ dom.msg.innerHTML=`<div class="error">${e.message}</div>`;}-->
-<!--        }-->
-
-<!--        function render(d){-->
-<!--            dom.comment.innerHTML = `-->
-<!--      <h3 class="panel-title">留言資訊</h3>-->
-<!--      <div class="info-group"><label>留言內容</label><div class="content">${d.newsComment}</div></div>-->
-<!--      <div class="info-group"><label>留言狀態</label><div class="content">${cStatus(d.newsCommentStatus)}</div></div>`;-->
-
-<!--            dom.report.innerHTML = `-->
-<!--      <h3 class="panel-title">檢舉資訊</h3>-->
-<!--      <div class="info-group"><label>檢舉人 ID</label><div class="content">${d.reporterId}</div></div>-->
-<!--      <div class="info-group"><label>檢舉類型</label><div class="content">${d.reportTypeRpiType}</div></div>-->
-<!--      <div class="info-group"><label>建立時間</label><div class="content">${fmt(d.createTime)}</div></div>-->
-<!--      <div class="info-group"><label>處理狀態</label><div class="content">${rStatus(d.newsComReportStatus)}</div></div>-->
-<!--      <div class="info-group"><label>處理時間</label><div class="content">${fmt(d.finishTime)}</div></div>-->
-
-<!--      <form id="handleForm">-->
-<!--        <div class="form-group mb-2">-->
-<!--          <label class="me-2">留言狀態</label>-->
-<!--          <select id="ncomStatus" class="form-select d-inline-block w-auto">-->
-<!--            <option value="0" ${d.newsCommentStatus==='0'?'selected':''}>正常</option>-->
-<!--            <option value="1" ${d.newsCommentStatus==='1'?'selected':''}>隱藏</option>-->
-<!--          </select>-->
-<!--        </div>-->
-<!--        <div class="form-actions">-->
-<!--          <button class="btn btn-submit">儲存</button>-->
-<!--          <button type="button" class="btn btn-cancel"-->
-<!--                  onclick="loadExternalPage('../newssys/report/allNewsReport.html')">返回列表</button>-->
-<!--        </div>-->
-<!--      </form>`;-->
-
-<!--            document.getElementById('handleForm').onsubmit = async e=>{-->
-<!--                e.preventDefault();-->
-<!--                try{-->
-<!--                    const body = {-->
-<!--                        id,-->
-<!--                        newsComReportStatus : "1",                       // 標記已處理-->
-<!--                        ncomStatus          : document.getElementById('ncomStatus').value // <&#45;&#45; 對應後端欄位-->
-<!--                    };-->
-<!--                    await api('PUT', body);-->
-<!--                    dom.msg.innerHTML = `<div class="success">✅ 已更新，3 秒後返回列表</div>`;-->
-<!--                    setTimeout(()=>loadExternalPage('../newssys/report/allNewsReport.html'),3000);-->
-<!--                }catch(err){-->
-<!--                    dom.msg.innerHTML = `<div class="error">❌ ${err.message}</div>`;-->
-<!--                }-->
-<!--            };-->
-<!--        }-->
-
-<!--        const fmt = s=>s?new Date(s).toLocaleString('zh-TW'):'-';-->
-<!--        const cStatus = c=>c==='1'-->
-<!--            ?'<span class="status-badge status-hidden">已隱藏</span>'-->
-<!--            :'<span class="status-badge status-normal">正常</span>';-->
-<!--        const rStatus = s=>({0:'未處理',1:'已處理'}[s]||'未知');-->
-
-<!--        async function api(method,body){-->
-<!--            const r = await fetch(`/api/admin/NewsComReport/${id}`,{-->
-<!--                method,-->
-<!--                headers:{-->
-<!--                    'Content-Type':'application/json',-->
-<!--                    Authorization:'Bearer '+jwtToken-->
-<!--                },-->
-<!--                body: body?JSON.stringify(body):null-->
-<!--            });-->
-<!--            if(!r.ok) throw new Error(`(${r.status}) 伺服器錯誤`);-->
-<!--            return r.json();-->
-<!--        }-->
-<!--    })();-->
-<!--</script>-->
-
-
-<!--</body>-->
-<!--</html>-->
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -327,20 +6,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body{padding:20px;font-family:"Segoe UI",Roboto,"Noto Sans TC",sans-serif;}
-        h2{font-size:1.8rem;font-weight:700;margin-bottom:20px}
-        .panel{border:1px solid #dee2e6;border-radius:8px;padding:20px;background:#f8f9fa}
-        .panel h3{font-size:1.25rem;font-weight:600;margin-bottom:12px}
-        .info-group{margin-bottom:10px}
-        .info-group label{font-weight:600;min-width:92px;display:inline-block}
-        .status-badge{padding:2px 12px;border-radius:999px;font-weight:600;font-size:.875rem}
-        .status-normal{background:#0d6efd;color:#fff}
-        .status-hidden{background:#6c757d;color:#fff}
-        .btn-submit{background:#198754;color:#fff;border:none;min-width:120px}
-        .btn-cancel{background:#fff;border:1px solid #343a40;color:#343a40}
-        #message-area .success{color:#198754;font-weight:600}
-        #message-area .error{color:#dc3545;font-weight:600}
-        @media(max-width:992px){.flex-lg-row{flex-direction:column!important}}
+        body {
+            padding: 20px;
+            font-family: "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px
+        }
+
+        .panel {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f8f9fa
+        }
+
+        .panel h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 12px
+        }
+
+        .info-group {
+            margin-bottom: 10px
+        }
+
+        .info-group label {
+            font-weight: 600;
+            min-width: 92px;
+            display: inline-block
+        }
+
+        .status-badge {
+            padding: 2px 12px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: .875rem
+        }
+
+        .status-normal {
+            background: #0d6efd;
+            color: #fff
+        }
+
+        .status-hidden {
+            background: #6c757d;
+            color: #fff
+        }
+
+        .btn-submit {
+            background: #198754;
+            color: #fff;
+            border: none;
+            min-width: 120px
+        }
+
+        .btn-cancel {
+            background: #fff;
+            border: 1px solid #343a40;
+            color: #343a40
+        }
+
+        #message-area .success {
+            color: #198754;
+            font-weight: 600
+        }
+
+        #message-area .error {
+            color: #dc3545;
+            font-weight: 600
+        }
+
+        @media (max-width: 992px) {
+            .flex-lg-row {
+                flex-direction: column !important
+            }
+        }
     </style>
 </head>
 <body>
@@ -355,85 +99,93 @@
 <div id="message-area" class="mt-3"></div>
 
 <script>
-    (function(){
-        const id=new URLSearchParams(location.search).get('id');
-        const jwt=localStorage.getItem('jwt')||'';
-        if(!jwt){alert('請重新登入');return;}
+    (function () {
+        const id = new URLSearchParams(location.search).get('id');
+        const BASE = window.location.origin;
+        const jwt = localStorage.getItem('jwt') || '';
+        if (!jwt) {
+            alert('請重新登入');
+            return;
+        }
 
-        const c=document.getElementById('cPanel'),r=document.getElementById('rPanel'),msg=document.getElementById('message-area');
+        const c = document.getElementById('cPanel'), r = document.getElementById('rPanel'),
+            msg = document.getElementById('message-area');
 
         /* ===== 讀取 ===== */
         load();
-        async function load(){
-            try{
-                const data=await api('GET');
+
+        async function load() {
+            try {
+                const data = await api('GET');
                 render(data);
-            }catch(e){msg.innerHTML=`<div class="error">${e.message}</div>`;}
+            } catch (e) {
+                msg.innerHTML = `<div class="error">${e.message}</div>`;
+            }
         }
 
         /* ===== Render ===== */
-        function render(d){
-            c.innerHTML=`
+        function render(d) {
+            c.innerHTML = `
       <h3>留言資訊</h3>
       <div class="info-group"><label>留言內容</label><div>${d.newsComment}</div></div>
       <div class="info-group"><label>留言狀態</label><div>${cBadge(d.newsCommentStatus)}</div></div>`;
-            r.innerHTML=`
+            r.innerHTML = `
       <h3>檢舉資訊</h3>
       <div class="info-group"><label>檢舉人 ID</label><div>${d.reporterId}</div></div>
       <div class="info-group"><label>檢舉類型</label><div>${d.reportTypeRpiType}</div></div>
       <div class="info-group"><label>建立時間</label><div>${fmt(d.createTime)}</div></div>
-      <div class="info-group"><label>處理狀態</label><div>${d.newsComReportStatus==='1'?'已處理':'未處理'}</div></div>
+      <div class="info-group"><label>處理狀態</label><div>${d.newsComReportStatus === '1' ? '已處理' : '未處理'}</div></div>
       <div class="info-group"><label>處理時間</label><div>${fmt(d.finishTime)}</div></div>
 
       <form id="frm">
         <div class="info-group mb-3">
           <label class="me-2">留言狀態</label>
           <select id="nStatus" class="form-select d-inline-block w-auto">
-            <option value="0" ${d.newsCommentStatus==='0'?'selected':''}>正常</option>
-            <option value="1" ${d.newsCommentStatus==='1'?'selected':''}>隱藏</option>
+            <option value="0" ${d.newsCommentStatus === '0' ? 'selected' : ''}>正常</option>
+            <option value="1" ${d.newsCommentStatus === '1' ? 'selected' : ''}>隱藏</option>
           </select>
         </div>
         <button class="btn btn-submit me-2">確認處理</button>
         <button type="button" class="btn btn-cancel"
                 onclick="loadExternalPage('../newssys/report/allNewsReport.html')">返回列表</button>
       </form>`;
-            document.getElementById('frm').onsubmit=submit;
+            document.getElementById('frm').onsubmit = submit;
         }
 
         /* ===== 送出 ===== */
-        async function handleSubmit(e){
+        async function handleSubmit(e) {
             e.preventDefault();
             const body = {
                 id,
                 newsComReportStatus: "1",
-                ncomNoNcomStatus   : document.getElementById('hideOption').value === "true" ? "1" : null
+                ncomNoNcomStatus: document.getElementById('hideOption').value === "true" ? "1" : null
             };
 
-            const resp = await fetch('/api/admin/update/newscommentreport', {  // ← 路徑照 Swagger
-                method : 'PATCH',                                                // ← PATCH
+            const resp = await fetch(`${BASE}/api/admin/update/newscommentreport`, {  // ← 路徑照 Swagger
+                method: 'PATCH',                                                // ← PATCH
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('jwt')
                 },
-                body   : JSON.stringify(body)
+                body: JSON.stringify(body)
             });
-            if(!resp.ok) throw new Error(`(${resp.status}) 處理失敗`);
+            if (!resp.ok) throw new Error(`(${resp.status}) 處理失敗`);
         }
 
 
         /* ===== 工具 ===== */
-        const fmt=s=>s?new Date(s).toLocaleString('zh-TW'):'尚未處理';
-        const cBadge=s=>s==='1'
-            ?'<span class="status-badge status-hidden">已隱藏</span>'
-            :'<span class="status-badge status-normal">正常</span>';
+        const fmt = s => s ? new Date(s).toLocaleString('zh-TW') : '尚未處理';
+        const cBadge = s => s === '1'
+            ? '<span class="status-badge status-hidden">已隱藏</span>'
+            : '<span class="status-badge status-normal">正常</span>';
 
-        async function api(method,body){
-            const res=await fetch(`/api/admin/NewsComReport/${id}`,{
+        async function api(method, body) {
+            const res = await fetch(`/api/admin/NewsComReport/${id}`, {
                 method,
-                headers:{'Content-Type':'application/json',Authorization:`Bearer ${jwt}`},
-                body:body?JSON.stringify(body):null
+                headers: {'Content-Type': 'application/json', Authorization: `Bearer ${jwt}`},
+                body: body ? JSON.stringify(body) : null
             });
-            if(!res.ok)throw new Error('('+res.status+') 處理失敗');
+            if (!res.ok) throw new Error('(' + res.status + ') 處理失敗');
             return res.json();
         }
     })();
