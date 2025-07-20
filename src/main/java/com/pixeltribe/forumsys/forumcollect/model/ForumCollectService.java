@@ -2,6 +2,7 @@ package com.pixeltribe.forumsys.forumcollect.model;
 
 import com.pixeltribe.forumsys.exception.ResourceNotFoundException;
 import com.pixeltribe.forumsys.forum.model.Forum;
+import com.pixeltribe.forumsys.forum.model.ForumDetailDTO;
 import com.pixeltribe.forumsys.forum.model.ForumRepository;
 import com.pixeltribe.forumsys.shared.CollectStatus;
 import com.pixeltribe.membersys.member.model.MemRepository;
@@ -52,12 +53,14 @@ public class ForumCollectService {
         return ForumCollectDTO.convertToForumCollectDTO(forumCollectRepository.save(forumCollect));
     }
 
-    public List<ForumCollectDTO> findByMemNoAndCollectStatus(Integer memberId, CollectStatus collectStatus) {
+    public List<ForumDetailDTO> findByMemNoAndCollectStatus(Integer memberId, CollectStatus collectStatus) {
         Member member = memRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到會員, 編號: " + memberId));
         List<ForumCollect> forumCollect = forumCollectRepository.findByMemNoAndCollectStatus(member, collectStatus);
+
         return forumCollect.stream()
-                .map(ForumCollectDTO::convertToForumCollectDTO)
+                .map(ForumCollect::getForNo)
+                .map(ForumDetailDTO::convertToForumDetailDTO)
                 .toList();
 
     }
