@@ -1,5 +1,6 @@
 package com.pixeltribe.forumsys.forumcollect.controller;
 
+import com.pixeltribe.forumsys.forum.model.ForumDetailDTO;
 import com.pixeltribe.forumsys.forumcollect.model.ForumCollectDTO;
 import com.pixeltribe.forumsys.forumcollect.model.ForumCollectService;
 import com.pixeltribe.forumsys.shared.CollectStatus;
@@ -38,7 +39,7 @@ public class ForumCollectController {
     @Operation(
             summary = "取得會員收藏討論區列表"
     )
-    public List<ForumCollectDTO> getForumCollectForMenber(
+    public List<ForumDetailDTO> getForumCollectForMenber(
             @AuthenticationPrincipal MemberDetails currentUser
     ) {
         Integer memberId = currentUser.getMemberId();
