@@ -5,6 +5,21 @@
 <title>會員登入 - Pixel Tribe</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
+@font-face {
+	font-family: 'Zpix';
+	src:
+		url('https://cdn.jsdelivr.net/gh/SolidZORO/zpix-pixel-font@1.2.0/zpix.ttf')
+		format('truetype');
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Pixel Emulator';
+	src:
+		url('https://cdn.jsdelivr.net/npm/pixel-emulator@1.0.0/webfont/PixelEmulator.woff2')
+		format('woff2');
+	font-display: swap;
+}
 :root {
   --gboy-red: #b52824;
   --gboy-yellow: #f6e18a;
@@ -89,7 +104,7 @@ body {
   margin-bottom: 20px;
 }
 .login-input {
-  width: 100%;
+  width: 90%;
   font-family: inherit;
   font-size: 1.19rem;
   padding: 13px 22px;
@@ -103,6 +118,10 @@ body {
 .login-input::placeholder {
   color: #bbb;
   font-size: 1.17rem;
+}
+#forgotEmail{
+
+
 }
 .forgot-row {
   width: 100%;
@@ -273,7 +292,7 @@ body {
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 8px 48px #0004;
-  width: 340px; max-width: 90vw;
+  width: 500px; max-width: 90vw;
   padding: 28px 24px 18px 24px;
   display: flex; flex-direction: column;
   align-items: center;
@@ -302,7 +321,7 @@ body {
 }
 .modal-btn {
   margin-top: 12px;
-  width: 100%;
+  width: 80%;
   padding: 9px 0;
   background: var(--gboy-yellow);
   color: #ad7300;
@@ -354,20 +373,20 @@ body {
 <div class="gb-login-main">
   <div class="gb-gameboy">
     <div class="gb-screen">
-      <div class="pixel-title">PIXEL TRIBE</div>
-      <div class="login-label">Welcome back，Pixi!!</div>
+      <div class="pixel-title">WELCOMEBACK  PIXI!</div>
+      <div class="login-label">LOADING...</div>
       <form id="loginForm" autocomplete="off">
         <div class="input-area">
-          <input type="text" id="memAccount" class="login-input" placeholder="帳號" autocomplete="username">
+          <input type="text" id="memAccount" class="login-input" placeholder="ACCOUNT..." autocomplete="username">
         </div>
         <div class="input-area">
-          <input type="password" id="memPassword" class="login-input" placeholder="密碼" autocomplete="current-password">
+          <input type="password" id="memPassword" class="login-input" placeholder="PASSWORD..." autocomplete="current-password">
         </div>
         <div class="forgot-row">
           <a href="javascript:void(0)" class="forgot-link" id="forgotLink">忘記密碼？</a>
         </div>
-        <button type="submit" id="loginBtn">登入</button>
-        <button type="button" id="backHomeBtn" onclick="window.location.href='/index.html'">返回首頁</button>
+        <button type="submit" id="loginBtn">LOGIN</button>
+        <button type="button" id="backHomeBtn" onclick="window.location.href='/index.html'">RETURN</button>
         <span id="result"></span>
       </form>
     </div>
@@ -398,8 +417,8 @@ body {
 <div id="forgotModal" class="modal">
   <div class="modal-content">
     <span class="close" id="closeModal">&times;</span>
-    <div class="modal-desc">請輸入您的Email，我們會寄送認證信給您</div>
-    <input type="email" id="forgotEmail" class="login-input" placeholder="請輸入Email" required>
+    <div class="modal-desc">請輸入您的信箱，我們會寄送認證信給您</div>
+    <input type="email" id="forgotEmail" class="login-input" placeholder="Email..." required>
     <button id="sendMailBtn" class="modal-btn">寄送認證碼並前往驗證</button>
     <div id="modalResult"></div>
     <div id="loadingBox">

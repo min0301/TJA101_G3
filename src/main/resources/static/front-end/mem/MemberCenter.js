@@ -332,13 +332,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 			nickInput.classList.remove('is-invalid');
 			emailInput.classList.remove('is-invalid');
 			phoneInput.classList.remove('is-invalid');
+			nickNameregex = /^[\u4e00-\u9fa5A-Za-z0-9]{1,15}$/
 			if (!chineseOnly.test(nameInput.value)) {
 				nameError.textContent = '姓名請填入中文';
 				nameInput.classList.add('is-invalid');
 				valid = false;
 			}
-			if (nickInput.value && !chineseOnly.test(nickInput.value)) {
-				nickError.textContent = '暱稱請填入中文';
+			if (!nickNameregex.test(nickInput.value.trim())) {
+				nickError.textContent = '暱稱請填入1~15中英文';
 				nickInput.classList.add('is-invalid');
 				valid = false;
 			}
@@ -398,7 +399,24 @@ document.addEventListener('DOMContentLoaded', async function() {
 					msg.textContent = result.message || '更新失敗，請稍後再試';
 					return;
 				}
-
+				
+				// ========== 重新向後端抓取最新會員資料並同步 localStorage ==========
+				try {
+				    const newRes = await fetch(`/api/members/profile/${memberId}`, {
+				        method: 'GET',
+				        headers: { 'Authorization': 'Bearer ' + jwt }
+				    });
+				    if (!newRes.ok) throw new Error('無法取得最新會員資料');
+				    const newMemberInfo = await newRes.json();
+				    // 覆蓋 localStorage 與 window 變數
+				    localStorage.setItem('memberInfo', JSON.stringify(newMemberInfo));
+				    window.memberProfile = newMemberInfo;
+				} catch (e) {
+				    // 若失敗還是只用剛剛填的資料
+				    Object.assign(window.memberProfile, payload);
+				}
+				
+				
 				Object.assign(window.memberProfile, payload);
 				msg.style.color = '#25945a';
 				msg.textContent = '更新成功';
