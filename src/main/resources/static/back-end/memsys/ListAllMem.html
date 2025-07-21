@@ -262,8 +262,8 @@ body {
 	</div>
 	<script>
 (function () {
-  const apiUrl = 'http://localhost:8080/api/members/admin/allMembers';
-  const updateUrl = 'http://localhost:8080/api/members/admin/allMembers/status';
+  const apiUrl = '/api/members/admin/allMembers';
+  const updateUrl = '/api/members/admin/allMembers/status';
   const token = localStorage.getItem('jwt');
   const tableBody = document.getElementById('TableBody');
   const paginationContainer = document.getElementById('paginationNav');

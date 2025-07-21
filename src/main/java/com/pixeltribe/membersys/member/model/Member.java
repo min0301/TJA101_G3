@@ -99,7 +99,7 @@ public class Member {
     private LocalDate memBirthday;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "MEM_CREATE")
+    @Column(name = "MEM_CREATE", updatable = false, insertable = false)
     private Instant memCreate;
 
     @Column(name = "MEM_UPDATE")

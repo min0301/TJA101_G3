@@ -186,7 +186,7 @@ public class MemService {
 			String memAddr = payload.get("memAddr");
 			String memPhone = payload.get("memPhone");
 			String memPassword = payload.get("memPassword");
-			char memStatus = 1;
+			char memStatus = '1';
 			String role = "ROLE_USER";
 			Member member = new Member();
 			member.setMemAccount(memAccount);
