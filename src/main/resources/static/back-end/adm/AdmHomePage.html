@@ -526,10 +526,12 @@ body {
 						</a> <a href="#" class="submenu-item"
 							onclick="renderContent('forum', 'comments', event)"> <i
 							class="bi bi-chat-left-text-fill item-icon"></i>留言管理
-						</a> <a href="#" class="submenu-item"
-							onclick="renderContent('forum', 'official', event)"> <i
-							class="bi bi-megaphone-fill item-icon"></i>發布官方文章
-						</a> <a href="#" class="submenu-item"
+						</a>
+<!--						<a href="#" class="submenu-item"-->
+<!--							onclick="renderContent('forum', 'official', event)"> <i-->
+<!--							class="bi bi-megaphone-fill item-icon"></i>發布官方文章-->
+<!--						</a> -->
+						<a href="#" class="submenu-item"
 							onclick="renderContent('forum', 'reports', event)"> <i
 							class="bi bi-shield-check item-icon"></i>文章留言檢舉審核
 						</a> <a href="#" class="submenu-item"
@@ -540,7 +542,7 @@ body {
 				</li>
 				<li class="menu-item" id="menu-member">
 					<button class="menu-button" onclick="toggleMenu('member')">
-						<span><i class="bi bi-people-fill icon"></i>會員系統</span> <i
+						<span><i class="bi bi-people-fill icon"></i>會員管理</span> <i
 							class="bi bi-chevron-down arrow"></i>
 					</button>
 					<div class="submenu">
@@ -924,7 +926,7 @@ body {
                         • <strong>商城系統</strong>：管理商品、訂單、優惠券等電商功能。<br>
                         • <strong>新聞系統</strong>：發布最新公告、管理使用者評論與檢舉。<br>
                         • <strong>論壇系統</strong>：維護討論區秩序、管理文章與官方公告。<br>
-                        • <strong>會員系統</strong>：查詢會員資料並執行管理操作。
+                        • <strong>會員管理</strong>：查詢會員資料並執行管理操作。
                     </p>
                 </div>
             </div>
@@ -1075,7 +1077,7 @@ body {
     function getPlaceholderHTML(pageKey, subKey) {
         // ... 此函式內容不變 ...
         const pageTitles = {
-            store: '商城系統', news: '新聞系統', forum: '論壇系統', member: '會員系統'
+            store: '商城系統', news: '新聞系統', forum: '論壇系統', member: '會員管理'
         };
         const subTitles = {
             'toggle': '產品上下架',
@@ -1092,7 +1094,7 @@ body {
             'forums': '討論區管理',
             'posts': '文章管理',
             'forum-comments': '留言管理',
-            'official': '發布官方文章',
+            // 'official': '發布官方文章',
             'categories': '討論區類別管理',
             'query': '會員資料查詢',
             'suspend': '會員停權',
