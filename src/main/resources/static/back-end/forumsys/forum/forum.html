@@ -160,7 +160,7 @@
             <input type="hidden" id="forumId" name="id">
 
             <div class="form-group">
-                <label for="forName">論壇名稱</label>
+                <label for="forName">討論區名稱</label>
                 <input type="text" id="forName" name="forName" class="form-control" required>
             </div>
 
@@ -226,7 +226,7 @@
         // 【可變】後端 API 的基礎路徑，依據你的環境修改
         const apiBaseUrl = '/api';
 
-        // 【不可變】從 URL 讀取要編輯的論壇 ID，這是此頁面的核心邏輯
+        // 【不可變】從 URL 讀取要編輯的討論區 ID，這是此頁面的核心邏輯
         const contentArea = document.getElementById('content-area'); // [可變] 變數名稱可改
         const pageParamsString = contentArea ? contentArea.getAttribute('data-page-params') : ''; // [不可變] 讀取屬性的邏輯
         const urlParams = new URLSearchParams(pageParamsString); // [不可變] 解析字串的邏輯
@@ -244,7 +244,7 @@
             }
 
             try {
-                // 【核心】使用 Promise.all 平行發送請求，同時獲取 "分類列表" 和 "此論壇的資料"
+                // 【核心】使用 Promise.all 平行發送請求，同時獲取 "分類列表" 和 "此討論區的資料"
                 // 這樣可以加速頁面載入，提升使用者體驗。
                 const [categories, forumData] = await Promise.all([
                     fetch(`${apiBaseUrl}/categorys`).then(handleResponse),
@@ -274,9 +274,9 @@
         }
 
         /**
-         * @description 填充分類下拉選單，並設定當前論壇的分類為預設選項
+         * @description 填充分類下拉選單，並設定當前討論區的分類為預設選項
          * @param {Array} categories - 所有分類的陣列
-         * @param {number} selectedCategoryId - 當前論壇所屬的分類 ID
+         * @param {number} selectedCategoryId - 當前討論區所屬的分類 ID
          */
         function populateCategories(categories, selectedCategoryId) {
             categorySelect.innerHTML = '<option value="" disabled>--請選擇分類--</option>'; // 清空並加入預設提示
@@ -284,7 +284,7 @@
                 const option = document.createElement('option');
                 option.value = category.id;
                 option.textContent = category.catName;
-                // 【注意】將 API 回傳的 ID 和當前論壇的分類 ID 比較，相符的就設為選中
+                // 【注意】將 API 回傳的 ID 和當前討論區的分類 ID 比較，相符的就設為選中
                 if (Number(category.id) === Number(selectedCategoryId)) {
                     option.selected = true;
                 }
@@ -293,8 +293,8 @@
         }
 
         /**
-         * @description 將獲取到的論壇資料填充到表單的各個欄位
-         * @param {object} data - 單筆論壇資料物件
+         * @description 將獲取到的討論區資料填充到表單的各個欄位
+         * @param {object} data - 單筆討論區資料物件
          */
         function populateForm(data) {
             forumIdInput.value = data.id;

@@ -3,13 +3,13 @@ package com.pixeltribe.shopsys.order.model;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
+
 import org.springframework.stereotype.Service;
 
 import com.pixeltribe.shopsys.orderItem.model.OrderItemDTO;
@@ -35,14 +35,8 @@ public class EmailService {
     
     
     // ========== 訂單相關郵件 ========== //
-    /*
-    1. 發送付款成功郵件 (含現貨序號 + 預購說明)
-    2. @param order 訂單
-    3. @param inStockSerials 現貨序號列表
-    4. @param preOrderItems 預購商品列表
-    */
-    @Async("emailTaskExecutor")
-    public CompletableFuture<Boolean> sendPaymentSuccessEmail(
+    // *** 發送付款成功郵件 (含現貨序號 + 預購說明) *** //
+    public boolean sendPaymentSuccessEmail(
             OrderDTO order, 
             List<String> inStockSerials, 
             List<OrderItemDTO> preOrderItems) {
@@ -60,24 +54,18 @@ public class EmailService {
                 recordEmailSent(order.getOrderNo(), "PAYMENT_SUCCESS", order.getContactEmail());
             }
             
-            return CompletableFuture.completedFuture(success);
+            return success;
             
         } catch (Exception e) {
             log.error("發送付款成功郵件失敗：orderNo={}", order.getOrderNo(), e);
             recordEmailFailed(order.getOrderNo(), "PAYMENT_SUCCESS", order.getContactEmail(), e.getMessage());
-            return CompletableFuture.completedFuture(false);
+            return false;
         }
     }
     
     
-    /*
-     1. 發送預購產品到貨通知郵件
-     2. @param order 訂單
-     3. @param productName 商品名稱
-     4. @param serialNumber 序號
-     */
-    @Async("emailTaskExecutor")
-    public CompletableFuture<Boolean> sendPreOrderDeliveryEmail(
+    // *** 發送預購產品到貨通知郵件 *** //
+    public boolean sendPreOrderDeliveryEmail(
             OrderDTO order, 
             String productName, 
             String serialNumber) {
@@ -95,23 +83,18 @@ public class EmailService {
                 recordEmailSent(order.getOrderNo(), "PREORDER_DELIVERY", order.getContactEmail());
             }
             
-            return CompletableFuture.completedFuture(success);
+            return success;
             
         } catch (Exception e) {
             log.error("發送預購到貨郵件失敗：orderNo={}", order.getOrderNo(), e);
             recordEmailFailed(order.getOrderNo(), "PREORDER_DELIVERY", order.getContactEmail(), e.getMessage());
-            return CompletableFuture.completedFuture(false);
+            return false;
         }
     }
     
     
-    /*
-     1. 發送訂單取消通知郵件
-     2. @param order 訂單
-     3. @param reason 取消原因
-     */
-    @Async("emailTaskExecutor")
-    public CompletableFuture<Boolean> sendOrderCancelEmail(OrderDTO order, String reason) {
+    // *** 發送訂單取消通知郵件 *** //
+    public boolean sendOrderCancelEmail(OrderDTO order, String reason) {
         try {
             log.info("開始發送訂單取消郵件：orderNo={}", order.getOrderNo());
             
@@ -125,23 +108,18 @@ public class EmailService {
                 recordEmailSent(order.getOrderNo(), "ORDER_CANCEL", order.getContactEmail());
             }
             
-            return CompletableFuture.completedFuture(success);
+            return success;
             
         } catch (Exception e) {
             log.error("發送訂單取消郵件失敗：orderNo={}", order.getOrderNo(), e);
             recordEmailFailed(order.getOrderNo(), "ORDER_CANCEL", order.getContactEmail(), e.getMessage());
-            return CompletableFuture.completedFuture(false);
+            return false;
         }
     }
     
     
-    /*
-     1. 發送付款失敗通知郵件
-     2. @param order 訂單
-     3. @param reason 失敗原因
-     */
-    @Async("emailTaskExecutor")
-    public CompletableFuture<Boolean> sendPaymentFailedEmail(OrderDTO order, String reason) {
+    // *** 發送付款失敗通知郵件 *** //
+    public boolean sendPaymentFailedEmail(OrderDTO order, String reason) {
         try {
             log.info("開始發送付款失敗郵件：orderNo={}", order.getOrderNo());
             
@@ -155,24 +133,18 @@ public class EmailService {
                 recordEmailSent(order.getOrderNo(), "PAYMENT_FAILED", order.getContactEmail());
             }
             
-            return CompletableFuture.completedFuture(success);
+            return success;
             
         } catch (Exception e) {
             log.error("發送付款失敗郵件失敗：orderNo={}", order.getOrderNo(), e);
             recordEmailFailed(order.getOrderNo(), "PAYMENT_FAILED", order.getContactEmail(), e.getMessage());
-            return CompletableFuture.completedFuture(false);
+            return false;
         }
     }
     
     
     // ========== 核心郵件發送方法 ========== //
-    /*
-     1. 核心郵件發送方法
-     2. @param to 收件人
-     3. @param subject 主旨
-     4. @param content HTML 內容
-     5. @return 是否發送成功
-     */
+    // *** 核心郵件發送方法 ***//
     private boolean sendEmail(String to, String subject, String content) {
         try {
             MimeMessage message = mailSender.createMimeMessage();

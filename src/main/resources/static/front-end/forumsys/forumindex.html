@@ -63,7 +63,7 @@
         <div class="container">
             <div class="row">
                 <div id="left-sidebar" class="col-lg-3 pe-lg-3 border-end">
-                    <div class="position-sticky" style="top: 100px;">
+                    <div>
 
                         <div id="sidebar-toggle-btn">
                             <i class="bi bi-chevron-double-left"></i>
@@ -74,6 +74,12 @@
                                 <button class="nav-link active" id="hot-tab" data-bs-toggle="tab"
                                         data-bs-target="#hot-tab-pane" type="button" role="tab"
                                         aria-controls="hot-tab-pane" aria-selected="true">熱門排行
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="my-collections-tab" data-bs-toggle="tab"
+                                        data-bs-target="#my-collections-tab-pane" type="button" role="tab"
+                                        aria-controls="my-collections-tab-pane" aria-selected="false">我的收藏
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
@@ -163,44 +169,42 @@
         const urlParams = new URLSearchParams(window.location.search);
         // 2. 試著從 URL 中讀取 'forumId' 參數
         const forumId = urlParams.get('forumId');
+        // 3. 試著從 URL 中讀取 'view' 參數，判斷是否為收藏頁面
+        const view = urlParams.get('view');
 
         if (forumId) {
-            // 【【情況一：URL 中有 forumId】】
+            // 【情況一：URL 中有 forumId】
             // 代表是從首頁點擊跳轉過來的
-
-            // 確保 showPostListView 函式存在
             if (typeof showPostListView === 'function') {
-                // 直接呼叫函式，並傳入從 URL 拿到的 ID
                 showPostListView(forumId);
-
-                // (UX 優化) 為了確保左側列表已由 forumListManager.js 載入完成，
-                // 我們稍微延遲一下，再去執行高亮(highlight)操作
                 setTimeout(() => {
-                    // a. 先移除所有項目上可能存在的 'active' class
                     const allForumItems = document.querySelectorAll('.forum-link');
                     allForumItems.forEach(item => item.classList.remove('active'));
-
-                    // b. 找到 data-forum-id 符合的那個討論區連結
                     const activeLink = document.querySelector(`.forum-link[data-forum-id='${forumId}']`);
-
                     if (activeLink) {
-                        // c. 幫它加上 'active' class，使其高亮
                         activeLink.classList.add('active');
-
-                        // d. (可選) 將該項目平滑滾動到畫面的中間，方便使用者看到
                         activeLink.scrollIntoView({behavior: 'smooth', block: 'center'});
                     }
-                }, 500); // 延遲 500 毫秒，給予左側列表足夠的載入時間
-
+                }, 500);
             } else {
                 console.error('錯誤：showPostListView 函式未定義，請檢查 allForum.js 是否正確載入。');
             }
-
+        } else if (view === 'collected') {
+            // 【情況二：URL 中有 view=collected】
+            // 代表是點擊「我的收藏」進來的
+            if (typeof showCollectedPostsView === 'function') {
+                showCollectedPostsView();
+                // 確保「我的收藏」tab 被激活
+                const myCollectionsTab = document.getElementById('my-collections-tab');
+                if (myCollectionsTab) {
+                    new bootstrap.Tab(myCollectionsTab).show();
+                }
+            } else {
+                console.error('錯誤：showCollectedPostsView 函式未定義，請檢查 allForum.js 是否正確載入。');
+            }
         } else {
-            // 【【情況二：URL 中沒有 forumId】】
+            // 【情況三：URL 中沒有 forumId 也沒有 view=collected】
             // 代表是直接瀏覽討論區頁面，尚未選擇任何看板
-
-            // 顯示預設的提示訊息
             if (originalContent) {
                 originalContent.style.display = 'block';
             }

@@ -79,9 +79,6 @@
 										<button class="btn btn-outline-primary mall-function-btn" data-function="product" data-type="page">
 											<i class="bi bi-grid me-2"></i>所有產品
 										</button>
-										<button class="btn btn-outline-primary mall-function-btn" data-function="coupon" data-type="page">
-											<i class="bi bi-ticket-perforated me-2"></i>優惠券
-										</button>
 										<button class="btn btn-outline-primary mall-function-btn" data-function="order" data-type="page">
 											<i class="bi bi-receipt me-2"></i>訂單查詢
 										</button>
@@ -143,6 +140,12 @@
 	<script src="/assets/js/main.js"></script>
 	<script src="/assets/js/global-loader.js"></script>
 	<script src="/front-end/shopsys/productList.js"></script>
+	
+	
+	<!-- 新增：購物車 Header 系統 -->
+	<script src="/front-end/shopsys/mallCartHeader.js"></script>
+	<script src="/front-end/shopsys/productListCartBridge.js"></script>
+	
 	<script>
 		/**
 		 * 商城功能按鈕點擊事件
@@ -154,9 +157,9 @@
 			// 頁面跳轉對應表 - 修正為絕對路徑
 			const pageMap = {
 				order: '/front-end/shopsys/order/order-list.html',
-				coupon: '/front-end/shopsys/coupon.html', 
+
 				product: '/front-end/shopsys/product.html',     // 跳轉到完整的商品頁面
-				favorite: '/front-end/shopsys/favorite.html',
+
 				cart: '/front-end/shopsys/cart/cart.html'
 			};
 

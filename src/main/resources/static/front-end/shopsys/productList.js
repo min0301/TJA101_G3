@@ -227,18 +227,29 @@ class ProductListManager {
             let displayStatus;
             let statusType; // 用於決定顏色
             
-            if (proIsmarket === '0' || proIsmarket === 0) {
-                // 上架 = 已發售
-                displayStatus = proStatus || '已發售'; // 優先使用 proStatus，沒有的話預設為"已發售"
-                statusType = 'available';
-            } else if (proIsmarket === '1' || proIsmarket === 1) {
-                // 下架 = 預購中
-                displayStatus = proStatus || '預購中'; // 優先使用 proStatus，沒有的話預設為"預購中"
-                statusType = 'preorder';
-            } else {
+			
+			
+			
+			if (proIsmarket === '0' || proIsmarket === 0) {
+			    // 上架商品：根據 proStatus 判斷是預購還是現貨
+			    if (proStatus === "預購" || proStatus === "預購中") {
+			        displayStatus = "預購中";
+			        statusType = 'preorder';
+			    } else {
+			        displayStatus = proStatus || '上架中';
+			        statusType = 'available';
+			    }
+			} else if (proIsmarket === '1' || proIsmarket === 1) {
+			    // 下架商品：用戶不應該看到，但如果看到了就顯示下架
+			    displayStatus = "已下架";
+			    statusType = 'offline';
+			} else {
                 displayStatus = '狀態未知';
                 statusType = 'unknown';
             }
+			
+			
+			
             
             const productVersion = product.proVersion || '';
             const productPlatform = product.proPlatform || '';

@@ -2,7 +2,6 @@ package com.pixeltribe.forumsys.reporttype.model;
 
 import com.pixeltribe.forumsys.articlecomreport.model.ArticleComReport;
 import com.pixeltribe.forumsys.articlereport.model.ArticleReport;
-import com.pixeltribe.forumsys.entity.ForumChatReport;
 import com.pixeltribe.newssys.newscomreport.model.NewsComReport;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -31,9 +30,6 @@ public class ReportType {
 
     @OneToMany(mappedBy = "rpiNo")
     private Set<ArticleReport> articleReports = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "reportType")
-    private Set<ForumChatReport> forumChatReports = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "reportType")
     private Set<NewsComReport> newsComReports = new LinkedHashSet<>();

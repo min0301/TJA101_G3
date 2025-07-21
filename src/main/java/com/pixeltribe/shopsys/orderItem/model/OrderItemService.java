@@ -107,13 +107,14 @@ public class OrderItemService {
     // *** 新增評價 (前台功能) *** //
     public OrderItemDTO addComment(Integer orderItemNo, Integer memNo, CommentRequest request) {
         // 1. 查詢訂單明細並驗證權限
-        OrderItem orderItem = orderItemRepository.findByOrderItemNoAndMemberNo(orderItemNo, memNo)
-            .orElseThrow(() -> new OrderItemException(OrderItemErrorCode.ORDERITEM_NOT_FOUND));
-        
+    	OrderItem orderItem = orderItemRepository.findByOrderItemNoAndMemberNo(orderItemNo, memNo)
+    	        .orElseThrow(() -> new OrderItemException(OrderItemErrorCode.ORDERITEM_NOT_FOUND));
+    	    
         // 2. 檢查訂單狀態是否允許評價
-        if (!"2".equals(orderItem.getOrder().getOrderStatus())) {
-            throw new OrderItemException(OrderItemErrorCode.ORDER_NOT_COMPLETED);
-        }
+    	String orderStatus = orderItem.getOrder().getOrderStatus();
+    	if (!isOrderCompletedForComment(orderStatus)) {
+    	    throw new OrderItemException(OrderItemErrorCode.ORDER_NOT_COMPLETED);
+    	}
         
         // 3. 檢查是否已經評價過
         if (orderItem.getProductComment() != null || orderItem.getProStar() != null) {
@@ -133,6 +134,36 @@ public class OrderItemService {
         return OrderItemDTO.from(saved);
     }
     
+    // 新增：在 OrderItemService 類別中新增狀態檢查方法
+    private boolean isOrderCompletedForComment(String orderStatus) {
+        if (orderStatus == null) {
+            return false;
+        }
+        
+        // ✅ 支援多種完成狀態格式
+        String status = orderStatus.trim();
+        
+        // 支援數字狀態
+        if ("2".equals(status)) {
+            return true;
+        }
+        
+        // 支援中文狀態
+        if ("已完成".equals(status) || "已發貨".equals(status) || "已出貨".equals(status)) {
+            return true;
+        }
+        
+        // 支援英文狀態（不區分大小寫）
+        String upperStatus = status.toUpperCase();
+        if ("COMPLETED".equals(upperStatus) || "SHIPPED".equals(upperStatus)) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    
+    
     
     
     // *** 修改評價（前台功能） *** //
@@ -142,8 +173,9 @@ public class OrderItemService {
             .orElseThrow(() -> new OrderItemException(OrderItemErrorCode.ORDERITEM_NOT_FOUND));
         
         // 2. 檢查是否已經評價過
-        if (orderItem.getProductComment() == null && orderItem.getProStar() == null) {
-            throw new OrderItemException(OrderItemErrorCode.NOT_COMMENTED_YET);
+        String orderStatus = orderItem.getOrder().getOrderStatus();
+        if (!isOrderCompletedForComment(orderStatus)) {
+            throw new OrderItemException(OrderItemErrorCode.ORDER_NOT_COMPLETED);
         }
         
         // 3. 檢查評價是否被停權
