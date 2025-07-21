@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>分類論壇列表</title>
+    <title>分類討論區列表</title>
     <style>
         /* CSS 樣式與 allForum.html 相同，此處直接沿用 */
         body {
@@ -142,9 +142,9 @@
 <body>
 <div class="header-container">
     <div class="header-left">
-        <h1>分類論壇列表</h1>
+        <h1>分類討論區列表</h1>
         <a href="/" class="btn btn-home">回到首頁</a>
-        <a href="allForum.html" class="btn btn-back">回到論壇總表</a>
+        <a href="allForum.html" class="btn btn-back">回到討論區總表</a>
     </div>
 </div>
 
@@ -155,7 +155,7 @@
     <thead>
     <tr>
         <th>ID</th>
-        <th>論壇名稱</th>
+        <th>討論區名稱</th>
         <th>圖片</th>
         <th>描述</th>
         <th>創建時間</th>
@@ -221,7 +221,7 @@
 
         /**
          * 渲染分類標題
-         * @param {Array} forums - 從 API 獲取的論壇資料陣列
+         * @param {Array} forums - 從 API 獲取的討論區資料陣列
          */
         function renderCategoryTitle(forums) {
             // 從第一筆資料取得分類名稱來顯示
@@ -235,7 +235,7 @@
 
         /**
          * 渲染表格資料
-         * @param {Array} forums - 從 API 獲取的論壇資料陣列
+         * @param {Array} forums - 從 API 獲取的討論區資料陣列
          */
         function renderTable(forums) {
             tableBody.innerHTML = ''; // 清空舊資料
@@ -270,7 +270,7 @@
          * @param {Error} error - 錯誤物件
          */
         function showError(error) {
-            console.error('無法獲取該分類的論壇資料:', error);
+            console.error('無法獲取該分類的討論區資料:', error);
             errorMessageDiv.style.display = 'block';
             errorMessageDiv.innerHTML = `<strong>資料載入失敗！</strong><br>詳細錯誤: ${error.message}`;
         }

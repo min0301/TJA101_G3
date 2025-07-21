@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>論壇管理後台</title>
+    <title>討論區管理後台</title>
     <style>
         /* --- 核心修改：樣式與 allOrder.html 及主模板同步 --- */
         .forum-management-container {
@@ -105,7 +105,7 @@
             white-space: nowrap;
         }
 
-        /* 狀態標籤 (維持原樣，因為這是論壇本身的狀態，顏色有語意) */
+        /* 狀態標籤 (維持原樣，因為這是討論區本身的狀態，顏色有語意) */
         .status-badge {
             padding: 5px 12px;
             border-radius: 15px;
@@ -213,7 +213,7 @@
             display: none;
         }
 
-        /* 圖片與燈箱 (維持不變，這是論壇頁獨有功能) */
+        /* 圖片與燈箱 (維持不變，這是討論區頁獨有功能) */
         .forum-thumbnail {
             width: 100px;
             height: 75px;
@@ -272,7 +272,7 @@
 
 <div class="forum-management-container">
     <div class="page-title-header">
-        <h2><i class="bi bi-card-list item-icon"></i>論壇管理</h2>
+        <h2><i class="bi bi-card-list item-icon"></i>討論區管理</h2>
     </div>
 
     <div class="control-bar">
@@ -308,7 +308,7 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>論壇名稱</th>
+                <th>討論區名稱</th>
                 <th>分類</th>
                 <th>圖片</th>
                 <th>描述</th>
@@ -347,7 +347,7 @@
         const statusFilter = document.getElementById('statusFilter');
 
         // 可變：應用程式狀態變數
-        let allForumsData = []; // 存放從 API 獲取的原始論壇資料
+        let allForumsData = []; // 存放從 API 獲取的原始討論區資料
         let currentPage = 1;
         let itemsPerPage = 10;
 
@@ -391,7 +391,7 @@
 
         /**
          * @description 渲染表格內容
-         * @param {Array} forums - 要顯示在當前頁面的論壇資料
+         * @param {Array} forums - 要顯示在當前頁面的討論區資料
          */
         function renderTableBody(forums) {
             // 清空表格
@@ -400,11 +400,11 @@
             // 常見錯誤：若傳入的 forums 是空的，沒有做處理會顯示空白畫面。
             // 解法：判斷陣列長度，若為 0 則顯示提示訊息。
             if (!forums || forums.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 40px;">找不到符合條件的論壇</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 40px;">找不到符合條件的討論區</td></tr>`;
                 return;
             }
 
-            // 此處的 forum 是迴圈中的區域變數，代表單筆論壇資料
+            // 此處的 forum 是迴圈中的區域變數，代表單筆討論區資料
             forums.forEach(forum => {
                 const row = document.createElement('tr'); // row 是區域變數
                 row.innerHTML = `
@@ -506,7 +506,7 @@
 
         // --- 輔助函式 ---
         function showError(error) {
-            console.error('無法獲取論壇資料:', error);
+            console.error('無法獲取討論區資料:', error);
             errorMessageDiv.style.display = 'block';
             errorMessageDiv.innerHTML = `<strong>資料載入失敗！</strong> 請檢查後端服務是否啟動及 CORS 設定。<br>詳細錯誤: ${error.message}`;
         }
