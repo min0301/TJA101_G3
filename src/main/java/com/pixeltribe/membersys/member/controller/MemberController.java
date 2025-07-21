@@ -116,7 +116,28 @@ public class MemberController {
 		}
 		return result;
 	}
-
+	
+	// 儀錶板顯示會員總數
+	@GetMapping("/admin/count")
+	public ResponseEntity<Long> getMemberCount() {
+        long count = memService.getMemberCount();
+        return ResponseEntity.ok(count);
+    }
+	
+	// 顯示被停權會員總數
+	@GetMapping("/admin/suspended-count")
+	public ResponseEntity<Long> getSuspendedMemberCount() {
+	    long count = memService.getSuspendedMemberCount();
+	    return ResponseEntity.ok(count);
+	}
+	
+	// 近7天新註冊會員數
+	@GetMapping("/admin/newlySign")
+	public ResponseEntity<Long> getWeeklyNewMembersCount() {
+	    long count = memService.getWeeklyNewMembersCount();
+	    return ResponseEntity.ok(count);
+	}
+	
 	// 會員分頁查詢
 	@GetMapping("/admin/allMembers")
 	public Page<MemberAdminDto> findAllMembers(

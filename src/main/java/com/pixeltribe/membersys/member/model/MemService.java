@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,22 @@ public class MemService {
 		return memRepository.findAll();
 	}
 
+	// 查詢會員總數
+	public long getMemberCount() {
+		return memRepository.count();
+	}
+	
+    // 查詢被停權會員數
+    public long getSuspendedMemberCount() {
+        return memRepository.countByMemStatus('2');
+    }
+
+    // 取得近7天新註冊會員數
+    public long getWeeklyNewMembersCount() {
+        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+        return memRepository.countByMemCreateAfter(sevenDaysAgo);
+    }
+        
 	// 發送驗證信
 	public Map<String, Object> sendForgotPasswordMail(String email) {
 		Map<String, Object> result = new HashMap<>();
@@ -161,18 +178,20 @@ public class MemService {
 		}
 		return result;
 	}
+
 	// 註冊時檢查帳號是否存在
-	public Map<String, Object> checkAccount(String account){
+	public Map<String, Object> checkAccount(String account) {
 		Map<String, Object> result = new HashMap<>();
 		boolean accountExist = memRepository.existsByMemAccount(account);
 		result.put("exist", accountExist);
-		if(accountExist) {
+		if (accountExist) {
 			result.put("message", "❌帳號名稱已被註冊");
 		} else {
 			result.put("message", "		✅ +1");
 		}
 		return result;
 	}
+
 	// 註冊會員
 	@Transactional
 	public Map<String, Object> registerMember(Map<String, String> payload) {
@@ -276,13 +295,13 @@ public class MemService {
 		memRepository.save(member);
 	}
 
-    public List<MemberGameDto> getMemberGameScore() {
+	public List<MemberGameDto> getMemberGameScore() {
 		List<MemberGameDto> memberGameScores = memRepository.findMemberGameScores();
 		if (memberGameScores == null || memberGameScores.isEmpty()) {
 			return List.of(); // 返回空列表而不是 null
 		}
 		return memberGameScores;
-    }
+	}
 
 	public MemberGameDto updateMemberGameScore(Integer id, Integer newScore) {
 		Member m = memRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("會員不存在"));
@@ -300,6 +319,7 @@ public class MemService {
 		Member member = memRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("會員不存在"));
 		return new MemberGameDto(member.getId(), member.getMemName(), member.getMemNickName(), member.getPoint());
 	}
+
 	// 存會員頭像進DB
 	public void updateAvatar(Integer memberId, MultipartFile avatarFile) throws IOException {
 		Member member = memRepository.findById(memberId).orElseThrow(() -> new RuntimeException("找不到會員"));

@@ -1,564 +1,565 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <title>PixelTribe 管理員首頁</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;700&family=Press+Start+2P&display=swap"
-          rel="stylesheet">
+<meta charset="UTF-8">
+<title>PixelTribe 管理員首頁</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+	href="https://fonts.googleapis.com/css2?family=Karla:wght@400;700&family=Press+Start+2P&display=swap"
+	rel="stylesheet">
 
-    <link rel="stylesheet" href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
-    <link rel="stylesheet" href="/assets/vendors/bootstrap/bootstrap.min.css">
-    <style>
+<link rel="stylesheet"
+	href="../../../assets/vendors/bootstrap-icons/bootstrap-icons.css">
+<link rel="stylesheet"
+	href="/assets/vendors/bootstrap/bootstrap.min.css">
+<style>
+body {
+	width: 100vw;
+	height: 100vh;
+	/* 【核心修改】將 overflow-x: hidden 改為 overflow: hidden; */
+	/* 理由：徹底禁止 body 元素產生任何方向的滾動條，將滾動控制權完全交給內部的 content-card。 */
+	overflow: hidden;
+}
 
-        body {
-            width: 100vw;
-            height: 100vh;
-            /* 【核心修改】將 overflow-x: hidden 改為 overflow: hidden; */
-            /* 理由：徹底禁止 body 元素產生任何方向的滾動條，將滾動控制權完全交給內部的 content-card。 */
-            overflow: hidden;
-        }
+/* --- 核心變數: 全面替換為前台薄荷綠風格 --- */
+:root {
+	--primary-bg: #f0f2f5;
+	--component-bg: #ffffff;
+	--border-color: #e0e0e0;
+	--text-color: #5d5d66;
+	--text-muted: #6c757d;
+	--brand-green: #08beab;
+	--brand-green-hover: #07a897;
+	--brand-green-light: rgba(8, 190, 171, 0.1);
+}
 
-        /* --- 核心變數: 全面替換為前台薄荷綠風格 --- */
-        :root {
-            --primary-bg: #f0f2f5;
-            --component-bg: #ffffff;
-            --border-color: #e0e0e0;
-            --text-color: #5d5d66;
-            --text-muted: #6c757d;
-            --brand-green: #08beab;
-            --brand-green-hover: #07a897;
-            --brand-green-light: rgba(8, 190, 171, 0.1);
-        }
+/* --- 基礎樣式: 統一字體與背景 --- */
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	min-height: 100vh;
+	background: var(--primary-bg);
+	font-family: 'Karla', '微軟正黑體', Arial, sans-serif;
+	box-sizing: border-box;
+	color: var(--text-color);
+}
 
-        /* --- 基礎樣式: 統一字體與背景 --- */
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            min-height: 100vh;
-            background: var(--primary-bg);
-            font-family: 'Karla', '微軟正黑體', Arial, sans-serif;
-            box-sizing: border-box;
-            color: var(--text-color);
-        }
+body {
+	width: 100vw;
+	height: 100vh;
+	overflow-x: hidden;
+}
 
-        body {
-            width: 100vw;
-            height: 100vh;
-            overflow-x: hidden;
-        }
+/* --- 頂部導覽列 --- */
+.topbar {
+	width: 100%;
+	height: 60px;
+	background: var(--component-bg);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 10;
+	padding: 0 24px;
+	box-sizing: border-box;
+	border-bottom: 1px solid var(--border-color);
+}
 
-        /* --- 頂部導覽列 --- */
-        .topbar {
-            width: 100%;
-            height: 60px;
-            background: var(--component-bg);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 10;
-            padding: 0 24px;
-            box-sizing: border-box;
-            border-bottom: 1px solid var(--border-color);
-        }
+.topbar-logo img {
+	height: 40px;
+	width: auto;
+	vertical-align: middle;
+}
 
-        .topbar-logo img {
-            height: 40px;
-            width: auto;
-            vertical-align: middle;
-        }
+.logout-btn {
+	background: var(--brand-green-light);
+	color: var(--brand-green);
+	border: 2px solid var(--brand-green);
+	border-radius: 8px;
+	padding: 8px 24px;
+	font-family: 'Karla', sans-serif;
+	font-size: 14px;
+	font-weight: 700;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
 
-        .logout-btn {
-            background: var(--brand-green-light);
-            color: var(--brand-green);
-            border: 2px solid var(--brand-green);
-            border-radius: 8px;
-            padding: 8px 24px;
-            font-family: 'Karla', sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
+.logout-btn:hover {
+	background: var(--brand-green);
+	color: var(--component-bg);
+}
 
-        .logout-btn:hover {
-            background: var(--brand-green);
-            color: var(--component-bg);
-        }
+/* --- 主要佈局 --- */
+.main-wrap {
+	display: flex;
+	height: calc(100vh - 60px);
+	min-height: 540px;
+	margin-top: 60px;
+}
 
-        /* --- 主要佈局 --- */
-        .main-wrap {
-            display: flex;
-            height: calc(100vh - 60px);
-            min-height: 540px;
-            margin-top: 60px;
-        }
+/* --- 左側選單欄 --- */
+.sidebar-card {
+	width: 280px;
+	background: var(--component-bg);
+	border-radius: 0;
+	padding: 24px 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	height: 100%;
+	border-right: 1px solid var(--border-color);
+}
 
-        /* --- 左側選單欄 --- */
-        .sidebar-card {
-            width: 280px;
-            background: var(--component-bg);
-            border-radius: 0;
-            padding: 24px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100%;
-            border-right: 1px solid var(--border-color);
-        }
+.sidebar-menu {
+	width: 100%;
+	list-style: none;
+	padding: 0 12px;
+	margin: 0;
+}
 
-        .sidebar-menu {
-            width: 100%;
-            list-style: none;
-            padding: 0 12px;
-            margin: 0;
-        }
+.menu-item {
+	width: 100%;
+	margin-bottom: 8px;
+}
 
-        .menu-item {
-            width: 100%;
-            margin-bottom: 8px;
-        }
+.menu-button {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	margin: 0 auto;
+	padding: 14px 20px;
+	font-size: 16px;
+	color: var(--text-color);
+	background: none;
+	border: none;
+	border-radius: 8px;
+	font-family: inherit;
+	cursor: pointer;
+	transition: background 0.15s, color 0.15s;
+	outline: none;
+	font-weight: 700;
+	letter-spacing: 0.2px;
+}
 
-        .menu-button {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            margin: 0 auto;
-            padding: 14px 20px;
-            font-size: 16px;
-            color: var(--text-color);
-            background: none;
-            border: none;
-            border-radius: 8px;
-            font-family: inherit;
-            cursor: pointer;
-            transition: background 0.15s, color 0.15s;
-            outline: none;
-            font-weight: 700;
-            letter-spacing: 0.2px;
-        }
+.menu-button:hover {
+	background: var(--brand-green-light);
+	color: var(--brand-green);
+}
 
-        .menu-button:hover {
-            background: var(--brand-green-light);
-            color: var(--brand-green);
-        }
+.menu-button.active {
+	background: var(--brand-green);
+	color: var(--component-bg);
+}
 
-        .menu-button.active {
-            background: var(--brand-green);
-            color: var(--component-bg);
-        }
+.menu-button .icon {
+	margin-right: 16px;
+	font-size: 18px;
+	vertical-align: -0.15em;
+}
 
-        .menu-button .icon {
-            margin-right: 16px;
-            font-size: 18px;
-            vertical-align: -0.15em;
-        }
+.menu-button .arrow {
+	font-size: 14px;
+	transition: transform 0.3s ease;
+}
 
-        .menu-button .arrow {
-            font-size: 14px;
-            transition: transform 0.3s ease;
-        }
+.menu-item.active .menu-button .arrow {
+	transform: rotate(180deg);
+}
 
-        .menu-item.active .menu-button .arrow {
-            transform: rotate(180deg);
-        }
+.submenu {
+	width: 93%;
+	margin: 4px auto 0;
+	background: var(--primary-bg);
+	border-radius: 8px;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+	opacity: 0;
+}
 
-        .submenu {
-            width: 93%;
-            margin: 4px auto 0;
-            background: var(--primary-bg);
-            border-radius: 8px;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
-            opacity: 0;
-        }
+.menu-item.active .submenu {
+	max-height: 550px;
+	opacity: 1;
+}
 
-        .menu-item.active .submenu {
-            max-height: 550px;
-            opacity: 1;
-        }
+.submenu-item {
+	padding: 10px 18px 10px 48px;
+	transition: all 0.13s ease;
+	cursor: pointer;
+	position: relative;
+	font-size: 15px;
+	color: var(--text-muted);
+	font-weight: 500;
+	display: block;
+	text-decoration: none;
+	border-bottom: 1px solid var(--border-color);
+}
 
-        .submenu-item {
-            padding: 10px 18px 10px 48px;
-            transition: all 0.13s ease;
-            cursor: pointer;
-            position: relative;
-            font-size: 15px;
-            color: var(--text-muted);
-            font-weight: 500;
-            display: block;
-            text-decoration: none;
-            border-bottom: 1px solid var(--border-color);
-        }
+.submenu-item:last-child {
+	border-bottom: none;
+}
 
-        .submenu-item:last-child {
-            border-bottom: none;
-        }
+.submenu-item:hover {
+	background: var(--brand-green-light);
+	color: var(--brand-green);
+}
 
-        .submenu-item:hover {
-            background: var(--brand-green-light);
-            color: var(--brand-green);
-        }
+.submenu-item.active {
+	background: var(--brand-green-light);
+	color: var(--brand-green);
+	font-weight: 700;
+}
 
-        .submenu-item.active {
-            background: var(--brand-green-light);
-            color: var(--brand-green);
-            font-weight: 700;
-        }
+.submenu-item .item-icon {
+	position: absolute;
+	left: 20px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 16px;
+	color: var(--brand-green);
+}
 
-        .submenu-item .item-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 16px;
-            color: var(--brand-green);
-        }
+/* --- 右側內容區 --- */
+/* --- 右側內容區 --- */
+.content-card {
+	flex: 1;
+	/* 【核心修改】讓內容區本身變成白色卡片 */
+	background: var(--component-bg); /* 改成白色 */
+	border-radius: 12px; /* 給它一個圓角，更好看 */
+	margin: 24px; /* 用 margin 代替 padding，讓灰色背景露出來 */
+	padding: 24px; /* padding 用來約束內部元素，而不是製造外部間距 */
+	/* 以下不變 */
+	min-width: 0;
+	min-height: calc(100% - 48px); /* 減去上下 margin */
+	display: flex;
+	/* 【核心修改】不再需要 justify-content，因為內容要填滿 */
+	/* justify-content: center; */
+	overflow-y: auto;
+	box-sizing: border-box; /* 確保 padding 和 border 不會撐大盒子 */
+}
 
-        /* --- 右側內容區 --- */
-        /* --- 右側內容區 --- */
-        .content-card {
-            flex: 1;
-            /* 【核心修改】讓內容區本身變成白色卡片 */
-            background: var(--component-bg); /* 改成白色 */
-            border-radius: 12px; /* 給它一個圓角，更好看 */
-            margin: 24px; /* 用 margin 代替 padding，讓灰色背景露出來 */
-            padding: 24px; /* padding 用來約束內部元素，而不是製造外部間距 */
+.content-card {
+	border-radius: 0;
+	box-shadow: none;
+}
 
-            /* 以下不變 */
-            min-width: 0;
-            min-height: calc(100% - 48px); /* 減去上下 margin */
-            display: flex;
-            /* 【核心修改】不再需要 justify-content，因為內容要填滿 */
-            /* justify-content: center; */
-            overflow-y: auto;
-            box-sizing: border-box; /* 確保 padding 和 border 不會撐大盒子 */
-        }
+.dashboard-content {
+	width: 100%;
+	max-width: 1100px;
+	margin: 0 auto;
+}
 
-        .content-card {
-            border-radius: 0;
-            box-shadow: none;
-        }
+.welcome-section {
+	width: 100%;
+	margin-bottom: 40px;
+	text-align: left;
+}
 
-        .dashboard-content {
-            width: 100%;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
+.welcome-title {
+	font-family: 'Karla', sans-serif;
+	font-size: 28px;
+	color: var(--text-color);
+	font-weight: 700;
+	margin-bottom: 10px;
+	padding: 0;
+	background: none;
+	border-left: none;
+	box-shadow: none;
+}
 
-        .welcome-section {
-            width: 100%;
-            margin-bottom: 40px;
-            text-align: left;
-        }
+.welcome-subtitle {
+	font-size: 16px;
+	color: var(--text-muted);
+	margin: 0;
+	max-width: none;
+	text-align: left;
+}
 
-        .welcome-title {
-            font-family: 'Karla', sans-serif;
-            font-size: 28px;
-            color: var(--text-color);
-            font-weight: 700;
-            margin-bottom: 10px;
-            padding: 0;
-            background: none;
-            border-left: none;
-            box-shadow: none;
-        }
+.stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 25px;
+	width: 100%;
+	margin-bottom: 40px;
+}
 
-        .welcome-subtitle {
-            font-size: 16px;
-            color: var(--text-muted);
-            margin: 0;
-            max-width: none;
-            text-align: left;
-        }
+.stat-card {
+	background: var(--component-bg);
+	border-radius: 12px;
+	padding: 25px;
+	text-align: center;
+	transition: all 0.2s ease;
+	border: 1px solid var(--border-color);
+	min-height: 160px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px;
-            width: 100%;
-            margin-bottom: 40px;
-        }
+.stat-card:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
 
-        .stat-card {
-            background: var(--component-bg);
-            border-radius: 12px;
-            padding: 25px;
-            text-align: center;
-            transition: all 0.2s ease;
-            border: 1px solid var(--border-color);
-            min-height: 160px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+.stat-icon {
+	font-size: 40px;
+	margin-bottom: 15px;
+	color: var(--brand-green);
+}
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-        }
+.stat-number {
+	font-size: 36px;
+	font-weight: 700;
+	color: var(--text-color);
+	margin-bottom: 8px;
+}
 
-        .stat-icon {
-            font-size: 40px;
-            margin-bottom: 15px;
-            color: var(--brand-green);
-        }
+.stat-label {
+	font-size: 15px;
+	font-weight: 500;
+	color: var(--text-muted);
+}
 
-        .stat-number {
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--text-color);
-            margin-bottom: 8px;
-        }
+.guide-text {
+	width: 100%;
+	background: var(--component-bg);
+	border: 1px solid var(--border-color);
+	border-radius: 12px;
+	padding: 30px;
+	margin-top: 20px;
+}
 
-        .stat-label {
-            font-size: 15px;
-            font-weight: 500;
-            color: var(--text-muted);
-        }
+.guide-text h3 {
+	font-family: 'Karla', sans-serif;
+	color: var(--text-color);
+	font-weight: 700;
+	margin-bottom: 15px;
+	font-size: 18px;
+	letter-spacing: 0;
+}
 
-        .guide-text {
-            width: 100%;
-            background: var(--component-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 30px;
-            margin-top: 20px;
-        }
+.guide-text p {
+	font-size: 15px;
+	line-height: 1.7;
+	margin: 0;
+	color: var(--text-muted);
+}
 
-        .guide-text h3 {
-            font-family: 'Karla', sans-serif;
-            color: var(--text-color);
-            font-weight: 700;
-            margin-bottom: 15px;
-            font-size: 18px;
-            letter-spacing: 0;
-        }
+.sys-block {
+	width: 100%;
+}
 
-        .guide-text p {
-            font-size: 15px;
-            line-height: 1.7;
-            margin: 0;
-            color: var(--text-muted);
-        }
+.sys-subtitle {
+	font-family: 'Karla', sans-serif;
+	font-size: 24px;
+	color: var(--text-color);
+	font-weight: 700;
+	margin-bottom: 30px;
+	letter-spacing: 0;
+	padding: 0;
+	background: none;
+	border-left: none;
+	box-shadow: none;
+	display: block;
+}
 
-        .sys-block {
-            width: 100%;
-        }
+.sys-block ul {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	width: 100%;
+}
 
-        .sys-subtitle {
-            font-family: 'Karla', sans-serif;
-            font-size: 24px;
-            color: var(--text-color);
-            font-weight: 700;
-            margin-bottom: 30px;
-            letter-spacing: 0;
-            padding: 0;
-            background: none;
-            border-left: none;
-            box-shadow: none;
-            display: block;
-        }
+.sys-block li {
+	margin-bottom: 14px;
+	font-size: 16px;
+	padding: 15px 20px 15px 50px;
+	border-radius: 8px;
+	background: var(--component-bg);
+	font-weight: 500;
+	border: 1px solid var(--border-color);
+	display: flex;
+	align-items: center;
+	position: relative;
+	transition: all 0.2s ease;
+}
 
-        .sys-block ul {
-            padding: 0;
-            margin: 0;
-            list-style: none;
-            width: 100%;
-        }
+.sys-block li:hover {
+	border-color: var(--brand-green);
+	background: var(--brand-green-light);
+}
 
-        .sys-block li {
-            margin-bottom: 14px;
-            font-size: 16px;
-            padding: 15px 20px 15px 50px;
-            border-radius: 8px;
-            background: var(--component-bg);
-            font-weight: 500;
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            position: relative;
-            transition: all 0.2s ease;
-        }
+.sys-block li .item-icon {
+	position: absolute;
+	left: 20px;
+	font-size: 18px;
+	color: var(--brand-green);
+}
 
-        .sys-block li:hover {
-            border-color: var(--brand-green);
-            background: var(--brand-green-light);
-        }
+/* --- 響應式設計 --- */
+@media ( max-width : 1100px) {
+	.main-wrap {
+		flex-direction: column;
+	}
+	.sidebar-card, .content-card {
+		border-radius: 0;
+		width: 100%;
+		border-right: none;
+	}
+	.content-card {
+		padding: 30px 4vw;
+		border-top: 1px solid var(--border-color);
+	}
+	.sidebar-card {
+		padding: 12px 0;
+		height: auto;
+	}
+}
 
-        .sys-block li .item-icon {
-            position: absolute;
-            left: 20px;
-            font-size: 18px;
-            color: var(--brand-green);
-        }
-
-        /* --- 響應式設計 --- */
-        @media (max-width: 1100px) {
-            .main-wrap {
-                flex-direction: column;
-            }
-
-            .sidebar-card, .content-card {
-                border-radius: 0;
-                width: 100%;
-                border-right: none;
-            }
-
-            .content-card {
-                padding: 30px 4vw;
-                border-top: 1px solid var(--border-color);
-            }
-
-            .sidebar-card {
-                padding: 12px 0;
-                height: auto;
-            }
-        }
-
-        @media (max-width: 650px) {
-            .content-card {
-                padding: 20px;
-            }
-
-            .topbar-logo img {
-                height: 35px;
-            }
-
-            .logout-btn {
-                padding: 6px 16px;
-                font-size: 13px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-        }
-    </style>
+@media ( max-width : 650px) {
+	.content-card {
+		padding: 20px;
+	}
+	.topbar-logo img {
+		height: 35px;
+	}
+	.logout-btn {
+		padding: 6px 16px;
+		font-size: 13px;
+	}
+	.stats-grid {
+		grid-template-columns: 1fr;
+		gap: 15px;
+	}
+}
+</style>
 </head>
 <body>
-<div class="topbar">
-    <a href="#" class="topbar-logo" onclick="loadMainDashboard(event)">
-        <img src="../../../images/logo.png" alt="Pixel Tribe Logo">
-    </a>
-    <button class="logout-btn" onclick="handleLogout()">登出</button>
-</div>
-<div class="main-wrap">
-    <nav class="sidebar-card">
-        <ul class="sidebar-menu">
-            <li class="menu-item" id="menu-store">
-                <button class="menu-button" onclick="toggleMenu('store')">
-                    <span><i class="bi bi-shop-window icon"></i>商城系統</span>
-                    <i class="bi bi-chevron-down arrow"></i>
-                </button>
-                <div class="submenu">
-                    <a href="#" class="submenu-item" onclick="renderContent('store', 'dashboard', event)">
-                        <i class="bi bi-pie-chart-fill item-icon"></i>儀表板
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('store', 'management', event)">
-                        <i class="bi bi-box-seam item-icon"></i>產品管理
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('store', 'malltag', event)">
-                        <i class="bi bi-tags-fill item-icon"></i>產品分類
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('store', 'orders', event)">
-                        <i class="bi bi-receipt-cutoff item-icon"></i>訂單管理
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('store', 'shipping', event)">
-                        <i class="bi bi-truck item-icon"></i>產品發貨管理
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('store', 'reviews', event)">
-                        <i class="bi bi-chat-square-text-fill item-icon"></i>訂單評論管理
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('store', 'coupons', event)">
-                        <i class="bi bi-ticket-perforated-fill item-icon"></i>優惠券管理
-                    </a>
-                </div>
-            </li>
-            <li class="menu-item" id="menu-news">
-                <button class="menu-button" onclick="toggleMenu('news')">
-                    <span><i class="bi bi-newspaper icon"></i>新聞系統</span>
-                    <i class="bi bi-chevron-down arrow"></i>
-                </button>
-                <div class="submenu">
-                    <a href="#" class="submenu-item" onclick="renderContent('news', 'dashboard', event)">
-                        <i class="bi bi-pie-chart-fill item-icon"></i>儀表板
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('news', 'categories', event)">
-                        <i class="bi bi-pencil-fill item-icon"></i>新聞類別管理
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('news', 'management', event)">
-                        <i class="bi bi-pencil-fill item-icon"></i>新聞管理
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('news', 'comments', event)">
-                        <i class="bi bi-chat-dots-fill item-icon"></i>新聞評論管理
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('news', 'reports', event)">
-                        <i class="bi bi-shield-check item-icon"></i>新聞評論審核檢舉
-                    </a>
-                </div>
-            </li>
-            <li class="menu-item" id="menu-forum">
-                <button class="menu-button" onclick="toggleMenu('forum')">
-                    <span><i class="bi bi-chat-square-dots-fill icon"></i>論壇系統</span>
-                    <i class="bi bi-chevron-down arrow"></i>
-                </button>
-                <div class="submenu">
-                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'dashboard', event)">
-                        <i class="bi bi-pie-chart-fill item-icon"></i>儀表板
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'categories', event)">
-                        <i class="bi bi-tags-fill item-icon"></i>討論區類別管理
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'forums', event)">
-                        <i class="bi bi-card-list item-icon"></i>討論區管理
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'posts', event)">
-                        <i class="bi bi-file-text-fill item-icon"></i>文章管理
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'comments', event)">
-                        <i class="bi bi-chat-left-text-fill item-icon"></i>留言管理
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'official', event)">
-                        <i class="bi bi-megaphone-fill item-icon"></i>發布官方文章
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'reports', event)">
-                        <i class="bi bi-shield-check item-icon"></i>文章留言檢舉審核
-                    </a>
-                    <a href="#" class="submenu-item" onclick="renderContent('forum', 'article-reports', event)">
-                        <i class="bi bi-shield-check item-icon"></i>文章檢舉審核
-                    </a>
-                </div>
-            </li>
-            <li class="menu-item" id="menu-member">
-                <button class="menu-button" onclick="toggleMenu('member')">
-                    <span><i class="bi bi-people-fill icon"></i>會員系統</span>
-                    <i class="bi bi-chevron-down arrow"></i>
-                </button>
-                <div class="submenu">
-                    <a href="#" class="submenu-item" onclick="renderContent('member', 'query', event)">
-                        <i class="bi bi-person-lines-fill item-icon"></i>會員查詢/管理
-                    </a>
-                </div>
-            </li>
-        </ul>
-    </nav>
-    <main class="content-card" id="content-area">
-    </main>
-</div>
+	<div class="topbar">
+		<a href="#" class="topbar-logo" onclick="loadMainDashboard(event)">
+			<img src="../../../images/logo.png" alt="Pixel Tribe Logo">
+		</a>
+		<button class="logout-btn" onclick="handleLogout()">登出</button>
+	</div>
+	<div class="main-wrap">
+		<nav class="sidebar-card">
+			<ul class="sidebar-menu">
+				<li class="menu-item" id="menu-store">
+					<button class="menu-button" onclick="toggleMenu('store')">
+						<span><i class="bi bi-shop-window icon"></i>商城系統</span> <i
+							class="bi bi-chevron-down arrow"></i>
+					</button>
+					<div class="submenu">
+						<a href="#" class="submenu-item"
+							onclick="renderContent('store', 'dashboard', event)"> <i
+							class="bi bi-pie-chart-fill item-icon"></i>儀表板
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('store', 'management', event)"> <i
+							class="bi bi-box-seam item-icon"></i>產品管理
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('store', 'malltag', event)"> <i
+							class="bi bi-tags-fill item-icon"></i>產品分類
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('store', 'orders', event)"> <i
+							class="bi bi-receipt-cutoff item-icon"></i>訂單管理
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('store', 'shipping', event)"> <i
+							class="bi bi-truck item-icon"></i>產品發貨管理
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('store', 'reviews', event)"> <i
+							class="bi bi-chat-square-text-fill item-icon"></i>訂單評論管理
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('store', 'coupons', event)"> <i
+							class="bi bi-ticket-perforated-fill item-icon"></i>優惠券管理
+						</a>
+					</div>
+				</li>
+				<li class="menu-item" id="menu-news">
+					<button class="menu-button" onclick="toggleMenu('news')">
+						<span><i class="bi bi-newspaper icon"></i>新聞系統</span> <i
+							class="bi bi-chevron-down arrow"></i>
+					</button>
+					<div class="submenu">
+						<a href="#" class="submenu-item"
+							onclick="renderContent('news', 'dashboard', event)"> <i
+							class="bi bi-pie-chart-fill item-icon"></i>儀表板
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('news', 'categories', event)"> <i
+							class="bi bi-pencil-fill item-icon"></i>新聞類別管理
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('news', 'management', event)"> <i
+							class="bi bi-pencil-fill item-icon"></i>新聞管理
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('news', 'comments', event)"> <i
+							class="bi bi-chat-dots-fill item-icon"></i>新聞評論管理
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('news', 'reports', event)"> <i
+							class="bi bi-shield-check item-icon"></i>新聞評論審核檢舉
+						</a>
+					</div>
+				</li>
+				<li class="menu-item" id="menu-forum">
+					<button class="menu-button" onclick="toggleMenu('forum')">
+						<span><i class="bi bi-chat-square-dots-fill icon"></i>論壇系統</span>
+						<i class="bi bi-chevron-down arrow"></i>
+					</button>
+					<div class="submenu">
+						<a href="#" class="submenu-item"
+							onclick="renderContent('forum', 'dashboard', event)"> <i
+							class="bi bi-pie-chart-fill item-icon"></i>儀表板
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('forum', 'categories', event)"> <i
+							class="bi bi-tags-fill item-icon"></i>討論區類別管理
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('forum', 'forums', event)"> <i
+							class="bi bi-card-list item-icon"></i>討論區管理
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('forum', 'posts', event)"> <i
+							class="bi bi-file-text-fill item-icon"></i>文章管理
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('forum', 'comments', event)"> <i
+							class="bi bi-chat-left-text-fill item-icon"></i>留言管理
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('forum', 'official', event)"> <i
+							class="bi bi-megaphone-fill item-icon"></i>發布官方文章
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('forum', 'reports', event)"> <i
+							class="bi bi-shield-check item-icon"></i>文章留言檢舉審核
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('forum', 'article-reports', event)"> <i
+							class="bi bi-shield-check item-icon"></i>文章檢舉審核
+						</a>
+					</div>
+				</li>
+				<li class="menu-item" id="menu-member">
+					<button class="menu-button" onclick="toggleMenu('member')">
+						<span><i class="bi bi-people-fill icon"></i>會員系統</span> <i
+							class="bi bi-chevron-down arrow"></i>
+					</button>
+					<div class="submenu">
+						<a href="#" class="submenu-item"
+							onclick="renderContent('member', 'dashboard', event)"> <i
+							class="bi bi-pie-chart-fill item-icon"></i>儀表板
+						</a> <a href="#" class="submenu-item"
+							onclick="renderContent('member', 'query', event)"> <i
+							class="bi bi-person-lines-fill item-icon"></i>會員查詢/管理
+						</a>
+					</div>
+				</li>
+			</ul>
+		</nav>
+		<main class="content-card" id="content-area"></main>
+	</div>
 
-<script>
+	<script>
     // 【常數】將內容區域的 DOM 物件提出來，避免重複選取
     const contentArea = document.getElementById('content-area');
 
@@ -727,12 +728,50 @@
                     if (pendingCommentReportEl) pendingCommentReportEl.innerText = '錯誤';
                 }
             }, 0);
-        } else {
+        } else if (pageKey === 'member' && subKey === 'dashboard'){
+        	 contentArea.innerHTML = getMemberDashboardHTML();
+        	    setTimeout(async () => {
+        	        const token = localStorage.getItem('jwt');
+        	        const headers = { Authorization: 'Bearer ' + token };
+
+        	        const memberTotalCountEl = document.getElementById('memberTotalCount');
+        	        const memberSuspendedCountEl = document.getElementById('memberSuspendedCount');
+        	        const memberWeeklyNewCountEl = document.getElementById('memberWeeklyNewCount');
+
+        	        try {
+        	        	 const res1 = await fetch('/api/members/admin/count', { headers });
+        	             if (!res1.ok) throw new Error('會員總數 API 錯誤');
+        	             memberTotalCountEl.innerText = await res1.text();
+        	         } catch (err) {
+        	             memberTotalCountEl.innerText = '錯誤';
+        	             console.error(err);
+        	         }
+
+        	         // 停權會員
+        	         try {
+        	             const res2 = await fetch('/api/members/admin/suspended-count', { headers });
+        	             if (!res2.ok) throw new Error('停權會員 API 錯誤');
+        	             memberSuspendedCountEl.innerText = await res2.text();
+        	         } catch (err) {
+        	             memberSuspendedCountEl.innerText = '錯誤';
+        	             console.error(err);
+        	         }
+
+        	         // 本周新註冊
+//         	         try {
+//         	             const res3 = await fetch('/api/members/admin/newlySign', { headers });
+//         	             if (!res3.ok) throw new Error('本周新註冊 API 錯誤');
+//         	             memberMonthlyNewCountEl.innerText = await res3.text();
+//         	         } catch (err) {
+//         	             memberMonthlyNewCountEl.innerText = '錯誤';
+//         	             console.error(err);
+//         	         }
+        	     }, 0);
+        } else{
             // 其他所有未設定的頁面，顯示佔位內容
             contentArea.innerHTML = getPlaceholderHTML(pageKey, subKey);
         }
-    }
-
+     }
     /**
      * 【核心修正】通用外部頁面載入器 (整合版)
      * @param {string} url - 要載入的 HTML 檔案路徑 (可包含查詢參數)
@@ -809,7 +848,7 @@
                     <p class="welcome-subtitle">請從左側選單選擇您要管理的系統。</p>
                 </div>
                 <div class="stats-grid">
-                    <div class="stat-card"><i class="bi bi-people-fill stat-icon"></i><div class="stat-number">1,204</div><div class="stat-label">總會員數</div></div>
+                    <div class="stat-card"><i class="bi bi-people-fill stat-icon"></i><div class="stat-number" id="membersCount">載入中</div><div class="stat-label">總會員數</div></div>
                     <div class="stat-card"><i class="bi bi-newspaper stat-icon"></i><div class="stat-number" id="newsCount">載入中</div><div class="stat-label">新聞總數</div></div>
                     <div class="stat-card">
                         <i class="bi bi-chat-square-dots-fill stat-icon"></i>
@@ -938,7 +977,40 @@
             </div>
         `;
     }
+    
+    
+	//會員儀錶板
+    function getMemberDashboardHTML() {
+        return `
+            <div class="dashboard-content">
+                <div class="welcome-section">
+                    <h1 class="welcome-title">會員管理儀表板</h1>
+                    <p class="welcome-subtitle">即時掌握會員數據狀態。</p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="bi bi-people-fill stat-icon"></i>
+                        <div class="stat-number" id="memberTotalCount">載入中</div>
+                        <div class="stat-label">會員總數</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="bi bi-person-x stat-icon"></i>
+                        <div class="stat-number" id="memberSuspendedCount">載入中</div>
+                        <div class="stat-label">停權會員數</div>
+                    </div>
+                </div>
+                <div class="guide-text">
+                    <h3>📋 操作說明</h3>
+                    <p>
+                        • 會員總數：所有會員總人數。<br>
+                        • 停權會員：已被停權無法登入的會員數量。<br>
+                    </p>
+                </div>
+            </div>
+        `;
+    }
 
+    
     // 佔位頁面的 HTML，用於顯示開發中的頁面
     function getPlaceholderHTML(pageKey, subKey) {
         // ... 此函式內容不變 ...
@@ -1003,7 +1075,7 @@
             // [可變] 根據你 HTML 中的 id 獲取 DOM 元素
             const newsCountEl = document.getElementById('newsCount');
             const forumPostCountEl = document.getElementById('mainForumPostCount'); // 【新增】抓取論壇文章數的元素
-
+			const membersCountEl = document.getElementById('membersCount');
             try {
                 // ① 新聞總數 (原有邏輯不變)
                 const res1 = await fetch('/api/News/admin/newscount', { headers });
@@ -1017,6 +1089,12 @@
                 if (!res2.ok) throw new Error(`(論壇文章數 ${res2.status})`);
                 const postCount = await res2.text();
                 if (forumPostCountEl) forumPostCountEl.innerText = postCount;
+                
+                //會員總數
+                const res3 = await fetch('/api/members/admin/count', {headers});
+                if (!res3.ok) throw new Error(`(會員總數 ${re3.status})`);
+                const membersCount = await res3.text();
+                if (membersCountEl) membersCountEl.innerText = membersCount;
 
             } catch (err) {
                 console.error('主儀表板數據載入失敗:', err);
