@@ -365,8 +365,9 @@
                 });
 
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(errorText || `更新失敗，狀態碼: ${response.status}`);
+                    const errorData = await response.json();
+
+                    throw new Error(errorData.message || `發生未知錯誤，狀態碼: ${response.status}`);
                 }
 
                 showMessage('更新成功！2秒後將返回列表頁。', 'success');
