@@ -93,6 +93,13 @@ public class ForumService {
 
         Forum forum = forumRepository.findById(forNo)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到討論區編號: " + forNo));
+
+        forumRepository.findByForName(forumUpdateDTO.getForName())
+                .filter(existingForum -> !existingForum.getId().equals(forNo))
+                .ifPresent(existingForum -> {
+                    throw new ConflictException("討論區名稱：" + existingForum.getForName() + " 已經存在");
+                });
+
         //    註解掉kafka，避免錯誤
 //        Integer oldCategoryId = forum.getCatNo().getId();
 //        if (!oldCategoryId.equals(forumUpdateDTO.getCategoryId())) {
@@ -101,8 +108,10 @@ public class ForumService {
 
         Forum saveOrUpdateForum = saveOrUpdateForum(forum, forumUpdateDTO, imageFile);
         this.refreshHotForumsInRedis();
+
         //    註解掉kafka，避免錯誤
 //        kafkaTemplate.send(FORUM_CATEGORY_UPDATE_TOPIC, saveOrUpdateForum.getCatNo().getId());
+
         return convertToForumDetailDTO(saveOrUpdateForum);
     }
 
