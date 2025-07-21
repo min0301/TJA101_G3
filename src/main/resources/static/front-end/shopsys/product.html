@@ -112,7 +112,7 @@
 	
 	<!-- 修正統一用對路徑 -->
 	<script src="/front-end/shopsys/malltag.js"></script>
-	<!-- <script src="/front-end/shopsysproductDetail.js"></script> -->
+	<script src="/front-end/shopsys/productDetail.js"></script> -->
 	
 	<script>
 	//*** 頁面初始化 - 簡化版，讓 malltag.js 完全接管 ***//
@@ -256,26 +256,31 @@
 		        
 		        // 使用和 productList.js 相同的 API
 		        const apiBaseUrl = `${location.origin}/api`;
-		        const apiUrl = `${apiBaseUrl}/product/searchall?proIsMarket=0`;
+		        const apiUrl = `${apiBaseUrl}/product/${productId}/search`;
 		        
 		        console.log('請求商品 API:', apiUrl);
 		        
-		        const response = await fetch(apiUrl);
+		        const response = await fetch(apiUrl, {
+		            method: 'GET',
+		            headers: {
+		                'Authorization': 'Bearer ' + (localStorage.getItem('jwt') || ''),
+		                'Content-Type': 'application/json'
+		            }
+		        });
+		        
 		        if (!response.ok) {
 		            throw new Error(`HTTP error! status: ${response.status}`);
 		        }
-		
-		        const products = await response.json();
-		        console.log('載入商品列表:', products.length, '項');
+
+		        // 🔥 修正：現在是物件，不是陣列
+		        const responseData = await response.json();
+		        console.log('API 回應資料:', responseData);
 		        
-		        // 尋找目標商品
-		        const product = products.find(p => 
-		            String(p.id) === String(productId) || 
-		            String(p.proNo) === String(productId)
-		        );
-		
+		        // 🔥 修正：直接取 product 欄位
+		        const product = responseData.product;
+		        
 		        if (!product) {
-		            throw new Error(`找不到商品 ID: ${productId}`);
+		            throw new Error(`API 回應中沒有 product 資料`);
 		        }
 		
 		        console.log('找到目標商品:', product);
@@ -550,109 +555,80 @@
 	    highlightCorrespondingTag(product.mallTagNo);
 	}
 	 
-	// ***  根據庫存資訊生成狀態 (薰妤修) ***//
+	/**
+	 * 根據庫存資訊生成狀態 (修改版：已移除 proIsmarket 判斷)
+	 * @param {string|number} proIsmarket - (此版本中已不再使用) 商品上下架狀態
+	 * @param {string} proStatus - 商品狀態，如 '預購中'
+	 * @param {object|null} stockInfo - 從 API 取得的庫存資訊物件，應包含 stock 屬性
+	 * @returns {object} - 包含顯示文字、樣式、及可否購買狀態的物件
+	 */
 	function generateStatusInfo(proIsmarket, proStatus, stockInfo) {
+	    // --- 修改開始 ---
+	    
+	    // 預設狀態，用於 API 查詢失敗或資料格式不符時
 	    let statusInfo = {
 	        displayText: '狀態未知',
 	        statusClass: 'badge bg-secondary',
-	        stockText: '庫存狀態未知',
-	        stockClass: 'text-muted',
-	        stockCount: '查詢中...',
-	        
-	        canPurchase: false,
-	        buttonText: '無法購買'
+	        stockText: '無法確認庫存',
+	        stockClass: 'text-warning',
+	        stockCount: 'N/A',
+	        canPurchase: false, // 安全起見，預設為不可購買
+	        buttonText: '暫時無法購買'
 	    };
-	    
-	    // 如果有庫存資訊，使用真實資料
-	    if (stockInfo && stockInfo.stock !== undefined) {
+
+	    // 參數 proIsmarket 在此版本中被刻意忽略，以確保庫存決定一切
+
+	    // 主要邏輯：只判斷 stockInfo 是否有效且庫存 > 0
+	    // 使用更嚴格的檢查，確保 stockInfo.stock 是有效的數字
+	    if (stockInfo && typeof stockInfo.stock === 'number' && isFinite(stockInfo.stock)) {
 	        const realStock = stockInfo.stock;
-	        const stockSource = stockInfo.stockSource || '資料庫';
-	        
-	        if (proIsmarket === '0' || proIsmarket === 0) {
-	            // 上架商品
-	            if (realStock > 0) {
-	                if (proStatus === '預購中' || proStatus === '預購') {
-	                    statusInfo = {
-	                        displayText: '開放預購',
-	                        statusClass: 'badge bg-warning text-dark',
-	                        stockText: '預購商品，發售後出貨',
-	                        stockClass: 'text-warning',
-	                        stockCount: `${realStock} 件`,
-	                        
-	                        canPurchase: true,
-	                        buttonText: '立即預購'
-	                    };
-	                } else {
-	                    statusInfo = {
-	                        displayText: '現貨供應',
-	                        statusClass: 'badge bg-success',
-	                        stockText: realStock <= 10 ? '庫存偏低，欲購從速' : '有現貨，立即發貨',
-	                        stockClass: realStock <= 10 ? 'text-warning' : 'text-success',
-	                        stockCount: `${realStock} 件`,
-	                        
-	                        canPurchase: true,
-	                        buttonText: '加入購物車'
-	                    };
-	                }
-	            } else {
-	                // 無庫存
+
+	        if (realStock > 0) {
+	            // 庫存 > 0，商品即可購買或預購
+	            // 接著判斷是「現貨」還是「預購」
+	            if (proStatus === '預購中' || proStatus === '預購') {
 	                statusInfo = {
-	                    displayText: '暫時缺貨',
-	                    statusClass: 'badge bg-danger',
-	                    stockText: '商品暫時缺貨',
-	                    stockClass: 'text-danger',
-	                    stockCount: '0 件',
-	                    
-	                    canPurchase: false,
-	                    buttonText: '暫時缺貨'
+	                    displayText: '開放預購',
+	                    statusClass: 'badge bg-warning text-dark',
+	                    stockText: '預購商品，發售後出貨',
+	                    stockClass: 'text-warning',
+	                    stockCount: `${realStock} 件`,
+	                    canPurchase: true,
+	                    buttonText: '立即預購'
+	                };
+	            } else {
+	                statusInfo = {
+	                    displayText: '現貨供應',
+	                    statusClass: 'badge bg-success',
+	                    stockText: realStock <= 10 ? '庫存偏低，欲購從速' : '有現貨，立即發貨',
+	                    stockClass: realStock <= 10 ? 'text-warning' : 'text-success',
+	                    stockCount: `${realStock} 件`,
+	                    canPurchase: true,
+	                    buttonText: '加入購物車'
 	                };
 	            }
 	        } else {
-	            // 下架商品
+	            // 庫存為 0 或負數
 	            statusInfo = {
-	                displayText: '暫停販售',
+	                displayText: '暫時缺貨',
 	                statusClass: 'badge bg-danger',
-	                stockText: '商品暫時下架',
+	                stockText: '商品暫時缺貨',
 	                stockClass: 'text-danger',
 	                stockCount: '0 件',
-	                
 	                canPurchase: false,
-	                buttonText: '暫停販售'
+	                buttonText: '暫時缺貨'
 	            };
 	        }
 	    } else {
-	        // 無法取得庫存資訊，使用預設邏輯
-	        console.warn('⚠️ 無庫存資訊，使用預設顯示');
-	        
-	        if (proIsmarket === '0' || proIsmarket === 0) {
-	            statusInfo = {
-	                displayText: proStatus || '已發售',
-	                statusClass: 'badge bg-success',
-	                stockText: '商品可購買',
-	                stockClass: 'text-success',
-	                stockCount: '查詢中...',
-	                
-	                canPurchase: true,
-	                buttonText: '加入購物車'
-	            };
-	        } else {
-	            statusInfo = {
-	                displayText: '暫停販售',
-	                statusClass: 'badge bg-danger',
-	                stockText: '商品暫時下架',
-	                stockClass: 'text-danger',
-	                stockCount: '0 件',
-	                
-	                canPurchase: false,
-	                buttonText: '暫停販售'
-	            };
-	        }
+	        // 如果 stockInfo 不存在，或 stockInfo.stock 不是一個有效的數字，
+	        // 則使用上面定義的預設「無法確認庫存」狀態。
+	        console.warn('⚠️ 無法取得有效的庫存資訊，將顯示為暫時無法購買。');
 	    }
+	    
+	    // --- 修改結束 ---
 	    
 	    return statusInfo;
 	}
-
-	 
 	 
 	/**
 	 * 顯示錯誤訊息

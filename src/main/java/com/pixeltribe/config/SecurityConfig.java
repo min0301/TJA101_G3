@@ -114,7 +114,7 @@ class SecurityConfig {
                                         //========商城========
                                         "/api/orders/**",                 // ← 新增：訂單相關 API
                                         "/api/orderitem/**",                 // ← 新增：前台訂單明細 API
-                                        "/api/admin/orderitem/**"           // ← 新增：後台訂單明細 API
+                                        "/api/admin/orderitem/**"       // ← 新增：後台訂單明細 API
                                         //========會員========
 
                                 ).permitAll()

@@ -18,4 +18,7 @@ public interface ProSerialNumberRepository extends JpaRepository<ProSerialNumber
 
     @Query(value = "SELECT COUNT(*) FROM pro_serial_numbers WHERE PRO_NO = :proNo AND ORDER_ITEM_NO IS NULL", nativeQuery = true)
     Integer countStock(@Param("proNo") Integer proNo);
+    
+    @Query(value = "SELECT COUNT(*) FROM pro_serial_numbers WHERE PRO_NO = :proNo AND ORDER_ITEM_NO IS NULL", nativeQuery = true)
+    List<Object[]> countStockByProNo(@Param("proNo") List<Integer> proNos);
 }
