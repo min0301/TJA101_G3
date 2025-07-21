@@ -201,7 +201,9 @@
                 // 【不可變】API 端點對應 ForumCategoryController 的 @GetMapping("/category/{catno}")
                 const response = await fetch(`${apiBaseUrl}/category/${categoryId}`);
                 if (!response.ok) {
-                    throw new Error(`請求失敗，狀態碼: ${response.status}`);
+                    const errorData = await response.json();
+
+                    throw new Error(errorData.message || `請求失敗，狀態碼: ${response.status}`);
                 }
                 const categoryData = await response.json();
                 populateForm(categoryData);
@@ -249,12 +251,13 @@
                 });
 
                 if (!response.ok) {
-                    if (response.status === 409) { // 409 Conflict
-                        const errorText = await response.text();
-                        throw new Error(errorText || `發生衝突: 類別名稱可能已存在`);
-                    }
-                    const errorText = await response.text();
-                    throw new Error(errorText || `更新失敗，狀態碼: ${response.status}`);
+                    // 先將後端回傳的錯誤內容（不論是 409 或其他錯誤）解析成 JSON 物件
+                    const errorBody = await response.json();
+
+                    // 從解析後的物件中取得後端傳來的 message 字串
+                    // Spring Boot 預設的錯誤回應格式中，異常訊息會放在 'message' 欄位
+                    // 【不可變】errorBody.message 的 'message' 是對應 Spring Boot 預設錯誤回應的 key
+                    throw new Error(errorBody.message || `發生未知錯誤，狀態碼: ${response.status}`);
                 }
 
                 showMessage('更新成功！2秒後將返回列表頁。', 'success');
@@ -263,6 +266,7 @@
                 }, 2000);
 
             } catch (error) {
+                // 【核心修正】現在的 error.message 就是後端傳來的完整錯誤訊息
                 showMessage(`儲存失敗: ${error.message}`, 'error');
                 submitButton.disabled = false;
                 submitButton.textContent = '儲存修改';

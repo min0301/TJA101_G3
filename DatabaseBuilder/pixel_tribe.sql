@@ -1750,7 +1750,7 @@ VALUES ('47', '15', '真的！每次成功狩獵大型魔物都超有成就感�
        ('57', '13', '檢舉！如果這篇文章沒有附上料理圖片，那根本就是違規中的違規！', '2025-06-30 8:30:00',
         '2025-06-30 8:30:00', '0', '0'),
        ('57', '20', '檢舉！當這裡是你個版？', '2025-06-30 8:30:00', '2025-06-30 8:30:00', '0', '0'),
-       ('56', '37', '這款遊戲根本是垃圾，玩這種東西的都是白癡。開發商也只是想坑錢的廢物。', '2025-06-30 8:35:00',
+       ('56', '37', '您已被邀請加入「🛑錢多多直播中：八卦呢？」Live talk。請點選以下連結加入。 https://line.me/R/square/livetalk/BI1RTvaHd6vZr2w5CSjMwiN3nvCOylIrKHEDwA?utm_source=invitation_livetalk&utm_medium=asdfe', '2025-06-30 8:35:00',
         '2025-06-30 8:35:00', '0', '6'),
        ('1', '1', '展示用留言', '2025-06-30 8:30:00',
         '2025-06-30 8:30:00', '0', '0'),
@@ -1932,10 +1932,10 @@ CREATE TABLE `ARTICLE_COM_REPORT`
     FOREIGN KEY (`MES_NO`) REFERENCES FORUM_MES (`MES_NO`) ON DELETE SET NULL ON UPDATE CASCADE
 ) COMMENT '文章留言檢舉';
 
--- 新增 文章留言檢舉 資料 --
-INSERT INTO `ARTICLE_COM_REPORT` (`REPORTER`, `RPI_NO`, `MES_NO`)
-VALUES (2, 3, 67),
-       (9, 3, 67);
+-- 新增 文章-- 留言檢舉 資料 --
+-- INSERT INTO `ARTICLE_COM_REPORT` (`REPORTER`, `RPI_NO`, `MES_NO`)
+-- VALUES (2, 3, 67),
+--        (9, 3, 67);
 
 -- 新增 文章踩讚 表格 --
 CREATE TABLE `POST_LIKE`

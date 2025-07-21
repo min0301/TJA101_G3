@@ -187,6 +187,11 @@ window.showPostListView = async function (forumId) {
  * @param {string} postId - 文章 ID
  */
 async function showPostDetailView(postId) {
+    // 【修正點】在函式開頭，立刻將視窗滾動到最頂部。
+    // 這能確保使用者點擊文章時，視線會馬上移到文章標題，而不是停在頁面中間。
+    window.scrollTo({top: 0, behavior: 'smooth'}); // behavior: 'smooth' 提供平滑的滾動動畫效果
+
+    // 原有的程式碼...
     dynamicContentContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border" role="status"></div></div>`;
 
     try {
@@ -199,20 +204,14 @@ async function showPostDetailView(postId) {
         if (!postRes.ok) throw new Error('文章載入失敗');
         const post = await postRes.json();
 
-        // 收藏狀態直接從 post 物件中取得
+        // (以下程式碼維持不變)
         const isCollected = post.collected;
+        const memberPostLikeStatus = 'NEUTRAL';
 
-        // 按讚狀態不再從獨立 API 獲取，因為後端未提供此接口
-        // 按讚按鈕的顏色將固定，不反映會員個人狀態
-        // memberPostLikeStatus 參數將不再用於按鈕顏色變化
-        const memberPostLikeStatus = 'NEUTRAL'; // 固定為中立，僅為參數佔位
-
-        // 傳遞按讚狀態和收藏狀態給 renderPostDetail
         renderPostDetail(post, memberPostLikeStatus, isCollected);
         await loadAndRenderComments(postId);
 
         const forumIdForHistory = post.forumNo || post.forumId;
-
         let newUrl = `?postId=${postId}`;
         let historyState = {postId: postId};
 
@@ -221,8 +220,7 @@ async function showPostDetailView(postId) {
             historyState.forumId = forumIdForHistory;
         }
 
-        history.pushState(historyState, ``, newUrl); // 將 forumId 也存入 history state 和 URL
-        // --- 修改的重點結束 ---
+        history.pushState(historyState, ``, newUrl);
 
     } catch (error) {
         console.error('載入文章詳細頁出錯:', error);
