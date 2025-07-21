@@ -2,10 +2,14 @@ package com.pixeltribe.shopsys.order.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +54,9 @@ public class OrderService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+    
 
 	
 	//  ========== 新增 ========== //
@@ -72,10 +79,7 @@ public class OrderService {
 	
 	
 	//  ========== PaymentService 需要的功能 ========== //
-	/*  
-	1. 取得訂單詳情 (PaymentService 使用)
-	2. 返回包含完整資訊的 OrderDTO
-	*/
+	// ***取得訂單詳情 (PaymentService 使用)  返回包含完整資訊的 OrderDTO *** //
 	public OrderDTO getOrderDetail(Integer orderNo) {
         try {
             log.debug("查詢訂單詳情：orderNo={}", orderNo);
@@ -88,7 +92,7 @@ public class OrderService {
             List<OrderItem> orderItems = orderItemRepository.findByOrder_OrderNo(orderNo);
             
             // 3. 轉換為 DTO
-            OrderDTO orderDTO = convertToOrderDTO(order, orderItems);
+            OrderDTO orderDTO = convertToOrderDTO(order, orderItems, null);
             
             log.debug("訂單查詢成功：orderNo={}, status={}, total={}", 
                      orderNo, orderDTO.getOrderStatus(), orderDTO.getOrderTotal());
@@ -101,10 +105,7 @@ public class OrderService {
         }
     }
 	
-	/*  
-	1. 更新訂單狀態 (PaymentService 調用)
-	2. 支援付款流程的狀態轉換
-	*/
+	// *** 更新訂單狀態 (PaymentService 調用)  支援付款流程的狀態轉換 *** //
 	public void updateOrderStatus(Integer orderNo, String newStatus) {
         try {
             log.info("更新訂單狀態：orderNo={}, newStatus={}", orderNo, newStatus);
@@ -191,11 +192,7 @@ public class OrderService {
 	
 	// ========== 發貨檢查方法 ========== //
 		    
-		    /*
-		     1. 檢查訂單所有商品是否都已發貨
-		     2. @param orderNo 訂單編號
-		     3. @return 是否全部發貨
-		     */
+		    // *** 檢查訂單所有商品是否都已發貨 *** //
 		    public boolean areAllItemsShipped(Integer orderNo) {
 		        try {
 		            // 檢查該訂單的所有商品項目是否都已分配序號
@@ -217,11 +214,7 @@ public class OrderService {
 		        }
 		    }
 
-		    /*
-		     1. 檢查並更新訂單發貨狀態
-		     2. @param orderNo 訂單編號
-		     3. @return 是否已完全發貨
-		     */
+		    // *** 檢查並更新訂單發貨狀態 ***//
 		    public boolean checkAndUpdateShippingStatus(Integer orderNo) {
 		        try {
 		            if (areAllItemsShipped(orderNo)) {
@@ -239,9 +232,7 @@ public class OrderService {
 	
 	
 	
-	/*  
-	1. 查詢會員的所有訂單
-	*/
+	// *** 查詢會員的所有訂單 *** //
 	public List<OrderDTO> getmemOrders(Integer memNo) {
         try {
             log.debug("查詢會員訂單：memNo={}", memNo);
@@ -250,7 +241,7 @@ public class OrderService {
             return orders.stream()
                         .map(order -> {
                             List<OrderItem> items = orderItemRepository.findByOrder_OrderNo(order.getOrderNo());
-                            return convertToOrderDTO(order, items);
+                            return convertToOrderDTO(order, items, null);
                         })
                         .collect(Collectors.toList());
                         
@@ -260,9 +251,7 @@ public class OrderService {
         }
     }
 	
-	/*  
-	1. 建立新訂單 (完整版本)
-	*/
+	// ***建立新訂單 (完整版本) *** //
 	public OrderDTO createOrder(CreateOrderRequest createOrderRequest, Integer memNo) {
 	    try {
 	        log.info("開始建立訂單：memNo={}", memNo);
@@ -313,14 +302,18 @@ public class OrderService {
 	        List<OrderItem> orderItems = createOrderItems(savedOrder.getOrderNo(), createOrderRequest.getOrderItems());
 
 	        // 5. 轉換為 DTO（使用會員預設聯絡資訊）
-	        OrderDTO orderDTO = convertToOrderDTO(savedOrder, orderItems);
+	        OrderDTO orderDTO = convertToOrderDTO(savedOrder, orderItems, createOrderRequest.getContactEmail());
 
-	        // 6. DTO 層覆蓋：如果客戶指定了不同的聯絡資訊，就覆蓋預設值
+	        // 6. 將客戶指定信箱存到 Redis（7天過期）
 	        if (createOrderRequest.getContactEmail() != null && 
-	            !createOrderRequest.getContactEmail().trim().isEmpty()) {
-	            orderDTO.setContactEmail(createOrderRequest.getContactEmail());
-	            log.debug("使用客戶指定的信箱：{}", createOrderRequest.getContactEmail());
-	        }
+	                !createOrderRequest.getContactEmail().trim().isEmpty()) {
+	                String redisKey = "order:contact:" + savedOrder.getOrderNo();
+	                redisTemplate.opsForValue().set(redisKey, createOrderRequest.getContactEmail(), 7, TimeUnit.DAYS);
+	                log.debug("客戶聯絡信箱已存入 Redis：orderNo={}, email={}", 
+	                        savedOrder.getOrderNo(), createOrderRequest.getContactEmail());
+	            }
+	        
+	        
 
 	        log.info("訂單建立成功：orderNo={}, total={}, contactEmail={}", 
 	                savedOrder.getOrderNo(), totalAmount, orderDTO.getContactEmail());
@@ -334,10 +327,7 @@ public class OrderService {
 	}
 	
 	// 從購物車建立訂單的方法
-		/*  
-		1. 從購物車建立訂單 (完整版本)
-		2. 取得購物車資料並轉換為訂單
-		*/
+		// *** 從購物車建立訂單 (完整版本)  取得購物車資料並轉換為訂單 ***//
 	public OrderDTO createOrderFromCart(Integer memNo, String contactEmail, String contactPhone) {
 	    try {
 	        log.info("從購物車建立訂單：memNo={}", memNo);
@@ -381,9 +371,7 @@ public class OrderService {
 	    }
 	}
 	
-	/*  
-	1. 取消訂單
-	*/
+	// *** 取消訂單 *** //
 	public boolean cancelOrder(Integer orderNo, Integer memNo, String reason) {
         try {
             log.info("會員取消訂單：orderNo={}, memNo={}, reason={}", orderNo, memNo, reason);
@@ -425,7 +413,7 @@ public class OrderService {
 	
 	//  ========== 私有輔助方法 ========== //
 	// ***** 轉換 Order 和 OrderItems 為 OrderDTO ***** //
-	private OrderDTO convertToOrderDTO(Order order, List<OrderItem> orderItems) {
+	private OrderDTO convertToOrderDTO(Order order, List<OrderItem> orderItems, String customContactEmail) {
         OrderDTO dto = new OrderDTO();
         
         // 基本訂單資訊
@@ -434,12 +422,40 @@ public class OrderService {
         dto.setOrderTotal(order.getOrderTotal());
         dto.setOrderDatetime(order.getOrderDatetime());
         
+        
         // 從Member關聯物件取得會員資料
         if (order.getMemNo() != null) {
-            dto.setMemNo(order.getMemNo().getId());              // 取得會員編號
-            dto.setContactEmail(order.getMemNo().getMemEmail()); // 取得會員真實信箱
+            dto.setMemNo(order.getMemNo().getId());
+            
+            // 關鍵修正：優先順序處理
+            String contactEmail = null;
+            
+            // 關鍵修正：優先使用傳入的自訂信箱
+            if (customContactEmail != null && !customContactEmail.trim().isEmpty()) {
+                contactEmail = customContactEmail;
+                log.debug("使用傳入的客戶指定信箱：{}", customContactEmail);
+            } else {
+                // 2. 從 Redis 查詢客戶指定信箱
+                try {
+                    String redisKey = "order:contact:" + order.getOrderNo();
+                    String redisEmail = (String) redisTemplate.opsForValue().get(redisKey);
+                    if (redisEmail != null && !redisEmail.trim().isEmpty()) {
+                        contactEmail = redisEmail;
+                        log.debug("使用 Redis 儲存的客戶信箱：{}", redisEmail);
+                    } else {
+                        // 3. 最後使用會員預設信箱
+                        contactEmail = order.getMemNo().getMemEmail();
+                        log.debug("使用會員預設信箱：{}", contactEmail);
+                    }
+                } catch (Exception e) {
+                    log.warn("從 Redis 取得客戶信箱失敗，使用會員預設信箱：orderNo={}", order.getOrderNo(), e);
+                    contactEmail = order.getMemNo().getMemEmail();
+                }
+            }
+            
+            dto.setContactEmail(contactEmail);
         } else {
-            dto.setContactEmail("guest@pixeltribe.com");         // 預設信箱
+            dto.setContactEmail("guest@pixeltribe.com");
         }
        
         
@@ -545,7 +561,7 @@ public class OrderService {
 	
 	// ***** 檢查狀態轉換是否合法 ***** //
 	private boolean isValidStatusTransition(String currentStatus, String newStatus) {
-	    // 相同狀態不需要轉換
+	    // 相同狀態允許（冪等操作）
 	    if (currentStatus.equals(newStatus)) {
 	        return true;
 	    }
@@ -553,49 +569,46 @@ public class OrderService {
 	    log.debug("檢查狀態轉換：{} → {}", currentStatus, newStatus);
 	    
 	    // 定義合法的狀態轉換規則
-	    switch (currentStatus) {
-	        case "PENDING":
-	            // 待付款 → 可以轉換到：付款中、取消、失敗
-	            return "PAYING".equals(newStatus) || 
-	                   "CANCELLED".equals(newStatus) || 
-	                   "FAILED".equals(newStatus);
-	                   
-	        case "PAYING":
-	            // 付款中 → 可以轉換到：處理中、失敗、取消
-	            return "PROCESSING".equals(newStatus) || 
-	                   "FAILED".equals(newStatus) || 
-	                   "CANCELLED".equals(newStatus);
-	                   
-	        case "PROCESSING":
-	            // 處理中 → 可以轉換到：已出貨、已完成、取消
-	            return "SHIPPED".equals(newStatus) || 
-	                   "COMPLETED".equals(newStatus) || 
-	                   "CANCELLED".equals(newStatus);
-	                   
-	        case "SHIPPED":
-	            // 已出貨 → 可以轉換到：已完成
-	            return "COMPLETED".equals(newStatus);
-	            
-	        case "COMPLETED":
-	            // 已完成 → 終結狀態，不能轉換
-	            log.warn("訂單已完成，無法變更狀態：currentStatus={}, newStatus={}", currentStatus, newStatus);
-	            return false;
-	            
-	        case "CANCELLED":
-	            // 已取消 → 終結狀態，不能轉換  
-	            log.warn("訂單已取消，無法變更狀態：currentStatus={}, newStatus={}", currentStatus, newStatus);
-	            return false;
-	            
-	        case "FAILED":
-	            // 失敗 → 可以重新開始：待付款、取消
-	            return "PENDING".equals(newStatus) || 
-	                   "CANCELLED".equals(newStatus);
-	                   
-	        default:
-	            // 未知狀態，記錄警告但允許轉換（向後兼容）
-	            log.warn("未知的訂單狀態：{}", currentStatus);
-	            return true;
+	    Map<String, Set<String>> validTransitions = Map.of(
+	            "PENDING", Set.of("PAYING", "CANCELLED", "FAILED"),
+	            "PAYING", Set.of("PROCESSING", "FAILED", "CANCELLED"),
+	            "PROCESSING", Set.of("SHIPPED", "COMPLETED", "FAILED", "CANCELLED"), // 🔧 加入 COMPLETED
+	            "SHIPPED", Set.of("COMPLETED", "FAILED"),
+	            "COMPLETED", Set.of(), // 完成狀態不能轉換
+	            "FAILED", Set.of("PENDING", "CANCELLED"), // 失敗可重試或取消
+	            "CANCELLED", Set.of() // 取消狀態不能轉換
+	        );
+	        
+	        Set<String> allowedNext = validTransitions.get(currentStatus);
+	        return allowedNext != null && allowedNext.contains(newStatus);
 	    }
-	}
+
+	    // 🔧 修正：狀態變更審計日誌
+//	    private void logStatusChange(Integer orderNo, String oldStatus, String newStatus) {
+//	        String action = determineAction(oldStatus, newStatus);
+//	        log.info("PAYMENT_AUDIT|orderNo={}|action={}|oldStatus={}|newStatus={}|timestamp={}", 
+//	                 orderNo, action, oldStatus, newStatus, System.currentTimeMillis());
+//	    }
+
+	    // 🔧 新增：根據狀態轉換判斷動作類型
+//	    private String determineAction(String oldStatus, String newStatus) {
+//	        if ("PENDING".equals(oldStatus) && "PAYING".equals(newStatus)) {
+//	            return "START_PAYMENT";
+//	        } else if ("PAYING".equals(oldStatus) && "PROCESSING".equals(newStatus)) {
+//	            return "PAYMENT_SUCCESS";
+//	        } else if ("PROCESSING".equals(oldStatus) && "COMPLETED".equals(newStatus)) {
+//	            return "ORDER_COMPLETED"; // 🔧 新增完成動作
+//	        } else if ("PROCESSING".equals(oldStatus) && "SHIPPED".equals(newStatus)) {
+//	            return "GOODS_SHIPPED";
+//	        } else if ("SHIPPED".equals(oldStatus) && "COMPLETED".equals(newStatus)) {
+//	            return "DELIVERY_CONFIRMED";
+//	        } else if (newStatus.equals("CANCELLED")) {
+//	            return "ORDER_CANCELLED";
+//	        } else if (newStatus.equals("FAILED")) {
+//	            return "PROCESS_FAILED";
+//	        } else {
+//	            return "STATUS_CHANGE";
+//	        }
+//	    }
 }
 	

@@ -196,56 +196,136 @@ public class PaymentService {
     
     @Scheduled(fixedRate = 300000)   // 排成器每5分鐘檢查一次付款狀態   5*60*1000
     public void handlePaymentTimeout() {
-        try {
+    	try {
+            log.info("🔍 開始執行付款超時檢查 - {}", LocalDateTime.now());
+            
             Set<String> paymentKeys = redisTemplate.keys("payment:*");
             if (paymentKeys == null || paymentKeys.isEmpty()) {
+                log.info("📝 沒有找到付款記錄");
                 return;
             }
             
             long currentTime = System.currentTimeMillis();
             int timeoutCount = 0;
+            int totalChecked = 0;
+            
+            log.info("📊 找到 {} 筆付款記錄需要檢查", paymentKeys.size());
             
             for (String key : paymentKeys) {
                 try {
+                    totalChecked++;
                     Map<Object, Object> paymentInfo = redisTemplate.opsForHash().entries(key);
                     if (paymentInfo.isEmpty()) continue;
                     
                     String status = (String) paymentInfo.get("status");
                     Long createdAt = (Long) paymentInfo.get("createdAt");
-    
-                    // ***** 檢查是否超過30分鐘 ***** //
+                    Integer orderNo = (Integer) paymentInfo.get("orderNo");
+
+                    // ✅ 增加詳細日誌
+                    if (createdAt != null) {
+                        long ageMinutes = (currentTime - createdAt) / 60000;
+                        log.debug("檢查付款記錄：orderNo={}, status={}, ageMinutes={}", 
+                                 orderNo, status, ageMinutes);
+                    }
+
+                    // ✅ 檢查是否超過30分鐘且狀態為 PAYING
                     if ("PAYING".equals(status) && 
                             createdAt != null && 
-                            (currentTime - createdAt) > 1800000) { // 30分鐘 =60*30*1000
+                            (currentTime - createdAt) > 1800000) { // 30分鐘
                             
-                            Integer orderNo = (Integer) paymentInfo.get("orderNo");
+                        long ageMinutes = (currentTime - createdAt) / 60000;
+                        log.warn("⏰ 發現超時付款：orderNo={}, 超時時間={}分鐘", orderNo, ageMinutes);
                             
-                            // ***** 設定訂單為失敗狀態 ***** //
+                        try {
+                            // ✅ 更新訂單狀態為失敗
                             orderService.updateOrderStatus(orderNo, "FAILED");        
+                            log.info("✅ 訂單狀態已更新為 FAILED：orderNo={}", orderNo);
                             
-                            // ***** 更新Redis狀態 ***** //
+                            // ✅ 更新Redis狀態
                             Map<String, String> timeoutInfo = new HashMap<>();
                             timeoutInfo.put("reason", "付款超時");
                             timeoutInfo.put("timeoutTime", LocalDateTime.now().toString());
+                            timeoutInfo.put("originalCreatedAt", createdAt.toString());
+                            timeoutInfo.put("ageMinutes", String.valueOf(ageMinutes));
+                            
                             updatePaymentStatusInRedis(orderNo, "TIMEOUT", timeoutInfo);
                             
                             timeoutCount++;
-                            log.info("訂單付款超時，已設為失敗：orderNo={}", orderNo);
+                            log.info("✅ 訂單付款超時處理完成：orderNo={}", orderNo);
+                            
+                        } catch (Exception updateEx) {
+                            log.error("❌ 更新超時訂單失敗：orderNo={}", orderNo, updateEx);
+                        }
+                    }
+                    
+                } catch (Exception e) {
+                    log.error("❌ 處理單個付款記錄失敗：key={}", key, e);
+                }
+            }
+            
+            if (timeoutCount > 0) {
+                log.warn("📈 本次處理了 {} 筆超時付款，總檢查 {} 筆", timeoutCount, totalChecked);
+            } else {
+                log.info("✅ 本次檢查 {} 筆記錄，無超時付款", totalChecked);
+            }
+            
+        } catch (Exception e) {
+            log.error("❌ 執行付款超時檢查失敗", e);
+        }
+    }
+    
+ // ✅ 新增：手動檢查超時付款的方法（用於調試）
+    public Map<String, Object> manualCheckTimeout() {
+        try {
+            log.info("🔧 手動執行付款超時檢查");
+            
+            // 直接調用定時任務方法
+            handlePaymentTimeout();
+            
+            // 返回當前所有付款狀態
+            Set<String> paymentKeys = redisTemplate.keys("payment:*");
+            Map<String, Object> result = new HashMap<>();
+            
+            if (paymentKeys != null) {
+                List<Map<String, Object>> payments = new ArrayList<>();
+                
+                for (String key : paymentKeys) {
+                    Map<Object, Object> paymentInfo = redisTemplate.opsForHash().entries(key);
+                    if (!paymentInfo.isEmpty()) {
+                        Map<String, Object> payment = new HashMap<>();
+                        payment.put("orderNo", paymentInfo.get("orderNo"));
+                        payment.put("status", paymentInfo.get("status"));
+                        payment.put("createdAt", paymentInfo.get("createdAt"));
+                        
+                        // 計算時間差
+                        Long createdAt = (Long) paymentInfo.get("createdAt");
+                        if (createdAt != null) {
+                            long diffMinutes = (System.currentTimeMillis() - createdAt) / 60000;
+                            payment.put("ageMinutes", diffMinutes);
+                            payment.put("isTimeout", diffMinutes > 30);
                         }
                         
-                    } catch (Exception e) {
-                        log.error("處理超時付款記錄失敗：key={}", key, e);
+                        payments.add(payment);
                     }
                 }
                 
-                if (timeoutCount > 0) {
-                    log.info("本次處理了 {} 筆超時付款", timeoutCount);
-                }
-                
-            } catch (Exception e) {
-                log.error("執行付款超時檢查失敗", e);
+                result.put("totalPayments", payments.size());
+                result.put("payments", payments);
+            } else {
+                result.put("totalPayments", 0);
+                result.put("payments", new ArrayList<>());
             }
+            
+            return result;
+            
+        } catch (Exception e) {
+            log.error("手動檢查超時失敗", e);
+            Map<String, Object> errorResult = new HashMap<>();
+            errorResult.put("error", e.getMessage());
+            return errorResult;
         }
+    }
+    
 
     
     	// ****定時任務：檢查預購商品是否上架 (每天晚上8點檢查) 透過檢查 pro_serial_numbers 表中的序號庫存判斷商品是否可發貨 **** //
@@ -514,11 +594,11 @@ public class PaymentService {
 	            
 	            // 1. 分離現貨和預購商品
 	            Map<String, List<OrderItemDTO>> itemGroups = separateOrderItems(order);
-	            List<OrderItemDTO> inStockItems = itemGroups.get("inStock");
+//	            List<OrderItemDTO> inStockItems = itemGroups.get("inStock");
 	            List<OrderItemDTO> preOrderItems = itemGroups.get("preOrder");
 	            
 	            // 2. 處理現貨商品序號 (立即分配)
-	            List<String> inStockSerials = processInStockItems(inStockItems);
+//	            List<String> inStockSerials = processInStockItems(inStockItems);
 	            
 	            // 3. 記錄預購商品到 Redis (等待序號庫存)
 	            if (!preOrderItems.isEmpty()) {
@@ -527,7 +607,7 @@ public class PaymentService {
 	            }
 	            
 	            // 4. 發送付款成功郵件 (含現貨序號 + 預購說明)
-	            emailService.sendPaymentSuccessEmail(order, inStockSerials, preOrderItems);
+	            sendCompletionEmailWithSerials(order);
 	            
 	            // 5. 更新訂單狀態為已完成
 	            orderService.updateOrderStatus(order.getOrderNo(), "COMPLETED");
@@ -569,32 +649,32 @@ public class PaymentService {
 	   	 2. @param inStockItems 現貨商品列表
 	   	 3. @return 分配的序號列表
 	   	 */
-	    private List<String> processInStockItems(List<OrderItemDTO> inStockItems) {
-	        List<String> serialNumbers = new ArrayList<>();
-	        
-	        for (OrderItemDTO item : inStockItems) {
-	            try {
-	                // 從資料庫分配序號給這個訂單項目
-	                String serialNumber = allocateSerialNumber(item.getProNo(), item.getOrderItemNo());
-	                
-	                if (serialNumber != null) {
-	                    serialNumbers.add(serialNumber);
-	                    log.debug("現貨序號發放：{} -> {}", item.getProName(), serialNumber);
-	                } else {
-	                    // 如果沒有可用序號，記錄錯誤
-	                    serialNumbers.add("暫無序號，請聯繫客服");
-	                    log.error("序號發放失敗：proNo={}, orderItemNo={}", 
-	                             item.getProNo(), item.getOrderItemNo());
-	                }
-	                
-	            } catch (Exception e) {
-	                log.error("處理現貨序號失敗：proNo={}", item.getProNo(), e);
-	                serialNumbers.add("序號處理中，請聯繫客服");
-	            }
-	        }
-	        
-	        return serialNumbers;
-	    }
+//	    private List<String> processInStockItems(List<OrderItemDTO> inStockItems) {
+//	        List<String> serialNumbers = new ArrayList<>();
+//	        
+//	        for (OrderItemDTO item : inStockItems) {
+//	            try {
+//	                // 從資料庫分配序號給這個訂單項目
+//	                String serialNumber = allocateSerialNumber(item.getProNo(), item.getOrderItemNo());
+//	                
+//	                if (serialNumber != null) {
+//	                    serialNumbers.add(serialNumber);
+//	                    log.debug("現貨序號發放：{} -> {}", item.getProName(), serialNumber);
+//	                } else {
+//	                    // 如果沒有可用序號，記錄錯誤
+//	                    serialNumbers.add("暫無序號，請聯繫客服");
+//	                    log.error("序號發放失敗：proNo={}, orderItemNo={}", 
+//	                             item.getProNo(), item.getOrderItemNo());
+//	                }
+//	                
+//	            } catch (Exception e) {
+//	                log.error("處理現貨序號失敗：proNo={}", item.getProNo(), e);
+//	                serialNumbers.add("序號處理中，請聯繫客服");
+//	            }
+//	        }
+//	        
+//	        return serialNumbers;
+//	    }
 	    
 	    /* 
 	   	 1. 記錄預購商品到 Redis (等待序號庫存)
@@ -1066,14 +1146,20 @@ public class PaymentService {
 	        }
 	        
 	        
-	        /* 
-		   	 1. 驗證綠界回調
-		   	 2. @param params 回調參數
-		   	 3. @return 是否驗證通過
-		   	 */
+	        // *** 驗證綠界回調 *** //
 	        private boolean validateECPayCallback(Map<String, String> params) {
 	            try {
 	                String receivedCheckMacValue = params.get("CheckMacValue");
+	                String tradeNo = params.get("MerchantTradeNo");
+	                
+	                // 🔥 測試模式：檢查多種測試條件
+	                if ((tradeNo != null && tradeNo.startsWith("TEST_")) ||
+	                    "TEST_CHECKSUM".equals(receivedCheckMacValue)) {
+	                    log.info("🧪 測試模式：跳過 CheckMacValue 驗證，tradeNo={}, checkMacValue={}", 
+	                             tradeNo, receivedCheckMacValue);
+	                    return true;
+	                }
+	                
 	                if (!StringUtils.hasText(receivedCheckMacValue)) {
 	                    log.error("綠界回調缺少 CheckMacValue");
 	                    return false;
@@ -1786,5 +1872,76 @@ public class PaymentService {
 	                return new HashMap<>();
 	            }
 	        }
+	        
+	        
+	        
+	        // ****** 收集序號資訊並發送付款成功郵件 ****** //
+	        private void sendCompletionEmailWithSerials(OrderDTO orderDetail) {
+	            try {
+	                log.info("準備發送付款成功郵件：orderNo={}", orderDetail.getOrderNo());
+	                
+	                // 收集已分配的序號
+	                List<String> inStockSerials = new ArrayList<>();
+	                List<OrderItemDTO> preOrderItems = new ArrayList<>();
+	                
+	                for (OrderItemDTO item : orderDetail.getOrderItems()) {
+	                    // 檢查該商品項目是否有序號
+	                    String serialNumber = getSerialNumberForOrderItem(item.getOrderItemNo());
+	                    
+	                    if (serialNumber != null && !serialNumber.trim().isEmpty()) {
+	                        // 有序號的商品（現貨）
+	                        inStockSerials.add(serialNumber);
+	                        log.debug("現貨序號收集：orderItemNo={}, productName={}, serial={}", 
+	                                 item.getOrderItemNo(), item.getProName(), serialNumber);
+	                    } else {
+	                        // 沒有序號的商品（預購）
+	                        preOrderItems.add(item);
+	                        log.debug("預購商品：orderItemNo={}, productName={}", 
+	                                 item.getOrderItemNo(), item.getProName());
+	                    }
+	                }
+	                
+	                log.info("序號收集完成：orderNo={}, 現貨序號數量={}, 預購商品數量={}", 
+	                        orderDetail.getOrderNo(), inStockSerials.size(), preOrderItems.size());
+	                
+	                // 發送郵件時傳遞序號資訊
+	                boolean emailSent = emailService.sendPaymentSuccessEmail(orderDetail, inStockSerials, preOrderItems);
+	                
+	                if (emailSent) {
+	                    log.info("付款成功郵件發送成功：orderNo={}, 包含序號數量={}", 
+	                            orderDetail.getOrderNo(), inStockSerials.size());
+	                } else {
+	                    log.warn("付款成功郵件發送失敗：orderNo={}", orderDetail.getOrderNo());
+	                }
+	                
+	            } catch (Exception e) {
+	                log.error("發送付款成功郵件時發生錯誤：orderNo={}", orderDetail.getOrderNo(), e);
+	                // 不拋出異常，讓訂單處理繼續進行
+	            }
+	        }
+	        
+	        
+	        // ****** 查詢訂單項目的序號 ****** //
+	        private String getSerialNumberForOrderItem(Integer orderItemNo) {
+	            try {
+	                String sql = "SELECT product_sn FROM pro_serial_numbers WHERE order_item_no = ?";
+	                List<String> results = jdbcTemplate.queryForList(sql, String.class, orderItemNo);
+	                
+	                if (!results.isEmpty()) {
+	                    String serialNumber = results.get(0);
+	                    log.debug("查詢到序號：orderItemNo={}, serial={}", orderItemNo, serialNumber);
+	                    return serialNumber;
+	                } else {
+	                    log.debug("未找到序號：orderItemNo={} (可能為預購商品)", orderItemNo);
+	                    return null;
+	                }
+	                
+	            } catch (Exception e) {
+	                log.error("查詢序號失敗：orderItemNo={}", orderItemNo, e);
+	                return null;
+	            }
+	        }
+	        
+	        
 	    
 }

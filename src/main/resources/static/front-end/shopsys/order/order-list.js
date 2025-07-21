@@ -93,22 +93,22 @@
 
 		
         // *** 處理篩選變更 *** //
-        handleFilterChange(status) {
-            this.currentFilter = status;
-            
-            // 更新按鈕狀態
-            this.elements.filterButtons.forEach(btn => {
-                btn.classList.remove('btn-primary', 'active');
-                btn.classList.add('btn-outline-' + this.getButtonColor(btn.dataset.status));
-            });
-            
-            const activeBtn = document.querySelector(`[data-status="${status}"]`);
-            activeBtn.classList.remove('btn-outline-' + this.getButtonColor(status));
-            activeBtn.classList.add('btn-primary', 'active');
+		handleFilterChange(status) {
+		    this.currentFilter = status;
+		    
+		    // 更新按鈕狀態
+		    this.elements.filterButtons.forEach(btn => {
+		        btn.classList.remove('btn-primary', 'active');
+		        btn.classList.add('btn-outline-' + this.getButtonColor(btn.dataset.status));
+		    });
+		    
+		    const activeBtn = document.querySelector(`[data-status="${status}"]`);
+		    activeBtn.classList.remove('btn-outline-' + this.getButtonColor(status));
+		    activeBtn.classList.add('btn-primary', 'active');
 
-            this.applyFiltersAndSort();
-            this.renderOrders();
-        },
+		    this.applyFiltersAndSort();
+		    this.renderOrders();
+		},
 
 		
         // *** 處理排序變更 *** //
@@ -120,35 +120,37 @@
 
 		
         // *** 應用篩選和排序 *** //
-        applyFiltersAndSort() {
-            // 篩選
-            if (this.currentFilter === 'all') {
-                this.filteredOrders = [...this.allOrders];
-            } else {
-                this.filteredOrders = this.allOrders.filter(order => 
-                    order.orderStatus === this.currentFilter
-                );
-            }
+		applyFiltersAndSort() {
+		    // 篩選
+		    if (this.currentFilter === 'all') {
+		        this.filteredOrders = [...this.allOrders];
+		    } else {
+		        this.filteredOrders = this.allOrders.filter(order => {
+		            // 修正：統一狀態比較邏輯
+		            const normalizedOrderStatus = order.orderStatus.toUpperCase();
+		            const normalizedFilterStatus = this.currentFilter.toUpperCase();
+		            return normalizedOrderStatus === normalizedFilterStatus;
+		        });
+		    }
 
-            // 排序
-            this.filteredOrders.sort((a, b) => {
-                switch (this.currentSort) {
-                    case 'newest':
-                        return new Date(b.orderDatetime) - new Date(a.orderDatetime);
-                    case 'oldest':
-                        return new Date(a.orderDatetime) - new Date(b.orderDatetime);
-                    case 'amount-high':
-                        return b.totalPrice - a.totalPrice;
-                    case 'amount-low':
-                        return a.totalPrice - b.totalPrice;
-                    default:
-                        return 0;
-                }
-            });
+		    // 排序邏輯保持不變...
+		    this.filteredOrders.sort((a, b) => {
+		        switch (this.currentSort) {
+		            case 'newest':
+		                return new Date(b.orderDatetime) - new Date(a.orderDatetime);
+		            case 'oldest':
+		                return new Date(a.orderDatetime) - new Date(b.orderDatetime);
+		            case 'amount-high':
+		                return b.totalPrice - a.totalPrice;
+		            case 'amount-low':
+		                return a.totalPrice - b.totalPrice;
+		            default:
+		                return 0;
+		        }
+		    });
 
-            // 更新顯示資訊
-            this.updateDisplayInfo();
-        },
+		    this.updateDisplayInfo();
+		},
 
 		
         // *** 更新顯示資訊 *** //
@@ -254,78 +256,84 @@
 
 		
         // *** 取得訂單狀態描述 (針對虛擬商品) *** //
-        getOrderStatusDescription(status) {
-            const descriptions = {
-                'PENDING': '<div class="alert alert-warning alert-sm mt-2 mb-0"><i class="bi bi-clock me-1"></i>等待您完成付款</div>',
-                'PAYING': '<div class="alert alert-info alert-sm mt-2 mb-0"><i class="bi bi-hourglass-split me-1"></i>付款處理中，請稍候</div>',
-                'PROCESSING': '<div class="alert alert-info alert-sm mt-2 mb-0"><i class="bi bi-gear me-1"></i>付款成功，正在為您準備序號</div>',
-                'SHIPPED': '<div class="alert alert-success alert-sm mt-2 mb-0"><i class="bi bi-envelope-check me-1"></i>遊戲序號已發送至您的信箱</div>',
-                'COMPLETED': '<div class="alert alert-success alert-sm mt-2 mb-0"><i class="bi bi-check-circle me-1"></i>訂單完成，感謝您的購買</div>',
-                'FAILED': '<div class="alert alert-danger alert-sm mt-2 mb-0"><i class="bi bi-exclamation-triangle me-1"></i>付款或處理失敗，可重新嘗試</div>',
-                'CANCELLED': '<div class="alert alert-secondary alert-sm mt-2 mb-0"><i class="bi bi-x-circle me-1"></i>訂單已取消</div>'
-            };
-            return descriptions[status] || '';
-        },
+		getOrderStatusDescription(status) {
+		    // 修正：統一轉為大寫處理
+		    const normalizedStatus = status.toUpperCase();
+		    
+		    const descriptions = {
+		        'PENDING': '<div class="alert alert-warning alert-sm mt-2 mb-0"><i class="bi bi-clock me-1"></i>等待您完成付款</div>',
+		        'PAYING': '<div class="alert alert-info alert-sm mt-2 mb-0"><i class="bi bi-hourglass-split me-1"></i>付款處理中，請稍候</div>',
+		        'PROCESSING': '<div class="alert alert-info alert-sm mt-2 mb-0"><i class="bi bi-gear me-1"></i>付款成功，正在為您準備序號</div>',
+		        'SHIPPED': '<div class="alert alert-success alert-sm mt-2 mb-0"><i class="bi bi-envelope-check me-1"></i>遊戲序號已發送至您的信箱</div>',
+		        'COMPLETED': '<div class="alert alert-success alert-sm mt-2 mb-0"><i class="bi bi-check-circle me-1"></i>訂單完成，感謝您的購買</div>',
+		        'FAILED': '<div class="alert alert-danger alert-sm mt-2 mb-0"><i class="bi bi-exclamation-triangle me-1"></i>付款或處理失敗，可重新嘗試</div>',
+		        'CANCELLED': '<div class="alert alert-secondary alert-sm mt-2 mb-0"><i class="bi bi-x-circle me-1"></i>訂單已取消</div>'
+		    };
+		    return descriptions[normalizedStatus] || '';
+		},
 
 		
         // *** 根據訂單狀態取得對應的操作按鈕 *** //
-        getOrderActionButtons(order) {
-            switch (order.orderStatus) {
-                case 'PENDING': // 等待付款
-                    return `
-                        <button class="btn btn-warning btn-sm payment-btn" 
-                                data-order-no="${order.orderNo}">
-                            <i class="bi bi-credit-card me-1"></i>立即付款
-                        </button>
-                    `;
-                case 'PAYING': // 付款處理中
-                    return `
-                        <button class="btn btn-primary btn-sm payment-status-btn" 
-                                data-order-no="${order.orderNo}">
-                            <i class="bi bi-hourglass-split me-1"></i>查看付款狀態
-                        </button>
-                    `;
-                case 'PROCESSING': // 處理中 (序號準備中)
-                    return `
-                        <span class="text-info">
-                            <i class="bi bi-gear me-1"></i>序號準備中
-                        </span>
-                    `;
-                case 'SHIPPED': // 已出貨 (序號已發送)
-                    return `
-                        <button class="btn btn-info btn-sm email-check-btn" 
-                                data-order-no="${order.orderNo}">
-                            <i class="bi bi-envelope-check me-1"></i>查看序號
-                        </button>
-                    `;
-                case 'COMPLETED': // 已完成
-                    return `
-                        <button class="btn btn-success btn-sm reorder-btn" 
-                                data-order-no="${order.orderNo}">
-                            <i class="bi bi-arrow-repeat me-1"></i>再次購買
-                        </button>
-                    `;
-                case 'FAILED': // 處理失敗
-                    return `
-                        <button class="btn btn-outline-warning btn-sm payment-retry-btn" 
-                                data-order-no="${order.orderNo}">
-                            <i class="bi bi-arrow-clockwise me-1"></i>重新付款
-                        </button>
-                        <button class="btn btn-outline-danger btn-sm contact-support-btn mt-1" 
-                                data-order-no="${order.orderNo}">
-                            <i class="bi bi-headset me-1"></i>聯繫客服
-                        </button>
-                    `;
-                case 'CANCELLED': // 已取消
-                    return `
-                        <span class="text-muted">
-                            <i class="bi bi-x-circle me-1"></i>訂單已取消
-                        </span>
-                    `;
-                default:
-                    return '';
-            }
-        },
+		getOrderActionButtons(order) {
+		    // 修正：統一狀態判斷
+		    const normalizedStatus = order.orderStatus.toUpperCase();
+		    
+		    switch (normalizedStatus) {
+		        case 'PENDING': // 等待付款
+		            return `
+		                <button class="btn btn-warning btn-sm payment-btn" 
+		                        data-order-no="${order.orderNo}">
+		                    <i class="bi bi-credit-card me-1"></i>立即付款
+		                </button>
+		            `;
+		        case 'PAYING': // 付款處理中
+		            return `
+		                <button class="btn btn-primary btn-sm payment-status-btn" 
+		                        data-order-no="${order.orderNo}">
+		                    <i class="bi bi-hourglass-split me-1"></i>查看付款狀態
+		                </button>
+		            `;
+		        case 'PROCESSING': // 處理中 (序號準備中)
+		            return `
+		                <span class="text-info">
+		                    <i class="bi bi-gear me-1"></i>序號準備中
+		                </span>
+		            `;
+		        case 'SHIPPED': // 已出貨 (序號已發送)
+		            return `
+		                <button class="btn btn-info btn-sm email-check-btn" 
+		                        data-order-no="${order.orderNo}">
+		                    <i class="bi bi-envelope-check me-1"></i>查看序號
+		                </button>
+		            `;
+		        case 'COMPLETED': // 已完成
+		            return `
+		                <button class="btn btn-success btn-sm reorder-btn" 
+		                        data-order-no="${order.orderNo}">
+		                    <i class="bi bi-arrow-repeat me-1"></i>再次購買
+		                </button>
+		            `;
+		        case 'FAILED': // 處理失敗
+		            return `
+		                <button class="btn btn-outline-warning btn-sm payment-retry-btn" 
+		                        data-order-no="${order.orderNo}">
+		                    <i class="bi bi-arrow-clockwise me-1"></i>重新付款
+		                </button>
+		                <button class="btn btn-outline-danger btn-sm contact-support-btn mt-1" 
+		                        data-order-no="${order.orderNo}">
+		                    <i class="bi bi-headset me-1"></i>聯繫客服
+		                </button>
+		            `;
+		        case 'CANCELLED': // 已取消
+		            return `
+		                <span class="text-muted">
+		                    <i class="bi bi-x-circle me-1"></i>訂單已取消
+		                </span>
+		            `;
+		        default:
+		            return '';
+		    }
+		},
 
 		
         // *** 處理訂單相關操作 *** //
