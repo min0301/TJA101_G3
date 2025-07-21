@@ -1,4 +1,4 @@
-// allForum.js (SPA功能 + 整合聊天室 + 文章按讚功能 + 新增文章功能)
+// allForum.js (SPA功能 + 整合聊天室 + 文章按讚功能 + 新增文章功能 + 文章檢舉功能)
 
 // --- 全域變數 ---
 // 可變：變數名稱 dynamicContentContainer 可依需求自行命名，但需確保與 HTML 中的 ID 一致。
@@ -11,7 +11,8 @@ const dynamicContentContainer = document.getElementById('dynamic-content-contain
  * 頁面載入完成後執行的主函式
  */
 document.addEventListener('DOMContentLoaded', () => {
-    populateReportTypes();
+    populateReportTypes(); // 載入檢舉類型
+    setupReportArticleModal(); // 初始化文章檢舉 Modal
 
     const urlParams = new URLSearchParams(window.location.search);
     const postId = urlParams.get('postId');
@@ -604,6 +605,11 @@ function renderPostDetail(post, memberPostLikeStatus, isCollected) {
                         data-post-id="${currentPostId}" data-is-collected="${isCollected}">
                     <i class="bi bi-bookmark-heart-fill"></i> ${collectBtnText}
                 </button>
+                <button class="btn btn-lg btn-outline-warning report-article-btn"
+                        data-bs-toggle="modal" data-bs-target="#reportArticleModal"
+                        data-post-id="${currentPostId}">
+                    <i class="bi bi-flag"></i> 檢舉文章
+                </button>
             </div>
             <img src="${postImageUrl}" class="img-fluid rounded post-detail-main-img" alt="${post.postTitle}" onerror="this.onerror=null;this.src='${fallbackImageUrl}';">
             <div class="fs-5 lh-lg">${post.postCon}</div>
@@ -631,6 +637,13 @@ function renderPostDetail(post, memberPostLikeStatus, isCollected) {
     if (collectPostButton) {
         collectPostButton.removeEventListener('click', handlePostCollect); // 避免重複綁定
         collectPostButton.addEventListener('click', handlePostCollect);
+    }
+
+    // 新增文章檢舉按鈕事件綁定
+    const reportArticleButton = dynamicContentContainer.querySelector('.report-article-btn');
+    if (reportArticleButton) {
+        reportArticleButton.removeEventListener('click', handleReportArticleButtonClick); // 避免重複綁定
+        reportArticleButton.addEventListener('click', handleReportArticleButtonClick);
     }
 }
 
@@ -815,6 +828,21 @@ function setupEventListeners() {
     if (reportForm) {
         reportForm.addEventListener('submit', handleReportSubmit);
     }
+
+    // 文章檢舉 Modal 的事件監聽器
+    const reportArticleModalElement = document.getElementById('reportArticleModal');
+    if (reportArticleModalElement) {
+        reportArticleModalElement.addEventListener('show.bs.modal', (event) => {
+            const button = event.relatedTarget;
+            const postId = button.dataset.postId;
+            reportArticleModalElement.querySelector('#report-article-id').value = postId;
+        });
+    }
+
+    const reportArticleForm = document.getElementById('report-article-form');
+    if (reportArticleForm) {
+        reportArticleForm.addEventListener('submit', handleArticleReportSubmit);
+    }
 }
 
 /**
@@ -932,7 +960,7 @@ async function handleLikeAction(commentId, action, buttonElement) {
 }
 
 /**
- * 處理檢舉表單提交
+ * 處理留言檢舉表單提交
  */
 async function handleReportSubmit(event) {
     event.preventDefault();
@@ -977,26 +1005,90 @@ async function handleReportSubmit(event) {
 }
 
 /**
+ * 處理文章檢舉表單提交
+ */
+async function handleArticleReportSubmit(event) {
+    event.preventDefault();
+    const token = localStorage.getItem('jwt');
+    if (!token) {
+        alert('請先登入！');
+        return;
+    }
+
+    const form = event.target;
+    const postId = form.querySelector('#report-article-id').value;
+    const reportTypeId = form.querySelector('#report-article-type').value;
+    if (!reportTypeId) {
+        alert('請選擇檢舉原因！');
+        return;
+    }
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+
+    try {
+        const response = await fetch('/api/posts/report', { // 對應 ArticleReportController 的 POST 請求
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({
+                postNo: parseInt(postId, 10),
+                reportTypeNo: parseInt(reportTypeId, 10)
+            })
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || '文章檢舉提交失敗');
+        }
+        alert('文章檢舉已送出，感謝您的回報！');
+        bootstrap.Modal.getInstance(document.getElementById('reportArticleModal')).hide();
+    } catch (error) {
+        console.error('文章檢舉失敗:', error);
+        alert(`文章檢舉失敗：${error.message}`);
+    } finally {
+        submitBtn.disabled = false;
+    }
+}
+
+/**
  * 動態載入檢舉類型到 Modal
  */
 async function populateReportTypes() {
-    const selectElement = document.getElementById('report-type');
-    if (!selectElement) return;
+    const selectElementComment = document.getElementById('report-type');
+    const selectElementArticle = document.getElementById('report-article-type'); // 新增文章檢舉的下拉選單
+
+    if (!selectElementComment && !selectElementArticle) return;
 
     try {
         const response = await fetch('/api/report-types');
         if (!response.ok) throw new Error('無法獲取檢舉類型');
         const reportTypes = await response.json();
-        selectElement.innerHTML = '<option value="" selected disabled>請選擇檢舉原因...</option>';
-        reportTypes.forEach(type => {
-            const option = document.createElement('option');
-            option.value = type.id;
-            option.textContent = type.rpiType;
-            selectElement.appendChild(option);
-        });
+
+        // 填充留言檢舉下拉選單
+        if (selectElementComment) {
+            selectElementComment.innerHTML = '<option value="" selected disabled>請選擇檢舉原因...</option>';
+            reportTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type.id;
+                option.textContent = type.rpiType;
+                selectElementComment.appendChild(option);
+            });
+        }
+
+        // 填充文章檢舉下拉選單
+        if (selectElementArticle) {
+            selectElementArticle.innerHTML = '<option value="" selected disabled>請選擇檢舉原因...</option>';
+            reportTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type.id;
+                option.textContent = type.rpiType;
+                selectElementArticle.appendChild(option);
+            });
+        }
+
     } catch (error) {
         console.error('載入檢舉類型失敗:', error);
-        selectElement.innerHTML += '<option value="" disabled>無法載入選項</option>';
+        if (selectElementComment) selectElementComment.innerHTML += '<option value="" disabled>無法載入選項</option>';
+        if (selectElementArticle) selectElementArticle.innerHTML += '<option value="" disabled>無法載入選項</option>';
     }
 }
 
@@ -1337,5 +1429,63 @@ async function getCategoryDefaultImageUrlFrontend(categoryId) {
     } catch (error) {
         console.error('獲取類別預設圖片URL失敗:', error);
         return '';
+    }
+}
+
+// --- 文章檢舉 Modal 相關 ---
+let reportArticleModal = null;
+
+/**
+ * 初始化文章檢舉 Modal
+ */
+function setupReportArticleModal() {
+    let modalContainer = document.getElementById('reportArticleModalContainer');
+    if (!modalContainer) {
+        modalContainer = document.createElement('div');
+        modalContainer.id = 'reportArticleModalContainer';
+        document.body.appendChild(modalContainer);
+    }
+
+    const modalHtml = `
+        <div class="modal fade" id="reportArticleModal" tabindex="-1" aria-labelledby="reportArticleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form id="report-article-form">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="reportArticleModalLabel">檢舉文章</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" id="report-article-id">
+
+                            <div class="mb-3">
+                                <label for="report-article-type" class="form-label">檢舉原因：</label>
+                                <select class="form-select" id="report-article-type" required>
+                                    <option value="" selected disabled>請選擇檢舉原因...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-danger">送出檢舉</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+    modalContainer.insertAdjacentHTML('beforeend', modalHtml);
+    reportArticleModal = document.getElementById('reportArticleModal');
+}
+
+/**
+ * 處理檢舉文章按鈕點擊事件，設定 Modal 中的文章 ID
+ */
+function handleReportArticleButtonClick(event) {
+    const button = event.currentTarget;
+    const postId = button.dataset.postId;
+    const reportArticleModalElement = document.getElementById('reportArticleModal');
+    if (reportArticleModalElement) {
+        reportArticleModalElement.querySelector('#report-article-id').value = postId;
     }
 }

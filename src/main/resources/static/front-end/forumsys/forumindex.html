@@ -143,6 +143,33 @@
         </div>
     </div>
 </div>
+<!-- 文章檢舉 Modal -->
+<div class="modal fade" id="reportArticleModal" tabindex="-1" aria-labelledby="reportArticleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="report-article-form">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportArticleModalLabel">檢舉文章</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="report-article-id">
+
+                    <div class="mb-3">
+                        <label for="report-article-type" class="form-label">檢舉原因：</label>
+                        <select class="form-select" id="report-article-type" required>
+                            <option value="" selected disabled>請選擇檢舉原因...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger">送出檢舉</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script src="../../assets/vendors/jquery/jquery.min.js"></script>
 <script src="../../assets/vendors/bootstrap/bootstrap.bundle.js"></script>
