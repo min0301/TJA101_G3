@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商品查看</title>
+  <style>
+    /* --- 核心修改：樣式與 allOrder.html 及主模板同步 --- */
+    .view-product-container {
+      width: 100%;
+      max-width: 900px; /* 表單頁面使用較小的最大寬度 */
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* 頁面標題，與 allOrder.html 對齊 */
+    .page-title-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .page-title-header h2 {
+      font-family: 'Karla', sans-serif; /* 使用主模板字體 */
+      font-size: 24px;
+      color: var(--text-color);
+      font-weight: 700;
+      margin: 0;
+    }
+
+    /* 表單容器 */
+    .form-container {
+      background: var(--component-bg);
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* 表單群組 */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 14px;
+    }
+
+    /* 唯讀欄位樣式 */
+    .form-group .readonly-field {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text-color);
+      background: #f8f9fa; /* 淺灰色背景表示只讀 */
+      cursor: not-allowed;
+      opacity: 0.8;
+      min-height: 20px;
+      box-sizing: border-box;
+    }
+
+    .form-group .readonly-textarea {
+      min-height: 100px;
+      resize: none;
+      line-height: 1.5;
+      white-space: pre-wrap; /* 保持換行格式 */
+    }
+
+    /* 圖片預覽 */
+    .form-group .image-preview {
+      max-width: 300px;
+      max-height: 250px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      display: block;
+    }
+
+    /* 預覽提示文字 */
+    .preview-text {
+      margin-top: 10px;
+      margin-bottom: 5px;
+      font-size: 13px;
+      color: var(--text-color);
+      opacity: 0.8;
+    }
+
+    /* 按鈕群組 */
+    .button-group {
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* 操作按鈕，與其他頁面對齊 */
+    .action-btn {
+      display: inline-block;
+      text-decoration: none;
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .action-btn:hover {
+      background: var(--brand-green-light);
+      color: var(--brand-green);
+      border-color: var(--brand-green);
+    }
+
+    /* 主要按鈕樣式 */
+    .action-btn.btn-home {
+      background-color: var(--brand-green);
+      border-color: var(--brand-green);
+      color: white;
+      font-weight: bold;
+    }
+
+    .action-btn.btn-home:hover {
+      background-color: var(--brand-green-hover);
+      border-color: var(--brand-green-hover);
+    }
+
+    .action-btn.btn-edit {
+      background-color: #17a2b8;
+      border-color: #17a2b8;
+      color: white;
+      font-weight: bold;
+    }
+
+    .action-btn.btn-edit:hover {
+      background-color: #138496;
+      border-color: #117a8b;
+    }
+
+    /* 錯誤訊息 */
+    #error-message {
+      color: #e74c3c;
+      background-color: #fbecec;
+      border: 1px solid #e74c3c;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      display: none;
+      font-weight: 500;
+    }
+
+    #error-message::before {
+      content: '⚠️ ';
+      margin-right: 8px;
+    }
+
+    /* 載入覆蓋層 */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid var(--border-color);
+      border-top: 5px solid var(--brand-green);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 狀態標籤樣式 */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .status-badge.released {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status-badge.preorder {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+
+    .market-badge.online {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .market-badge.offline {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      .view-product-container {
+        padding: 15px;
+      }
+
+      .form-container {
+        padding: 20px;
+      }
+
+      .button-group {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .action-btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      .page-title-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+
+      .form-group .image-preview {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="view-product-container">
+  <div class="page-title-header">
+    <h2><i class="bi bi-eye item-icon"></i>商品查看</h2>
+    <a href="AdmHomePage.html" class="action-btn btn-home">回管理首頁</a>
+  </div>
+
+  <div id="error-message"></div>
+
+  <div class="form-container">
+    <div id="view-form">
+      <input type="hidden" id="productId">
+
+      <div class="form-group">
+        <label>商品名稱</label>
+        <div class="readonly-field" id="product_name"></div>
+      </div>
+
+      <div class="form-group">
+        <label>價格</label>
+        <div class="readonly-field" id="product_price"></div>
+      </div>
+
+      <div class="form-group">
+        <label>狀態</label>
+        <div class="readonly-field" id="product_status"></div>
+      </div>
+      
+      <div class="form-group">
+        <label>版本</label>
+        <div class="readonly-field" id="product_version"></div>
+      </div>
+      
+      <div class="form-group">
+        <label>發售日</label>
+        <div class="readonly-field" id="product_date"></div>
+      </div>
+      
+      <div class="form-group">
+        <label>商品圖片</label>
+        <p class="preview-text">商品圖片：</p>
+        <img id="image_preview" src="" alt="商品圖片" class="image-preview">
+      </div>
+      
+       <div class="form-group">
+        <label>內容物</label>
+        <div class="readonly-field readonly-textarea" id="product_include"></div>
+      </div>
+      
+      <div class="form-group">
+        <label>描述</label>
+        <div class="readonly-field readonly-textarea" id="product_details"></div>
+      </div>
+    
+      <div class="form-group">
+        <label>平台</label>
+        <div class="readonly-field" id="product_malltag"></div>
+      </div>
+       
+      <div class="form-group">
+        <label>上下架狀態</label>
+        <div class="readonly-field" id="product_ismarket"></div>
+      </div>
+      
+      <div class="button-group">
+        <a href="#" onclick="event.preventDefault(); loadExternalPage('../shopsys/product/listAllProduct.html')" class="action-btn">返回列表</a>
+        <a href="#" onclick="event.preventDefault(); editProduct()" class="action-btn btn-edit">編輯商品</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 載入覆蓋層 -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<script>
+	//使用 IIFE (Immediately Invoked Function Expression) 避免污染全域範疇
+	(function() {
+	  // --- 變數定義區 ---
+	  const productIdInput = document.getElementById('productId');
+	  const nameDiv = document.getElementById('product_name');
+	  const priceDiv = document.getElementById('product_price');
+	  const statusDiv = document.getElementById('product_status');
+	  const versionDiv = document.getElementById('product_version');
+	  const dateDiv = document.getElementById('product_date');
+	  const imagePreview = document.getElementById('image_preview');
+	  const detailsDiv = document.getElementById('product_details');
+	  const includeDiv = document.getElementById('product_include');
+	  const malltagDiv = document.getElementById('product_malltag');
+	  const ismarketDiv = document.getElementById('product_ismarket');
+	  const errorMessageDiv = document.getElementById('error-message');
+	  const loadingOverlay = document.getElementById('loadingOverlay');
+	
+	  // 從 URL 讀取要查看的商品 ID
+	  const contentArea = document.getElementById('content-area');
+	  const pageParamsString = contentArea ? contentArea.getAttribute('data-page-params') : '';
+	  const urlParams = new URLSearchParams(pageParamsString);
+	  let productId = urlParams.get('id');
+	
+	  // --- 核心功能函式 ---
+
+	  /**
+	   * @description 檢查商品ID是否存在
+	   */
+	  function validateProductId() {
+	    if (!productId) {
+	      showError("錯誤：URL中缺少商品ID。");
+	      return false;
+	    }
+	    return true;
+	  }
+
+	  /**
+	   * @description 顯示載入狀態
+	   */
+	   function showLoading() {
+	    if (loadingOverlay) {
+	      loadingOverlay.style.display = 'flex';
+	    }
+	  }
+
+	  /**
+	   * @description 隱藏載入狀態
+	   */
+	   function hideLoading() {
+	    if (loadingOverlay) {
+	      loadingOverlay.style.display = 'none';
+	    }
+	  }
+
+	  /**
+	   * @description 初始化頁面，獲取所有必要資料
+	   */
+	  async function initializePage() {
+	    if (!validateProductId()) return;
+
+	    try {
+	      showLoading();
+	      
+	      // 使用 Promise.all 平行發送請求，提高效率
+	      const [malltagData, productData] = await Promise.all([
+	        fetch(`/api/malltag`).then(handleResponse),
+	        fetch(`/api/product/${productId}`).then(handleResponse)
+	      ]);
+
+	      // 填充內容
+	      populateView(productData, malltagData);
+
+	    } catch (error) {
+	      showError(`資料載入失敗: ${error.message}`);
+	    } finally {
+	      hideLoading();
+	    }
+	  }
+
+	  /**
+	   * @description 統一處理 fetch 的回應
+	   */
+	  function handleResponse(response) {
+	    if (!response.ok) {
+	      throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
+	    }
+	    return response.json();
+	  }
+
+	  /**
+	   * @description 找到對應的平台名稱
+	   */
+	  function getMallTagName(malltagData, mallTagId) {
+	    const malltag = malltagData.find(tag => Number(tag.id) === Number(mallTagId));
+	    return malltag ? malltag.mallTagName : '未知平台';
+	  }
+
+	  /**
+	   * @description 將商品資料顯示在頁面上
+	   */
+	  function populateView(data, malltagData) {
+	    productIdInput.value = data.id;
+	    nameDiv.textContent = data.proName || '無';
+	    
+	    // 格式化價格
+	    if (data.proPrice) {
+	      priceDiv.textContent = `NT$ ${new Intl.NumberFormat('zh-TW').format(data.proPrice)}`;
+	    } else {
+	      priceDiv.textContent = '無';
+	    }
+	    
+	    // 狀態顯示帶樣式
+	    if (data.proStatus) {
+	      const statusClass = data.proStatus === '已發售' ? 'released' : 'preorder';
+	      statusDiv.innerHTML = `<span class="status-badge ${statusClass}">${data.proStatus}</span>`;
+	    } else {
+	      statusDiv.textContent = '無';
+	    }
+	    
+	    versionDiv.textContent = data.proVersion || '無';
+	    
+	    // 格式化日期
+	    if (data.proDate) {
+	      const date = new Date(data.proDate);
+	      dateDiv.textContent = date.toLocaleDateString('zh-TW');
+	    } else {
+	      dateDiv.textContent = '無';
+	    }
+	    
+	    detailsDiv.textContent = data.proDetails || '無描述';
+	    includeDiv.textContent = data.proInclude || '無內容物資訊';
+	    
+	    // 平台名稱
+	    malltagDiv.textContent = getMallTagName(malltagData, data.mallTagNo);
+	    
+	    // 上下架狀態
+	    const marketStatus = data.proIsmarket === '0' ? '上架' : '下架';
+	    const marketClass = data.proIsmarket === '0' ? 'online' : 'offline';
+	    ismarketDiv.innerHTML = `<span class="status-badge market-badge ${marketClass}">${marketStatus}</span>`;
+	   
+	    // 圖片顯示
+	    if (data.proCover) {
+	      imagePreview.src = `/api/product/cover/${data.id}`;
+	      imagePreview.style.display = 'block';
+	      imagePreview.onerror = function() {
+	        this.src = '/images/product_img/noimage.png';
+	      };
+	    } else {
+	      imagePreview.src = "/images/product_img/noimage.png";
+	      imagePreview.style.display = 'block';
+	    }
+	  }
+
+	  // --- 輔助函式 ---
+	  function showError(message) {
+	    errorMessageDiv.style.display = 'block';
+	    errorMessageDiv.textContent = message;
+	    console.error(message);
+	    
+	    // 滾動到錯誤訊息處
+	    errorMessageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+	  }
+
+	  // --- 全域函式 (供按鈕使用) ---
+	  window.editProduct = function() {
+	    if (typeof loadExternalPage === 'function') {
+	      loadExternalPage(`../shopsys/product/updateProduct.html?id=${productId}`);
+	    } else {
+	      window.location.href = `updateProduct.html?id=${productId}`;
+	    }
+	  };
+
+	  // --- 初始化頁面 ---
+	  initializePage();
+
+	})();
+</script>
+
+</body>
+</html>
