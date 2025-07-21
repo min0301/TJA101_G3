@@ -236,85 +236,56 @@
 
 	// *** 顯示商品詳情 - 整合庫存 API (薰妤修) ***//
 	async function showProductDetail(productId) {
-    	try {
-        	console.log('開始載入商品詳情，ID:', productId);
-        
-        	// 顯示載入狀態
-        	const container = document.getElementById('dynamic-content-container');
-        	if (!container) {
-            	console.error('找不到 dynamic-content-container');
-            	return;
-        	}
-        
-        	container.innerHTML = `
-            	<div class="text-center py-5">
-                	<div class="spinner-border text-primary" role="status"></div>
-                	<h4 class="mt-3">載入商品資訊中...</h4>
-                	<p class="text-muted">請稍候</p>
-            	</div>
-		        `;
-		        
-		        // 使用和 productList.js 相同的 API
-		        const apiBaseUrl = `${location.origin}/api`;
-		        const apiUrl = `${apiBaseUrl}/product/${productId}/search`;
-		        
-		        console.log('請求商品 API:', apiUrl);
-		        
-		        const response = await fetch(apiUrl, {
-		            method: 'GET',
-		            headers: {
-		                'Authorization': 'Bearer ' + (localStorage.getItem('jwt') || ''),
-		                'Content-Type': 'application/json'
-		            }
-		        });
-		        
-		        if (!response.ok) {
-		            throw new Error(`HTTP error! status: ${response.status}`);
-		        }
+    try {
+        console.log('開始載入商品詳情，ID:', productId);
 
-		        // 🔥 修正：現在是物件，不是陣列
-		        const responseData = await response.json();
-		        console.log('API 回應資料:', responseData);
-		        
-		        // 🔥 修正：直接取 product 欄位
-		        const product = responseData.product;
-		        
-		        if (!product) {
-		            throw new Error(`API 回應中沒有 product 資料`);
-		        }
-		
-		        console.log('找到目標商品:', product);
-		        
-		        // 新增：載入庫存資訊
-		        let stockInfo = null;
-		        try {
-		            console.log('開始查詢庫存資訊...');
-		            const stockResponse = await fetch(`${apiBaseUrl}/cart/stock/${productId}`, {
-		                headers: {
-		                    'Authorization': 'Bearer ' + localStorage.getItem('jwt'),
-		                    'Content-Type': 'application/json'
-		                }
-		            });
-		            
-		            if (stockResponse.ok) {
-		                stockInfo = await stockResponse.json();
-		                console.log('庫存資訊載入成功:', stockInfo);
-		            } else {
-		                console.warn('庫存 API 回應失敗:', stockResponse.status);
-		            }
-		        } catch (stockError) {
-		            console.warn('無法取得庫存資訊:', stockError);
-		        }
-		        
-		        // 顯示商品詳情（包含庫存）
-		        displayProductDetailWithStock(product, stockInfo);
-		        
-		    } catch (error) {
-		        console.error('載入商品詳情失敗:', error);
-		        showProductError(error.message);
-		    }
-		}
-	
+        // --- 顯示載入狀態 (不變) ---
+        const container = document.getElementById('dynamic-content-container');
+        container.innerHTML = `<div class="text-center py-5">...載入中...</div>`;
+
+        // --- 第 1 步：取得主要商品資料 (不變) ---
+        const apiBaseUrl = `${location.origin}/api`;
+        const apiUrl = `${apiBaseUrl}/product/${productId}/search`;
+        const response = await fetch(apiUrl, { /* ... headers ... */ });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const responseData = await response.json();
+        const product = responseData.product;
+        if (!product) throw new Error(`API 回應中沒有 product 資料`);
+        console.log('找到目標商品:', product);
+
+        // --- 第 2 步：並行取得庫存和平台資料 Map ---
+        const headers = { 'Authorization': 'Bearer ' + (localStorage.getItem('jwt') || ''), 'Content-Type': 'application/json' };
+        
+        // 庫存請求的 Promise
+        const stockPromise = fetch(`${apiBaseUrl}/cart/stock/${productId}`, { headers })
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => {
+                console.warn('庫存 API 請求出錯:', err);
+                return null;
+            });
+            
+        // 平台資料 Map 的 Promise (呼叫我們寫好的輔助函式)
+        const mallTagMapPromise = getMallTagMapFromManager();
+
+        // 等待兩個請求都完成
+        const [stockInfo, mallTagMap] = await Promise.all([stockPromise, mallTagMapPromise]);
+        
+        console.log('庫存資訊:', stockInfo);
+        console.log('從 Manager 取得的平台 Map:', mallTagMap);
+
+        // --- 第 3 步：從 Map 中找出平台名稱 ---
+        const platformName = mallTagMap[product.mallTagNo] || `平台 ${product.mallTagNo || '未知'}`;
+        console.log(`✅ 最終解析出的 platformName: ${platformName}`);
+        
+        // --- 第 4 步：將所有資料傳遞給顯示函式 ---
+        // 注意：這裡傳入了第三個參數 platformName
+        displayProductDetailWithStock(product, stockInfo, platformName);
+        
+    } catch (error) {
+        console.error('載入商品詳情失敗:', error);
+        showProductError(error.message);
+    }
+}
 	
 	
 	// 商品平台顯示 修正
@@ -350,14 +321,47 @@
 	    }
 	}
 
+	/**
+	 * 從已初始化的 window.sidebarMallTagManager 實例中獲取平台資料 Map。
+	 * @returns {Promise<Object>} 一個包含 { id: mallTagName } 的物件 Map。
+	 */
+	function getMallTagMapFromManager() {
+	    return new Promise((resolve, reject) => {
+	        const checkInterval = 100;
+	        const timeout = 5000;
+	        let elapsedTime = 0;
 
-	
-	 
+	        const check = () => {
+	            // *** 唯一的修改：將檢查對象從 mallTagManager 改為 sidebarMallTagManager ***
+	            if (window.sidebarMallTagManager && window.sidebarMallTagManager.isReady()) {
+	                
+	                console.log('✅ 左側邊欄的 MallTagManager 已就緒，從中提取資料');
+	                const tagList = window.sidebarMallTagManager.malltagData;
+
+	                const tagMap = tagList.reduce((map, tag) => {
+	                    if (tag.id !== 'all') {
+	                        map[tag.id] = tag.name;
+	                    }
+	                    return map;
+	                }, {});
+
+	                resolve(tagMap);
+
+	            } else if (elapsedTime >= timeout) {
+	                reject(new Error('等待 sidebarMallTagManager 初始化超時'));
+	            } else {
+	                elapsedTime += checkInterval;
+	                setTimeout(check, checkInterval);
+	            }
+	        };
+	        check();
+	    });
+	}
 
 	
 	
 	// ***  顯示商品詳情內容 包含庫存 (薰妤修) ***//
-	function displayProductDetailWithStock(product, stockInfo) {
+	function displayProductDetailWithStock(product, stockInfo, platformName) {
 		// 加入除錯資訊
 	    console.log('🔍 檢查商品描述資料:');
 	    console.log('product.proDetails:', product.proDetails);
@@ -367,7 +371,7 @@
 		
 	    const container = document.getElementById('dynamic-content-container');
 	    
-	    // 平台名稱邏輯
+	    /* // 平台名稱邏輯
 	    let platformName = '測試平台';
 	    
 	    if (product.mallTagNo) {
@@ -383,7 +387,7 @@
 	            };
 	            platformName = platformMap[product.mallTagNo] || `平台 ${product.mallTagNo}`;
 	        }
-	    }
+	    } */
 
 	    
 	    // 整合庫存邏輯
