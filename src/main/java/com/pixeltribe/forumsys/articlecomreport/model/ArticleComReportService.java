@@ -43,7 +43,7 @@ public class ArticleComReportService {
         articleComReportRepository.findByMesNoAndReporter(message, member)
                 .ifPresent(
                         articleComReport -> {
-                            throw new ConflictException("留言檢舉 '" + articleComReportCreateDTO + "' 已經存在");
+                            throw new ConflictException("留言檢舉已經存在");
                         });
         ArticleComReport articleComReport = new ArticleComReport();
         articleComReport.setMesNo(message);

@@ -74,8 +74,8 @@ class SecurityConfig {
                                         "/favicon.ico",
                                         "/out-statics/**",
                                         "/templates/**",
+                                        "/front-end/forumsys/assets/img/**",
                                         "/front-end/**",
-
                                         "/index.html",
                                         "/indexstatic.html",
                                         "/swagger-ui/**",

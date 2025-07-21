@@ -82,8 +82,8 @@ function createForumElement(forum, rank) {
     const forumId = forum.id;
     const forumName = forum.forName || "（未命名）";
     const hotScore = forum.hotScore || 0;
-    const imageUrl = forum.forImgUrl || 'assets/img/categories/default.png';
-    const fallbackImageUrl = 'assets/img/categories/default.png';
+    const imageUrl = forum.forImgUrl || 'assets/img/categories/1.png';
+    const fallbackImageUrl = 'assets/img/categories/1.png';
 
     // 【【修改點 4】】: 不再建立 'col-lg-6' 外層，直接建立卡片本身
     const cardLink = document.createElement('a');

@@ -68,14 +68,14 @@ function renderMoreForums(mode) {
 
     forumsToRender.forEach(forum => {
         // 【可變】: 這些 HTML 結構和 CSS class 名稱可依你的設計修改
-        const imageUrl = forum.forImgUrl || 'assets/img/categories/default.png';
+        const imageUrl = forum.forImgUrl || 'assets/img/categories/1.png';
         const forumItem = document.createElement('div');
         forumItem.className = 'hot-forum-item forum-link';
         forumItem.dataset.forumId = forum.id;
 
         forumItem.innerHTML = `
             <div class="d-flex align-items-center flex-grow-1">
-                <img src="${imageUrl}" class="forum-list-img" alt="${forum.forName}" onerror="this.src='assets/img/categories/default.png';">
+                <img src="${imageUrl}" class="forum-list-img" alt="${forum.forName}" onerror="this.src='assets/img/categories/1.png';">
                 <span class="forum-name">${forum.forName}</span>
             </div>
             ${mode === 'hot' ? `
@@ -225,7 +225,7 @@ async function loadCollectedForums() {
 
                 forumItem.innerHTML = `
                     <div class="d-flex align-items-center flex-grow-1">
-                        <img src="${item.forImgUrl || 'assets/img/categories/default.png'}" class="forum-list-img" alt="${item.forName}" onerror="this.src='assets/img/categories/default.png';">
+                        <img src="${item.forImgUrl || 'assets/img/categories/1.png'}" class="forum-list-img" alt="${item.forName}" onerror="this.src='assets/img/categories/1.png';">
                         <span class="forum-name">${item.forName}</span>
                     </div>
                     <span class="hot-score">
