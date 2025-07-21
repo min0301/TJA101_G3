@@ -1,6 +1,7 @@
 package com.pixeltribe.shopsys.orderItem.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pixeltribe.shopsys.orderItem.model.AdminCommentDTO;
+import com.pixeltribe.shopsys.orderItem.model.OrderItem;
 import com.pixeltribe.shopsys.orderItem.model.OrderItemDTO;
+import com.pixeltribe.shopsys.orderItem.model.OrderItemRepository;
 import com.pixeltribe.shopsys.orderItem.model.OrderItemService;
 import com.pixeltribe.shopsys.orderItem.model.OrderItemService.AdminStatistics;
 import com.pixeltribe.util.JwtUtil;
@@ -34,6 +37,11 @@ public class AdminOrderItemController {
     
     @Autowired
     private JwtUtil jwtUtil;
+    
+    @Autowired
+    private OrderItemRepository orderItemRepository;
+    
+    
     
     //** 查詢訂單明細（後台管理用） **//
     @GetMapping("/orderno/{orderNo}")
@@ -92,36 +100,98 @@ public class AdminOrderItemController {
         return ResponseEntity.ok(comments);
     }
     
-    //** 更新評價狀態 **//
-    @PutMapping("/{orderItemNo}/status")
-    public ResponseEntity<String> updateCommentStatus(
-            @PathVariable Integer orderItemNo,
-            @Valid @RequestBody CommentStatusRequest request,
+ // 添加批量更新 API
+    @PutMapping("/status/batch")
+    public ResponseEntity<Map<String, Object>> batchUpdateCommentStatus(
+            @RequestBody Map<String, Object> request,
             HttpServletRequest httpRequest) {
         
         validateAdminPermission(httpRequest);
         
-        orderItemService.updateCommentStatus(orderItemNo, request.getStatus());
-        
-        String message = getStatusMessage(request.getStatus());
-        return ResponseEntity.ok(message);
+        try {
+            @SuppressWarnings("unchecked")
+            List<Integer> orderItemNos = (List<Integer>) request.get("orderItemNos");
+            Object statusObj = request.get("status");
+            String status = String.valueOf(statusObj);
+            
+            if (orderItemNos == null || orderItemNos.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "請選擇要操作的評論"
+                ));
+            }
+            
+            orderItemService.batchUpdateCommentStatus(orderItemNos, status);
+            
+            String message = String.format("成功更新 %d 個評論狀態", orderItemNos.size());
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", message
+            ));
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "批量操作失敗: " + e.getMessage()
+            ));
+        }
     }
     
-    //** 批量更新評價狀態 **//
-    @PutMapping("/status/batch")
-    public ResponseEntity<String> batchUpdateCommentStatus(
-            @Valid @RequestBody BatchCommentStatusRequest request,
+    
+    
+    
+ // 在 AdminOrderItemController 中添加這個方法
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllCommentsForManagement(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            HttpServletRequest request) {
+        
+        validateAdminPermission(request);
+        
+        // 使用既有的分頁方法
+        Page<AdminCommentDTO> comments = orderItemService.getAllComments(page, size);
+        
+        return ResponseEntity.ok(comments);
+    }
+    
+    // 修改更新狀態的方法，支援前端格式
+    @PutMapping("/{orderItemNo}/status")
+    public ResponseEntity<Map<String, Object>> updateCommentStatus(
+            @PathVariable Integer orderItemNo,
+            @RequestBody Map<String, Object> request,
             HttpServletRequest httpRequest) {
         
         validateAdminPermission(httpRequest);
         
-        orderItemService.batchUpdateCommentStatus(request.getOrderItemNos(), request.getStatus());
-        
-        String message = String.format("已成功更新 %d 個評價狀態為: %s", 
-                                      request.getOrderItemNos().size(), 
-                                      getStatusMessage(request.getStatus()));
-        return ResponseEntity.ok(message);
+        try {
+            // 支援兩種格式：commentStatus 或 status
+            Object statusObj = request.get("commentStatus");
+            if (statusObj == null) {
+                statusObj = request.get("status");
+            }
+            
+            String status = String.valueOf(statusObj);
+            orderItemService.updateCommentStatus(orderItemNo, status);
+            
+            String message = getStatusMessage(status);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", message
+            ));
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        }
     }
+    
+    
+    
     
     // ========== 統計分析功能 ========== //
     //** 取得後台統計資訊 **//
@@ -248,4 +318,9 @@ public class AdminOrderItemController {
         public String getReason() { return reason; }
         public void setReason(String reason) { this.reason = reason; }
     }
+    
+    private AdminCommentDTO convertToAdminCommentDTO(OrderItem orderItem) {
+        return orderItemService.convertToAdminCommentDTO(orderItem);
+    }
+    
 }

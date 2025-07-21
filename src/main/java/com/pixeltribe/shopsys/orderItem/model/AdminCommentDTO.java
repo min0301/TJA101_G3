@@ -85,4 +85,28 @@ public class AdminCommentDTO {
         if (productCommentCrdate == null) return "未評價";
         return productCommentCrdate.toString().substring(0, 19).replace('T', ' ');
     }
+    
+    
+    
+    public Integer getCommentStatus() {
+        // 轉換 Character 為 Integer 給前端使用
+    	if (proComStatus != null) {
+            // 確保這個轉換是正確的
+            if (proComStatus == '1') {
+                return 1; // 正常
+            } else if (proComStatus == '0') {
+                return 0; // 停權
+            }
+        }
+        return 1; // 預設為正常
+    }
+
+    
+    public String getCommentDate() {
+        if (productCommentCrdate != null) {
+            return productCommentCrdate.toString();
+        }
+        return null;
+    }
+    
 }
