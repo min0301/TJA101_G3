@@ -1,121 +1,75 @@
 /* ---------- 小工具 ---------- */
-const $ = (s, p = document) => p.querySelector(s);
-const icon = p => {
-    const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    s.setAttribute('viewBox', '0 0 24 24');
-    s.innerHTML = p;
-    return s
-};
-const tagSpan = t => {
-    const s = document.createElement('span');
-    s.className = 'tag';
-    s.textContent = t;
-    return s
-};
+const $      = (s, p = document) => p.querySelector(s);
+const isNull = v => v === null || v === undefined;
+
+/* ---------- 檢查登入 ---------- */
+function getCurrentUser() {
+    try { return JSON.parse(localStorage.getItem('memberInfo')) || {}; }
+    catch { return {}; }
+}
+function requireLogin() {
+    if (isNull(getCurrentUser().id)) {
+        alert('請先登入後再操作');
+        return false;
+    }
+    return true;
+}
 
 /* ---------- 載入整頁 ---------- */
 async function loadPage(id) {
     /* 文章 ------------------------------------------------ */
     const news = await fetch(`/api/News/${id}`).then(r => r.json());
-    const box = $('#news-box');
-    document.title = `${news.newsTit}`;
-    box.innerHTML = `
-    <h1 class="news-title text-break">${news.newsTit}</h1>
-    <div class="news-meta">
-      發佈：${new Date(news.newsCrdate).toLocaleString()}
-      ${news.newsUpdate ? ` · 更新：${new Date(news.newsUpdate).toLocaleString()}` : ''}
-    </div>
-    <div class="tags"></div>`;
+    const box  = $('#news-box');
+    document.title = news.newsTit;
+    box.innerHTML  = `
+      <h1 class="news-title text-break">${news.newsTit}</h1>
+      <div class="news-meta">
+        發佈：${new Date(news.newsCrdate).toLocaleString()}
+        ${news.newsUpdate ? ` · 更新：${new Date(news.newsUpdate).toLocaleString()}` : ''}
+      </div>
+      <div class="tags"></div>`;
+
     box.append(renderPlatformTags(news.categoryTags || []));
-    // news.categoryTags.forEach(t => $('.tags', box).append(tagSpan(t)));
 
-    /* 圖片 ------------------------------------------------ */
-    // const imgs = await fetch(`/api/news/image/${id}`).then(r => r.json());
-    // if (imgs.length) {
-    //     const wrap = document.createElement('div');
-    //     wrap.className = 'news-images';
-    //
-    //     // ① 取得放置燈箱用的容器；若沒有就另外建立
-    //     const modalContainer = document.getElementById('newsLightboxes') ||
-    //         document.body.appendChild(Object.assign(
-    //             document.createElement('div'), {id: 'newsLightboxes'}));
-    //
-    //     imgs.forEach((i, idx) => {
-    //         /* === 產生圖片縮圖連結（點擊開燈箱） === */
-    //         const a = document.createElement('a');
-    //         a.href = 'javascript:void(0)';
-    //         a.setAttribute('data-bs-toggle', 'modal');
-    //         a.setAttribute('data-bs-target', `#imgModal-${idx}`);
-    //         a.innerHTML = `<img src="${i.imgUrl}" alt="news image">`;
-    //         wrap.append(a);
-    //
-    //         /* === 產生對應 Modal（燈箱本體） === */
-    //         const modal = document.createElement('div');
-    //         modal.className = 'modal fade';
-    //         modal.id = `imgModal-${idx}`;
-    //         modal.tabIndex = -1;
-    //         modal.setAttribute('aria-hidden', 'true');
-    //         modal.innerHTML = `
-    //       <div class="modal-dialog modal-dialog-centered modal-xl">
-    //         <div class="modal-content bg-transparent border-0">
-    //           <img src="${i.imgUrl}" class="w-100 rounded-3" alt="news image">
-    //         </div>
-    //       </div>
-    //     `;
-    //         modalContainer.appendChild(modal);
-    //     });
-    //
-    //     box.append(wrap);
-    // }
-
-    /* 內文 */
+    /* 內文 ------------------------------------------------ */
     const art = document.createElement('div');
     art.className = 'news-content';
-    art.innerHTML = news.newsCon;  // ✅ 允許 HTML 渲染
+    art.innerHTML = news.newsCon;          // 允許 HTML
     box.append(art);
 
-    // 處理內文中的圖片，轉為燈箱
-    const imgsInContent = art.querySelectorAll('img');
-    const modalContainer = document.getElementById('newsLightboxes') ||
-        document.body.appendChild(Object.assign(document.createElement('div'), { id: 'newsLightboxes' }));
+    // 內文圖片 → 燈箱
+    const imgs  = art.querySelectorAll('img');
+    const modalContainer = $('#newsLightboxes') ||
+        document.body.appendChild(Object.assign(document.createElement('div'), { id:'newsLightboxes' }));
 
-    imgsInContent.forEach((img, idx) => {
+    imgs.forEach((img, idx) => {
         const modalId = `htmlImgModal-${idx}`;
-
-        // 建立 modal 元件
-        const modal = document.createElement('div');
+        const modal   = document.createElement('div');
         modal.className = 'modal fade';
-        modal.id = modalId;
-        modal.tabIndex = -1;
+        modal.id        = modalId;
+        modal.tabIndex  = -1;
         modal.setAttribute('aria-hidden', 'true');
         modal.innerHTML = `
-      <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content bg-transparent border-0">
-          <img src="${img.src}" class="w-100 rounded-3" alt="news image">
-        </div>
-      </div>
-    `;
+          <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content bg-transparent border-0">
+              <img src="${img.src}" class="w-100 rounded-3" alt="news image">
+            </div>
+          </div>`;
         modalContainer.appendChild(modal);
 
-        // 包裹 img 用 a 標籤觸發 modal
         const wrapper = document.createElement('a');
         wrapper.href = 'javascript:void(0)';
-        wrapper.setAttribute('data-bs-toggle', 'modal');
-        wrapper.setAttribute('data-bs-target', `#${modalId}`);
+        wrapper.dataset.bsToggle = 'modal';
+        wrapper.dataset.bsTarget = `#${modalId}`;
         img.parentNode?.insertBefore(wrapper, img);
         wrapper.appendChild(img);
     });
 
     /* 留言 ------------------------------------------------ */
-    const comments = await fetch(`/api/NewsComment/${id}`).then(r => r.json());
-    const area = document.createElement('section');
-    area.className = 'comment-area';
-
-    box.append(area);
-    reloadCommentArea(id);
-
+    reloadCommentArea(id);           // 會自動把輸入框跟留言塞進 box
 }
 
+/* ---------- 留言卡片 ---------- */
 function makeCommentCard(c) {
     const card = document.createElement('div');
     card.className = 'border rounded p-3 mb-4 shadow-sm';
@@ -123,12 +77,12 @@ function makeCommentCard(c) {
     card.innerHTML = `
       <div class="d-flex justify-content-between">
         <div class="d-flex gap-3">
-          <img src="/images/memberAvatar/mem${c.memNoMemNo}.png" alt="User"
-          class="rounded-circle user-avatar" width="50" height="50"
-          style="pointer-events: none;object-fit: cover"
-          onerror="this.src='/images/memberAvatar/defaultmem.png'">
+          <img src="/images/memberAvatar/mem${c.memNoMemNo}.png"
+               onerror="this.src='/images/memberAvatar/defaultmem.png'"
+               class="rounded-circle user-avatar" width="50" height="50" alt="User">
+
           <div>
-            <h6 class="fw-bold text-dark mb-1" style="pointer-events: none;">${c.memNoMemNickName || '匿名'}</h6>
+            <h6 class="fw-bold text-dark mb-1">${c.memNoMemNickName || '匿名'}</h6>
             <p class="mb-2 text-dark">${c.ncomCon}</p>
             <div class="d-flex gap-3">
               <button class="btn btn-outline-success btn-sm rounded-pill up-btn">
@@ -143,134 +97,83 @@ function makeCommentCard(c) {
 
         <!-- ︙ 按鈕與選單 -->
         <div class="dropdown">
-          <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown">
             <i class="bi bi-three-dots-vertical fs-5"></i>
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item report-btn" href="#">檢舉</a></li>
           </ul>
         </div>
-      </div>
-    `;
+      </div>`;
 
-    const upBtn = card.querySelector('.up-btn');
-    const downBtn = card.querySelector('.down-btn');
-    const upCount = card.querySelector('.up-count');
-    const downCount = card.querySelector('.down-count');
+    /* 讚／倒讚邏輯 -------------------------------------- */
+    const upBtn     = $('.up-btn',   card);
+    const downBtn   = $('.down-btn', card);
+    const upCount   = $('.up-count',   card);
+    const downCount = $('.down-count', card);
+    const uid       = getCurrentUser().id;
+    let status      = '1'; // 預設中立
 
-    const raw = localStorage.getItem('memberInfo');
-    const memberInfo = JSON.parse(raw || '{}');
-    const currentUserId = memberInfo?.id;
+    if (uid) fetch(`/api/NewsLikeByMember?memNoId=${uid}&ncomNoId=${c.id}`)
+        .then(r => r.json())
+        .then(d => { status = d.nlikeStatus; ui(status); })
+        .catch(()  => {});
 
-    let currentStatus = '1'; // 預設為中立
-
-// 初始化按鈕狀態
-    if (currentUserId) {
-        fetch(`/api/NewsLikeByMember?memNoId=${currentUserId}&ncomNoId=${c.id}`)
-            .then(res => res.json())
-            .then(data => {
-                currentStatus = data.nlikeStatus;
-                updateButtonsUI(currentStatus);
-            })
-            .catch(err => console.error('取得讚狀態失敗', err));
+    function ui(s) {
+        upBtn.classList.toggle('btn-success', s === '2');
+        upBtn.classList.toggle('active',      s === '2');
+        downBtn.classList.toggle('btn-danger', s === '3');
+        downBtn.classList.toggle('active',     s === '3');
+    }
+    async function update(newS) {
+        const r = await fetch('/api/NewsLike/update', {
+            method:'PUT',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({ memNoId:uid, ncomNoId:c.id, nlikeStatus:newS })
+        });
+        if (!r.ok) throw await r.json();
+        status = newS;
+        ui(newS);
     }
 
-// 更新按鈕樣式
-    function updateButtonsUI(status) {
-        upBtn.classList.remove('btn-success', 'active');
-        downBtn.classList.remove('btn-danger', 'active');
-        if (status === '2') upBtn.classList.add('btn-success', 'active');
-        if (status === '3') downBtn.classList.add('btn-danger', 'active');
-    }
+    upBtn.onclick = async ()=> {
+        if (!requireLogin()) return;
+        let newS = status === '2' ? '1' : '2';
+        if (status === '3') { upCount.textContent++; downCount.textContent--; }
+        if (status === '1') { upCount.textContent++; }
+        if (status === '2') { upCount.textContent--; }
+        try { await update(newS); }
+        catch (e){ alert(e.message||'失敗'); location.reload(); }
+    };
 
-// 統一發送更新 API
-    async function updateLikeStatus(newStatus) {
-        try {
-            const res = await fetch('/api/NewsLike/update', {
-                method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    memNoId: currentUserId,
-                    ncomNoId: c.id,
-                    nlikeStatus: newStatus
-                })
-            });
-            if (!res.ok) throw await res.json();
-            currentStatus = newStatus;
-            return true;
-        } catch (e) {
-            alert(e.message || '更新失敗');
-            return false;
-        }
-    }
-
-// 👍 按讚邏輯
-    upBtn.addEventListener('click', async () => {
-        if (!currentUserId) return alert("請先登入");
-
-        let newStatus;
-        if (currentStatus === '2') {
-            // 從讚 → 中立
-            newStatus = '1';
-            upCount.textContent = parseInt(upCount.textContent) - 1;
-        } else if (currentStatus === '3') {
-            // 從倒讚 → 改按讚
-            newStatus = '2';
-            upCount.textContent = parseInt(upCount.textContent) + 1;
-            downCount.textContent = parseInt(downCount.textContent) - 1;
-        } else {
-            // 中立 → 按讚
-            newStatus = '2';
-            upCount.textContent = parseInt(upCount.textContent) + 1;
-        }
-
-        const ok = await updateLikeStatus(newStatus);
-        if (ok) updateButtonsUI(newStatus);
-    });
-
-// 👎 倒讚邏輯
-    downBtn.addEventListener('click', async () => {
-        if (!currentUserId) return alert("請先登入");
-
-        let newStatus;
-        if (currentStatus === '3') {
-            // 從倒讚 → 中立
-            newStatus = '1';
-            downCount.textContent = parseInt(downCount.textContent) - 1;
-        } else if (currentStatus === '2') {
-            // 從按讚 → 改倒讚
-            newStatus = '3';
-            downCount.textContent = parseInt(downCount.textContent) + 1;
-            upCount.textContent = parseInt(upCount.textContent) - 1;
-        } else {
-            // 中立 → 倒讚
-            newStatus = '3';
-            downCount.textContent = parseInt(downCount.textContent) + 1;
-        }
-
-        const ok = await updateLikeStatus(newStatus);
-        if (ok) updateButtonsUI(newStatus);
-    });
-
+    downBtn.onclick = async ()=> {
+        if (!requireLogin()) return;
+        let newS = status === '3' ? '1' : '3';
+        if (status === '2') { upCount.textContent--; downCount.textContent++; }
+        if (status === '1') { downCount.textContent++; }
+        if (status === '3') { downCount.textContent--; }
+        try { await update(newS); }
+        catch (e){ alert(e.message||'失敗'); location.reload(); }
+    };
 
     return card;
 }
 
-
+/* ---------- 平台 TAG ---------- */
 function renderPlatformTags(tags = []) {
     const wrap = document.createElement('div');
     wrap.className = 'news-platform mb-3';
-    wrap.innerHTML = tags.map(p => {
+    const html = tags.map(p => {
         let cls = 'badge bg-secondary';
-        if (p.includes('PC')) cls = 'badge bg-primary';
-        else if (p.includes('PS4')) cls = 'badge bg-info text-dark';
-        else if (p.includes('PS5')) cls = 'badge bg-dark';
-        else if (p.includes('Xbox')) cls = 'badge bg-success';
-        else if (p.includes('Switch')) cls = 'badge bg-warning text-dark';
-        else if (p.includes('Mobile')) cls = 'badge bg-danger';
-
+        if (/PC/.test(p))       cls = 'badge bg-primary';
+        else if (/PS4/.test(p)) cls = 'badge bg-info text-dark';
+        else if (/PS5/.test(p)) cls = 'badge bg-dark';
+        else if (/Xbox/.test(p))cls = 'badge bg-success';
+        else if (/Switch/.test(p))cls= 'badge bg-warning text-dark';
+        else if (/Mobile/.test(p))cls= 'badge bg-danger';
         return `<span class="${cls} me-2">${p}</span>`;
     }).join('');
+    wrap.innerHTML = html;
     return wrap;
 }
 
@@ -279,184 +182,141 @@ function makeNewCommentBox(newsId) {
     const wrap = document.createElement('div');
     wrap.className = 'comment-form d-flex gap-3 align-items-start mb-5';
     wrap.id = 'new-comment';
-    const memberInfo = localStorage.getItem('memberInfo');
-    const mem = JSON.parse(memberInfo || '{}');
-    if (mem.id === undefined) {
-        wrap.innerHTML = `
-        <img src="/images/memberAvatar/defaultmem.png" alt="User" class="rounded-circle" width="60" height="60"
-        onerror="this.src='/images/memberAvatar/defaultmem.png'>
-        <div class="flex-grow-1">
-            <textarea class="form-control mb-2" rows="4" placeholder="發表你的看法…" id="c-input"></textarea>
-            <div class="text-end">
-                <button type="button" class="btn btn-primary btn-sm rounded-pill" id="c-send" disabled>送出</button>
-            </div>
+
+    const mem = getCurrentUser();
+    wrap.innerHTML = `
+      <img src="/images/memberAvatar/${mem.id ? `mem${mem.id}` : 'defaultmem' }.png"
+           onerror="this.src='/images/memberAvatar/defaultmem.png'"
+           class="rounded-circle" width="60" height="60" alt="User">
+      <div class="flex-grow-1">
+        <textarea class="form-control mb-2" rows="4"
+                  placeholder="發表你的看法…" id="c-input"></textarea>
+        <div class="text-end">
+          <button type="button" class="btn btn-primary btn-sm rounded-pill" id="c-send" disabled>送出</button>
         </div>
-    `;
-    }else{
-        wrap.innerHTML = `
-        <img src="/images/memberAvatar/mem${mem.id}.png" alt="User" class="rounded-circle" width="60" height="60"
-        onerror="this.src='/images/memberAvatar/defaultmem.png'>
-        <div class="flex-grow-1">
-            <textarea class="form-control mb-2" rows="4" placeholder="發表你的看法…" id="c-input"></textarea>
-            <div class="text-end">
-                <button type="button" class="btn btn-primary btn-sm rounded-pill" id="c-send" disabled>送出</button>
-            </div>
-        </div>
-    `;
-    }
+      </div>`;
 
+    const ta  = $('#c-input', wrap);
+    const btn = $('#c-send', wrap);
 
+    ta.oninput = () => btn.disabled = !ta.value.trim();
+    ta.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); btn.click(); } };
 
-    const ta = $('#c-input', wrap), btn = $('#c-send', wrap);
-
-    ta.addEventListener('input', () => {
-        btn.disabled = !ta.value.trim();
-    });
-
-    ta.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            if (!btn.disabled) btn.click();
-        }
-    });
-
-    btn.addEventListener('click', async () => {
+    btn.onclick = async () => {
+        if (!requireLogin()) return;
         const txt = ta.value.trim();
         if (!txt) return;
         btn.disabled = true;
 
-        const raw = localStorage.getItem('memberInfo');
-        const memberinfo = JSON.parse(raw || '{}');
-        const currentUser = memberinfo.id;
-
-        if (!currentUser) {
-            alert("請先登入後再留言");
-            btn.disabled = false;
-            return;
-        }
-
         try {
-            const payload = {
-                ncomCon: txt,
-                newsNoId: parseInt(newsId), // ✅ 確保是整數
-                memNoId: parseInt(currentUser)
+            const body = {
+                ncomCon : txt,
+                newsNoId: parseInt(newsId),
+                memNoId : mem.id
             };
-            console.log("送出 JSON:", JSON.stringify(payload, null, 2));
-
-            const res = await fetch('/api/NewsComment/add', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
+            const r = await fetch('/api/NewsComment/add', {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify(body)
             });
-
-            if (!res.ok) throw await res.json();
-
-            // ✅ 成功後重新撈留言區
+            if (!r.ok) throw await r.json();
             await reloadCommentArea(newsId);
-
-        } catch (err) {
-            console.error('留言失敗', err);
-            alert(err?.errors?.[0]?.message ?? '留言失敗，請稍後再試');
+        } catch (e) {
+            alert(e?.errors?.[0]?.message || '留言失敗');
         } finally {
-            ta.value = '';
-            btn.disabled = false;
+            ta.value = ''; btn.disabled = false;
         }
-    });
-
+    };
     return wrap;
 }
 
-
+/* ---------- 重新載入留言區 ---------- */
 async function reloadCommentArea(newsId) {
-    const area = $('.comment-area');
-    area.innerHTML = ''; // 清空區塊
-
-    // 重新加上輸入框
+    const area = $('.comment-area') || document.querySelector('#news-box').appendChild(document.createElement('section'));
+    area.className = 'comment-area';
+    area.innerHTML = '';
     area.append(makeNewCommentBox(newsId));
 
-    // 撈留言
     const comments = await fetch(`/api/NewsComment/${newsId}`).then(r => r.json());
-    comments.forEach(c => {
-        const commentCard = makeCommentCard(c);
-        area.append(commentCard);
-    });
+    comments.forEach(c => area.append(makeCommentCard(c)));
 
-    area.addEventListener('click', e => {
+    area.onclick = e => {
         if (e.target.closest('.report-btn')) {
-            const commentCard = e.target.closest('.border.rounded');
-            const commentId = commentCard?.dataset.commentId;
-            if (!commentId) return alert("找不到留言 ID");
-            showReportModal(commentId);
+            const card = e.target.closest('[data-comment-id]');
+            if (card) showReportModal(card.dataset.commentId);
         }
-    });
+    };
 }
 
-
-/* ---------- 把新留言插回列表 ---------- */
-function prependComment(area, c) {
-    const inputBox = $('#new-comment', area);
-    area.insertBefore(makeCommentCard(c), inputBox.nextSibling);
-}
-
+/* ---------- 檢舉 ---------- */
 function showReportModal(commentId) {
+    if (!requireLogin()) return;
+
     $('#reportCommentId').value = commentId;
-    const modal = new bootstrap.Modal(document.getElementById('reportModal'));
-    modal.show();
+
+    const modalEl   = $('#reportModal');
+    const modalIns  = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modalIns.show();
 }
 
+/* 取得檢舉原因下拉 */
 async function loadReportReasons() {
     try {
-        const res = await fetch('/api/report-types');
-        const types = await res.json();
-        const select = document.getElementById('reportReasonSelect');
+        const types = await fetch('/api/report-types').then(r => r.json());
+        const sel   = $('#reportReasonSelect');
         types.forEach(t => {
-            const option = document.createElement('option');
-            option.value = t.id;
-            option.textContent = t.rpiType;
-            select.appendChild(option);
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            opt.textContent = t.rpiType;
+            sel.appendChild(opt);
         });
-    } catch (err) {
-        console.error("無法載入檢舉原因", err);
-        alert("載入檢舉原因失敗");
+    } catch {
+        alert('檢舉原因載入失敗');
     }
 }
 
-/* ---------- 啟動 ---------- */
+/* ---------- DOM Ready ---------- */
 document.addEventListener('DOMContentLoaded', () => {
-    // loadPage(new URLSearchParams(location.search).get('newsId'));
     const id = new URLSearchParams(location.search).get('newsId');
     loadPage(id);
-    loadReportReasons(); // ✅ 加入這行載入檢舉原因
-    document.getElementById('reportForm')?.addEventListener('submit', async e => {
-        e.preventDefault();
-        const commentId = $('#reportCommentId').value;
-        const reasonId = $('#reportReasonSelect')?.value;
+    loadReportReasons();
 
-        if (!reasonId) return alert("請選擇檢舉原因");
+    /* 檢舉表單提交 ------------------ */
+    $('#reportForm')?.addEventListener('submit', async e => {
+        e.preventDefault();
+        const commentId = parseInt($('#reportCommentId').value);
+        const reasonId  = parseInt($('#reportReasonSelect').value || 0);
+        const userId    = getCurrentUser().id;
+
+        if (!requireLogin()) return;
+        if (!reasonId)      return alert('請選擇檢舉原因');
+
+        const submitBtn = $('#reportForm button[type="submit"]');
+        submitBtn.disabled = true;
 
         try {
-            const res = await fetch('/api/create/newscommentreport', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    reporterId: JSON.parse(localStorage.getItem('memberInfo'))?.id,
-                    reportTypeId: parseInt(reasonId),
-                    ncomNoId: parseInt(commentId)
+            const r = await fetch('/api/create/newscommentreport', {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({
+                    reporterId  : userId,
+                    reportTypeId: reasonId,
+                    ncomNoId    : commentId
                 })
-
             });
-            if (!res.ok) throw await res.json();
-            alert("檢舉成功，感謝你的協助");
-            const select = document.querySelector('#reportReasonSelect');
-            if (select) {
-                select.value = '';
-            }
+            if (!r.ok) throw await r.json();
 
-            bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
+            alert('檢舉成功，感謝你的協助');
+            $('#reportReasonSelect').value = '';
 
+            bootstrap.Modal.getOrCreateInstance($('#reportModal')).hide();
         } catch (err) {
-            console.error("檢舉失敗", err);
             alert(err?.message || '檢舉失敗，請稍後再試');
+        } finally {
+            /*  保險：確定 backdrop 被移除 */
+            document.querySelectorAll('.modal-backdrop').forEach(bd => bd.remove());
+            document.body.classList.remove('modal-open');
+            submitBtn.disabled = false;
         }
     });
 });
