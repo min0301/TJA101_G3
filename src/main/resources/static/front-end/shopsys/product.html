@@ -379,8 +379,7 @@
 	            platformName = platformMap[product.mallTagNo] || `平台 ${product.mallTagNo}`;
 	        }
 	    }
-	    
-	    const productDescription = getProductDescription(product);
+
 	    
 	    // 整合庫存邏輯
 	    const proIsmarket = product.proIsmarket;
@@ -408,7 +407,7 @@
 	    
 	    // 顯示完整的商品詳情（包含庫存）
 	    container.innerHTML = `
-	        <div class="card shadow-sm border-0">
+	        <div class="card shadow-sm border-0 ">
 	            <div class="card-body p-4">
 	                <!-- 返回按鈕 -->
 	                <div class="mb-4">
@@ -450,20 +449,6 @@
 	                            <span class="${statusInfo.statusClass}">${statusInfo.displayText}</span>
 	                        </div>
 	                        
-	                        <!-- 庫存狀態顯示（使用真實資料）-->
-	                        <div class="stock-section mb-4 p-3 bg-light rounded">
-	                            <div class="d-flex align-items-center gap-2 mb-2">
-	                                <i class="bi bi-box-seam ${statusInfo.stockClass}"></i>
-	                                <span class="fw-bold ${statusInfo.stockClass}">${statusInfo.stockText}</span>
-	                            </div>
-	                            <!-- 庫存數量顯示 -->
-	                            <div class="stock-quantity">
-	                                <span class="text-muted">庫存數量：</span>
-	                                <span class="fw-bold ${statusInfo.stockClass}">${statusInfo.stockCount}</span>
-	                                
-	                            </div>
-	                        </div>
-	                        
 	                        <!-- 商品規格 -->
 	                        <div class="product-info bg-light p-3 rounded mb-4">
 	                            <div class="row">
@@ -478,11 +463,18 @@
 	                            </div>
 	                        </div>
 	                        
-	                        <div class="product-description mb-4">
-	                            <h5>商品描述</h5>
-	                            <div class="description-content p-3 bg-light rounded">
-	                            	${productDescription}
-	                        	</div>
+	                        <!-- 庫存狀態顯示（使用真實資料）-->
+	                        <div class="stock-section mb-4 p-3 bg-light rounded">
+	                            <div class="d-flex align-items-center gap-2 mb-2">
+	                                <i class="bi bi-box-seam ${statusInfo.stockClass}"></i>
+	                                <span class="fw-bold ${statusInfo.stockClass}">${statusInfo.stockText}</span>
+	                            </div>
+	                            <!-- 庫存數量顯示 -->
+	                            <div class="stock-quantity">
+	                                <span class="text-muted">庫存數量：</span>
+	                                <span class="fw-bold ${statusInfo.stockClass}">${statusInfo.stockCount}</span>
+	                                
+	                            </div>
 	                        </div>
 	                        
 	                        <!-- 操作按鈕根據庫存狀態調整 -->
@@ -508,120 +500,61 @@
 	                            </div>
 	                        </div>
 	                    </div>
+	                    <div class="product-description mb-4">
+	                        <h5>商品內容</h5>
+	                        <div class="description-content p-3 bg-light rounded">
+	                        	${product.proInclude}
+	                    	</div>
+                  		</div>
+                        <div class="product-description mb-4">
+                            <h5>商品簡介</h5>
+                            <div class="description-content p-3 bg-light rounded">
+                            	${product.proDetails}
+                        	</div>
+                        </div>
+		                    <div class="game-gallery mb-4">
+		                        <h5>遊戲畫面</h5>
+		                        <div id="productImageCarousel" class="carousel slide" data-bs-ride="carousel">
+		                            <!-- 輪播指示器 -->
+		                            <div class="carousel-indicators" id="carouselIndicators">
+		                                <!-- 動態生成 -->
+		                            </div>
+		                            
+		                            <!-- 輪播內容 -->
+		                            <div class="carousel-inner" id="carouselInner">
+		                                <!-- 載入中狀態 -->
+		                                <div class="carousel-item active">
+		                                    <div class="d-flex justify-content-center align-items-center" style="height: 400px; background-color: #f8f9fa;">
+		                                        <div class="text-center">
+		                                            <div class="spinner-border text-primary mb-3" role="status"></div>
+		                                            <p class="text-muted">載入遊戲畫面中...</p>
+		                                        </div>
+		                                    </div>
+		                                </div>
+		                            </div>
+		                            
+		                            <!-- 輪播控制按鈕 -->
+		                            <button class="carousel-control-prev" type="button" data-bs-target="#productImageCarousel" data-bs-slide="prev">
+		                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+		                                <span class="visually-hidden">Previous</span>
+		                            </button>
+		                            <button class="carousel-control-next" type="button" data-bs-target="#productImageCarousel" data-bs-slide="next">
+		                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+		                                <span class="visually-hidden">Next</span>
+		                            </button>
+		                        </div>
+		                    </div>
+                    	</div>
+                    </div>
 	                </div>
 	            </div>
 	        </div>
 	    `;
 	    
+	    loadProductImageCarousel(productId);
 	    highlightCorrespondingTag(product.mallTagNo);
 	}
 	 
-	
-	// 🔥 新增：缺少的 getProductDescription 函數
-	function getProductDescription(product) {
-	    console.log('🔍 Entity 檢查 - 商品完整資料:');
-	    console.log('完整商品物件:', JSON.stringify(product, null, 2));
-	    
-	    // 🎯 根據你的 Entity，應該要有這些欄位
-	    console.log('🔍 檢查 Entity 欄位:');
-	    console.log('proDetails (PRO_DETAILS):', product.proDetails);
-	    console.log('proInclude (PRO_INCLUDE):', product.proInclude);
-	    console.log('proName:', product.proName);
-	    console.log('id:', product.id);
-	    
-	    // 嘗試不同的欄位，優先使用 proDetails
-	    let description = null;
-	    let sourceField = null;
-	    
-	    // 第一優先：proDetails
-	    if (product.proDetails && product.proDetails.toString().trim()) {
-	        description = product.proDetails.toString().trim();
-	        sourceField = 'proDetails';
-	        console.log('✅ 使用 proDetails 欄位');
-	    }
-	    // 第二優先：proInclude
-	    else if (product.proInclude && product.proInclude.toString().trim()) {
-	        description = product.proInclude.toString().trim();
-	        sourceField = 'proInclude';
-	        console.log('✅ 使用 proInclude 欄位');
-	    }
-	    
-	    if (!description) {
-	        console.error('❌ proDetails 和 proInclude 都沒有內容');
-	        
-	        // 顯示所有字串欄位
-	        const allStringFields = Object.keys(product).filter(key => {
-	            const value = product[key];
-	            return typeof value === 'string' && value.length > 0;
-	        });
-	        
-	        console.log('📋 所有有內容的字串欄位:', allStringFields);
-	        allStringFields.forEach(key => {
-	            const value = product[key];
-	            console.log(`  ${key}: "${value.substring(0, 50)}..."`);
-	        });
-	        
-	        return `
-	            <div class="alert alert-warning">
-	                <h6><i class="bi bi-exclamation-triangle"></i> 商品描述資料檢查</h6>
-	                <p><strong>Entity 欄位狀態：</strong></p>
-	                <ul class="mb-2">
-	                    <li>proDetails: ${product.proDetails ? '有資料 (' + product.proDetails.length + ' 字元)' : '無資料或空白'}</li>
-	                    <li>proInclude: ${product.proInclude ? '有資料 (' + product.proInclude.length + ' 字元)' : '無資料或空白'}</li>
-	                </ul>
-	                <p class="mb-0">請檢查資料庫中 PRO_DETAILS 或 PRO_INCLUDE 欄位是否有內容。</p>
-	            </div>
-	        `;
-	    }
-	    
-	    console.log(`🎯 使用欄位: ${sourceField}`);
-	    console.log(`📄 內容長度: ${description.length} 字元`);
-	    console.log(`📝 內容預覽: ${description.substring(0, 100)}...`);
-	    
-	    return formatDescriptionText(description);
-	}
-	
-	
-	
-	
-	
-	
-	
-
-	
-
-	// 🔥 新增：格式化描述文字的函數
-	function formatDescriptionText(text) {
-	    if (!text) return '<p class="text-muted">商品詳細資訊暫未提供</p>';
-	    
-	    // 清理和格式化文字
-	    let formattedText = text.toString().trim();
-	    
-	    // 處理換行符號
-	    formattedText = formattedText
-	        .replace(/\r\n/g, '\n')        // 統一換行符號
-	        .replace(/\r/g, '\n')          // 處理舊式換行
-	        .replace(/\n{3,}/g, '\n\n')    // 避免過多空行
-	        .replace(/\n/g, '<br>')        // 換行轉為 HTML
-	        .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;'); // Tab 轉空格
-	    
-	    // 如果文字很長，添加滾動樣式
-	    if (formattedText.length > 500) {
-	        return `
-	            <div style="max-height: 300px; overflow-y: auto; line-height: 1.6; padding: 10px; border: 1px solid #e0e0e0; border-radius: 5px;">
-	                <p style="margin: 0; white-space: pre-wrap;">${formattedText}</p>
-	            </div>
-	        `;
-	    } else {
-	        return `<p style="line-height: 1.6; white-space: pre-wrap; margin: 0;">${formattedText}</p>`;
-	    }
-	}
-		
-	
-	
-	
-	
-	
 	// ***  根據庫存資訊生成狀態 (薰妤修) ***//
 	function generateStatusInfo(proIsmarket, proStatus, stockInfo) {
 	    let statusInfo = {
@@ -873,6 +806,290 @@
 	function formatPrice(price) {
 	    return new Intl.NumberFormat('zh-TW').format(price);
 	}
+	
+	/**
+	 * 載入商品圖片輪播
+	 */
+	async function loadProductImageCarousel(productId) {
+	    try {
+	        console.log('🖼️ 開始載入商品圖片輪播，產品ID:', productId);
+	        
+	        const apiBaseUrl = `${location.origin}/api`;
+	        const imageListUrl = `${apiBaseUrl}/productimg/search/${productId}`;
+	        
+	        // 取得圖片列表
+	        const response = await fetch(imageListUrl);
+	        
+	        if (!response.ok) {
+	            throw new Error(`圖片 API 請求失敗: ${response.status}`);
+	        }
+	        
+	        const result = await response.json();
+	        console.log('📷 圖片 API 回應:', result);
+	        
+	        if (result.success && result.data && result.data.length > 0) {
+	            // 有圖片資料，建立輪播
+	            buildImageCarousel(result.data);
+	        } else {
+	            // 沒有圖片資料，顯示預設內容
+	            showNoImagesMessage();
+	        }
+	        
+	    } catch (error) {
+	        console.error('❌ 載入圖片輪播失敗:', error);
+	        showImageLoadError(productId);
+	    }
+	}
+
+	/**
+	 * 建立圖片輪播
+	 */
+	function buildImageCarousel(imageList) {
+	    console.log('🎠 建立輪播，圖片數量:', imageList.length);
+	    
+	    const carouselInner = document.getElementById('carouselInner');
+	    const carouselIndicators = document.getElementById('carouselIndicators');
+	    
+	    if (!carouselInner || !carouselIndicators) {
+	        console.error('找不到輪播容器元素');
+	        return;
+	    }
+	    
+	    // 清空容器
+	    carouselInner.innerHTML = '';
+	    carouselIndicators.innerHTML = '';
+	    
+	    // 建立輪播項目
+	    imageList.forEach((image, index) => {
+	        const isActive = index === 0 ? 'active' : '';
+	        
+	        // 建立輪播項目容器
+	        const carouselItem = document.createElement('div');
+	        carouselItem.className = `carousel-item ${isActive}`;
+	        
+	        // 建立圖片元素
+	        const img = document.createElement('img');
+	        img.src = image.imageUrl;
+	        img.className = 'd-block w-100';
+	        img.alt = `遊戲畫面 ${index + 1}`;
+	        
+	        // 應用你要的 CSS 樣式
+	        img.style.cssText = `
+	            height: 500px;
+	            object-fit: contain;
+	            object-position: center;
+	            border-radius: 8px;
+	            background-color: #f8f9fa;
+	        `;
+	        
+	        // 添加圖片載入事件
+	        img.onload = function() {
+	            console.log(`✅ 圖片 ${index + 1} 載入成功:`, image.imageUrl);
+	        };
+	        
+	        img.onerror = function() {
+	            console.error(`❌ 圖片 ${index + 1} 載入失敗:`, image.imageUrl);
+	            // 使用 base64 編碼的預設圖片，避免外部網路問題
+	            this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjUwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzZjNzU3ZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuWcluePh+i8ieWFpeWkseaVlzwvdGV4dD4KICA8L3N2Zz4K';
+	            console.log('🔄 已切換到預設圖片');
+	        };
+	        
+	        // 建立空的 caption 容器（保持結構但不顯示文字）
+	        const caption = document.createElement('div');
+	        caption.className = 'carousel-caption d-none d-md-block';
+	        
+	        // 組合元素
+	        carouselItem.appendChild(img);
+	        carouselItem.appendChild(caption);
+	        carouselInner.appendChild(carouselItem);
+	        
+	        // 建立指示器
+	        const indicator = document.createElement('button');
+	        indicator.type = 'button';
+	        indicator.setAttribute('data-bs-target', '#productImageCarousel');
+	        indicator.setAttribute('data-bs-slide-to', index.toString());
+	        indicator.setAttribute('aria-label', `Slide ${index + 1}`);
+	        if (index === 0) {
+	            indicator.className = 'active';
+	            indicator.setAttribute('aria-current', 'true');
+	        }
+	        carouselIndicators.appendChild(indicator);
+	    });
+	    
+	    // 如果只有一張圖片，隱藏控制按鈕和指示器
+	    if (imageList.length === 1) {
+	        hideCarouselControls();
+	    } else {
+	        showCarouselControls();
+	    }
+	    
+	    console.log('✅ 輪播建立完成，共', imageList.length, '張圖片');
+	    
+	    // 重新初始化 Bootstrap 輪播
+	    try {
+	        const carouselElement = document.getElementById('productImageCarousel');
+	        if (carouselElement && window.bootstrap) {
+	            new bootstrap.Carousel(carouselElement);
+	            console.log('🎠 Bootstrap 輪播初始化成功');
+	        }
+	    } catch (error) {
+	        console.warn('⚠️ Bootstrap 輪播初始化失敗:', error);
+	    }
+	}
+
+	/**
+	 * 顯示輪播控制元素
+	 */
+	function showCarouselControls() {
+	    const carousel = document.getElementById('productImageCarousel');
+	    if (carousel) {
+	        const prevBtn = carousel.querySelector('.carousel-control-prev');
+	        const nextBtn = carousel.querySelector('.carousel-control-next');
+	        const indicators = carousel.querySelector('.carousel-indicators');
+	        
+	        if (prevBtn) prevBtn.style.display = 'block';
+	        if (nextBtn) nextBtn.style.display = 'block';
+	        if (indicators) indicators.style.display = 'flex';
+	    }
+	}
+
+	/**
+	 * 隱藏輪播控制元素（當只有一張圖片時）
+	 */
+	function hideCarouselControls() {
+	    const carousel = document.getElementById('productImageCarousel');
+	    if (carousel) {
+	        const prevBtn = carousel.querySelector('.carousel-control-prev');
+	        const nextBtn = carousel.querySelector('.carousel-control-next');
+	        const indicators = carousel.querySelector('.carousel-indicators');
+	        
+	        if (prevBtn) prevBtn.style.display = 'none';
+	        if (nextBtn) nextBtn.style.display = 'none';
+	        if (indicators) indicators.style.display = 'none';
+	    }
+	}
+
+	/**
+	 * 顯示無圖片訊息
+	 */
+	function showNoImagesMessage() {
+	    console.log('📭 沒有找到商品圖片');
+	    
+	    const carouselInner = document.getElementById('carouselInner');
+	    const carouselIndicators = document.getElementById('carouselIndicators');
+	    
+	    if (carouselInner) {
+	        carouselInner.innerHTML = `
+	            <div class="carousel-item active">
+	                <div class="d-flex justify-content-center align-items-center" style="height: 500px; background-color: #f8f9fa; border-radius: 8px;">
+	                    <div class="text-center">
+	                        <i class="bi bi-image display-1 text-muted"></i>
+	                        <h5 class="mt-3 text-muted">暫無遊戲畫面</h5>
+	                        <p class="text-muted">目前沒有上傳遊戲截圖</p>
+	                    </div>
+	                </div>
+	            </div>
+	        `;
+	    }
+	    
+	    if (carouselIndicators) {
+	        carouselIndicators.innerHTML = '';
+	    }
+	    
+	    hideCarouselControls();
+	}
+
+	/**
+	 * 顯示圖片載入錯誤
+	 */
+	function showImageLoadError(productId) {
+	    console.log('❌ 圖片載入發生錯誤');
+	    
+	    const carouselInner = document.getElementById('carouselInner');
+	    
+	    if (carouselInner) {
+	        carouselInner.innerHTML = `
+	            <div class="carousel-item active">
+	                <div class="d-flex justify-content-center align-items-center" style="height: 500px; background-color: #f8f9fa; border-radius: 8px;">
+	                    <div class="text-center">
+	                        <i class="bi bi-exclamation-triangle display-1 text-warning"></i>
+	                        <h5 class="mt-3 text-muted">載入失敗</h5>
+	                        <p class="text-muted">無法載入遊戲畫面，請稍後再試</p>
+	                        <button class="btn btn-outline-primary btn-sm" onclick="loadProductImageCarousel(${productId})">
+	                            <i class="bi bi-arrow-clockwise me-1"></i>重試
+	                        </button>
+	                    </div>
+	                </div>
+	            </div>
+	        `;
+	    }
+	    
+	    hideCarouselControls();
+	}
+
+	// 添加輪播的 CSS 樣式
+	function addCarouselStyles() {
+	    const style = document.createElement('style');
+	    style.textContent = `
+	        #productImageCarousel {
+	            border-radius: 12px;
+	            overflow: hidden;
+	            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+	        }
+	        
+	        #productImageCarousel .carousel-item img {
+	            transition: transform 0.3s ease;
+	        }
+	        
+	        #productImageCarousel .carousel-item:hover img {
+	            transform: scale(1.02);
+	        }
+	        
+	        #productImageCarousel .carousel-control-prev,
+	        #productImageCarousel .carousel-control-next {
+	            background: rgba(0,0,0,0.3);
+	            border-radius: 50%;
+	            width: 40px;
+	            height: 40px;
+	            top: 50%;
+	            transform: translateY(-50%);
+	        }
+	        
+	        #productImageCarousel .carousel-control-prev {
+	            left: 15px;
+	        }
+	        
+	        #productImageCarousel .carousel-control-next {
+	            right: 15px;
+	        }
+	        
+	        #productImageCarousel .carousel-indicators {
+	            bottom: 15px;
+	        }
+	        
+	        #productImageCarousel .carousel-indicators button {
+	            width: 12px;
+	            height: 12px;
+	            border-radius: 50%;
+	            margin: 0 4px;
+	        }
+	        
+	        .game-gallery h5 {
+	            color: #495057;
+	            font-weight: 600;
+	            margin-bottom: 1rem;
+	        }
+	    `;
+	    
+	    if (!document.getElementById('carousel-styles')) {
+	        style.id = 'carousel-styles';
+	        document.head.appendChild(style);
+	    }
+	}
+
+	document.addEventListener('DOMContentLoaded', function() {
+	    addCarouselStyles();
+	});
 	</script>
 	
 	

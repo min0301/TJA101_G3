@@ -15,6 +15,7 @@ import lombok.Setter;
 public class ProductImage {
     @Id
     @Column(name = "PRO_IMG_NO", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @NotNull
@@ -28,5 +29,6 @@ public class ProductImage {
     @Size(max = 100)
     @Column(name = "PRO_IMG_TYPE", length = 100)
     private String proImgType;
+
 
 }
