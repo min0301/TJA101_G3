@@ -1120,7 +1120,7 @@
           
           const productId = this.dataset.id;
           const productRow = this.closest('tr');
-          const productName = productRow.querySelector('td:nth-child(2)').textContent;
+          const productName = productRow.querySelector('td:nth-child(2)').textContent.trim();
           
           const confirmMessage = `確定要將商品「${productName}」上架嗎？`;
           if (!confirm(confirmMessage)) {
@@ -1137,7 +1137,7 @@
           
           const productId = this.dataset.id;
           const productRow = this.closest('tr');
-          const productName = productRow.querySelector('td:nth-child(2)').textContent;
+          const productName = productRow.querySelector('td:nth-child(2)').textContent.trim();
           
           const confirmMessage = `確定要將商品「${productName}」下架嗎？`;
           if (!confirm(confirmMessage)) {

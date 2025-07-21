@@ -875,7 +875,13 @@
 	            object-position: center;
 	            border-radius: 8px;
 	            background-color: #f8f9fa;
+	            cursor: pointer;
 	        `;
+	        
+	        // 添加點擊事件 - 查看原圖
+	        img.onclick = function() {
+	            showImageModal(image.imageUrl, `遊戲畫面 ${index + 1}`);
+	        };
 	        
 	        // 添加圖片載入事件
 	        img.onload = function() {
@@ -1033,11 +1039,7 @@
 	        }
 	        
 	        #productImageCarousel .carousel-item img {
-	            transition: transform 0.3s ease;
-	        }
-	        
-	        #productImageCarousel .carousel-item:hover img {
-	            transform: scale(1.02);
+	            transition: none;
 	        }
 	        
 	        #productImageCarousel .carousel-control-prev,
@@ -1082,13 +1084,54 @@
 	    }
 	}
 
+	/**
+	 * 顯示圖片放大模態框
+	 */
+	function showImageModal(imageUrl, title) {
+	    // 檢查是否已存在模態框，如果存在就移除
+	    const existingModal = document.getElementById('imageModal');
+	    if (existingModal) {
+	        existingModal.remove();
+	    }
+	    
+	    // 創建模態框 HTML
+	    const modalHTML = `
+	        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+	            <div class="modal-dialog modal-xl modal-dialog-centered">
+	                <div class="modal-content bg-dark">
+	                    <div class="modal-header border-secondary">
+	                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+	                    </div>
+	                    <div class="modal-body p-0 text-center">
+	                        <img src="${imageUrl}" 
+	                             class="img-fluid" 
+	                             alt="${title}"
+	                             style="max-width: 100%; max-height: 80vh; object-fit: contain;"
+	                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjUwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzZjNzU3ZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuWcluePh+i8ieWFpeWkseaVlzwvdGV4dD4KICA8L3N2Zz4K';">
+	                    </div>
+	                    <div class="modal-footer border-secondary">
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    `;
+	    
+	    // 添加到頁面
+	    document.body.insertAdjacentHTML('beforeend', modalHTML);
+	    
+	    // 顯示模態框
+	    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+	    modal.show();
+	    
+	    // 當模態框關閉時，移除 DOM 元素
+	    document.getElementById('imageModal').addEventListener('hidden.bs.modal', function() {
+	        this.remove();
+	    });
+	}
 	document.addEventListener('DOMContentLoaded', function() {
 	    addCarouselStyles();
 	});
 	</script>
 	
-	
-	
-
 </body>
 </html>
