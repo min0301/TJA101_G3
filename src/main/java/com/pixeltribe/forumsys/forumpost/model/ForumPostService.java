@@ -9,6 +9,7 @@ import com.pixeltribe.forumsys.forumtag.model.ForumTagRepository;
 import com.pixeltribe.forumsys.postcollect.model.PostCollectService;
 import com.pixeltribe.membersys.member.model.MemRepository;
 import com.pixeltribe.membersys.member.model.Member;
+import com.pixeltribe.membersys.security.MemberDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -99,7 +100,7 @@ public class ForumPostService {
      * @return 新增後的 ForumPostDTO。
      */
     @Transactional // 交易註解，確保方法內的資料庫操作是原子性的
-    public ForumPostDTO addForumPost(ForumPostUpdateDTO forumPostDTO, MultipartFile imageFile, String defaultImageUrlFromFrontend) {
+    public ForumPostDTO addForumPost(MemberDetails currentUser,ForumPostUpdateDTO forumPostDTO, MultipartFile imageFile, String defaultImageUrlFromFrontend) {
         ForumPost forumPost = new ForumPost();
         // 將 DTO 中的資料設定到 Entity
         forumPost.setPostTitle(forumPostDTO.getPostTitle());
@@ -112,9 +113,13 @@ public class ForumPostService {
         forumPost.setPostCrdate(Instant.now()); // 設定建立時間
         forumPost.setPostUpdate(Instant.now()); // 設定更新時間
 
-        // 查找並設定關聯實體
-        Member member = memRepository.findById(1)
-                .orElseThrow(() -> new ResourceNotFoundException("找不到會員 ID: 1。請確認資料庫中是否存在 ID 為 1 的會員。"));
+        // 從當前登入使用者中獲取會員 ID
+        Integer memberId = currentUser.getMemberId(); // 獲取當前登入會員的 ID
+
+        // 查找並設定關聯實體 - 會員
+        // 直接使用 memRepository.findById() 來獲取完整的 Member 物件
+        Member member = memRepository.findById(memberId)
+                .orElseThrow(() -> new ResourceNotFoundException("找不到會員 ID: " + memberId + "。請確認該會員是否存在或已登入。"));
         forumPost.setMemNo(member);
 
         Forum forum = forumRepository.findById(forumPostDTO.getForNoId())
