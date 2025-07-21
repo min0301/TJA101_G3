@@ -72,6 +72,8 @@ public class Order {
     @JsonManagedReference
     private List<OrderItem> orderItems = new ArrayList<>();
     
+   
+    
     
     //建構子
     

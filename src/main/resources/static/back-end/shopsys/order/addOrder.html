@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新增訂單</title>
+    
+    <style>
+        /* 繼承主頁面的 CSS 變數，確保視覺風格一致 */
+        .order-add-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: 'Karla', '微軟正黑體', Arial, sans-serif;
+        }
+
+        .order-add-container .page-title-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .order-add-container .page-title-header h2 {
+            font-family: 'Karla', sans-serif;
+            font-size: 24px;
+            color: var(--text-color);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .order-add-container .form-wrapper {
+            background: var(--component-bg);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .order-add-container .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #ffffff;
+        }
+
+        .order-add-container .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--brand-green);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--brand-green-light);
+        }
+
+        .order-add-container .form-group {
+            margin-bottom: 20px;
+        }
+
+        .order-add-container .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .order-add-container .form-col {
+            flex: 1;
+        }
+
+        .order-add-container .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .order-add-container .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background: #ffffff;
+            color: var(--text-color);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+
+        .order-add-container .form-control:focus {
+            border-color: var(--brand-green);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--brand-green-light);
+        }
+
+        .order-add-container .form-control:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+
+        /* 會員搜尋結果 */
+        .order-add-container .member-search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            background: white;
+            position: absolute;
+            width: 100%;
+            z-index: 1000;
+            display: none;
+        }
+
+        .order-add-container .member-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
+        }
+
+        .order-add-container .member-item:hover {
+            background-color: var(--brand-green-light);
+        }
+
+        .order-add-container .member-item:last-child {
+            border-bottom: none;
+        }
+
+        /* 商品選擇表格 */
+        .order-add-container .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .order-add-container .product-table th {
+            background: var(--brand-green-light);
+            color: var(--brand-green);
+            font-weight: 700;
+            text-align: center;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .order-add-container .product-table td {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .order-add-container .product-row {
+            background: #ffffff;
+        }
+
+        .order-add-container .product-row:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .order-add-container .quantity-input {
+            width: 80px;
+            text-align: center;
+            padding: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .order-add-container .btn-remove {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .order-add-container .btn-remove:hover {
+            background: #c82333;
+        }
+
+        /* 商品搜尋 */
+        .order-add-container .product-search-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .order-add-container .product-search-results {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            background: white;
+            position: absolute;
+            width: 100%;
+            z-index: 1000;
+            display: none;
+        }
+
+        .order-add-container .product-item {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
+        }
+
+        .order-add-container .product-item:hover {
+            background-color: var(--brand-green-light);
+        }
+
+        .order-add-container .product-item-name {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .order-add-container .product-item-price {
+            color: var(--brand-green);
+            font-size: 14px;
+        }
+
+        /* 總計區域 */
+        .order-add-container .order-summary {
+            background: var(--brand-green-light);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: right;
+        }
+
+        .order-add-container .total-amount {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--brand-green);
+            margin-top: 10px;
+        }
+
+        /* 按鈕區域 */
+        .order-add-container .form-actions {
+            text-align: right;
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .order-add-container .action-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .order-add-container .action-btn:hover {
+            background: var(--brand-green-light);
+            color: var(--brand-green);
+            border-color: var(--brand-green);
+        }
+
+        .order-add-container .action-btn.btn-primary {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+            color: white;
+        }
+
+        .order-add-container .action-btn.btn-primary:hover {
+            background-color: var(--brand-green-hover);
+            border-color: var(--brand-green-hover);
+        }
+
+        .order-add-container .action-btn.btn-primary:disabled {
+            background-color: #95a5a6;
+            border-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        /* 訊息提示 */
+        .order-add-container #message-area {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 6px;
+            display: none;
+            font-weight: bold;
+            border: 1px solid transparent;
+        }
+
+        .order-add-container #message-area.success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .order-add-container #message-area.error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .order-add-container #message-area.warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .order-add-container .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .order-add-container .form-actions {
+                flex-direction: column;
+            }
+            
+            .order-add-container .action-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        /* 載入狀態 */
+        .order-add-container .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+        }
+
+        .order-add-container .required {
+            color: #dc3545;
+        }
+
+        /* 空狀態提示 */
+        .order-add-container .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed var(--border-color);
+        }
+
+        .order-add-container .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="order-add-container">
+    <div class="page-title-header">
+        <h2><i class="bi bi-plus-circle me-2"></i>新增訂單</h2>
+    </div>
+
+    <div class="form-wrapper">
+        <form id="add-order-form">
+            
+            <!-- 會員資訊區域 -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="bi bi-person me-2"></i>會員資訊</h3>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="memberSearch">搜尋會員 <span class="required">*</span></label>
+                            <div style="position: relative;">
+                                <input type="text" id="memberSearch" class="form-control" 
+                                       placeholder="輸入會員帳號、姓名或信箱搜尋..." 
+                                       autocomplete="off">
+                                <div id="memberSearchResults" class="member-search-results"></div>
+                            </div>
+                            <small class="text-muted">
+                                💡 建議優先使用<strong>會員帳號</strong>搜尋，可獲得最精確的結果
+                            </small>
+                            <input type="hidden" id="selectedMemberId" name="memNo">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>已選會員</label>
+                            <input type="text" id="selectedMemberInfo" class="form-control" 
+                                   disabled placeholder="請先搜尋並選擇會員">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 聯絡資訊區域 -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="bi bi-envelope me-2"></i>聯絡資訊 <small class="text-muted">(僅供記錄)</small></h3>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="contactEmail">聯絡信箱 <span class="required">*</span></label>
+                            <input type="email" id="contactEmail" name="contactEmail" class="form-control" 
+                                   placeholder="order@example.com" required>
+                            <small class="text-muted">此資訊僅供管理記錄參考</small>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="contactPhone">聯絡電話</label>
+                            <input type="tel" id="contactPhone" name="contactPhone" class="form-control" 
+                                   placeholder="0912-345-678">
+                            <small class="text-muted">此資訊僅供管理記錄參考</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 商品選擇區域 -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="bi bi-bag me-2"></i>訂單商品</h3>
+                
+                <div class="product-search-container">
+                    <input type="text" id="productSearch" class="form-control" 
+                           placeholder="搜尋商品名稱..." autocomplete="off">
+                    <div id="productSearchResults" class="product-search-results"></div>
+                </div>
+
+                <div id="selectedProductsContainer">
+                    <table class="product-table" id="productTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>商品名稱</th>
+                                <th>單價</th>
+                                <th>數量</th>
+                                <th>小計</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody">
+                        </tbody>
+                    </table>
+                    
+                    <div id="emptyProductState" class="empty-state">
+                        <i class="bi bi-bag-x"></i>
+                        <p>尚未選擇任何商品</p>
+                        <small>請使用上方搜尋框搜尋並添加商品</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 訂單總計 -->
+            <div class="form-section">
+                <div class="order-summary">
+                    <h4>訂單總計</h4>
+                    <div class="total-amount" id="totalAmount">NT$ 0</div>
+                </div>
+            </div>
+
+            <!-- 按鈕區域 -->
+            <div class="form-actions">
+                <button type="button" class="action-btn" onclick="OrderAdd.goBack()">
+                    <i class="bi bi-arrow-left me-1"></i>返回列表
+                </button>
+                <button type="submit" id="submit-button" class="action-btn btn-primary">
+                    <i class="bi bi-check-lg me-1"></i>建立訂單
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div id="message-area"></div>
+</div>
+
+<script>
+    (function() {
+        'use strict';
+
+        // --- 全域變數 ---
+        let selectedMember = null;
+        let selectedProducts = [];
+        let memberSearchTimeout = null;
+        let productSearchTimeout = null;
+
+        // --- DOM 元素 ---
+        const memberSearchInput = document.getElementById('memberSearch');
+        const memberSearchResults = document.getElementById('memberSearchResults');
+        const selectedMemberIdInput = document.getElementById('selectedMemberId');
+        const selectedMemberInfoInput = document.getElementById('selectedMemberInfo');
+        const contactEmailInput = document.getElementById('contactEmail');
+        const contactPhoneInput = document.getElementById('contactPhone');
+        const productSearchInput = document.getElementById('productSearch');
+        const productSearchResults = document.getElementById('productSearchResults');
+        const productTable = document.getElementById('productTable');
+        const productTableBody = document.getElementById('productTableBody');
+        const emptyProductState = document.getElementById('emptyProductState');
+        const totalAmountDiv = document.getElementById('totalAmount');
+        const submitButton = document.getElementById('submit-button');
+        const messageArea = document.getElementById('message-area');
+        const form = document.getElementById('add-order-form');
+
+        // --- 會員搜尋功能 ---
+        
+        memberSearchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            clearTimeout(memberSearchTimeout);
+            
+            if (query.length < 2) {
+                hideMemberResults();
+                return;
+            }
+
+            memberSearchTimeout = setTimeout(() => {
+                searchMembers(query);
+            }, 300);
+        });
+
+        memberSearchInput.addEventListener('blur', function() {
+            // 延遲隱藏，讓點擊事件先執行
+            setTimeout(hideMemberResults, 150);
+        });
+
+        async function searchMembers(query) {
+            const token = localStorage.getItem('jwt');
+            if (!token) {
+                showMessage('請重新登入', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/members/search?q=${encodeURIComponent(query)}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('搜尋會員失敗');
+                }
+
+                const members = await response.json();
+                displayMemberResults(members);
+
+            } catch (error) {
+                console.error('搜尋會員錯誤:', error);
+                showMessage('搜尋會員失敗：' + error.message, 'error');
+            }
+        }
+
+        function displayMemberResults(members) {
+            if (!members || members.length === 0) {
+                memberSearchResults.innerHTML = '<div class="member-item">找不到符合的會員</div>';
+                memberSearchResults.style.display = 'block';
+                return;
+            }
+
+            const html = members.map(member => `
+                <div class="member-item" onclick="OrderAdd.selectMember(${member.id}, '${member.memName}', '${member.memEmail}', '${member.memAccount || ''}')">
+                    <div style="font-weight: bold; color: var(--brand-green);">
+                        ${member.memAccount ? `@${member.memAccount}` : `會員#${member.id}`}
+                    </div>
+                    <div style="font-size: 14px;">${member.memName}</div>
+                    <div style="font-size: 12px; color: #6c757d;">${member.memEmail}</div>
+                </div>
+            `).join('');
+
+            memberSearchResults.innerHTML = html;
+            memberSearchResults.style.display = 'block';
+        }
+
+        function hideMemberResults() {
+            memberSearchResults.style.display = 'none';
+        }
+
+        function selectMember(id, name, email, account) {
+            selectedMember = { id, name, email, account };
+            selectedMemberIdInput.value = id;
+            
+            // 顯示會員資訊，優先顯示帳號
+            const displayInfo = account ? `@${account} (${name})` : `${name} (${email})`;
+            selectedMemberInfoInput.value = displayInfo;
+            
+            // 搜尋框顯示帳號或姓名
+            memberSearchInput.value = account || name;
+            contactEmailInput.value = email; // 自動填入會員信箱
+            hideMemberResults();
+            
+            showMessage(`已選擇會員：${displayInfo}`, 'success');
+            setTimeout(hideMessage, 2000);
+        }
+
+        // --- 商品搜尋功能 ---
+        
+        productSearchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            clearTimeout(productSearchTimeout);
+            
+            if (query.length < 2) {
+                hideProductResults();
+                return;
+            }
+
+            productSearchTimeout = setTimeout(() => {
+                searchProducts(query);
+            }, 300);
+        });
+
+        productSearchInput.addEventListener('blur', function() {
+            setTimeout(hideProductResults, 150);
+        });
+
+        async function searchProducts(query) {
+            const token = localStorage.getItem('jwt');
+            if (!token) {
+                showMessage('請重新登入', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/products/search?q=${encodeURIComponent(query)}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('搜尋商品失敗');
+                }
+
+                const products = await response.json();
+                displayProductResults(products);
+
+            } catch (error) {
+                console.error('搜尋商品錯誤:', error);
+                showMessage('搜尋商品失敗：' + error.message, 'error');
+            }
+        }
+
+        function displayProductResults(products) {
+            if (!products || products.length === 0) {
+                productSearchResults.innerHTML = '<div class="product-item">找不到符合的商品</div>';
+                productSearchResults.style.display = 'block';
+                return;
+            }
+
+            const html = products.map(product => `
+                <div class="product-item" onclick="OrderAdd.addProduct(${product.proNo}, '${product.proName}', ${product.proPrice})">
+                    <div class="product-item-name">${product.proName}</div>
+                    <div class="product-item-price">NT$ ${product.proPrice.toLocaleString()}</div>
+                </div>
+            `).join('');
+
+            productSearchResults.innerHTML = html;
+            productSearchResults.style.display = 'block';
+        }
+
+        function hideProductResults() {
+            productSearchResults.style.display = 'none';
+        }
+
+        function addProduct(proNo, proName, proPrice) {
+            // 檢查是否已存在
+            const existingIndex = selectedProducts.findIndex(p => p.proNo === proNo);
+            
+            if (existingIndex >= 0) {
+                // 如果已存在，增加數量
+                selectedProducts[existingIndex].quantity += 1;
+            } else {
+                // 新增商品
+                selectedProducts.push({
+                    proNo: proNo,
+                    proName: proName,
+                    proPrice: proPrice,
+                    quantity: 1
+                });
+            }
+
+            productSearchInput.value = '';
+            hideProductResults();
+            updateProductTable();
+            calculateTotal();
+            
+            showMessage(`已添加商品：${proName}`, 'success');
+            setTimeout(hideMessage, 2000);
+        }
+
+        function removeProduct(proNo) {
+            selectedProducts = selectedProducts.filter(p => p.proNo !== proNo);
+            updateProductTable();
+            calculateTotal();
+        }
+
+        function updateQuantity(proNo, newQuantity) {
+            const quantity = parseInt(newQuantity);
+            if (quantity <= 0) {
+                removeProduct(proNo);
+                return;
+            }
+
+            const product = selectedProducts.find(p => p.proNo === proNo);
+            if (product) {
+                product.quantity = quantity;
+                updateProductTable();
+                calculateTotal();
+            }
+        }
+
+        function updateProductTable() {
+            if (selectedProducts.length === 0) {
+                productTable.style.display = 'none';
+                emptyProductState.style.display = 'block';
+                return;
+            }
+
+            productTable.style.display = 'table';
+            emptyProductState.style.display = 'none';
+
+            const html = selectedProducts.map(product => {
+                const subtotal = product.proPrice * product.quantity;
+                return `
+                    <tr class="product-row">
+                        <td style="text-align: left;">${product.proName}</td>
+                        <td>NT$ ${product.proPrice.toLocaleString()}</td>
+                        <td>
+                            <input type="number" class="quantity-input" 
+                                   value="${product.quantity}" min="1" 
+                                   onchange="OrderAdd.updateQuantity(${product.proNo}, this.value)">
+                        </td>
+                        <td>NT$ ${subtotal.toLocaleString()}</td>
+                        <td>
+                            <button type="button" class="btn-remove" 
+                                    onclick="OrderAdd.removeProduct(${product.proNo})">
+                                移除
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            productTableBody.innerHTML = html;
+        }
+
+        function calculateTotal() {
+            const total = selectedProducts.reduce((sum, product) => {
+                return sum + (product.proPrice * product.quantity);
+            }, 0);
+
+            totalAmountDiv.textContent = `NT$ ${total.toLocaleString()}`;
+        }
+
+        // --- 表單提交 ---
+        
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            if (!validateForm()) {
+                return;
+            }
+
+            const token = localStorage.getItem('jwt');
+            if (!token) {
+                showMessage('請重新登入', 'error');
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>建立中...';
+
+            try {
+                const orderData = {
+                    memNo: parseInt(selectedMemberIdInput.value),
+                    contactEmail: contactEmailInput.value,
+                    contactPhone: contactPhoneInput.value || null,
+                    orderItems: selectedProducts.map(product => ({
+                        proNo: product.proNo,
+                        quantity: product.quantity
+                    }))
+                };
+
+                const response = await fetch('/api/create', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(orderData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showMessage('訂單建立成功！2秒後將返回列表頁。', 'success');
+                    setTimeout(() => {
+                        goBack();
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || '建立訂單失敗');
+                }
+
+            } catch (error) {
+                console.error('建立訂單錯誤:', error);
+                showMessage('建立訂單失敗：' + error.message, 'error');
+                
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="bi bi-check-lg me-1"></i>建立訂單';
+            }
+        });
+
+        function validateForm() {
+            // 檢查會員
+            if (!selectedMember || !selectedMemberIdInput.value) {
+                showMessage('請選擇會員', 'warning');
+                memberSearchInput.focus();
+                return false;
+            }
+
+            // 檢查聯絡信箱
+            if (!contactEmailInput.value || !contactEmailInput.value.includes('@')) {
+                showMessage('請輸入有效的聯絡信箱', 'warning');
+                contactEmailInput.focus();
+                return false;
+            }
+
+            // 檢查商品
+            if (selectedProducts.length === 0) {
+                showMessage('請至少選擇一項商品', 'warning');
+                productSearchInput.focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        // --- 輔助函式 ---
+        
+        function showMessage(message, type) {
+            messageArea.textContent = message;
+            messageArea.className = type;
+            messageArea.style.display = 'block';
+        }
+
+        function hideMessage() {
+            messageArea.style.display = 'none';
+        }
+
+        function goBack() {
+            if (typeof loadExternalPage === 'function') {
+                loadExternalPage('../shopsys/order/allOrder.html');
+            } else {
+                history.back();
+            }
+        }
+
+        // --- 全域暴露 ---
+        window.OrderAdd = {
+            selectMember,
+            addProduct,
+            removeProduct,
+            updateQuantity,
+            goBack
+        };
+
+    })();
+</script>
+
+</body>
+</html>

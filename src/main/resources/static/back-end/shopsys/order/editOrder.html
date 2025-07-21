@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修改訂單</title>
+    
+    <style>
+        /* 繼承主頁面的 CSS 變數，確保視覺風格一致 */
+        .order-edit-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: 'Karla', '微軟正黑體', Arial, sans-serif;
+        }
+
+        .order-edit-container .page-title-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .order-edit-container .page-title-header h2 {
+            font-family: 'Karla', sans-serif;
+            font-size: 24px;
+            color: var(--text-color);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .order-edit-container .order-status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .order-edit-container .form-wrapper {
+            background: var(--component-bg);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .order-edit-container .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #ffffff;
+        }
+
+        .order-edit-container .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--brand-green);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--brand-green-light);
+        }
+
+        .order-edit-container .form-group {
+            margin-bottom: 20px;
+        }
+
+        .order-edit-container .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .order-edit-container .form-col {
+            flex: 1;
+        }
+
+        .order-edit-container .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .order-edit-container .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background: #ffffff;
+            color: var(--text-color);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+
+        .order-edit-container .form-control:focus {
+            border-color: var(--brand-green);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--brand-green-light);
+        }
+
+        .order-edit-container .form-control:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+
+        /* 訂單項目表格 */
+        .order-edit-container .order-items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .order-edit-container .order-items-table th {
+            background: var(--brand-green-light);
+            color: var(--brand-green);
+            font-weight: 700;
+            text-align: center;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .order-edit-container .order-items-table td {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .order-edit-container .item-row {
+            background: #ffffff;
+        }
+
+        .order-edit-container .item-row:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        /* 管理員操作區域 */
+        .order-edit-container .admin-actions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .order-edit-container .admin-actions h4 {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .order-edit-container .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .order-edit-container .admin-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .order-edit-container .admin-btn.cancel {
+            background: #dc3545;
+            color: white;
+        }
+
+        .order-edit-container .admin-btn.cancel:hover {
+            background: #c82333;
+        }
+
+        .order-edit-container .admin-btn.complete {
+            background: #28a745;
+            color: white;
+        }
+
+        .order-edit-container .admin-btn.complete:hover {
+            background: #218838;
+        }
+
+        .order-edit-container .admin-btn.update-status {
+            background: #007bff;
+            color: white;
+        }
+
+        .order-edit-container .admin-btn.update-status:hover {
+            background: #0056b3;
+        }
+
+        /* 狀態更新選擇器 */
+        .order-edit-container .status-update-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .order-edit-container .status-select {
+            width: 200px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        /* 按鈕區域 */
+        .order-edit-container .form-actions {
+            text-align: right;
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .order-edit-container .action-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .order-edit-container .action-btn:hover {
+            background: var(--brand-green-light);
+            color: var(--brand-green);
+            border-color: var(--brand-green);
+        }
+
+        .order-edit-container .action-btn.btn-primary {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+            color: white;
+        }
+
+        .order-edit-container .action-btn.btn-primary:hover {
+            background-color: var(--brand-green-hover);
+            border-color: var(--brand-green-hover);
+        }
+
+        .order-edit-container .action-btn.btn-primary:disabled {
+            background-color: #95a5a6;
+            border-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        /* 訊息提示 */
+        .order-edit-container #message-area {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 6px;
+            display: none;
+            font-weight: bold;
+            border: 1px solid transparent;
+        }
+
+        .order-edit-container #message-area.success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .order-edit-container #message-area.error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .order-edit-container #message-area.warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+        }
+
+        /* 狀態標籤樣式 */
+        .order-edit-container .status-pending { background-color: #f8d7da; color: #721c24; }
+        .order-edit-container .status-paying { background-color: #d1ecf1; color: #0c5460; }
+        .order-edit-container .status-processing { background-color: #fff3cd; color: #856404; }
+        .order-edit-container .status-shipped { background-color: #cce5ff; color: #004085; }
+        .order-edit-container .status-completed { background-color: #d4edda; color: #155724; }
+        .order-edit-container .status-failed { background-color: #f8d7da; color: #721c24; }
+        .order-edit-container .status-cancelled { background-color: #e9ecef; color: #495057; }
+
+        /* 載入狀態 */
+        .order-edit-container .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .order-edit-container .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .order-edit-container .form-actions {
+                flex-direction: column;
+            }
+            
+            .order-edit-container .action-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .order-edit-container .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="order-edit-container">
+    <div class="page-title-header">
+        <h2><i class="bi bi-pencil-square me-2"></i>修改訂單</h2>
+        <div id="orderStatusBadge" class="order-status-badge"></div>
+    </div>
+
+    <!-- 載入狀態 -->
+    <div id="loadingState" class="loading">
+        <i class="bi bi-arrow-clockwise me-2"></i>載入訂單資料中...
+    </div>
+
+    <!-- 主要表單 -->
+    <div id="mainContent" class="form-wrapper" style="display: none;">
+        <form id="edit-order-form">
+            <input type="hidden" id="orderNo" name="orderNo">
+            
+            <!-- 基本資訊區域 -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="bi bi-info-circle me-2"></i>基本資訊</h3>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>訂單編號</label>
+                            <input type="text" id="displayOrderNo" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>訂購時間</label>
+                            <input type="text" id="orderDatetime" class="form-control" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>會員姓名</label>
+                            <input type="text" id="memberName" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>會員信箱</label>
+                            <input type="text" id="memberEmail" class="form-control" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 聯絡資訊區域 -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="bi bi-envelope me-2"></i>聯絡資訊 <small class="text-muted">(僅供記錄)</small></h3>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="contactEmail">聯絡信箱</label>
+                            <input type="email" id="contactEmail" name="contactEmail" class="form-control" 
+                                   placeholder="請輸入聯絡信箱">
+                            <small class="text-muted">此資訊僅供管理記錄，不會儲存到訂單資料庫</small>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="contactPhone">聯絡電話</label>
+                            <input type="tel" id="contactPhone" name="contactPhone" class="form-control" 
+                                   placeholder="請輸入聯絡電話">
+                            <small class="text-muted">此資訊僅供管理記錄，不會儲存到訂單資料庫</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 訂單項目區域 -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="bi bi-bag me-2"></i>訂單項目</h3>
+                
+                <table class="order-items-table">
+                    <thead>
+                        <tr>
+                            <th>商品名稱</th>
+                            <th>單價</th>
+                            <th>數量</th>
+                            <th>小計</th>
+                            <th>評價</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderItemsBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 金額資訊 -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="bi bi-currency-dollar me-2"></i>金額資訊</h3>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>優惠券使用</label>
+                            <input type="text" id="couponInfo" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>訂單總額</label>
+                            <input type="text" id="orderTotal" class="form-control" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 管理員操作區域 -->
+            <div id="adminActionsSection" class="admin-actions">
+                <h4><i class="bi bi-gear me-2"></i>管理員操作</h4>
+                
+                <div class="action-buttons">
+                    <button type="button" class="admin-btn cancel" onclick="OrderEdit.adminCancelOrder()">
+                        <i class="bi bi-x-circle me-1"></i>取消訂單
+                    </button>
+                    <button type="button" class="admin-btn complete" onclick="OrderEdit.forceCompleteOrder()">
+                        <i class="bi bi-check-circle me-1"></i>強制完成
+                    </button>
+                    <button type="button" class="admin-btn update-status" onclick="OrderEdit.showStatusUpdate()">
+                        <i class="bi bi-arrow-repeat me-1"></i>更新狀態
+                    </button>
+                </div>
+
+                <!-- 狀態更新區域 -->
+                <div id="statusUpdateSection" class="status-update-section">
+                    <label for="newStatus">選擇新狀態：</label>
+                    <select id="newStatus" class="status-select">
+                        <option value="PENDING">等待付款</option>
+                        <option value="PAYING">付款處理中</option>
+                        <option value="PROCESSING">處理中</option>
+                        <option value="SHIPPED">已付款</option>
+                        <option value="COMPLETED">已完成</option>
+                        <option value="FAILED">處理失敗</option>
+                        <option value="CANCELLED">已取消</option>
+                    </select>
+                    <button type="button" class="admin-btn update-status" onclick="OrderEdit.updateOrderStatus()">
+                        確認更新
+                    </button>
+                    <button type="button" class="admin-btn" onclick="OrderEdit.hideStatusUpdate()" 
+                            style="background: #6c757d; color: white;">
+                        取消
+                    </button>
+                </div>
+            </div>
+
+            <!-- 按鈕區域 -->
+            <div class="form-actions">
+                <button type="button" class="action-btn" onclick="OrderEdit.goBack()">
+                    <i class="bi bi-arrow-left me-1"></i>返回列表
+                </button>
+                <button type="submit" id="submit-button" class="action-btn btn-primary">
+                    <i class="bi bi-check-lg me-1"></i>儲存修改
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div id="message-area"></div>
+</div>
+
+<script>
+    (function() {
+        'use strict';
+
+        // --- 全域變數 ---
+        let currentOrder = null;
+        let orderNo = null;
+
+        // --- DOM 元素 ---
+        const loadingState = document.getElementById('loadingState');
+        const mainContent = document.getElementById('mainContent');
+        const orderStatusBadge = document.getElementById('orderStatusBadge');
+        const form = document.getElementById('edit-order-form');
+        const submitButton = document.getElementById('submit-button');
+        const messageArea = document.getElementById('message-area');
+
+        // --- 初始化 ---
+        
+        async function initializePage() {
+            // 從 URL 參數或 content-area 屬性獲取訂單編號
+            orderNo = getOrderNoFromUrl();
+            
+            if (!orderNo) {
+                showMessage('錯誤：無法取得訂單編號', 'error');
+                loadingState.style.display = 'none';
+                return;
+            }
+
+            await loadOrderData();
+        }
+
+        function getOrderNoFromUrl() {
+            // 從 AdmHomePage 的 content-area 屬性讀取
+            const contentArea = document.getElementById('content-area');
+            if (contentArea) {
+                const pageParams = contentArea.getAttribute('data-page-params');
+                if (pageParams) {
+                    const urlParams = new URLSearchParams(pageParams);
+                    return urlParams.get('orderNo');
+                }
+            }
+
+            // 備用：從 URL 讀取
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('orderNo');
+        }
+
+        async function loadOrderData() {
+            const token = localStorage.getItem('jwt');
+            if (!token) {
+                showMessage('請重新登入', 'error');
+                return;
+            }
+
+            try {
+                // 同時載入訂單基本資訊和訂單項目
+                const [orderResponse, itemsResponse] = await Promise.all([
+                    fetch(`/api/orders/${orderNo}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }),
+                    fetch(`/api/admin/orderitem/order/${orderNo}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                ]);
+
+                if (!orderResponse.ok || !itemsResponse.ok) {
+                    throw new Error('載入訂單資料失敗');
+                }
+
+                const orderData = await orderResponse.json();
+                const orderItems = await itemsResponse.json();
+                
+                currentOrder = { ...orderData, orderItems };
+                
+                populateForm();
+                loadingState.style.display = 'none';
+                mainContent.style.display = 'block';
+
+            } catch (error) {
+                console.error('載入訂單資料錯誤:', error);
+                showMessage('載入訂單資料失敗：' + error.message, 'error');
+                loadingState.style.display = 'none';
+            }
+        }
+
+        function populateForm() {
+            if (!currentOrder) return;
+
+            // 基本資訊
+            document.getElementById('orderNo').value = currentOrder.orderNo;
+            document.getElementById('displayOrderNo').value = currentOrder.orderNo;
+            document.getElementById('orderDatetime').value = formatDateTime(currentOrder.orderDatetime);
+            
+            // 會員資訊（需要從後端獲取會員詳細資料）
+            document.getElementById('memberName').value = '載入中...';
+            document.getElementById('memberEmail').value = '載入中...';
+            loadMemberInfo(currentOrder.memNo);
+
+            // 聯絡資訊（預設為空，因為資料庫沒有這些欄位）
+            document.getElementById('contactEmail').value = '';
+            document.getElementById('contactPhone').value = '';
+            
+            // 顯示提示訊息
+            showMessage('注意：聯絡資訊功能僅供記錄，不會實際儲存到訂單資料庫', 'warning');
+            setTimeout(hideMessage, 5000);
+
+            // 金額資訊
+            document.getElementById('couponInfo').value = currentOrder.couponWalletNo ? `使用優惠券 #${currentOrder.couponWalletNo}` : '無使用優惠券';
+            document.getElementById('orderTotal').value = `NT$ ${currentOrder.orderTotal.toLocaleString()}`;
+
+            // 狀態標籤
+            updateStatusBadge(currentOrder.orderStatus);
+
+            // 訂單項目
+            populateOrderItems();
+
+            // 管理員操作權限
+            updateAdminActions();
+        }
+
+        async function loadMemberInfo(memNo) {
+            const token = localStorage.getItem('jwt');
+            try {
+                const response = await fetch(`/api/admin/members/${memNo}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const member = await response.json();
+                    document.getElementById('memberName').value = member.memName || '未知';
+                    document.getElementById('memberEmail').value = member.memEmail || '無';
+                } else {
+                    document.getElementById('memberName').value = `會員 #${memNo}`;
+                    document.getElementById('memberEmail').value = '無法載入';
+                }
+            } catch (error) {
+                console.error('載入會員資訊失敗:', error);
+                document.getElementById('memberName').value = `會員 #${memNo}`;
+                document.getElementById('memberEmail').value = '載入失敗';
+            }
+        }
+
+        function populateOrderItems() {
+            const tbody = document.getElementById('orderItemsBody');
+            
+            if (!currentOrder.orderItems || currentOrder.orderItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">此訂單無商品項目</td></tr>';
+                return;
+            }
+
+            const html = currentOrder.orderItems.map((item, index) => `
+                <tr class="item-row">
+                    <td style="text-align: left;">${item.proName || '商品名稱'}</td>
+                    <td>NT$ ${item.proPrice ? item.proPrice.toLocaleString() : '0'}</td>
+                    <td>${item.orderAmount || '0'}</td>
+                    <td>NT$ ${item.subTotal ? item.subTotal.toLocaleString() : '0'}</td>
+                    <td>${generateStarRating(item.proStar)}</td>
+                </tr>
+            `).join('');
+
+            tbody.innerHTML = html;
+        }
+
+        function generateStarRating(rating) {
+            if (!rating || rating === 0) {
+                return '<span style="color: #6c757d;">未評分</span>';
+            }
+            
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars += '<span style="color: #ffc107;">★</span>';
+                } else {
+                    stars += '<span style="color: #e0e0e0;">☆</span>';
+                }
+            }
+            return `${stars} <small>(${rating}/5)</small>`;
+        }
+
+        function updateStatusBadge(status) {
+            const displayName = getStatusDisplayName(status);
+            const statusClass = getStatusClass(status);
+            
+            orderStatusBadge.textContent = displayName;
+            orderStatusBadge.className = `order-status-badge ${statusClass}`;
+        }
+
+        function updateAdminActions() {
+            const adminSection = document.getElementById('adminActionsSection');
+            const status = currentOrder.orderStatus;
+            
+            // 根據狀態決定顯示哪些管理員操作
+            const canCancel = !['COMPLETED', 'CANCELLED'].includes(status);
+            const canComplete = ['PROCESSING', 'SHIPPED'].includes(status);
+            
+            if (!canCancel && !canComplete) {
+                adminSection.style.display = 'none';
+            }
+        }
+
+        // --- 管理員操作功能 ---
+        
+        async function adminCancelOrder() {
+            const reason = prompt('請輸入取消原因：');
+            if (!reason) return;
+
+            if (!confirm('確定要取消此訂單嗎？')) return;
+
+            const token = localStorage.getItem('jwt');
+            try {
+                const response = await fetch(`/api/admin/${orderNo}/cancel`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        reason: reason,
+                        adminId: 'ADMIN_USER'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showMessage('訂單已取消', 'success');
+                    // 重新載入資料
+                    await loadOrderData();
+                } else {
+                    throw new Error(result.message || '取消訂單失敗');
+                }
+
+            } catch (error) {
+                console.error('取消訂單錯誤:', error);
+                showMessage('取消訂單失敗：' + error.message, 'error');
+            }
+        }
+
+        async function forceCompleteOrder() {
+            const reason = prompt('請輸入強制完成的原因：');
+            if (!reason) return;
+
+            if (!confirm('確定要強制完成此訂單嗎？')) return;
+
+            const token = localStorage.getItem('jwt');
+            try {
+                const response = await fetch(`/api/admin/${orderNo}/force-complete`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        reason: reason,
+                        adminId: 'ADMIN_USER'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showMessage('訂單已強制完成', 'success');
+                    await loadOrderData();
+                } else {
+                    throw new Error(result.message || '強制完成失敗');
+                }
+
+            } catch (error) {
+                console.error('強制完成錯誤:', error);
+                showMessage('強制完成失敗：' + error.message, 'error');
+            }
+        }
+
+        function showStatusUpdate() {
+            const section = document.getElementById('statusUpdateSection');
+            const select = document.getElementById('newStatus');
+            
+            // 設定當前狀態為預設值
+            select.value = currentOrder.orderStatus;
+            section.style.display = 'block';
+        }
+
+        function hideStatusUpdate() {
+            document.getElementById('statusUpdateSection').style.display = 'none';
+        }
+
+        async function updateOrderStatus() {
+            const newStatus = document.getElementById('newStatus').value;
+            
+            if (newStatus === currentOrder.orderStatus) {
+                showMessage('狀態沒有變更', 'warning');
+                return;
+            }
+
+            if (!confirm(`確定要將訂單狀態更新為「${getStatusDisplayName(newStatus)}」嗎？`)) {
+                return;
+            }
+
+            const token = localStorage.getItem('jwt');
+            try {
+                const response = await fetch(`/api/admin/batch-update-status`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        orderIds: [parseInt(orderNo)],
+                        newStatus: newStatus,
+                        adminId: 'ADMIN_USER'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showMessage('狀態更新成功', 'success');
+                    hideStatusUpdate();
+                    await loadOrderData();
+                } else {
+                    throw new Error(result.message || '狀態更新失敗');
+                }
+
+            } catch (error) {
+                console.error('狀態更新錯誤:', error);
+                showMessage('狀態更新失敗：' + error.message, 'error');
+            }
+        }
+
+        // --- 表單提交 ---
+        
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const token = localStorage.getItem('jwt');
+            if (!token) {
+                showMessage('請重新登入', 'error');
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>儲存中...';
+
+            try {
+                const updateData = {
+                    contactEmail: document.getElementById('contactEmail').value,
+                    contactPhone: document.getElementById('contactPhone').value || null
+                };
+
+                const response = await fetch(`/api/admin/orders/${orderNo}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showMessage('訂單修改成功！', 'success');
+                    // 重新載入資料以顯示最新狀態
+                    await loadOrderData();
+                } else {
+                    throw new Error(result.message || '修改訂單失敗');
+                }
+
+            } catch (error) {
+                console.error('修改訂單錯誤:', error);
+                showMessage('修改訂單失敗：' + error.message, 'error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="bi bi-check-lg me-1"></i>儲存修改';
+            }
+        });
+
+        // --- 輔助函式 ---
+        
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return '-';
+            try {
+                return new Date(dateTimeStr).toLocaleString('zh-TW', { 
+                    hour12: false,
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (e) {
+                return dateTimeStr;
+            }
+        }
+
+        function getStatusDisplayName(status) {
+            const statusMap = {
+                'PENDING': '等待付款',
+                'PAYING': '付款處理中', 
+                'PROCESSING': '處理中',
+                'SHIPPED': '已付款',
+                'COMPLETED': '已完成',
+                'FAILED': '處理失敗',
+                'CANCELLED': '已取消',
+                '等待付款': '等待付款',
+                '付款處理中': '付款處理中',
+                '處理中': '處理中',
+                '已付款': '已付款',
+                '已完成': '已完成',
+                '處理失敗': '處理失敗',
+                '已取消': '已取消'
+            };
+            return statusMap[status] || status || '未知';
+        }
+
+        function getStatusClass(status) {
+            const normalizedStatus = getStatusDisplayName(status);
+            
+            switch(normalizedStatus) {
+                case '等待付款': return 'status-pending';
+                case '付款處理中': return 'status-paying';
+                case '處理中': return 'status-processing';
+                case '已付款': return 'status-shipped';
+                case '已完成': return 'status-completed';
+                case '處理失敗': return 'status-failed';
+                case '已取消': return 'status-cancelled';
+                default: return 'status-unknown';
+            }
+        }
+
+        function showMessage(message, type) {
+            messageArea.textContent = message;
+            messageArea.className = type;
+            messageArea.style.display = 'block';
+            
+            // 自動隱藏成功訊息
+            if (type === 'success') {
+                setTimeout(hideMessage, 3000);
+            }
+        }
+
+        function hideMessage() {
+            messageArea.style.display = 'none';
+        }
+
+        function goBack() {
+            if (typeof loadExternalPage === 'function') {
+                loadExternalPage('../shopsys/order/allOrder.html');
+            } else {
+                history.back();
+            }
+        }
+
+        // --- 全域暴露 ---
+        window.OrderEdit = {
+            adminCancelOrder,
+            forceCompleteOrder,
+            showStatusUpdate,
+            hideStatusUpdate,
+            updateOrderStatus,
+            goBack
+        };
+
+        // --- 頁面初始化 ---
+        initializePage();
+
+    })();
+</script>
+
+</body>
+</html>

@@ -1,6 +1,8 @@
 package com.pixeltribe.shopsys.order.model;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -50,6 +52,17 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     @Query(value = "SELECT COALESCE(AVG(ORDER_TOTAL), 0) FROM `order` WHERE ORDER_STATUS IN ('COMPLETED', 'SHIPPED')", nativeQuery = true)
     Double getAverageOrderValue();
     
+    
+    //*** 根據訂單狀態統計數量 *** //
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.orderStatus = :orderStatus")
+    Long countOrdersByStatus(@Param("orderStatus") String orderStatus);
+
+    // *** 計算本月營收 (已完成訂單的總金額) *** //
+    @Query("SELECT COALESCE(SUM(o.orderTotal), 0) FROM Order o " +
+    	       "WHERE o.orderDatetime BETWEEN :startDate AND :endDate " +
+    	       "AND o.orderStatus IN ('COMPLETED', 'SHIPPED')") // 根據你的訂單狀態調整
+    	BigDecimal calculateMonthlyRevenue(@Param("startDate") LocalDateTime startDate,
+    	                                 @Param("endDate") LocalDateTime endDate);
     
     // ========== 特殊查詢方法 ========== //
     
