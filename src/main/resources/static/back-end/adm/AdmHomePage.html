@@ -542,7 +542,7 @@ body {
 				</li>
 				<li class="menu-item" id="menu-member">
 					<button class="menu-button" onclick="toggleMenu('member')">
-						<span><i class="bi bi-people-fill icon"></i>會員管理</span> <i
+						<span><i class="bi bi-people-fill icon"></i>會員系統</span> <i
 							class="bi bi-chevron-down arrow"></i>
 					</button>
 					<div class="submenu">
@@ -551,7 +551,7 @@ body {
 							class="bi bi-pie-chart-fill item-icon"></i>儀表板
 						</a> <a href="#" class="submenu-item"
 							onclick="renderContent('member', 'query', event)"> <i
-							class="bi bi-person-lines-fill item-icon"></i>會員查詢/管理
+							class="bi bi-person-lines-fill item-icon"></i>會員管理
 						</a>
 					</div>
 				</li>
@@ -926,7 +926,7 @@ body {
                         • <strong>商城系統</strong>：管理商品、訂單、優惠券等電商功能。<br>
                         • <strong>新聞系統</strong>：發布最新公告、管理使用者評論與檢舉。<br>
                         • <strong>論壇系統</strong>：維護討論區秩序、管理文章與官方公告。<br>
-                        • <strong>會員管理</strong>：查詢會員資料並執行管理操作。
+                        • <strong>會員系統</strong>：查詢會員資料並執行管理操作。
                     </p>
                 </div>
             </div>
@@ -1046,7 +1046,7 @@ body {
         return `
             <div class="dashboard-content">
                 <div class="welcome-section">
-                    <h1 class="welcome-title">會員管理儀表板</h1>
+                    <h1 class="welcome-title">會員系統儀表板</h1>
                     <p class="welcome-subtitle">即時掌握會員數據狀態。</p>
                 </div>
                 <div class="stats-grid">
@@ -1077,7 +1077,7 @@ body {
     function getPlaceholderHTML(pageKey, subKey) {
         // ... 此函式內容不變 ...
         const pageTitles = {
-            store: '商城系統', news: '新聞系統', forum: '論壇系統', member: '會員管理'
+            store: '商城系統', news: '新聞系統', forum: '論壇系統', member: '會員系統'
         };
         const subTitles = {
             'toggle': '產品上下架',
@@ -1096,7 +1096,7 @@ body {
             'forum-comments': '留言管理',
             // 'official': '發布官方文章',
             'categories': '討論區類別管理',
-            'query': '會員資料查詢',
+            'query': '會員管理',
             'suspend': '會員停權',
             'article-reports': '文章檢舉審核' // 新增的子選單標題
         };
