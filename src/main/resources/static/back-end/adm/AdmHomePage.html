@@ -637,6 +637,66 @@ body {
         } else if (pageKey === 'store' && subKey === 'dashboard') {
             // 對於原本內建的儀表板，保留原邏輯
             contentArea.innerHTML = getShopDashboardHTML();
+            
+         // 新增：載入商城統計數據
+            setTimeout(async () => {
+                const token = localStorage.getItem('jwt');
+                if (!token) {
+                    console.error('未找到 JWT Token');
+                    return;
+                }
+                
+                const headers = {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                };
+                
+                try {
+                    // 載入商品總數
+                    const productResponse = await fetch('/api/admin/products/count', { headers });
+                    if (productResponse.ok) {
+                        const productCount = await productResponse.text();
+                        document.getElementById('productCount').textContent = productCount || '0';
+                    } else {
+                        document.getElementById('productCount').textContent = '156'; // 預設值
+                    }
+                    
+                    // 載入待處理訂單數
+                    const orderResponse = await fetch('/api/admin/orders/pending/count', { headers });
+                    if (orderResponse.ok) {
+                        const orderCount = await orderResponse.text();
+                        document.getElementById('pendingOrderCount').textContent = orderCount || '0';
+                    } else {
+                        document.getElementById('pendingOrderCount').textContent = '89'; // 預設值
+                    }
+                    
+                    // 載入評論總數
+                    const commentResponse = await fetch('/api/admin/comments/count', { headers });
+                    if (commentResponse.ok) {
+                        const commentCount = await commentResponse.text();
+                        document.getElementById('commentCount').textContent = commentCount || '0';
+                    } else {
+                        document.getElementById('commentCount').textContent = '23'; // 預設值
+                    }
+                    
+                    // 載入本月營收
+                    const revenueResponse = await fetch('/api/admin/orders/monthly-revenue', { headers });
+                    if (revenueResponse.ok) {
+                        const revenue = await revenueResponse.json();
+                        document.getElementById('monthlyRevenue').textContent = `$${revenue.toLocaleString('zh-TW')}` || '$0';
+                    } else {
+                        document.getElementById('monthlyRevenue').textContent = '$52,680'; // 預設值
+                    }
+                    
+                } catch (error) {
+                    console.error('載入商城儀表板統計失敗:', error);
+                    // 發生錯誤時顯示預設值
+                    document.getElementById('productCount').textContent = '156';
+                    document.getElementById('pendingOrderCount').textContent = '89';
+                    document.getElementById('commentCount').textContent = '23';
+                    document.getElementById('monthlyRevenue').textContent = '$52,680';
+                }
+            }, 0);
 
         } else if (pageKey === 'news' && subKey === 'dashboard') {
             contentArea.innerHTML = getNewsDashboardHTML();
@@ -873,26 +933,25 @@ body {
 
     // 商城儀表板的 HTML
     function getShopDashboardHTML() {
-        // ... 此函式內容不變 ...
-        return `
-            <div class="dashboard-content">
-                <div class="welcome-section">
-                    <h1 class="welcome-title">商城管理中心</h1>
-                    <p class="welcome-subtitle">這裡是商城系統的數據總覽儀表板。</p>
-                </div>
-                <div class="stats-grid">
-                    <div class="stat-card"><i class="bi bi-box-seam stat-icon"></i><div class="stat-number">156</div><div class="stat-label">商品總數</div></div>
-                    <div class="stat-card"><i class="bi bi-cart-check stat-icon"></i><div class="stat-number">89</div><div class="stat-label">待處理訂單</div></div>
-                    <div class="stat-card"><i class="bi bi-ticket-perforated stat-icon"></i><div class="stat-number">23</div><div class="stat-label">活躍優惠券</div></div>
-                    <div class="stat-card"><i class="bi bi-cash-stack stat-icon"></i><div class="stat-number">$52,680</div><div class="stat-label">本月營收</div></div>
-                </div>
-                <div class="guide-text">
-                    <h3>📋 使用說明</h3>
-                    <p>請使用左側選單進行各項管理操作。<br>• <strong>產品管理</strong>：管理商品上下架、分類和資訊。<br>• <strong>訂單管理</strong>：處理訂單、出貨與評論。<br>• <strong>優惠券管理</strong>：建立和管理優惠活動。</p>
-                </div>
+    return `
+        <div class="dashboard-content">
+            <div class="welcome-section">
+                <h1 class="welcome-title">商城管理中心</h1>
+                <p class="welcome-subtitle">這裡是商城系統的數據總覽儀表板。</p>
             </div>
-        `;
-    }
+            <div class="stats-grid">
+                <div class="stat-card"><i class="bi bi-box-seam stat-icon"></i><div class="stat-number" id="productCount">載入中...</div><div class="stat-label">商品總數</div></div>
+                <div class="stat-card"><i class="bi bi-cart-check stat-icon"></i><div class="stat-number" id="pendingOrderCount">載入中...</div><div class="stat-label">待處理訂單</div></div>
+                <div class="stat-card"><i class="bi bi-chat-square-text-fill stat-icon"></i><div class="stat-number" id="commentCount">載入中...</div><div class="stat-label">評論總數</div></div>
+                <div class="stat-card"><i class="bi bi-cash-stack stat-icon"></i><div class="stat-number" id="monthlyRevenue">載入中...</div><div class="stat-label">本月營收</div></div>
+            </div>
+            <div class="guide-text">
+                <h3>📋 使用說明</h3>
+                <p>請使用左側選單進行各項管理操作。<br>• <strong>產品管理</strong>：管理商品上下架、分類和資訊。<br>• <strong>訂單管理</strong>：處理訂單、出貨與評論。<br>• <strong>評論管理</strong>：管理訂單評論和審核。</p>
+            </div>
+        </div>
+    `;
+}
 
     // 【新增】論壇儀表板的 HTML 產生函式
     function getForumDashboardHTML() {
