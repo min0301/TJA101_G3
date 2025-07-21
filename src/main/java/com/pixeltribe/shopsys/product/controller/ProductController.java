@@ -158,15 +158,17 @@ public class ProductController {
 		
 		@GetMapping("/product/{id}/search")
 		public ResponseEntity<?> searchOneProduct(@Parameter
-										@PathVariable Integer id) {
+												  @PathVariable Integer id) {
 			ProductDisplayDTO product = productDTOMapper.toProductDisplayDTO(productService.getOneProduct(id));
-			ProductInventoryDTO inventory = proudctPreorderService.getProductInventoryDisplay(id);
+//			ProductInventoryDTO inventory = proudctPreorderService.getSingleProductInventory(id);
 			Map<String, Object> result = new HashMap<>();
 			result.put("product", product);
-			result.put("inventory", inventory);
+//			result.put("inventory", inventory);
 			return ResponseEntity.ok(result);
 		 }
 		 
+		
+		
 		@GetMapping("/product/cover/{id}")
 		public ResponseEntity<byte[]> getProductCover(@PathVariable Integer id) {
 		    Product product = productService.getOneProduct(id);

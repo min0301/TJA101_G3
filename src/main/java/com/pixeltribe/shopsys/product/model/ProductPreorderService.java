@@ -1,7 +1,11 @@
 package com.pixeltribe.shopsys.product.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -11,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.pixeltribe.shopsys.malltag.model.MallTagRepository;
+import com.pixeltribe.shopsys.proSerialNumber.model.ProSerialNumberRepository;
 import com.pixeltribe.shopsys.proSerialNumber.model.ProSerialNumberService;
 
 @Service
@@ -28,6 +33,9 @@ public class ProductPreorderService {
 	ProductPreorderRepository productPreorderRepository;
 	@Autowired
 	ProSerialNumberService proSerialNumberService;
+	@Autowired
+	ProSerialNumberRepository proSerialNumberRepository;
+
 	
 	@Transactional
 	public void setPreorderInventory(String proNo, Integer quantity) {
@@ -51,39 +59,90 @@ public class ProductPreorderService {
        return Boolean.TRUE.equals(redisTemplate.hasKey(proNo));
    }
    
-   public List<ProductInventoryDTO> getAllInventory(List<Integer> proNo) {
-       return proNo.stream()
-           .map(this::getProductInventoryDisplay)
-           .collect(Collectors.toList());
-   }
+   
+   public List<ProductInventoryDTO> getAllInventory(List<Integer> proNos) {
+	    if (proNos == null || proNos.isEmpty()) {
+	        return Collections.emptyList();
+	    }
 
-   public ProductInventoryDTO getProductInventoryDisplay(Integer proNo) {
-       // 1. 查詢商品基本信息
-       Optional<Product> product= productRepository.findById(proNo);
-       
-       // 2. 初始化顯示對象
-       ProductInventoryDTO display = new ProductInventoryDTO();
-       display.setId(proNo);
-       display.setProStatus(product.get().getProStatus());
-       display.setProDate(product.get().getProDate());
-       
-       // 3. 根據商品狀態選擇庫存計算方式
-       switch (product.get().getProStatus()) {
-           case "預購中":
-               // 處理預購商品：從Redis獲取預購剩餘數量
-               preorderInventoryDisplay(display, proNo.toString());
-               break;
-           case "已發售":
-               // 處理已發售商品：使用現有的proSerialNumberService
-               releasedInventoryDisplay(display, proNo);
-               break;
-           default:
-               display.setInventory(0);
-               display.setDisplayText("無庫存");
-               display.setIsAvailable(false);
-       }
-       return display;
-   }
+	    List<Product> products = productRepository.findAllById(proNos);
+
+	    List<Object[]> stockResults = proSerialNumberRepository.countStockByProNo(proNos);
+	    Map<Integer, Integer> releasedStockMap = new HashMap<>();
+	    for (Object[] row : stockResults) {
+	        releasedStockMap.put((Integer) row[0], (Integer) row[1]);
+	    }
+	    
+	    Map<Integer, Integer> preorderStockMap = new HashMap<>();
+	    List<String> redisKeys = new ArrayList<>();
+	    List<Integer> preorderProductIds = new ArrayList<>();
+
+	    for (Product p : products) {
+	        if ("預購中".equals(p.getProStatus())) {
+	            preorderProductIds.add(p.getId());
+	            redisKeys.add(p.getId().toString());
+	        }
+	    }
+
+	    if (!redisKeys.isEmpty()) {
+	        List<Object> stockValues = redisTemplate.opsForValue().multiGet(redisKeys);
+
+	        if (stockValues != null) {
+	            for (int i = 0; i < preorderProductIds.size(); i++) {
+	                Integer productId = preorderProductIds.get(i);
+	                Object stockValue = stockValues.get(i);
+
+	                Integer finalStock = (stockValue != null) ? (Integer) stockValue : 0;
+	                
+	                preorderStockMap.put(productId, finalStock);
+	            }
+	        }
+	    }
+	    return products.stream()
+	        .map(product -> getProductInventoryDisplay(product, releasedStockMap, preorderStockMap))
+	        .collect(Collectors.toList());
+	}
+   
+   public ProductInventoryDTO getProductInventoryDisplay(Product product, 
+           Map<Integer, Integer> releasedStockMap, 
+           Map<Integer, Integer> preorderStockMap) {
+
+	   		ProductInventoryDTO display = new ProductInventoryDTO();
+			display.setId(product.getId());
+			display.setProStatus(product.getProStatus());
+			display.setProDate(product.getProDate());
+			
+			switch (product.getProStatus()) {
+			case "預購中":
+				Integer preorderStock = preorderStockMap.getOrDefault(product.getId(), 0);
+				display.setInventory(preorderStock);
+				display.setDisplayText(preorderStock > 0 ? "預購中" : "預購已滿");
+				display.setIsAvailable(preorderStock > 0);
+				break;
+			
+			case "已發售":
+				Integer releasedStock = releasedStockMap.getOrDefault(product.getId(), 0);
+				display.setInventory(releasedStock.intValue());
+				display.setDisplayText("現貨供應");
+				display.setIsAvailable(releasedStock > 0);
+				break;
+			
+			default:
+				display.setInventory(0);
+				display.setDisplayText("無庫存");
+				display.setIsAvailable(false);
+			}
+			return display;
+			}
+   
+   public ProductInventoryDTO getSingleProductInventory(Integer proNo) {
+	    if (proNo == null) {
+	        return null;
+	    }
+	    List<Integer> singleIdList = Collections.singletonList(proNo);
+	    List<ProductInventoryDTO> resultList = this.getAllInventory(singleIdList);
+	    return (resultList != null && !resultList.isEmpty()) ? resultList.get(0) : null;
+	}
    
    private void preorderInventoryDisplay(ProductInventoryDTO display, String proNo) {
        Integer preorderStock = getPreorderInventory(proNo);
