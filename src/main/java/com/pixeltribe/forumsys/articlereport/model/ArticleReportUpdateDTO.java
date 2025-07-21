@@ -12,7 +12,7 @@ import java.time.Instant;
 @Builder
 public class ArticleReportUpdateDTO {
 
-    @Size(max = 1)
+//    @Size(max = 1)
     @Schema(description = "文章檢舉處理狀態")
     private Character artRepStatus;
     @Schema(description = "文章檢舉處理完成時間")
