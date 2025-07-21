@@ -977,7 +977,9 @@
         row.setAttribute('data-product-id', product.id);
         row.innerHTML = `
           <td>${product.id}</td>
-          <td class="product-name">${product.proName}</td>
+          <td>
+          	<a href="#" onclick="event.preventDefault(); loadExternalPage('../shopsys/product/perProduct.html?id=${product.id}')" class="product-name">${product.proName}</a>
+          </td>
           <td class="price-cell">${Number(product.proPrice).toLocaleString()}</td>
           <td>${product.proStatus}</td>
           <td>${product.proVersion}</td>

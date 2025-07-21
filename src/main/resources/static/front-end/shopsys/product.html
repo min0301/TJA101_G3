@@ -450,7 +450,7 @@
 	                        </div>
 	                        
 	                        <!-- 商品規格 -->
-	                        <div class="product-info bg-light p-3 rounded mb-4">
+	                        <div class="product-info bg-light p-3 rounded mb-3">
 	                            <div class="row">
 	                                <div class="col-6">
 	                                    <strong>版本：</strong><br>
@@ -464,7 +464,7 @@
 	                        </div>
 	                        
 	                        <!-- 庫存狀態顯示（使用真實資料）-->
-	                        <div class="stock-section mb-4 p-3 bg-light rounded">
+	                        <div class="stock-section mb-3 p-3 bg-light rounded">
 	                            <div class="d-flex align-items-center gap-2 mb-2">
 	                                <i class="bi bi-box-seam ${statusInfo.stockClass}"></i>
 	                                <span class="fw-bold ${statusInfo.stockClass}">${statusInfo.stockText}</span>
@@ -480,16 +480,11 @@
 	                        <!-- 操作按鈕根據庫存狀態調整 -->
 	                        <div class="action-buttons">
 	                            <div class="row">
-	                                <div class="col-md-6 mb-2">
+	                                <div class="col-12 mb-3">
 	                                    <button class="btn ${statusInfo.canPurchase ? 'btn-success' : 'btn-secondary'} btn-lg w-100" 
 	                                            ${statusInfo.canPurchase ? '' : 'disabled'}
 	                                            onclick="handleAddToCart(${productId})">
 	                                        <i class="bi bi-cart-plus me-2"></i>${statusInfo.buttonText}
-	                                    </button>
-	                                </div>
-	                                <div class="col-md-6 mb-2">
-	                                    <button class="btn btn-danger btn-lg w-100" onclick="handleAddToFavorite(${productId})">
-	                                        <i class="bi bi-heart me-2"></i>加入最愛
 	                                    </button>
 	                                </div>
 	                                <div class="col-12">
