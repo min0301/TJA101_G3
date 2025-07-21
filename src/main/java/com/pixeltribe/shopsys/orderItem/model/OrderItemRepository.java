@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
@@ -123,6 +124,18 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
            nativeQuery = true)
     List<OrderItem> findMemberCanCommentItems(@Param("memNo") Integer memNo);
     
+    @Query(value = "SELECT COUNT(*) FROM order_item " +
+            "WHERE (product_comment IS NOT NULL OR pro_star IS NOT NULL)", 
+	    nativeQuery = true)
+	Long countAllComments();
+	
+	@Query(value = "SELECT COUNT(*) FROM order_item " +
+	            "WHERE (product_comment IS NOT NULL OR pro_star IS NOT NULL) " +
+	            "AND pro_com_status = '0'", 
+	    nativeQuery = true)
+	Long countNormalComments();
+    
+    
     
     
     // ========== 統計查詢 ========== //
@@ -170,7 +183,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     
     // *** 統計停權評價數量 *** //
     @Query(value = "SELECT COUNT(*) FROM order_item " +
-                   "WHERE pro_com_status = '0'", 
+                   "WHERE pro_com_status = '1'", 
            nativeQuery = true)
     Long countBlockedComments();
     
@@ -187,6 +200,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     
     // *** 更新評價狀態 *** //
     @Modifying
+    @Transactional
     @Query(value = "UPDATE order_item SET pro_com_status = :status " +
                    "WHERE order_item_no = :orderItemNo", 
            nativeQuery = true)

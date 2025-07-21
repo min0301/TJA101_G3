@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.shopsys.order.model.Order;
@@ -262,6 +263,7 @@ public class OrderItemService {
     }
     
     // *** 更新評價狀態 *** //
+    @Transactional
     public void updateCommentStatus(Integer orderItemNo, String status) {
         // 驗證訂單明細是否存在
         if (!orderItemRepository.existsById(orderItemNo)) {
@@ -278,6 +280,7 @@ public class OrderItemService {
     
     
     // *** 批量更新評價狀態 <<後台發現多個不當評價，選取多個評價後 全部一起停權>>*** //
+    @Transactional
     public void batchUpdateCommentStatus(List<Integer> orderItemNos, String status) {
         int updated = orderItemRepository.batchUpdateCommentStatus(orderItemNos, status);
         if (updated == 0) {
@@ -289,11 +292,16 @@ public class OrderItemService {
     // *** 後台統計資訊 *** //
     public AdminStatistics getAdminStatistics() {
         
-        Long blockedComments = orderItemRepository.countBlockedComments();
-        Long pendingComments = orderItemRepository.countPendingComments();
-        Long totalComments = blockedComments + pendingComments;
+    	// 統計所有有評論的項目
+        Long totalComments = orderItemRepository.countAllComments();
         
-        return new AdminStatistics(totalComments, blockedComments, pendingComments);
+        // 統計正常評論
+        Long normalComments = orderItemRepository.countNormalComments();
+        
+        // 統計被停權評論
+        Long blockedComments = orderItemRepository.countBlockedComments();
+        
+        return new AdminStatistics(totalComments, normalComments, blockedComments);
     }
     
     
@@ -301,7 +309,7 @@ public class OrderItemService {
     
     // ========== 私有方法 ========== //
     // *** 轉換為後台評價DTO *** //
-    private AdminCommentDTO convertToAdminCommentDTO(OrderItem orderItem) {
+    public AdminCommentDTO convertToAdminCommentDTO(OrderItem orderItem) {
         AdminCommentDTO dto = new AdminCommentDTO();
         
         // 基本資訊
