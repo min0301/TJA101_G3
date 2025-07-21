@@ -526,10 +526,12 @@ body {
 						</a> <a href="#" class="submenu-item"
 							onclick="renderContent('forum', 'comments', event)"> <i
 							class="bi bi-chat-left-text-fill item-icon"></i>留言管理
-						</a> <a href="#" class="submenu-item"
-							onclick="renderContent('forum', 'official', event)"> <i
-							class="bi bi-megaphone-fill item-icon"></i>發布官方文章
-						</a> <a href="#" class="submenu-item"
+						</a>
+<!--						<a href="#" class="submenu-item"-->
+<!--							onclick="renderContent('forum', 'official', event)"> <i-->
+<!--							class="bi bi-megaphone-fill item-icon"></i>發布官方文章-->
+<!--						</a> -->
+						<a href="#" class="submenu-item"
 							onclick="renderContent('forum', 'reports', event)"> <i
 							class="bi bi-shield-check item-icon"></i>文章留言檢舉審核
 						</a> <a href="#" class="submenu-item"
@@ -549,7 +551,7 @@ body {
 							class="bi bi-pie-chart-fill item-icon"></i>儀表板
 						</a> <a href="#" class="submenu-item"
 							onclick="renderContent('member', 'query', event)"> <i
-							class="bi bi-person-lines-fill item-icon"></i>會員查詢/管理
+							class="bi bi-person-lines-fill item-icon"></i>會員管理
 						</a>
 					</div>
 				</li>
@@ -1044,7 +1046,7 @@ body {
         return `
             <div class="dashboard-content">
                 <div class="welcome-section">
-                    <h1 class="welcome-title">會員管理儀表板</h1>
+                    <h1 class="welcome-title">會員系統儀表板</h1>
                     <p class="welcome-subtitle">即時掌握會員數據狀態。</p>
                 </div>
                 <div class="stats-grid">
@@ -1092,9 +1094,9 @@ body {
             'forums': '討論區管理',
             'posts': '文章管理',
             'forum-comments': '留言管理',
-            'official': '發布官方文章',
+            // 'official': '發布官方文章',
             'categories': '討論區類別管理',
-            'query': '會員資料查詢',
+            'query': '會員管理',
             'suspend': '會員停權',
             'article-reports': '文章檢舉審核' // 新增的子選單標題
         };
