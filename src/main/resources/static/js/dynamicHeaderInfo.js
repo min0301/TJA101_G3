@@ -90,13 +90,37 @@
 			if (listMemName) listMemName.textContent = memberInfo.memName;
 			if (listMemEmail) listMemEmail.textContent = memberInfo.memEmail;
 			if (headerMemNickName) headerMemNickName.textContent = memberInfo.memNickName;
+			// if (avatarImg) {
+			// 	avatarImg.src = `/uploads/memberAvatar/${memberInfo.memIconData || 'defaultmem.png'}`;
+			// 	avatarImg.onerror = function() {
+			// 		this.onerror = null;
+			// 		this.src = `/images/memberAvatar/${memberInfo.memIconData ||'defaultmem.png'}`;
+			// 	};
+			// }
 			if (avatarImg) {
-				avatarImg.src = `/uploads/memberAvatar/${memberInfo.memIconData || 'defaultmem.png'}`;
-				avatarImg.onerror = function() {
-					this.onerror = null;
-					this.src = '/images/memberAvatar/defaultmem.png';
+				// 取出檔名；沒有就直接用 defaultmem.png
+				const file = memberInfo.memIconData || 'defaultmem.png';
+
+				// 依序嘗試的路徑
+				const srcList = [
+					`/uploads/memberAvatar/${file}`,
+					`/images/memberAvatar/${file}`,
+					`/images/memberAvatar/defaultmem.png`
+				];
+
+				let idx = 0;
+				avatarImg.src = srcList[idx];
+
+				avatarImg.onerror = function () {
+					// 已經嘗試到最後一個，就不再處理
+					if (idx >= srcList.length - 1) return;
+
+					// 換下一個來源再試
+					idx++;
+					this.src = srcList[idx];
 				};
 			}
+
 		} else {
 			// 顯示訪客，隱藏會員
 			if (memberArea) memberArea.style.display = "none";
