@@ -23,6 +23,7 @@ public interface NewsImageRepository extends JpaRepository<NewsImage, Integer> {
                 group by sub.newsNo.id
             )and n.isShowed = true
             order by n.newsCrdate desc
+            LIMIT 5
             """)
     List<NewsImageIndexDTO> getTopFiveImage();
 }
