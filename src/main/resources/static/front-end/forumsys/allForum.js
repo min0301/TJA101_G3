@@ -1,4 +1,4 @@
-// allForum.js (SPA功能 + 整合聊天室 + 文章按讚功能)
+// allForum.js (SPA功能 + 整合聊天室 + 文章按讚功能 + 新增文章功能)
 
 // --- 全域變數 ---
 // 可變：變數名稱 dynamicContentContainer 可依需求自行命名，但需確保與 HTML 中的 ID 一致。
@@ -83,17 +83,25 @@ window.showPostListView = async function (forumId) {
             headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const [forumRes, postsRes] = await Promise.all([
+        // 這裡需要獲取文章類別資料，用於新增文章 Modal 的下拉選單
+        const [forumRes, postsRes, forumTagsRes] = await Promise.all([
             fetch(`/api/forum/${forumId}`, {headers: headers}),
-            fetch(`/api/forum/${forumId}/posts/sorted`, {headers: headers})
+            fetch(`/api/forum/${forumId}/posts/sorted`, {headers: headers}),
+            fetch(`/api/forumtag`, {headers: headers}) // 獲取所有文章類別，路徑根據 ForumTagController.java
         ]);
 
-        if (!forumRes.ok || !postsRes.ok) {
-            throw new Error('抓取討論區或文章資料失敗');
+        if (!forumRes.ok || !postsRes.ok || !forumTagsRes.ok) {
+            // 嘗試獲取更多錯誤信息
+            const forumError = !forumRes.ok ? await forumRes.text() : '';
+            const postsError = !postsRes.ok ? await postsRes.text() : '';
+            const tagsError = !forumTagsRes.ok ? await forumTagsRes.text() : '';
+            console.error('API Fetch Errors:', { forumError, postsError, tagsError });
+            throw new Error('抓取討論區、文章或文章類別資料失敗');
         }
 
         const forum = await forumRes.json();
         const posts = await postsRes.json();
+        const forumTags = await forumTagsRes.json(); // 解析文章類別資料
 
         renderForumHeader(dynamicContentContainer, forum);
 
@@ -131,9 +139,22 @@ window.showPostListView = async function (forumId) {
             }
         }
 
-        renderPosts(dynamicContentContainer, posts, false); // 修改：這裡傳遞 false，表示不顯示收藏按鈕和按讚按鈕。
+        // 新增文章按鈕容器
+        const newPostButtonContainer = document.createElement('div');
+        newPostButtonContainer.className = 'd-flex justify-content-end mb-3'; // 靠右對齊
+        newPostButtonContainer.innerHTML = `
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newPostModal" data-forum-id="${forumId}">
+                <i class="bi bi-plus-circle me-2"></i>新增文章
+            </button>
+        `;
+        dynamicContentContainer.appendChild(newPostButtonContainer);
+
+        renderPosts(dynamicContentContainer, posts, false);
 
         history.pushState({forumId: forumId}, ``, `?forumId=${forumId}`);
+
+        // 設置新增文章 Modal
+        setupNewPostModal(forumTags, forumId); // 傳入文章類別和當前討論區 ID
 
         setTimeout(() => {
             AOS.init({once: true});
@@ -374,10 +395,6 @@ function renderPosts(container, posts, showPostActions = false) { // 預設為 f
     } else {
         container.appendChild(postsContainer);
     }
-
-    // 在文章列表頁，不需要為按讚/收藏按鈕綁定事件，因為它們不會被生成。
-    // 所以這裡可以移除 addPostCollectButtonListeners() 和 addPostLikeButtonListeners() 的呼叫。
-    // 但是，由於文章連結 (.post-link) 仍然存在，它的點擊事件會在 setupEventListeners 中被委派處理，這是正常的。
 }
 
 /**
@@ -981,4 +998,303 @@ async function populateReportTypes() {
  */
 function showError(container, message) {
     container.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+}
+
+// --- 新增文章功能相關 ---
+
+/**
+ * 設定新增文章 Modal
+ * @param {Array<Object>} forumTags - 文章類別資料陣列
+ * @param {string} currentForumId - 當前討論區 ID
+ */
+function setupNewPostModal(forumTags, currentForumId) {
+    let newPostModal = document.getElementById('newPostModal');
+    let modalContainer = document.getElementById('newPostModalContainer');
+
+    // 如果 Modal 元素不存在，則動態創建它
+    if (!newPostModal) {
+        if (!modalContainer) { // 如果連容器都沒有，則先創建容器
+            modalContainer = document.createElement('div');
+            modalContainer.id = 'newPostModalContainer';
+            document.body.appendChild(modalContainer);
+        }
+        // 更新 Modal 的 HTML 結構，移除「使用預設圖片」的 radio button 和下拉選單
+        const modalHtml = `
+            <div class="modal fade" id="newPostModal" tabindex="-1" aria-labelledby="newPostModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="newPostModalLabel">新增文章</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="new-post-form" enctype="multipart/form-data">
+                                <input type="hidden" id="new-post-forum-id" name="forNoId">
+
+                                <div class="mb-3">
+                                    <label for="new-post-title" class="form-label">文章標題 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="new-post-title" name="postTitle" required maxlength="50">
+                                    <div class="form-text text-muted">標題長度限制50字。</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="new-post-tag" class="form-label">文章類別 <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="new-post-tag" name="ftagNoId" required>
+                                        <option value="" selected disabled>請選擇文章類別...</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="new-post-content" class="form-label">文章內容 <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="new-post-content" name="postCon" rows="10" required minlength="10" maxlength="5000"></textarea>
+                                    <div class="form-text text-muted">內容長度限制10到5000字。</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label d-block">文章封面圖片</label>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="imageOption" id="image-upload-option" value="upload" checked>
+                                        <label class="form-check-label" for="image-upload-option">自訂圖片</label>
+                                    </div>
+                                    <!-- 移除「使用預設圖片」的選項和相關下拉選單 -->
+                                    <!-- <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="imageOption" id="image-default-option" value="default">
+                                        <label class="form-check-label" for="image-default-option">使用預設圖片</label>
+                                    </div> -->
+
+                                    <div id="image-upload-area" class="mt-2">
+                                        <input class="form-control" type="file" id="new-post-image-upload" name="imageFile" accept="image/*">
+                                        <div class="form-text text-muted">建議圖片比例為1:1，大小不超過2MB。</div>
+                                    </div>
+
+                                    <!-- 移除預設圖片選擇區域 -->
+                                    <!-- <div id="image-default-area" class="mt-2" style="display: none;">
+                                        <select class="form-select" id="new-post-default-image-select">
+                                            <option value="" selected disabled>請選擇預設圖片...</option>
+                                        </select>
+                                        <input type="hidden" id="new-post-default-image-url" name="defaultImageUrl">
+                                    </div> -->
+
+                                    <div class="mt-3 text-center">
+                                        <img id="new-post-image-preview" src="" alt="圖片預覽" class="img-fluid rounded" style="max-width: 200px; max-height: 200px; object-fit: contain; border: 1px solid #ddd; display: none;">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                    <button type="submit" class="btn btn-primary" id="submit-new-post-btn">送出文章</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        modalContainer.insertAdjacentHTML('beforeend', modalHtml);
+        newPostModal = document.getElementById('newPostModal'); // 重新獲取新創建的 Modal 元素
+    }
+
+
+    const newPostForm = document.getElementById('new-post-form');
+    const forumIdInput = document.getElementById('new-post-forum-id');
+    const tagSelect = document.getElementById('new-post-tag');
+    const imageUploadInput = document.getElementById('new-post-image-upload');
+    // const defaultImageSelect = document.getElementById('new-post-default-image-select'); // 已移除
+    // const defaultImageUrlInput = document.getElementById('new-post-default-image-url'); // 已移除
+    const imagePreview = document.getElementById('new-post-image-preview');
+    const submitBtn = document.getElementById('submit-new-post-btn');
+    const imageUploadOptionRadio = document.getElementById('image-upload-option'); // 自訂圖片 radio
+
+    // 填充文章類別下拉選單
+    tagSelect.innerHTML = '<option value="" selected disabled>請選擇文章類別...</option>';
+    forumTags.forEach(tag => {
+        const option = document.createElement('option');
+        option.value = tag.id;
+        option.textContent = tag.ftagName; // 假設 tag 物件有 ftagName 屬性
+        tagSelect.appendChild(option);
+    });
+
+    // 移除獲取並填充預設圖片選項的 fetch 呼叫，因為不再需要獨立的預設圖片下拉選單
+    // fetch('/api/forumpost/default-images') ...
+
+    // 處理圖片選項切換 (現在只有「自訂圖片」一個選項)
+    // 當「自訂圖片」被選中，顯示上傳區域；否則隱藏上傳區域並嘗試顯示類別預設圖
+    imageUploadOptionRadio.addEventListener('change', toggleImageOptions);
+
+    function toggleImageOptions() {
+        const uploadArea = document.getElementById('image-upload-area');
+        // const defaultArea = document.getElementById('image-default-area'); // 已移除
+        const isCustomUploadSelected = imageUploadOptionRadio.checked;
+
+        if (isCustomUploadSelected) {
+            uploadArea.style.display = 'block';
+            imagePreview.src = ''; // 清空預覽
+            imagePreview.style.display = 'none'; // 隱藏預覽
+            imageUploadInput.required = false; // 上傳模式下圖片不強制必填，讓後端處理
+            imageUploadInput.value = ''; // 清空檔案選擇
+        } else {
+            // 如果「自訂圖片」未被選中，則顯示文章類別的預設圖片
+            uploadArea.style.display = 'none';
+            imageUploadInput.required = false;
+            imageUploadInput.value = '';
+            updateImagePreviewBasedOnCategory(); // 根據選定的文章類別更新圖片預覽
+        }
+    }
+
+    /**
+     * 根據選定的文章類別 ID 獲取並顯示預設圖片
+     */
+    async function updateImagePreviewBasedOnCategory() {
+        const selectedTagId = tagSelect.value;
+        if (selectedTagId) {
+            try {
+                // 呼叫後端 API 獲取預設圖片 URL
+                // 這裡使用 /api/forumtag/default-image/{ftagNoId}
+                const response = await fetch(`/api/forumtag/default-image/${selectedTagId}`);
+                if (!response.ok) {
+                    console.error(`無法獲取預設圖片URL，狀態碼: ${response.status}`);
+                    imagePreview.style.display = 'none';
+                    imagePreview.src = '';
+                    return;
+                }
+                const imageUrl = await response.text(); // 預期返回純文字的 URL
+                imagePreview.src = imageUrl;
+                imagePreview.style.display = 'block';
+            } catch (error) {
+                console.error('載入預設圖片失敗:', error);
+                imagePreview.style.display = 'none';
+                imagePreview.src = ''; // 清除圖片源
+            }
+        } else {
+            imagePreview.style.display = 'none';
+            imagePreview.src = '';
+        }
+    }
+
+    // 圖片預覽功能 (上傳自訂圖片)
+    imageUploadInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+        }
+    });
+
+    // 監聽文章類別下拉選單的變化
+    tagSelect.addEventListener('change', () => {
+        // 只有當「自訂圖片」未被選中時，才根據文章類別更新預覽
+        if (!imageUploadOptionRadio.checked) {
+            updateImagePreviewBasedOnCategory();
+        } else {
+            // 如果「自訂圖片」被選中，選擇類別時不顯示預設圖，清空預覽
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+        }
+    });
+
+
+    // 處理表單提交
+    newPostForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const token = localStorage.getItem('jwt');
+        if (!token) {
+            alert('請先登入才能新增文章！');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = '送出中...';
+
+        const formData = new FormData();
+        const forumPostUpdateDTO = {
+            forNoId: parseInt(forumIdInput.value, 10),
+            ftagNoId: parseInt(tagSelect.value, 10),
+            postTitle: document.getElementById('new-post-title').value,
+            postCon: document.getElementById('new-post-content').value,
+            // 這裡不傳遞 postPin 和 postStatus，讓後端 Service 層設定預設值
+        };
+
+        // 將 DTO 轉換為 JSON 字串並添加到 FormData
+        formData.append('forumPostUpdate', new Blob([JSON.stringify(forumPostUpdateDTO)], { type: 'application/json' }));
+
+        // 處理圖片檔案
+        const imageFile = imageUploadInput.files[0];
+
+        if (imageUploadOptionRadio.checked && imageFile) {
+            // 如果選擇自訂圖片且有檔案，則上傳自訂圖片
+            formData.append('imageFile', imageFile);
+            // 不傳遞 defaultImageUrl 參數
+        } else {
+            // 如果沒有選擇自訂圖片，也不傳遞 imageFile
+            // 讓後端根據 ftagNoId 自動處理預設圖片
+            // 這裡可以明確傳遞一個空字串給 defaultImageUrl，或者完全不傳遞
+            formData.append('defaultImageUrl', ''); // 明確傳遞空字串，表示沒有指定預設圖片 URL
+        }
+
+
+        try {
+            const response = await fetch('/api/forumpost/insert', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                    // 'Content-Type': 'multipart/form-data' 不需要手動設定，FormData 會自動設定
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                let errorMessage = '新增文章失敗';
+                if (errorData.message) {
+                    errorMessage = errorData.message;
+                } else if (errorData.details) {
+                    errorMessage += `: ${errorData.details}`;
+                } else if (typeof errorData === 'object') {
+                    // 如果是驗證錯誤，會有多個欄位錯誤
+                    const fieldErrors = Object.values(errorData).join('\n');
+                    errorMessage = `表單驗證失敗:\n${fieldErrors}`;
+                }
+                throw new Error(errorMessage);
+            }
+
+            alert('文章新增成功！');
+            bootstrap.Modal.getInstance(newPostModal).hide(); // 關閉 Modal
+            showPostListView(currentForumId); // 重新載入文章列表以顯示新文章
+
+        } catch (error) {
+            console.error('新增文章失敗:', error);
+            alert(`新增文章失敗：${error.message}`);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '送出文章';
+        }
+    });
+
+    // Modal 顯示時，設定討論區 ID 並重置表單
+    newPostModal.addEventListener('show.bs.modal', (event) => {
+        const button = event.relatedTarget; // 觸發 Modal 的按鈕
+        const forumId = button.dataset.forumId;
+        forumIdInput.value = forumId;
+
+        // 重置表單
+        newPostForm.reset();
+        imagePreview.src = ''; // 清空圖片預覽
+        imagePreview.style.display = 'none';
+        imageUploadInput.value = ''; // 清空檔案選擇
+
+        // 預設選中「自訂圖片」並觸發切換邏輯
+        document.getElementById('image-upload-option').checked = true;
+        toggleImageOptions();
+        // 確保剛打開 Modal 時，如果沒有選擇自訂圖片，能顯示預設圖片
+        if (!imageUploadOptionRadio.checked && tagSelect.value) {
+            updateImagePreviewBasedOnCategory();
+        }
+    });
 }

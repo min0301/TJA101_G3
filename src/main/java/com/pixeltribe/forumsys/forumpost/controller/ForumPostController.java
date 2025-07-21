@@ -141,6 +141,7 @@ public class ForumPostController {
      * @param imageFile          封面圖片檔案 (可選)
      * @param result             驗證結果
      * @param defaultImageUrl    預設圖片的 URL
+     * @param currentUser        當前登入會員的詳細資訊
      * @return 新增後的文章 DTO 或錯誤訊息
      */
     @PostMapping(value = "/forumpost/insert", consumes = {"multipart/form-data"})
@@ -149,7 +150,8 @@ public class ForumPostController {
             @RequestPart("forumPostUpdate") @Valid ForumPostUpdateDTO forumPostUpdateDTO,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
             @RequestPart(value = "defaultImageUrl", required = false) String defaultImageUrl,
-            BindingResult result) {
+            BindingResult result,
+            @AuthenticationPrincipal MemberDetails currentUser) { // <-- 確保有這個參數
 
         if (result.hasErrors()) {
             Map<String, Object> errors = result.getFieldErrors().stream()
@@ -160,8 +162,17 @@ public class ForumPostController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
+        // 檢查 currentUser 是否為 null。
+        // 雖然您目前 SecurityConfig 是 permitAll，但如果後續收緊權限，這裡會需要檢查。
+        if (currentUser == null) {
+//            Map<String, Object> errorResponse = new HashMap<>();
+//            errorResponse.put("message", "請先登入才能發文！");
+//            return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+        }
+
         try {
-            ForumPostDTO savedForumPostDTO = forumPostSvc.addForumPost(forumPostUpdateDTO, imageFile, defaultImageUrl);
+            // 將 currentUser 物件直接傳遞給 Service 層
+            ForumPostDTO savedForumPostDTO = forumPostSvc.addForumPost(currentUser, forumPostUpdateDTO, imageFile, defaultImageUrl); // <-- 修正這裡，傳遞 currentUser
 
             Map<String, Object> successResponse = new HashMap<>();
             successResponse.put("message", "文章新增成功");

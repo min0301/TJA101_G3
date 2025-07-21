@@ -105,6 +105,7 @@ class SecurityConfig {
                                         "/api/forumtag", // 查全部文章類別
                                         "/api/posts/{postId}/collect/status",
                                         "/api/posts/{postId}/like/status",
+                                        "/api/auth/**",
                                         //===========================================
                                         //========新聞========
                                         "/api/News/admin/redis/create",
