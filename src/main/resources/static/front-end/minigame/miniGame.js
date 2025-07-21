@@ -159,9 +159,10 @@ function draw(){
         ctx.fillStyle='rgba(0,0,0,0.6)';
         ctx.fillRect(0,H/2-80,W,160);
         ctx.fillStyle='#fff'; ctx.textAlign='center';
-        ctx.fillText('遊戲結束',W/2,H/2-20);
-        ctx.fillText(`本局 ${score} ‧ 最高 ${best}`,W/2,H/2+30);
-        ctx.fillText('按空白鍵再來一次',W/2,H/2+80);
+        ctx.fillText('遊戲結束',W/2,H/2-40);
+        ctx.fillText(`本局 ${score} ‧ 最高 ${best}`,W/2,H/2);
+        ctx.fillText('按空白鍵再來一次',W/2,H/2+35);
+        ctx.fillText('按ESC離開遊戲',W/2,H/2+70);
     }
 }
 
