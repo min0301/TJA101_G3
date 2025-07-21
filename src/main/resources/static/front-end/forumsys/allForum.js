@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('popstate', handlePopState);
     setupEventListeners();
+    // 【修正點 1】在 DOMContentLoaded 時就初始化一次新增文章的 Modal 和表單事件
+    setupNewPostModal();
 });
 
 /**
@@ -153,8 +155,19 @@ window.showPostListView = async function (forumId) {
 
         history.pushState({forumId: forumId}, ``, `?forumId=${forumId}`);
 
-        // 設置新增文章 Modal
-        setupNewPostModal(forumTags, forumId); // 傳入文章類別和當前討論區 ID
+        // 【修正點 2】將 forumTags 和 currentForumId 傳遞給 setupNewPostModal 中的 Modal 顯示事件
+        // 這裡不再直接呼叫 setupNewPostModal，因為它只會在 DOMContentLoaded 時初始化一次。
+        // 相反，我們會在 Modal 顯示時，透過事件監聽器將這些資料傳入。
+
+        // 【修正點 3】更新 Modal 的 show.bs.modal 事件監聽器邏輯
+        const newPostModal = document.getElementById('newPostModal');
+        if (newPostModal) {
+            // 移除舊的 show.bs.modal 監聽器以避免重複設定邏輯 (雖然因為它只被呼叫一次，這裡可以省略)
+            // newPostModal.removeEventListener('show.bs.modal', newPostModalShowHandler);
+            // newPostModal.addEventListener('show.bs.modal', newPostModalShowHandler);
+            // newPostModalShowHandler 會在 setupNewPostModal 中處理，並將 forumTags 和 currentForumId 設為 Modal 內部的狀態。
+        }
+
 
         setTimeout(() => {
             AOS.init({once: true});
@@ -243,14 +256,7 @@ window.showCollectedPostsView = async function () {
 
         if (!response.ok) {
             if (response.status === 401 || response.status === 403) {
-                dynamicContentContainer.innerHTML = `
-                    <div class="alert alert-warning text-center p-5">
-                        <i class="bi bi-exclamation-triangle fs-1 text-muted mb-3"></i>
-                        <h4>登入狀態無效</h4>
-                        <p>您的登入已過期或無效，請 <a href="/front-end/mem/MemberLogin.html" class="alert-link">重新登入</a>。</p>
-                    </div>
-                `;
-                return;
+                alert('您的登入已過期或無效，請重新登入。');
             }
             throw new Error('無法獲取收藏文章列表');
         }
@@ -852,6 +858,7 @@ async function handlePostLikeAction(postId, action, buttonElement) {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
+                // 'Content-Type': 'multipart/form-data' 不需要手動設定，FormData 會自動設定
             },
             body: requestBody
         });
@@ -1002,17 +1009,29 @@ function showError(container, message) {
 
 // --- 新增文章功能相關 ---
 
+// 【重要】將這些變數移到 setupNewPostModal 外部，讓它們在整個模組中只被初始化一次。
+let newPostModal = null;
+let newPostForm = null;
+let forumIdInput = null;
+let tagSelect = null;
+let imageUploadInput = null;
+let imagePreview = null;
+let submitBtn = null;
+let imageUploadOptionRadio = null;
+let forumTagsCache = []; // 用於儲存文章類別資料，避免重複獲取
+let currentForumIdForModal = null; // 用於儲存當前發文的討論區 ID
+
 /**
  * 設定新增文章 Modal
- * @param {Array<Object>} forumTags - 文章類別資料陣列
- * @param {string} currentForumId - 當前討論區 ID
+ *
+ * @param {Array<Object>} [forumTags=[]] - 文章類別資料陣列 (只在第一次載入時傳入)
+ * @param {string} [currentForumId=null] - 當前討論區 ID (只在第一次載入時傳入)
  */
-function setupNewPostModal(forumTags, currentForumId) {
-    let newPostModal = document.getElementById('newPostModal');
+async function setupNewPostModal() {
     let modalContainer = document.getElementById('newPostModalContainer');
 
     // 如果 Modal 元素不存在，則動態創建它
-    if (!newPostModal) {
+    if (!newPostModal) { // 變數名稱 `newPostModal` 不可變，因為其指涉 DOM 元素
         if (!modalContainer) { // 如果連容器都沒有，則先創建容器
             modalContainer = document.createElement('div');
             modalContainer.id = 'newPostModalContainer';
@@ -1056,24 +1075,10 @@ function setupNewPostModal(forumTags, currentForumId) {
                                         <input class="form-check-input" type="radio" name="imageOption" id="image-upload-option" value="upload" checked>
                                         <label class="form-check-label" for="image-upload-option">自訂圖片</label>
                                     </div>
-                                    <!-- 移除「使用預設圖片」的選項和相關下拉選單 -->
-                                    <!-- <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="imageOption" id="image-default-option" value="default">
-                                        <label class="form-check-label" for="image-default-option">使用預設圖片</label>
-                                    </div> -->
-
                                     <div id="image-upload-area" class="mt-2">
                                         <input class="form-control" type="file" id="new-post-image-upload" name="imageFile" accept="image/*">
                                         <div class="form-text text-muted">建議圖片比例為1:1，大小不超過2MB。</div>
                                     </div>
-
-                                    <!-- 移除預設圖片選擇區域 -->
-                                    <!-- <div id="image-default-area" class="mt-2" style="display: none;">
-                                        <select class="form-select" id="new-post-default-image-select">
-                                            <option value="" selected disabled>請選擇預設圖片...</option>
-                                        </select>
-                                        <input type="hidden" id="new-post-default-image-url" name="defaultImageUrl">
-                                    </div> -->
 
                                     <div class="mt-3 text-center">
                                         <img id="new-post-image-preview" src="" alt="圖片預覽" class="img-fluid rounded" style="max-width: 200px; max-height: 200px; object-fit: contain; border: 1px solid #ddd; display: none;">
@@ -1091,210 +1096,246 @@ function setupNewPostModal(forumTags, currentForumId) {
         `;
         modalContainer.insertAdjacentHTML('beforeend', modalHtml);
         newPostModal = document.getElementById('newPostModal'); // 重新獲取新創建的 Modal 元素
-    }
 
+        // 【修正點 4】在 Modal 首次創建時，就獲取這些 DOM 元素並綁定事件
+        newPostForm = document.getElementById('new-post-form');
+        forumIdInput = document.getElementById('new-post-forum-id');
+        tagSelect = document.getElementById('new-post-tag');
+        imageUploadInput = document.getElementById('new-post-image-upload');
+        imagePreview = document.getElementById('new-post-image-preview');
+        submitBtn = document.getElementById('submit-new-post-btn');
+        imageUploadOptionRadio = document.getElementById('image-upload-option');
 
-    const newPostForm = document.getElementById('new-post-form');
-    const forumIdInput = document.getElementById('new-post-forum-id');
-    const tagSelect = document.getElementById('new-post-tag');
-    const imageUploadInput = document.getElementById('new-post-image-upload');
-    // const defaultImageSelect = document.getElementById('new-post-default-image-select'); // 已移除
-    // const defaultImageUrlInput = document.getElementById('new-post-default-image-url'); // 已移除
-    const imagePreview = document.getElementById('new-post-image-preview');
-    const submitBtn = document.getElementById('submit-new-post-btn');
-    const imageUploadOptionRadio = document.getElementById('image-upload-option'); // 自訂圖片 radio
+        // 監聽圖片選項切換 (現在只有「自訂圖片」一個選項)
+        imageUploadOptionRadio.addEventListener('change', toggleImageOptions);
 
-    // 填充文章類別下拉選單
-    tagSelect.innerHTML = '<option value="" selected disabled>請選擇文章類別...</option>';
-    forumTags.forEach(tag => {
-        const option = document.createElement('option');
-        option.value = tag.id;
-        option.textContent = tag.ftagName; // 假設 tag 物件有 ftagName 屬性
-        tagSelect.appendChild(option);
-    });
-
-    // 移除獲取並填充預設圖片選項的 fetch 呼叫，因為不再需要獨立的預設圖片下拉選單
-    // fetch('/api/forumpost/default-images') ...
-
-    // 處理圖片選項切換 (現在只有「自訂圖片」一個選項)
-    // 當「自訂圖片」被選中，顯示上傳區域；否則隱藏上傳區域並嘗試顯示類別預設圖
-    imageUploadOptionRadio.addEventListener('change', toggleImageOptions);
-
-    function toggleImageOptions() {
-        const uploadArea = document.getElementById('image-upload-area');
-        // const defaultArea = document.getElementById('image-default-area'); // 已移除
-        const isCustomUploadSelected = imageUploadOptionRadio.checked;
-
-        if (isCustomUploadSelected) {
-            uploadArea.style.display = 'block';
-            imagePreview.src = ''; // 清空預覽
-            imagePreview.style.display = 'none'; // 隱藏預覽
-            imageUploadInput.required = false; // 上傳模式下圖片不強制必填，讓後端處理
-            imageUploadInput.value = ''; // 清空檔案選擇
-        } else {
-            // 如果「自訂圖片」未被選中，則顯示文章類別的預設圖片
-            uploadArea.style.display = 'none';
-            imageUploadInput.required = false;
-            imageUploadInput.value = '';
-            updateImagePreviewBasedOnCategory(); // 根據選定的文章類別更新圖片預覽
-        }
-    }
-
-    /**
-     * 根據選定的文章類別 ID 獲取並顯示預設圖片
-     */
-    async function updateImagePreviewBasedOnCategory() {
-        const selectedTagId = tagSelect.value;
-        if (selectedTagId) {
-            try {
-                // 呼叫後端 API 獲取預設圖片 URL
-                // 這裡使用 /api/forumtag/default-image/{ftagNoId}
-                const response = await fetch(`/api/forumtag/default-image/${selectedTagId}`);
-                if (!response.ok) {
-                    console.error(`無法獲取預設圖片URL，狀態碼: ${response.status}`);
-                    imagePreview.style.display = 'none';
-                    imagePreview.src = '';
-                    return;
-                }
-                const imageUrl = await response.text(); // 預期返回純文字的 URL
-                imagePreview.src = imageUrl;
-                imagePreview.style.display = 'block';
-            } catch (error) {
-                console.error('載入預設圖片失敗:', error);
+        // 圖片預覽功能 (上傳自訂圖片)
+        imageUploadInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.src = '';
                 imagePreview.style.display = 'none';
-                imagePreview.src = ''; // 清除圖片源
             }
-        } else {
+        });
+
+        // 監聽文章類別下拉選單的變化
+        tagSelect.addEventListener('change', updateImagePreviewBasedOnCategory); // 即使只有自訂圖片選項，選了類別後也應該清除預覽
+
+        // 處理表單提交，只綁定一次
+        newPostForm.addEventListener('submit', handleNewPostSubmit);
+
+        // 【修正點 5】將 Modal 顯示時的邏輯移到單獨的監聽器中
+        newPostModal.addEventListener('show.bs.modal', async (event) => {
+            const button = event.relatedTarget; // 觸發 Modal 的按鈕
+            const forumId = button.dataset.forumId;
+            currentForumIdForModal = forumId; // 儲存當前討論區 ID
+            forumIdInput.value = forumId;
+
+            // 每次 Modal 顯示時都重置表單
+            newPostForm.reset();
+            imagePreview.src = ''; // 清空圖片預覽
             imagePreview.style.display = 'none';
-            imagePreview.src = '';
+            imageUploadInput.value = ''; // 清空檔案選擇
+
+            // 確保「自訂圖片」選項被選中
+            imageUploadOptionRadio.checked = true;
+            toggleImageOptions(); // 執行圖片選項切換邏輯
+
+            // 每次 Modal 顯示時都重新獲取文章類別資料並填充下拉選單
+            await fetchForumTagsForModal();
+        });
+    }
+}
+
+/**
+ * 處理圖片選項切換
+ */
+function toggleImageOptions() {
+    const uploadArea = document.getElementById('image-upload-area');
+    const isCustomUploadSelected = imageUploadOptionRadio.checked;
+
+    if (isCustomUploadSelected) {
+        uploadArea.style.display = 'block';
+        imagePreview.src = ''; // 清空預覽
+        imagePreview.style.display = 'none'; // 隱藏預覽
+        imageUploadInput.required = false; // 上傳模式下圖片不強制必填，讓後端處理
+        imageUploadInput.value = ''; // 清空檔案選擇
+    } else {
+        uploadArea.style.display = 'none';
+        imageUploadInput.required = false;
+        imageUploadInput.value = '';
+        // 如果未來又加回預設圖片選項，這裡需要調用 updateImagePreviewBasedOnCategory();
+    }
+}
+
+/**
+ * 根據選定的文章類別 ID 獲取並顯示預設圖片
+ */
+async function updateImagePreviewBasedOnCategory() {
+    const selectedTagId = tagSelect.value;
+    if (selectedTagId && !imageUploadOptionRadio.checked) { // 只有當未選擇自訂圖片時才更新預覽
+        try {
+            // 呼叫後端 API 獲取預設圖片 URL
+            const response = await fetch(`/api/forumtag/default-image/${selectedTagId}`);
+            if (!response.ok) {
+                console.error(`無法獲取預設圖片URL，狀態碼: ${response.status}`);
+                imagePreview.style.display = 'none';
+                imagePreview.src = '';
+                return;
+            }
+            const imageUrl = await response.text(); // 預期返回純文字的 URL
+            imagePreview.src = imageUrl;
+            imagePreview.style.display = 'block';
+        } catch (error) {
+            console.error('載入預設圖片失敗:', error);
+            imagePreview.style.display = 'none';
+            imagePreview.src = ''; // 清除圖片源
         }
+    } else {
+        imagePreview.src = '';
+        imagePreview.style.display = 'none';
+    }
+}
+
+/**
+ * 獲取並填充文章類別下拉選單
+ */
+async function fetchForumTagsForModal() {
+    try {
+        const token = localStorage.getItem('jwt');
+        const headers = {};
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        const response = await fetch(`/api/forumtag`, {headers: headers});
+        if (!response.ok) throw new Error('獲取文章類別資料失敗');
+        const forumTags = await response.json();
+
+        // 填充文章類別下拉選單
+        tagSelect.innerHTML = '<option value="" selected disabled>請選擇文章類別...</option>';
+        forumTags.forEach(tag => {
+            const option = document.createElement('option');
+            option.value = tag.id;
+            option.textContent = tag.ftagName;
+            tagSelect.appendChild(option);
+        });
+        forumTagsCache = forumTags; // 緩存資料
+    } catch (error) {
+        console.error('載入文章類別失敗:', error);
+        tagSelect.innerHTML = '<option value="" disabled>無法載入選項</option>';
+    }
+}
+
+
+/**
+ * 處理新增文章表單提交
+ */
+async function handleNewPostSubmit(e) { // 變數名稱 `handleNewPostSubmit` 可變
+    e.preventDefault();
+
+    const token = localStorage.getItem('jwt');
+    if (!token) {
+        alert('請先登入才能新增文章！');
+        return;
     }
 
-    // 圖片預覽功能 (上傳自訂圖片)
-    imageUploadInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        } else {
-            imagePreview.src = '';
-            imagePreview.style.display = 'none';
-        }
-    });
+    submitBtn.disabled = true;
+    submitBtn.textContent = '送出中...';
 
-    // 監聽文章類別下拉選單的變化
-    tagSelect.addEventListener('change', () => {
-        // 只有當「自訂圖片」未被選中時，才根據文章類別更新預覽
-        if (!imageUploadOptionRadio.checked) {
-            updateImagePreviewBasedOnCategory();
-        } else {
-            // 如果「自訂圖片」被選中，選擇類別時不顯示預設圖，清空預覽
-            imagePreview.src = '';
-            imagePreview.style.display = 'none';
-        }
-    });
+    const formData = new FormData();
+    const forumPostUpdateDTO = {
+        forNoId: parseInt(forumIdInput.value, 10),
+        ftagNoId: parseInt(tagSelect.value, 10),
+        postTitle: document.getElementById('new-post-title').value,
+        postCon: document.getElementById('new-post-content').value,
+        // 這裡不傳遞 postPin 和 postStatus，讓後端 Service 層設定預設值
+    };
 
+    // 將 DTO 轉換為 JSON 字串並添加到 FormData
+    formData.append('forumPostUpdate', new Blob([JSON.stringify(forumPostUpdateDTO)], { type: 'application/json' }));
 
-    // 處理表單提交
-    newPostForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    // 處理圖片檔案
+    const imageFile = imageUploadInput.files[0];
 
-        const token = localStorage.getItem('jwt');
-        if (!token) {
-            alert('請先登入才能新增文章！');
-            return;
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = '送出中...';
-
-        const formData = new FormData();
-        const forumPostUpdateDTO = {
-            forNoId: parseInt(forumIdInput.value, 10),
-            ftagNoId: parseInt(tagSelect.value, 10),
-            postTitle: document.getElementById('new-post-title').value,
-            postCon: document.getElementById('new-post-content').value,
-            // 這裡不傳遞 postPin 和 postStatus，讓後端 Service 層設定預設值
-        };
-
-        // 將 DTO 轉換為 JSON 字串並添加到 FormData
-        formData.append('forumPostUpdate', new Blob([JSON.stringify(forumPostUpdateDTO)], { type: 'application/json' }));
-
-        // 處理圖片檔案
-        const imageFile = imageUploadInput.files[0];
-
-        if (imageUploadOptionRadio.checked && imageFile) {
-            // 如果選擇自訂圖片且有檔案，則上傳自訂圖片
+    // 根據 radio button 的選擇處理圖片邏輯
+    if (imageUploadOptionRadio.checked) { // 選擇了「自訂圖片」
+        if (imageFile) {
             formData.append('imageFile', imageFile);
-            // 不傳遞 defaultImageUrl 參數
         } else {
-            // 如果沒有選擇自訂圖片，也不傳遞 imageFile
-            // 讓後端根據 ftagNoId 自動處理預設圖片
-            // 這裡可以明確傳遞一個空字串給 defaultImageUrl，或者完全不傳遞
-            formData.append('defaultImageUrl', ''); // 明確傳遞空字串，表示沒有指定預設圖片 URL
+            // 如果選擇了自訂圖片但未上傳檔案，則明確傳遞 defaultImageUrl 為空字串，讓後端根據 ftagNoId 處理
+            formData.append('defaultImageUrl', '');
         }
+    } else { // 實際上現在只有一個選項，但保留彈性
+        // 如果沒有選擇自訂圖片 (理論上這種情況不會發生，除非前端邏輯改變)
+        // 則嘗試根據 ftagNoId 獲取預設圖片 URL，並作為 defaultImageUrl 傳遞
+        // 如果沒有選擇類別，這裡也會是空字串，後端會處理
+        const selectedTagId = tagSelect.value;
+        const defaultImageUrl = selectedTagId ? await getCategoryDefaultImageUrlFrontend(selectedTagId) : ''; // 前端輔助函數
+        formData.append('defaultImageUrl', defaultImageUrl);
+    }
 
 
-        try {
-            const response = await fetch('/api/forumpost/insert', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    // 'Content-Type': 'multipart/form-data' 不需要手動設定，FormData 會自動設定
-                },
-                body: formData
-            });
+    try {
+        const response = await fetch('/api/forumpost/insert', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+                // 'Content-Type': 'multipart/form-data' 不需要手動設定，FormData 會自動設定
+            },
+            body: formData
+        });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                let errorMessage = '新增文章失敗';
-                if (errorData.message) {
-                    errorMessage = errorData.message;
-                } else if (errorData.details) {
-                    errorMessage += `: ${errorData.details}`;
-                } else if (typeof errorData === 'object') {
-                    // 如果是驗證錯誤，會有多個欄位錯誤
-                    const fieldErrors = Object.values(errorData).join('\n');
-                    errorMessage = `表單驗證失敗:\n${fieldErrors}`;
-                }
-                throw new Error(errorMessage);
+        if (!response.ok) {
+            const errorData = await response.json();
+            let errorMessage = '新增文章失敗';
+            if (errorData.message) {
+                errorMessage = errorData.message;
+            } else if (errorData.details) {
+                errorMessage += `: ${errorData.details}`;
+            } else if (typeof errorData === 'object') {
+                // 如果是驗證錯誤，會有多個欄位錯誤
+                const fieldErrors = Object.values(errorData).join('\n');
+                errorMessage = `表單驗證失敗:\n${fieldErrors}`;
             }
-
-            alert('文章新增成功！');
-            bootstrap.Modal.getInstance(newPostModal).hide(); // 關閉 Modal
-            showPostListView(currentForumId); // 重新載入文章列表以顯示新文章
-
-        } catch (error) {
-            console.error('新增文章失敗:', error);
-            alert(`新增文章失敗：${error.message}`);
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = '送出文章';
+            throw new Error(errorMessage);
         }
-    });
 
-    // Modal 顯示時，設定討論區 ID 並重置表單
-    newPostModal.addEventListener('show.bs.modal', (event) => {
-        const button = event.relatedTarget; // 觸發 Modal 的按鈕
-        const forumId = button.dataset.forumId;
-        forumIdInput.value = forumId;
+        alert('文章新增成功！');
+        bootstrap.Modal.getInstance(newPostModal).hide(); // 關閉 Modal
+        showPostListView(currentForumIdForModal); // 重新載入文章列表以顯示新文章
 
-        // 重置表單
-        newPostForm.reset();
-        imagePreview.src = ''; // 清空圖片預覽
-        imagePreview.style.display = 'none';
-        imageUploadInput.value = ''; // 清空檔案選擇
+    } catch (error) {
+        console.error('新增文章失敗:', error);
+        alert(`新增文章失敗：${error.message}`);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '送出文章';
+    }
+}
 
-        // 預設選中「自訂圖片」並觸發切換邏輯
-        document.getElementById('image-upload-option').checked = true;
-        toggleImageOptions();
-        // 確保剛打開 Modal 時，如果沒有選擇自訂圖片，能顯示預設圖片
-        if (!imageUploadOptionRadio.checked && tagSelect.value) {
-            updateImagePreviewBasedOnCategory();
+/**
+ * 【新增輔助函式】在前端模擬 Service 層的 getCategoryDefaultImageUrl
+ * 從緩存的 forumTagsCache 中找到對應的預設圖片 URL
+ */
+async function getCategoryDefaultImageUrlFrontend(categoryId) {
+    // 這裡可以直接從後端獲取，或者如果 `forumTagsCache` 已經包含了這些資訊，可以直接從緩存中取
+    // 為了精確匹配後端邏輯，建議還是透過 API 獲取
+    try {
+        const response = await fetch(`/api/forumtag/default-image/${categoryId}`);
+        if (!response.ok) {
+            console.error(`無法獲取類別預設圖片URL: ${response.status}`);
+            return ''; // 返回空字串或預設的 fallback URL
         }
-    });
+        return await response.text();
+    } catch (error) {
+        console.error('獲取類別預設圖片URL失敗:', error);
+        return '';
+    }
 }

@@ -258,7 +258,8 @@ public class ForumPostController {
 
     /**
      * 刪除文章
-     * @param forNo 討論區編號
+     *
+     * @param forNo  討論區編號
      * @param postId 文章編號
      * @return 成功訊息
      */
