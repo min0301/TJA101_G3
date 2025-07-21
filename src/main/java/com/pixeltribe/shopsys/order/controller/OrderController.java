@@ -1,6 +1,7 @@
 package com.pixeltribe.shopsys.order.controller;
 
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +16,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -24,16 +28,23 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import com.pixeltribe.membersys.member.dto.MemberAdminDto;
+import com.pixeltribe.membersys.member.model.MemService;
+import com.pixeltribe.membersys.member.model.Member;
 import com.pixeltribe.shopsys.order.model.*;
 import com.pixeltribe.shopsys.orderItem.model.CreateOrderItemRequest;
 import com.pixeltribe.shopsys.orderItem.model.OrderItemDTO;
+import com.pixeltribe.shopsys.orderItem.model.OrderItemService;
+import com.pixeltribe.shopsys.product.model.ProductManageDTO;
+import com.pixeltribe.shopsys.product.model.ProductRepository;
+import com.pixeltribe.shopsys.product.model.ProductService;
 import com.pixeltribe.util.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,6 +58,19 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class OrderController {
+	
+	@Autowired
+	private MemService memberService;  // 會員服務
+
+	@Autowired  
+	private ProductService productService;  // 商品服務
+	
+	@Autowired
+    private ProductRepository productRepository;
+
+	@Autowired
+	private OrderItemService orderItemService;  // 訂單項目服務
+	
 	
 	@Autowired
 	private OrderRepository orderRepository;
@@ -939,6 +963,183 @@ public class OrderController {
 	 
 	
 	// ========== 後台管理功能 (AdminOrderService) ========== //
+	// ***** 會員搜尋 API (新增訂單功能需要) ***** //
+	 @GetMapping("/admin/members/search")
+	 @PreAuthorize("hasRole('ADMIN')")
+	 public ResponseEntity<List<Map<String, Object>>> searchMembers(@RequestParam String q) {
+	     try {
+	         log.info("搜尋會員：query={}", q);
+	         
+	         // 使用 MemberService 進行分頁搜尋，取第一頁的結果
+	         // 主要搜尋會員帳號，也搜尋姓名和信箱作為備用
+	         Pageable pageable = PageRequest.of(0, 10); // 搜尋前10筆結果
+	         Page<MemberAdminDto> memberPage = memberService.findAllAdminMembers(q, pageable);
+	         
+	         // 轉換為前端需要的格式，重新排序讓帳號匹配的優先顯示
+	         List<Map<String, Object>> members = memberPage.getContent().stream()
+	             .map(member -> {
+	                 Map<String, Object> memberMap = new HashMap<>();
+	                 memberMap.put("id", member.getId());
+	                 memberMap.put("memName", member.getMemName());
+	                 memberMap.put("memEmail", member.getMemEmail());
+	                 memberMap.put("memAccount", member.getMemAccount());
+	                 
+	                 // 計算匹配優先級（帳號完全匹配 > 帳號包含 > 姓名包含 > 信箱包含）
+	                 int priority = 0;
+	                 String queryLower = q.toLowerCase();
+	                 if (member.getMemAccount() != null) {
+	                     if (member.getMemAccount().toLowerCase().equals(queryLower)) {
+	                         priority = 1000; // 帳號完全匹配最優先
+	                     } else if (member.getMemAccount().toLowerCase().contains(queryLower)) {
+	                         priority = 800; // 帳號部分匹配
+	                     }
+	                 }
+	                 if (priority == 0 && member.getMemName() != null && member.getMemName().toLowerCase().contains(queryLower)) {
+	                     priority = 600; // 姓名匹配
+	                 }
+	                 if (priority == 0 && member.getMemEmail() != null && member.getMemEmail().toLowerCase().contains(queryLower)) {
+	                     priority = 400; // 信箱匹配
+	                 }
+	                 
+	                 memberMap.put("priority", priority);
+	                 return memberMap;
+	             })
+	             .sorted((m1, m2) -> Integer.compare((Integer)m2.get("priority"), (Integer)m1.get("priority")))
+	             .peek(memberMap -> memberMap.remove("priority")) // 移除排序用的priority
+	             .collect(Collectors.toList());
+	         
+	         return ResponseEntity.ok(members);
+	         
+	     } catch (Exception e) {
+	         log.error("搜尋會員失敗：query={}", q, e);
+	         return ResponseEntity.badRequest().body(new ArrayList<>());
+	     }
+	 }
+
+	 // ***** 商品搜尋 API (新增訂單功能需要) ***** //
+	 @GetMapping("/admin/products/search")
+	 @PreAuthorize("hasRole('ADMIN')")
+	 public ResponseEntity<List<Map<String, Object>>> searchProducts(@RequestParam String q) {
+	     try {
+	         log.info("搜尋商品：query={}", q);
+	         
+	         // 使用 ProductService 的複合查詢方法
+	         // 搜尋商品名稱包含關鍵字、已上架的商品
+	         List<ProductManageDTO> products = productService.findProductsByComplexQuery(
+	             q,        // proName - 商品名稱關鍵字
+	             null,     // minPrice - 不限制最低價格
+	             null,     // maxPrice - 不限制最高價格  
+	             null,     // proStatus - 不限制商品狀態
+	             null,     // mallTagNo - 不限制分類
+	             '0'       // proIsMarket - 只搜尋已上架的商品
+	         );
+	         
+	         // 轉換為前端需要的格式，只取前20筆
+	         List<Map<String, Object>> productList = products.stream()
+	             .limit(20) // 限制搜尋結果數量
+	             .map(product -> {
+	                 Map<String, Object> productMap = new HashMap<>();
+	                 productMap.put("proNo", product.getId()); // 使用 getProNo()
+	                 productMap.put("proName", product.getProName()); // 使用 getProName()
+	                 productMap.put("proPrice", product.getProPrice() != null ? product.getProPrice() : 0);
+	                 return productMap;
+	             })
+	             .collect(Collectors.toList());
+	         
+	         return ResponseEntity.ok(productList);
+	         
+	     } catch (Exception e) {
+	         log.error("搜尋商品失敗：query={}", q, e);
+	         return ResponseEntity.badRequest().body(new ArrayList<>());
+	     }
+	 }
+
+	 // ***** 會員詳細資訊 API (修改訂單功能需要) ***** //
+	 @GetMapping("/admin/members/{memNo}")
+	 @PreAuthorize("hasRole('ADMIN')")
+	 public ResponseEntity<Map<String, Object>> getMemberDetail(@PathVariable Integer memNo) {
+	     try {
+	         log.info("查詢會員詳細資訊：memNo={}", memNo);
+	         
+	         // 使用 MemberService 查詢會員資料
+	         Member member = memberService.getOneMem(memNo);
+	         
+	         if (member == null) {
+	             return ResponseEntity.notFound().build();
+	         }
+	         
+	         // 轉換為前端需要的格式
+	         Map<String, Object> memberInfo = new HashMap<>();
+	         memberInfo.put("id", member.getId());
+	         memberInfo.put("memName", member.getMemName() != null ? member.getMemName() : "未知");
+	         memberInfo.put("memEmail", member.getMemEmail() != null ? member.getMemEmail() : "無");
+	         memberInfo.put("memPhone", member.getMemPhone() != null ? member.getMemPhone() : "無");
+	         memberInfo.put("memAccount", member.getMemAccount() != null ? member.getMemAccount() : "無");
+	         
+	         return ResponseEntity.ok(memberInfo);
+	         
+	     } catch (Exception e) {
+	         log.error("查詢會員詳細資訊失敗：memNo={}", memNo, e);
+	         return ResponseEntity.badRequest().build();
+	     }
+	 }
+
+	 // ***** 修改訂單 API (修改訂單功能需要) ***** //
+	 @PutMapping("/admin/orders/{orderNo}")
+	 @PreAuthorize("hasRole('ADMIN')")
+	 public ResponseEntity<Map<String, Object>> updateOrder(
+	         @PathVariable Integer orderNo,
+	         @RequestBody Map<String, Object> updateData) {
+	     try {
+	         log.info("修改訂單：orderNo={}, data={}", orderNo, updateData);
+	         
+	         // 檢查訂單是否存在
+	         Order order = orderRepository.findByOrderNo(orderNo);
+	         if (order == null) {
+	             Map<String, Object> errorResponse = new HashMap<>();
+	             errorResponse.put("success", false);
+	             errorResponse.put("message", "訂單不存在");
+	             return ResponseEntity.badRequest().body(errorResponse);
+	         }
+	         
+	         // 記錄聯絡資訊修改（只記錄，不儲存到資料庫）
+	         String contactEmail = (String) updateData.get("contactEmail");
+	         String contactPhone = (String) updateData.get("contactPhone");
+	         
+	         // 記錄管理員操作（用於日誌追蹤）
+	         log.info("ADMIN_ORDER_UPDATE|orderNo={}|admin={}|contactEmail={}|contactPhone={}|timestamp={}", 
+	                 orderNo, FIXED_ADMIN_ID, contactEmail, contactPhone, System.currentTimeMillis());
+	         
+	         // 由於不能修改資料庫結構，聯絡資訊的修改只做記錄
+	         // 實際的聯絡資訊應該儲存在其他地方（如 Redis 或其他表格）
+	         
+	         Map<String, Object> response = new HashMap<>();
+	         response.put("success", true);
+	         response.put("message", "訂單聯絡資訊已記錄");
+	         response.put("orderNo", orderNo);
+	         response.put("note", "聯絡資訊已記錄到系統日誌中");
+	         
+	         return ResponseEntity.ok(response);
+	         
+	     } catch (Exception e) {
+	         log.error("修改訂單失敗：orderNo={}", orderNo, e);
+	         
+	         Map<String, Object> errorResponse = new HashMap<>();
+	         errorResponse.put("success", false);
+	         errorResponse.put("message", "修改訂單失敗：" + e.getMessage());
+	         
+	         return ResponseEntity.badRequest().body(errorResponse);
+	     }
+	 }
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
 	// ***** 後台查詢所有訂單 ***** //
 	 @GetMapping("/admin/all")
 	    @PreAuthorize("hasRole('ADMIN')")
@@ -1428,6 +1629,111 @@ public class OrderController {
 	                    .body(Map.of("success", false, "message", e.getMessage()));
 	        }
 	    }
+	 
+	 
+	// ========== 商城儀表板統計 API ========== //
+	// ***** 取得商品總數 ***** // 
+	 @GetMapping("/admin/products/count")
+	 @PreAuthorize("hasRole('ADMIN')")
+	 public ResponseEntity<Long> getProductCount() {
+	     try {
+	         log.info("查詢商品總數");
+	         
+	         // 使用已注入的 ProductRepository
+	         Long productCount = productRepository.count();
+	         
+	         log.info("商品總數查詢成功：{}", productCount);
+	         return ResponseEntity.ok(productCount);
+	         
+	     } catch (Exception e) {
+	         log.error("取得商品總數失敗", e);
+	         return ResponseEntity.status(500).body(0L);
+	     }
+	 } 
+	 
+	 
+	 
+	 
+	// ***** 取得待處理訂單數量 ***** //  
+	 @GetMapping("/admin/orders/pending/count")
+	 @PreAuthorize("hasRole('ADMIN')")
+	 public ResponseEntity<Long> getPendingOrderCount() {
+	     try {
+	         log.info("查詢待處理訂單數量");
+	         
+	         // 使用已注入的 OrderRepository，查詢狀態為 "PENDING" 的訂單
+	         Long pendingCount = orderRepository.countOrdersByStatus("PENDING");
+	         
+	         log.info("待處理訂單數量查詢成功：{}", pendingCount);
+	         return ResponseEntity.ok(pendingCount);
+	         
+	     } catch (Exception e) {
+	         log.error("取得待處理訂單數量失敗", e);
+	         return ResponseEntity.status(500).body(0L);
+	     }
+	 }
+	 
+	 
+	// ***** 取得本月營收  ***** // 
+	 @GetMapping("/admin/orders/monthly-revenue")
+	 @PreAuthorize("hasRole('ADMIN')")
+	 public ResponseEntity<BigDecimal> getMonthlyRevenue() {
+	     try {
+	         log.info("查詢本月營收");
+	         
+	         // 取得本月第一天和最後一天
+	         LocalDate now = LocalDate.now();
+	         LocalDate firstDayOfMonth = now.withDayOfMonth(1);
+	         LocalDate lastDayOfMonth = now.withDayOfMonth(now.lengthOfMonth());
+	         
+	         // 轉換為 LocalDateTime
+	         LocalDateTime startOfMonth = firstDayOfMonth.atStartOfDay();
+	         LocalDateTime endOfMonth = lastDayOfMonth.atTime(23, 59, 59);
+	         
+	         // 查詢本月已完成訂單的總金額
+	         // 你需要在 OrderRepository 中新增這個方法
+	         BigDecimal monthlyRevenue = orderRepository.calculateMonthlyRevenue(startOfMonth, endOfMonth);
+	         
+	         // 如果為 null，回傳 0
+	         if (monthlyRevenue == null) {
+	             monthlyRevenue = BigDecimal.ZERO;
+	         }
+	         
+	         log.info("本月營收查詢成功：NT${}", monthlyRevenue);
+	         return ResponseEntity.ok(monthlyRevenue);
+	         
+	     } catch (Exception e) {
+	         log.error("取得本月營收失敗", e);
+	         return ResponseEntity.status(500).body(BigDecimal.ZERO);
+	     }
+	 }
+	 
+	 
+	// ***** 取得評論總數 (使用現有的 OrderItemService) ***** // 
+	 @GetMapping("/admin/comments/count")
+	 @PreAuthorize("hasRole('ADMIN')")
+	 public ResponseEntity<Long> getCommentCount() {
+	     try {
+	         log.info("查詢評論總數");
+	         
+	         // 使用現有的 OrderItemService 取得統計
+	         var statistics = orderItemService.getAdminStatistics();
+	         Long commentCount = statistics.getTotalComments();
+	         
+	         log.info("評論總數查詢成功：{}", commentCount);
+	         return ResponseEntity.ok(commentCount);
+	         
+	     } catch (Exception e) {
+	         log.error("取得評論總數失敗", e);
+	         return ResponseEntity.status(500).body(0L);
+	     }
+	 }
+	 
+	 
+	 
+	 
+	 
+	 
 
 	
 	
@@ -1514,6 +1820,14 @@ public class OrderController {
 	         return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
 	     }
 	 }
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
 	 
 	 
 	 

@@ -6,28 +6,8 @@
     <title>訂單管理後台</title>
     
     <style>
-    	
-        /* 獨立的 :root 變數，只在這個頁面生效 */
-        :root {
-            --order-primary-bg: #ffffff;
-            --order-component-bg: #f8f9fa;
-            --order-text-color: #333333;
-            --order-border-color: #dee2e6;
-            --order-brand-green: #28a745;
-            --order-brand-green-light: #d4edda;
-            --order-brand-green-hover: #218838;
-        }
-        
-        /* 定義本頁面專用的容器，避免與主頁面衝突 */
+        /* 繼承主頁面的 CSS 變數，確保視覺風格一致 */
         .order-management-container {
-            /* 使用上面定義的變數 */
-            --local-component-bg: #f8f9fa;
-            --local-text-color: #333333;
-            --local-border-color: #dee2e6;
-            --local-brand-green: #28a745;
-            --local-brand-green-light: #d4edda;
-            --local-brand-green-hover: #218838;
-            
             width: 100%;
             max-width: 1400px;
             margin: 0 auto;
@@ -41,23 +21,23 @@
             align-items: center;
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 1px solid var(--local-border-color);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .order-management-container .page-title-header h2 {
             font-family: 'Karla', sans-serif;
             font-size: 24px;
-            color: var(--local-text-color);
+            color: var(--text-color);
             font-weight: 700;
             margin: 0;
         }
 
         .order-management-container .control-bar {
-            background: var(--local-component-bg);
+            background: var(--component-bg);
             padding: 15px 20px;
             border-radius: 10px;
             margin-bottom: 20px;
-            border: 1px solid var(--local-border-color);
+            border: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -73,23 +53,23 @@
         }
 
         .order-management-container .filter-select {
-            border: 1px solid var(--local-border-color);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 8px 12px;
-            background: var(--local-primary-bg);
-            color: var(--local-text-color);
+            background: var(--component-bg);
+            color: var(--text-color);
             transition: border-color 0.2s;
         }
         .order-management-container .filter-select:focus {
-            border-color: var(--local-brand-green);
+            border-color: var(--brand-green);
             outline: none;
         }
 
         .order-management-container .table-container {
-            background: var(--local-component-bg);
+            background: var(--component-bg);
             border-radius: 12px;
             overflow-x: auto;
-            border: 1px solid var(--local-border-color);
+            border: 1px solid var(--border-color);
         }
 
         .order-management-container .table {
@@ -99,11 +79,11 @@
         }
 
         .order-management-container .table thead {
-            background: var(--local-brand-green-light);
+            background: var(--brand-green-light);
         }
 
         .order-management-container .table th {
-            color: var(--local-brand-green);
+            color: var(--brand-green);
             font-weight: 700;
             text-align: center;
             vertical-align: middle;
@@ -115,20 +95,20 @@
             text-align: center;
             vertical-align: middle;
             padding: 12px;
-            border-top: 1px solid var(--local-border-color);
-            color: var(--local-text-color);
+            border-top: 1px solid var(--border-color);
+            color: var(--text-color);
         }
 
         /* 訂單編號連結樣式 */
         .order-management-container .order-link {
-            color: var(--local-brand-green);
+            color: var(--brand-green);
             text-decoration: none;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.15s ease;
         }
         .order-management-container .order-link:hover {
-            color: var(--local-brand-green-hover);
+            color: var(--brand-green-hover);
             text-decoration: underline;
         }
         
@@ -139,11 +119,11 @@
             font-size: 13px;
             font-weight: 500;
         }
-        .order-management-container .status-processing { background-color: #fff3cd; color: #856404; }
-        .order-management-container .status-completed { background-color: #d4edda; color: #155724; }
-        .order-management-container .status-shipped { background-color: #d1ecf1; color: #0c5460; }
         .order-management-container .status-pending { background-color: #f8d7da; color: #721c24; }
         .order-management-container .status-paying { background-color: #d1ecf1; color: #0c5460; }
+        .order-management-container .status-processing { background-color: #fff3cd; color: #856404; }
+        .order-management-container .status-shipped { background-color: #cce5ff; color: #004085; }
+        .order-management-container .status-completed { background-color: #d4edda; color: #155724; }
         .order-management-container .status-failed { background-color: #f8d7da; color: #721c24; }
         .order-management-container .status-cancelled { background-color: #e9ecef; color: #495057; }
         .order-management-container .status-unknown { background-color: #e9ecef; color: #495057; }
@@ -153,8 +133,8 @@
             display: inline-block;
             text-decoration: none;
             background: none;
-            border: 1px solid var(--order-border-color);
-            color: var(--order-text-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
             padding: 8px 15px;
             border-radius: 6px;
             cursor: pointer;
@@ -163,9 +143,21 @@
             font-size: 14px;
         }
         .order-management-container .action-btn:hover {
-            background: var(--order-brand-green-light);
-            color: var(--order-brand-green);
-            border-color: var(--order-brand-green);
+            background: var(--brand-green-light);
+            color: var(--brand-green);
+            border-color: var(--brand-green);
+        }
+
+        /* 新增按鈕 */
+        .order-management-container .action-btn.btn-add {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+            color: white;
+            font-weight: bold;
+        }
+        .order-management-container .action-btn.btn-add:hover {
+            background-color: var(--brand-green-hover);
+            border-color: var(--brand-green-hover);
         }
 
         /* 分頁控制項 */
@@ -182,9 +174,9 @@
             margin: 0;
         }
         .order-management-container .pagination-controls .page-item .page-link {
-            color: var(--order-brand-green);
-            background-color: var(--order-component-bg);
-            border: 1px solid var(--order-border-color);
+            color: var(--brand-green);
+            background-color: var(--component-bg);
+            border: 1px solid var(--border-color);
             margin: 0 3px;
             padding: 8px 14px;
             border-radius: 6px;
@@ -195,18 +187,18 @@
         .order-management-container .pagination-controls .page-item.active .page-link {
             z-index: 1;
             color: #fff;
-            background-color: var(--order-brand-green);
-            border-color: var(--order-brand-green);
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
         }
         .order-management-container .pagination-controls .page-item.disabled .page-link {
             color: #6c757d;
             pointer-events: none;
             background-color: #e9ecef;
-            border-color: var(--order-border-color);
+            border-color: var(--border-color);
         }
         .order-management-container .pagination-controls .page-item .page-link:hover:not(.active) {
-            background-color: var(--order-brand-green-light);
-            border-color: var(--order-brand-green);
+            background-color: var(--brand-green-light);
+            border-color: var(--brand-green);
         }
 
         /* 錯誤訊息 */
@@ -220,19 +212,7 @@
             display: none;
         }
 
-        /* 新增按鈕 */
-        .order-management-container .action-btn.btn-add {
-            background-color: var(--local-brand-green);
-            border-color: var(--local-brand-green);
-            color: white;
-            font-weight: bold;
-        }
-        .order-management-container .action-btn.btn-add:hover {
-            background-color: var(--local-brand-green-hover);
-            border-color: var(--local-brand-green-hover);
-        }
-        
-        /* Bootstrap Modal 樣式 - 自行實現，避免依賴外部 Bootstrap */
+        /* Modal 樣式 */
         .order-management-container .modal {
             display: none;
             position: fixed;
@@ -270,11 +250,11 @@
         
         .order-management-container .modal-header {
             padding: 16px 24px;
-            border-bottom: 1px solid var(--local-border-color);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--local-brand-green);
+            background: var(--brand-green);
             color: white;
             border-radius: 12px 12px 0 0;
         }
@@ -312,7 +292,7 @@
         
         .order-management-container .modal-footer {
             padding: 16px 24px;
-            border-top: 1px solid var(--local-border-color);
+            border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: flex-end;
             gap: 12px;
@@ -334,8 +314,8 @@
         }
         
         .order-management-container .btn-primary {
-            background: var(--local-brand-green);
-            border-color: var(--local-brand-green);
+            background: var(--brand-green);
+            border-color: var(--brand-green);
             color: white;
         }
         
@@ -346,14 +326,14 @@
 
         .order-management-container .detail-item {
             padding: 10px 0;
-            border-bottom: 1px solid var(--local-border-color);
+            border-bottom: 1px solid var(--border-color);
         }
         .order-management-container .detail-item:last-child {
             border-bottom: none;
         }
         .order-management-container .detail-label {
             font-weight: bold;
-            color: var(--local-brand-green);
+            color: var(--brand-green);
             margin-bottom: 4px;
             display: inline-block;
         }
@@ -383,7 +363,7 @@
         }
         
         .order-management-container .text-primary {
-            color: var(--local-brand-green);
+            color: var(--brand-green);
         }
         
         .order-management-container .text-success {
@@ -441,7 +421,7 @@
             }
         }
         
-        /* 星星評分特殊樣式 - 保留這個 */
+        /* 星星評分特殊樣式 */
         .order-management-container .star-rating {
             font-size: 16px;
             line-height: 1;
@@ -458,44 +438,40 @@
             margin-right: 2px;
         }
         
-        /* ===== 修復 Modal 背景遮罩問題 ===== */
-		.order-management-container .modal-backdrop {
-		    display: none !important;
-		}
-		
-		/* 確保 Modal 層級高於背景遮罩 */
-		.order-management-container .modal {
-		    z-index: 9999 !important;
-		}
-		
-		.order-management-container .modal-content {
-		    z-index: 10000 !important;
-		    pointer-events: auto !important;
-		}
-		
-		.order-management-container .modal-body {
-		    pointer-events: auto !important;
-		    background: white !important;
-		    color: #333 !important;
-		}
-		
-		/* 確保 Modal 內容文字清楚 */
-		.order-management-container .detail-item span {
-		    color: #333 !important;
-		}
-		
-		.order-management-container .modal-body .table th {
-		    background-color: #f8f9fa !important;
-		    color: #333 !important;
-		}
-		
-		.order-management-container .modal-body .table td {
-		    background: white !important;
-		    color: #333 !important;
-		}
+        /* Modal 層級修復 */
+        .order-management-container .modal-backdrop {
+            display: none !important;
+        }
         
+        .order-management-container .modal {
+            z-index: 9999 !important;
+        }
+        
+        .order-management-container .modal-content {
+            z-index: 10000 !important;
+            pointer-events: auto !important;
+        }
+        
+        .order-management-container .modal-body {
+            pointer-events: auto !important;
+            background: white !important;
+            color: #333 !important;
+        }
+        
+        .order-management-container .detail-item span {
+            color: #333 !important;
+        }
+        
+        .order-management-container .modal-body .table th {
+            background-color: #f8f9fa !important;
+            color: #333 !important;
+        }
+        
+        .order-management-container .modal-body .table td {
+            background: white !important;
+            color: #333 !important;
+        }
     </style>
-    
 </head>
 <body>
 
@@ -506,28 +482,28 @@
 
     <div class="control-bar">
         <div>
-            <a href="addOrder.html" class="action-btn btn-add">＋ 新增訂單</a>
+            <a href="#" onclick="OrderManager.addNewOrder()" class="action-btn btn-add">＋ 新增訂單</a>
         </div>
         <div class="filter-group">
             <div>
                 <label for="itemsPerPageFilter">每頁顯示：</label> 
                 <select id="itemsPerPageFilter" class="filter-select" onchange="OrderManager.changeItemsPerPage()">
-                <option value="5">5</option>
-                <option value="10" selected>10</option>
-                <option value="20">20</option>
-            </select>
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                </select>
             </div>
             <div>
                 <label for="statusFilter">篩選狀態：</label>
                 <select id="statusFilter" class="filter-select" onchange="OrderManager.filterByStatus()">
                     <option value="">全部狀態</option>
-                    <option value="等待付款">等待付款</option>
-                    <option value="付款處理中">付款處理中</option>
-                    <option value="處理中">處理中</option>
-                    <option value="已出貨">已出貨</option>
-                    <option value="已完成">已完成</option>
-                    <option value="處理失敗">處理失敗</option>
-                    <option value="已取消">已取消</option>
+                    <option value="PENDING,等待付款">等待付款</option>
+                    <option value="PAYING,付款處理中">付款處理中</option>
+                    <option value="PROCESSING,處理中">處理中</option>
+                    <option value="SHIPPED,已付款">已付款</option>
+                    <option value="COMPLETED,已完成">已完成</option>
+                    <option value="FAILED,處理失敗">處理失敗</option>
+                    <option value="CANCELLED,已取消">已取消</option>
                 </select>
             </div>
         </div>
@@ -540,8 +516,8 @@
             <thead>
             <tr>
                 <th>訂單編號</th>
-                <th>會員編號</th>
-                <th>優惠券代碼</th>
+                <th>會員姓名</th>
+                <th>會員信箱</th>
                 <th>訂購時間</th>
                 <th>訂單狀態</th>
                 <th>訂單總額</th>
@@ -557,155 +533,237 @@
     </div>
     
     <!-- 訂單明細 Modal -->
-        <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-wide">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="orderDetailModalLabel">
-                            <i class="fas fa-file-invoice me-2"></i>訂單明細
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div id="orderDetailContent">
-                            <div class="text-center">
-                                <i class="fas fa-spinner fa-spin me-2"></i>載入中...
-                            </div>
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-wide">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderDetailModalLabel">
+                        <i class="bi bi-file-text me-2"></i>訂單明細
+                    </h5>
+                    <button type="button" class="btn-close" onclick="OrderManager.closeModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="orderDetailContent">
+                        <div class="text-center">
+                            <i class="bi bi-arrow-clockwise me-2"></i>載入中...
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                        <button type="button" class="btn btn-primary" onclick="OrderManager.printOrder()">
-                            <i class="fas fa-print me-1"></i>列印
-                        </button>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="OrderManager.closeModal()">關閉</button>
+                    <button type="button" class="btn btn-primary" onclick="OrderManager.printOrder()">
+                        <i class="bi bi-printer me-1"></i>列印
+                    </button>
                 </div>
             </div>
         </div>
-    
+    </div>
 
     <nav id="paginationContainer" class="pagination-controls"></nav>
 </div>
 
-<!-- Bootstrap JS - 重要：Modal 需要這個才能工作 -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-    // 使用 IIFE (Immediately Invoked Function Expression) 避免污染全域範疇
     (function() {
-        // --- 變數定義區 ---
-        const apiUrl = '/api/orders'; // 不可變：後端 API 端點。使用 const 更安全
+        'use strict';
 
-        // 可變：這些是 DOM 元素的引用
+        // --- API 設定 ---
+        const API_BASE = '/api/admin';
+        
+        // --- DOM 元素 ---
         const tableBody = document.getElementById('orderTableBody');
         const errorMessageDiv = document.getElementById('error-message');
         const paginationContainer = document.getElementById('paginationContainer');
         const itemsPerPageFilter = document.getElementById('itemsPerPageFilter');
         const statusFilter = document.getElementById('statusFilter');
 
-        // 可變：應用程式狀態變數
-        let allOrdersData = []; // 存放從 API 獲取的原始訂單資料
-        let currentPage = 1;
+        // --- 狀態管理 ---
+        let currentPage = 0; // 後端從 0 開始
         let itemsPerPage = 10;
+        let totalPages = 0;
+        let totalElements = 0;
+        let currentFilter = '';
 
-        // --- 核心功能函式 ---
-
+        // --- 核心功能 ---
+        
         /**
-         * @description 初始化函式，從 API 獲取資料
-         * @modification 使用 async/await 提高可讀性
+         * 載入訂單資料 (使用後台分頁 API)
          */
         async function loadOrders() {
-        	const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem('jwt');
             if (!token) {
                 console.error('JWT Token 不存在，請重新登入');
-                window.location.href = '/login.html';
+                showError(new Error('請重新登入'));
                 return;
             }
-        	
+
             try {
-            	const response = await fetch(apiUrl, {
-            	    credentials: 'include',
-            	    headers: {
-            	        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-            	        'Content-Type': 'application/json'
-            	    }
-            	});
-            	
-            	
+                showLoading();
+                
+                const url = new URL(`${API_BASE}/paged`, window.location.origin);
+                url.searchParams.append('page', currentPage);
+                url.searchParams.append('size', itemsPerPage);
+                url.searchParams.append('sortBy', 'orderDatetime');
+                url.searchParams.append('sortDir', 'DESC');
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
                 if (!response.ok) {
-                    throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
+                    throw new Error(`HTTP 錯誤！狀態: ${response.status}`);
                 }
-                allOrdersData = await response.json();
-                itemsPerPage = parseInt(itemsPerPageFilter.value) || 10;
-                currentPage = 1;
-                updateDisplay();
+
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const pageData = result.data;
+                    totalPages = pageData.totalPages;
+                    totalElements = pageData.totalElements;
+                    
+                    renderTableBody(pageData.orders || []);
+                    renderPaginationControls();
+                    hideError();
+                } else {
+                    throw new Error('資料格式錯誤');
+                }
+
             } catch (error) {
-                // showError 是從 allForum.html 引入的更優雅的錯誤處理方式
+                console.error('載入訂單失敗:', error);
                 showError(error);
             }
         }
 
         /**
-         * @description 更新頁面顯示，包含表格和分頁
+         * 按狀態篩選 - 支援中英文狀態值
          */
-        function updateDisplay() {
-            const currentStatusFilter = statusFilter.value;
-            // 根據狀態篩選資料
-            const filteredData = currentStatusFilter
-                ? allOrdersData.filter(order => order.orderStatus === currentStatusFilter)
-                : [...allOrdersData];
-
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const paginatedData = filteredData.slice(startIndex, endIndex);
-
-            renderTableBody(paginatedData);
-            renderPaginationControls(filteredData.length);
-        }
-
-        /**
-         * @description 渲染表格內容
-         * @param {Array} orders - 要顯示在當前頁面的訂單資料
-         */
-        function renderTableBody(orders) {
-            tableBody.innerHTML = '';
-
-            // 常見錯誤：若傳入的 orders 是空的，沒有做處理會顯示空白畫面。
-            // 解法：判斷陣列長度，若為 0 則顯示提示訊息。
-            if (!orders || orders.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px;">找不到符合條件的訂單</td></tr>`;
+        async function filterByStatus() {
+            const selectedValue = statusFilter.value;
+            currentPage = 0; // 重置到第一頁
+            
+            if (!selectedValue) {
+                // 沒有篩選，使用一般分頁查詢
+                currentFilter = '';
+                await loadOrders();
                 return;
             }
 
-            // 此處的 order 是迴圈中的區域變數
-            orders.forEach(order => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
+            // 解析中英文狀態值 "PENDING,等待付款"
+            const statusOptions = selectedValue.split(',');
+            const englishStatus = statusOptions[0];
+            const chineseStatus = statusOptions[1];
+            
+            currentFilter = selectedValue;
+
+            const token = localStorage.getItem('jwt');
+            if (!token) {
+                showError(new Error('請重新登入'));
+                return;
+            }
+
+            try {
+                showLoading();
+                
+                // 先嘗試英文狀態值
+                let response = await fetch(`${API_BASE}/status/${englishStatus}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                let orders = [];
+                
+                if (response.ok) {
+                    orders = await response.json();
+                } else {
+                    // 如果英文狀態查詢失敗，嘗試從所有訂單中篩選中文狀態
+                    console.log('嘗試中文狀態篩選...');
+                    
+                    const allResponse = await fetch(`${API_BASE}/all`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (allResponse.ok) {
+                        const allOrders = await allResponse.json();
+                        // 篩選匹配中文或英文狀態的訂單
+                        orders = allOrders.filter(order => 
+                            order.orderStatus === englishStatus || 
+                            order.orderStatus === chineseStatus
+                        );
+                    }
+                }
+                
+                // 手動分頁處理
+                totalElements = orders.length;
+                totalPages = Math.ceil(totalElements / itemsPerPage);
+                
+                const startIndex = currentPage * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedOrders = orders.slice(startIndex, endIndex);
+                
+                renderTableBody(paginatedOrders);
+                renderPaginationControls();
+                hideError();
+
+            } catch (error) {
+                console.error('篩選訂單失敗:', error);
+                showError(error);
+            }
+        }
+
+        /**
+         * 渲染表格內容
+         */
+        function renderTableBody(orders) {
+            if (!orders || orders.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding: 40px;">
+                            找不到符合條件的訂單
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tableBody.innerHTML = orders.map(order => `
+                <tr>
                     <td>
-                		<a href="#" class="order-link" onclick="OrderManager.showOrderDetail('${order.orderNo}')">${order.orderNo}</a>
-                	</td>
-                    <td>${order.memNo || '訪客'}</td>
-                    <td>${order.couponWalletNo || '無'}</td>
+                        <a href="#" class="order-link" onclick="OrderManager.showOrderDetail('${order.orderNo}')">
+                            ${order.orderNo}
+                        </a>
+                    </td>
+                    <td>${order.memName || '未知'}</td>
+                    <td>${order.memEmail || '無'}</td>
                     <td>${formatDateTime(order.orderDatetime)}</td>
-                    <td><span class="status-badge ${getStatusClass(order.orderStatus)}">${order.orderStatus || '未知'}</span></td>
-                    <td>$${(order.orderTotal || 0).toLocaleString()}</td>
+                    <td>
+                        <span class="status-badge ${getStatusClass(order.orderStatus)}">
+                            ${getStatusDisplayName(order.orderStatus)}
+                        </span>
+                    </td>
+                    <td>NT$ ${(order.orderTotal || 0).toLocaleString()}</td>
                     <td>
                         <button class="action-btn" onclick="OrderManager.editOrder('${order.orderNo}')">
                             <i class="bi bi-pencil-square"></i> 修改
                         </button>
                     </td>
-                `;
-                tableBody.appendChild(row);
-            });
+                </tr>
+            `).join('');
         }
 
         /**
-         * @description 渲染分頁控制項
-         * @param {number} totalItems - 篩選後的總資料筆數
+         * 渲染分頁控制項
          */
-        function renderPaginationControls(totalItems) {
-            const totalPages = Math.ceil(totalItems / itemsPerPage);
-
+        function renderPaginationControls() {
             if (totalPages <= 1) {
                 paginationContainer.innerHTML = '';
                 return;
@@ -715,173 +773,105 @@
 
             // 上一頁按鈕
             paginationHTML += `
-                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                    <a class="page-link" href="#" onclick="event.preventDefault(); changePage(${currentPage - 1})">上一頁</a>
+                <li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="event.preventDefault(); OrderManager.changePage(${currentPage - 1})">上一頁</a>
                 </li>`;
 
             // 頁碼按鈕
-            for (let i = 1; i <= totalPages; i++) {
+            for (let i = 0; i < totalPages; i++) {
                 paginationHTML += `
                     <li class="page-item ${i === currentPage ? 'active' : ''}">
-                        <a class="page-link" href="#" onclick="event.preventDefault(); changePage(${i})">${i}</a>
+                        <a class="page-link" href="#" onclick="event.preventDefault(); OrderManager.changePage(${i})">${i + 1}</a>
                     </li>`;
             }
 
             // 下一頁按鈕
             paginationHTML += `
-                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                    <a class="page-link" href="#" onclick="event.preventDefault(); changePage(${currentPage + 1})">下一頁</a>
+                <li class="page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="event.preventDefault(); OrderManager.changePage(${currentPage + 1})">下一頁</a>
                 </li>`;
 
             paginationHTML += '</ul>';
+            
+            // 加上統計資訊
+            paginationHTML += `
+                <div style="margin-left: 20px; color: var(--text-muted); font-size: 14px;">
+                    顯示第 ${currentPage * itemsPerPage + 1} - ${Math.min((currentPage + 1) * itemsPerPage, totalElements)} 筆，
+                    共 ${totalElements} 筆資料
+                </div>
+            `;
+            
             paginationContainer.innerHTML = paginationHTML;
         }
 
-        // --- 事件處理函式 ---
-        // 不可變：以下函式名稱需與 HTML 中的 onchange, onclick 對應，所以名稱是固定的
-        window.filterByStatus = function() {
-            currentPage = 1;
-            updateDisplay();
-        }
-
-        window.changeItemsPerPage = function() {
-            itemsPerPage = parseInt(itemsPerPageFilter.value);
-            currentPage = 1;
-            updateDisplay();
-        }
-
-        window.changePage = function(page) {
-            const currentStatusFilter = statusFilter.value;
-            const filteredData = currentStatusFilter
-                ? allOrdersData.filter(order => order.orderStatus === currentStatusFilter)
-                : allOrdersData;
-            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
-            if (page < 1 || page > totalPages) return;
-
-            currentPage = page;
-            updateDisplay();
-        }
-
-        // 這兩個函式是訂單頁專有的，予以保留
-        window.addNewOrder = function() {
-            alert('新增訂單功能開發中...');
-        }
-        window.editOrder = function(orderNo) {
-            alert('準備修改訂單：' + orderNo + '\n詳細功能開發中...');
-        }
-
-
-        // --- 輔助函式 ---
-        function showError(error) {
-            console.error('無法獲取訂單資料:', error);
-            errorMessageDiv.style.display = 'block';
-            errorMessageDiv.innerHTML = `<strong>資料載入失敗！</strong> 請檢查後端服務是否啟動及 API 是否正確。<br>詳細錯誤: ${error.message}`;
-            tableBody.innerHTML = ''; // 清空表格的 "載入中" 訊息
-        }
-
-        function formatDateTime(dateTimeStr) {
-            if (!dateTimeStr) return '-';
-            try {
-                // 與 allForum 統一使用 toLocaleString()
-                return new Date(dateTimeStr).toLocaleString('zh-TW', { hour12: false });
-            } catch (e) {
-                return dateTimeStr;
+        /**
+         * 顯示訂單明細
+         */
+        async function showOrderDetail(orderNo) {
+            const token = localStorage.getItem('jwt');
+            if (!token) {
+                showError(new Error('請重新登入'));
+                return;
             }
-        }
 
-        function getStatusClass(status) {
-            switch(status) {
-	            case '等待付款': return 'status-pending';
-	        	case '付款處理中': return 'status-paying';
-	            case '處理中': return 'status-processing';
-	            case '已出貨': return 'status-shipped';
-	            case '已完成': return 'status-completed';
-	            case '處理失敗': return 'status-failed';
-	            case '已取消': return 'status-cancelled';
-                default: return 'status-unknown';
-            }
-        }
-
-        // --- 初始化頁面 ---
-        loadOrders();
-        
-     // 顯示訂單明細
-        function showOrderDetail(orderNo) {
-        	// Token檢查
-    	 	const token = localStorage.getItem('authToken');
-    		if (!token) {
-        		console.error('JWT Token 不存在，請重新登入');
-        		window.location.href = '/login.html';
-        		return;
-    		}
-    	 
-    	 
             // 顯示 Modal
-            const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
-            modal.show();
+            const modal = document.getElementById('orderDetailModal');
+            modal.classList.add('show');
+            modal.style.display = 'flex';
             
             // 重置內容
             document.getElementById('orderDetailContent').innerHTML = `
                 <div class="text-center">
-                    <i class="fas fa-spinner fa-spin me-2"></i>載入訂單明細中...
+                    <i class="bi bi-arrow-clockwise me-2"></i>載入訂單明細中...
                 </div>
             `;
-            
-            // 更新 Modal 標題
-            document.getElementById('orderDetailModalLabel').innerHTML = `
-                <i class="fas fa-file-invoice me-2"></i>訂單明細
-            `;
-            
-            // 同時載入訂單資訊和訂單項目
-            Promise.all([
-    			fetch(`/api/orders/${orderNo}`, {    // 載入訂單基本資訊
-        			credentials: 'include',
-        			headers: {
-            			'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-            			'Content-Type': 'application/json'
-        			}
-    			}), 
-    			fetch(`/api/admin/orderitem/order/${orderNo}`,{  // 載入訂單項目
-        			credentials: 'include',
-        			headers: {
-            			'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-            			'Content-Type': 'application/json'
-        			}
-    			}) 
-			])
-            .then(responses => {
-                // 檢查所有回應是否成功
-                responses.forEach(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP 錯誤！狀態: ${response.status}`);
-                    }
-                });
-                // 解析 JSON
-                return Promise.all(responses.map(response => response.json()));
-            })
-            .then(([orderDetail, orderItems]) => {
-                // 將訂單項目加入訂單物件
+
+            try {
+                // 同時載入訂單資訊和訂單項目
+                const [orderResponse, itemsResponse] = await Promise.all([
+                    fetch(`/api/orders/${orderNo}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }),
+                    fetch(`/api/admin/orderitem/order/${orderNo}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                ]);
+
+                if (!orderResponse.ok || !itemsResponse.ok) {
+                    throw new Error('載入訂單資料失敗');
+                }
+
+                const orderDetail = await orderResponse.json();
+                const orderItems = await itemsResponse.json();
+                
                 orderDetail.orderItems = orderItems;
                 displayOrderDetail(orderDetail);
-            })
-            .catch(error => {
+
+            } catch (error) {
                 console.error('載入訂單明細失敗:', error);
                 document.getElementById('orderDetailContent').innerHTML = `
                     <div class="text-danger text-center">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <i class="bi bi-exclamation-triangle me-2"></i>
                         載入失敗：${error.message}
                     </div>
                 `;
-            });
+            }
         }
 
-        // 顯示訂單明細內容
+        /**
+         * 顯示訂單明細內容
+         */
         function displayOrderDetail(order) {
             const content = `
                 <div class="row">
                     <div class="col-md-6">
-                        <h6 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>基本資訊</h6>
+                        <h6 class="text-primary mb-3"><i class="bi bi-info-circle me-2"></i>基本資訊</h6>
                         <div class="detail-item">
                             <span class="detail-label">訂單編號：</span>
                             <span>${order.orderNo}</span>
@@ -891,8 +881,8 @@
                             <span>${order.memNo || '訪客'}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">優惠券代碼：</span>
-                            <span>${order.couponWalletNo || '無'}</span>
+                            <span class="detail-label">聯絡信箱：</span>
+                            <span>${order.contactEmail || '無'}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">訂購時間：</span>
@@ -900,14 +890,20 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <h6 class="text-success mb-3"><i class="fas fa-dollar-sign me-2"></i>金額資訊</h6>
+                        <h6 class="text-success mb-3"><i class="bi bi-currency-dollar me-2"></i>金額資訊</h6>
                         <div class="detail-item">
                             <span class="detail-label">訂單狀態：</span>
-                            <span class="status-badge ${getStatusClass(order.orderStatus)}">${order.orderStatus}</span>
+                            <span class="status-badge ${getStatusClass(order.orderStatus)}">
+                                ${getStatusDisplayName(order.orderStatus)}
+                            </span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">訂單總額：</span>
                             <span class="fw-bold text-success">NT$ ${order.orderTotal ? order.orderTotal.toLocaleString() : '0'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">優惠券：</span>
+                            <span>${order.couponWalletNo || '無'}</span>
                         </div>
                     </div>
                 </div>  
@@ -916,7 +912,7 @@
                 
                 <div class="row">
                     <div class="col-12">
-                        <h6 class="text-info mb-3"><i class="fas fa-shopping-bag me-2"></i>訂單項目</h6>
+                        <h6 class="text-info mb-3"><i class="bi bi-bag me-2"></i>訂單項目</h6>
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead style="background-color: #f8f9fa; color: #333;">
@@ -931,7 +927,7 @@
                                         <th style="color: #333;">評論時間</th>
                                     </tr>
                                 </thead>
-                                <tbody id="orderItemsTable">
+                                <tbody>
                                     ${generateOrderItemsHTML(order.orderItems)}
                                 </tbody>
                             </table>
@@ -942,8 +938,10 @@
             
             document.getElementById('orderDetailContent').innerHTML = content;
         }
-        
-        // 產生訂單項目HTML的函數
+
+        /**
+         * 產生訂單項目HTML
+         */
         function generateOrderItemsHTML(orderItems) {
             if (!orderItems || orderItems.length === 0) {
                 return '<tr><td colspan="8" class="text-muted text-center">此訂單暫無商品項目</td></tr>';
@@ -962,8 +960,10 @@
                 </tr>
             `).join('');
         }
-        
-        // 產生星星評分的函數
+
+        /**
+         * 產生星星評分
+         */
         function generateStarRating(rating) {
             if (!rating || rating === 0) {
                 return '<span class="text-muted">未評分</span>';
@@ -981,28 +981,198 @@
             return stars;
         }
 
-        // 計算小計的函數
+        /**
+         * 計算小計
+         */
         function calculateSubtotal(price, quantity) {
             const subtotal = (price || 0) * (quantity || 0);
             return subtotal.toLocaleString();
         }
 
-        // 列印訂單
+        // --- 事件處理函式 ---
+        
+        function changeItemsPerPage() {
+            itemsPerPage = parseInt(itemsPerPageFilter.value);
+            currentPage = 0;
+            if (currentFilter) {
+                filterByStatus();
+            } else {
+                loadOrders();
+            }
+        }
+
+        function changePage(page) {
+            if (page < 0 || page >= totalPages) return;
+            currentPage = page;
+            
+            if (currentFilter) {
+                filterByStatus();
+            } else {
+                loadOrders();
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('orderDetailModal');
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+        }
+
+        function addNewOrder() {
+            // 載入新增訂單頁面
+            if (typeof loadExternalPage === 'function') {
+                loadExternalPage('../shopsys/order/addOrder.html');
+            } else {
+                window.location.href = 'addOrder.html';
+            }
+        }
+
+        function editOrder(orderNo) {
+            // 載入修改訂單頁面，並傳遞訂單編號參數
+            if (typeof loadExternalPage === 'function') {
+                loadExternalPage(`../shopsys/order/editOrder.html?orderNo=${orderNo}`);
+            } else {
+                window.location.href = `editOrder.html?orderNo=${orderNo}`;
+            }
+        }
+
         function printOrder() {
             window.print();
         }
 
-        // 將需要全域存取的函數暴露到 window 物件
-        // 這是唯一會影響全域範疇的部分，但只暴露必要的函數
+        // --- 輔助函式 ---
+        
+        function showLoading() {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align:center; padding: 40px;">
+                        <i class="bi bi-arrow-clockwise me-2"></i>載入中...
+                    </td>
+                </tr>
+            `;
+        }
+
+        function showError(error) {
+            console.error('訂單管理錯誤:', error);
+            errorMessageDiv.style.display = 'block';
+            errorMessageDiv.innerHTML = `
+                <strong>資料載入失敗！</strong> ${error.message}
+            `;
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align:center; padding: 40px; color: #e74c3c;">
+                        載入失敗，請重試
+                    </td>
+                </tr>
+            `;
+        }
+
+        function hideError() {
+            errorMessageDiv.style.display = 'none';
+        }
+
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return '-';
+            try {
+                return new Date(dateTimeStr).toLocaleString('zh-TW', { 
+                    hour12: false,
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (e) {
+                return dateTimeStr;
+            }
+        }
+
+        /**
+         * 統一狀態值轉換函式 - 將任何狀態值轉為標準中文顯示
+         */
+        function normalizeStatusToDisplay(status) {
+            if (!status) return '未知';
+            
+            // 標準化為大寫進行比較
+            const upperStatus = status.toString().toUpperCase();
+            
+            switch(upperStatus) {
+                case 'PENDING':
+                case '等待付款':
+                    return '等待付款';
+                    
+                case 'PAYING':
+                case '付款處理中':
+                    return '付款處理中';
+                    
+                case 'PROCESSING':
+                case '處理中':
+                    return '處理中';
+                    
+                case 'SHIPPED':
+                case '已付款':
+                case '已出貨':
+                    return '已付款';
+                    
+                case 'COMPLETED':
+                case '已完成':
+                    return '已完成';
+                    
+                case 'FAILED':
+                case '處理失敗':
+                case 'PAYMENT_FAILED':
+                    return '處理失敗';
+                    
+                case 'CANCELLED':
+                case '已取消':
+                    return '已取消';
+                    
+                default:
+                    return status; // 返回原始值
+            }
+        }
+
+        /**
+         * 根據狀態值獲取對應的CSS類別
+         */
+        function getStatusClass(status) {
+            if (!status) return 'status-unknown';
+            
+            const normalizedStatus = normalizeStatusToDisplay(status);
+            
+            switch(normalizedStatus) {
+                case '等待付款': return 'status-pending';
+                case '付款處理中': return 'status-paying';
+                case '處理中': return 'status-processing';
+                case '已付款': return 'status-shipped';
+                case '已完成': return 'status-completed';
+                case '處理失敗': return 'status-failed';
+                case '已取消': return 'status-cancelled';
+                default: return 'status-unknown';
+            }
+        }
+
+        /**
+         * 統一狀態顯示名稱 - 直接使用標準化函式
+         */
+        function getStatusDisplayName(status) {
+            return normalizeStatusToDisplay(status);
+        }
+
+        // --- 全域暴露 ---
         window.OrderManager = {
-            showOrderDetail: showOrderDetail,
-            printOrder: printOrder,
-            filterByStatus: filterByStatus,
-            changeItemsPerPage: changeItemsPerPage,
-            changePage: changePage,
-            addNewOrder: addNewOrder,
-            editOrder: editOrder
+            showOrderDetail,
+            closeModal,
+            addNewOrder,
+            editOrder,
+            printOrder,
+            filterByStatus,
+            changeItemsPerPage,
+            changePage
         };
+
+        // --- 初始化 ---
+        loadOrders();
 
     })();
 </script>

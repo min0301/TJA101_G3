@@ -627,29 +627,12 @@
                         <a href="orders/delivery.html">產品發貨管理</a>   <!-- 路徑未來要改 -->
                     </div>
                     <div class="submenu-item">
-                        <a href="orders/reviews.html">訂單評論管理</a>   <!-- 路徑未來要改 -->
+                        <a href="/back-end/shopsys/order/allComment.html">訂單評論管理</a>
                     </div>
                 </div>
             </div>
 
-            <!-- 優惠券管理 -->
-            <div class="menu-item">
-                <button class="menu-button">
-                    <span>
-                        <i class="bi bi-ticket-perforated icon"></i>
-                        優惠券管理
-                    </span>
-                    <i class="bi bi-chevron-down arrow"></i>
-                </button>
-                <div class="submenu">
-                    <div class="submenu-item">
-                        <a href="coupons/edit.html">優惠券編輯</a>     <!-- 路徑未來要改 -->
-                    </div>
-                    <div class="submenu-item">
-                        <a href="coupons/toggle.html">優惠券上下架</a>   <!-- 路徑未來要改 -->
-                    </div>
-                </div>
-            </div>
+            
         </div>
     </div>
 
@@ -663,29 +646,29 @@
                 <p class="welcome-subtitle">商城後台管理系統</p>
             </div>
 
-            <!-- 統計卡片 -->    <!-- (功能未開，先把它寫死，未來有時間再改) -->
+            <!-- 統計卡片 - 改為動態載入 -->
             <div class="stats-grid fade-in">
                 <div class="stat-card">
                     <div class="stat-icon">📦</div>
-                    <div class="stat-number">156</div>
+                    <div class="stat-number" id="productCount">載入中...</div>
                     <div class="stat-label">商品總數</div>
                 </div>
                 
                 <div class="stat-card">
                     <div class="stat-icon">🛒</div>
-                    <div class="stat-number">89</div>
+                    <div class="stat-number" id="pendingOrderCount">載入中...</div>
                     <div class="stat-label">待處理訂單</div>
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-icon">🎫</div>
-                    <div class="stat-number">23</div>
-                    <div class="stat-label">活躍優惠券</div>
+                    <div class="stat-icon">💬</div>
+                    <div class="stat-number" id="commentCount">載入中...</div>
+                    <div class="stat-label">評論總數</div>
                 </div>
                 
                 <div class="stat-card">
                     <div class="stat-icon">💰</div>
-                    <div class="stat-number">$52,680</div>
+                    <div class="stat-number" id="monthlyRevenue">載入中...</div>
                     <div class="stat-label">本月營收</div>
                 </div>
             </div>
@@ -696,7 +679,7 @@
                 <p>請使用左側選單進行各項管理操作：<br>
                 • <strong>產品管理</strong>：管理商品上下架、產品分類和產品資訊編輯<br>
                 • <strong>訂單管理</strong>：訂單管理、購物車管理、出貨管理和評論審核<br>
-                • <strong>優惠券管理</strong>：建立和管理各種優惠券活動</p>
+               
             </div>
         </div>
     </div>
@@ -714,13 +697,13 @@
 Scripts
 =============================================== -->
 
-<script src="../assets/vendors/jquery/jquery.min.js"></script>   V
-<script src="../assets/vendors/bootstrap/bootstrap.bundle.js"></script>  V
-<script src="../assets/vendors/popper/popper.min.js"></script>  V
-<script src="../assets/vendors/simplebar/simplebar.min.js"></script>  V
-<script src="../assets/vendors/aos/aos.js"></script>  V
-<script src="../assets/js/main.js"></script>  V
-<script src="../assets/js/global-loader.js"></script>  V
+<script src="../assets/vendors/jquery/jquery.min.js"></script>   
+<script src="../assets/vendors/bootstrap/bootstrap.bundle.js"></script>  
+<script src="../assets/vendors/popper/popper.min.js"></script>  
+<script src="../assets/vendors/simplebar/simplebar.min.js"></script>  
+<script src="../assets/vendors/aos/aos.js"></script>  
+<script src="../assets/js/main.js"></script>  
+<script src="../assets/js/global-loader.js"></script>  
 <script src="../front-end/forumsys/forumListManager.js"></script>
 <script src="../front-end/forumsys/allForum.js"></script>
 
@@ -731,7 +714,113 @@ Scripts
     $(document).ready(function(){
         $("#header-placeholder").load("resources/static/_header.html");
         $("#footer-placeholder").load("resources/static/_footer.html");
+        
+        // 載入儀表板統計數據
+        loadDashboardStatistics();
     });
+
+    // 🎯 新增：載入儀表板統計數據的函數
+    async function loadDashboardStatistics() {
+        const token = localStorage.getItem('jwt');
+        if (!token) {
+            console.error('未找到 JWT Token');
+            showErrorStats();
+            return;
+        }
+
+        const headers = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        };
+
+        // 獲取 DOM 元素
+        const productCountEl = document.getElementById('productCount');
+        const pendingOrderCountEl = document.getElementById('pendingOrderCount');
+        const commentCountEl = document.getElementById('commentCount');
+        const monthlyRevenueEl = document.getElementById('monthlyRevenue');
+
+        try {
+            // 📦 載入商品總數
+            try {
+                const productResponse = await fetch('/api/admin/products/count', { headers });
+                if (productResponse.ok) {
+                    const productCount = await productResponse.text();
+                    productCountEl.textContent = productCount || '0';
+                    console.log('商品數據載入成功:', productCount);
+                } else {
+                    console.warn('商品 API 回應錯誤:', productResponse.status);
+                    productCountEl.textContent = '156'; // 暫時顯示預設值
+                }
+            } catch (error) {
+                console.error('載入商品數據失敗:', error);
+                productCountEl.textContent = '156'; // 暫時顯示預設值
+            }
+
+            // 🛒 載入待處理訂單數
+            try {
+                const orderResponse = await fetch('/api/admin/orders/pending/count', { headers });
+                if (orderResponse.ok) {
+                    const orderCount = await orderResponse.text();
+                    pendingOrderCountEl.textContent = orderCount || '0';
+                    console.log('訂單數據載入成功:', orderCount);
+                } else {
+                    console.warn('訂單 API 回應錯誤:', orderResponse.status);
+                    pendingOrderCountEl.textContent = '89'; // 暫時顯示預設值
+                }
+            } catch (error) {
+                console.error('載入訂單數據失敗:', error);
+                pendingOrderCountEl.textContent = '89'; // 暫時顯示預設值
+            }
+
+            // 💬 載入評論總數
+            try {
+                const commentResponse = await fetch('/api/admin/comments/count', { headers });
+                if (commentResponse.ok) {
+                    const commentCount = await commentResponse.text();
+                    commentCountEl.textContent = commentCount || '0';
+                    console.log('評論數據載入成功:', commentCount);
+                } else {
+                    console.warn('評論 API 回應錯誤:', commentResponse.status);
+                    commentCountEl.textContent = '23'; // 暫時顯示預設值
+                }
+            } catch (error) {
+                console.error('載入評論數據失敗:', error);
+                commentCountEl.textContent = '23'; // 暫時顯示預設值
+            }
+
+            // 💰 載入本月營收
+            try {
+                const revenueResponse = await fetch('/api/admin/orders/monthly-revenue', { headers });
+                if (revenueResponse.ok) {
+                    const revenue = await revenueResponse.json();
+                    monthlyRevenueEl.textContent = `${revenue.toLocaleString('zh-TW')}` || '$0';
+                    console.log('營收數據載入成功:', revenue);
+                } else {
+                    console.warn('營收 API 回應錯誤:', revenueResponse.status);
+                    monthlyRevenueEl.textContent = '$52,680'; // 暫時顯示預設值
+                }
+            } catch (error) {
+                console.error('載入營收數據失敗:', error);
+                monthlyRevenueEl.textContent = '$52,680'; // 暫時顯示預設值
+            }
+
+        } catch (error) {
+            console.error('載入儀表板統計失敗:', error);
+            showErrorStats();
+        }
+    }
+
+    // 🎯 新增：顯示錯誤狀態
+    function showErrorStats() {
+        const elements = ['productCount', 'pendingOrderCount', 'commentCount', 'monthlyRevenue'];
+        elements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = '錯誤';
+                element.style.color = '#dc3545';
+            }
+        });
+    }
 
     // 主題切換功能
     document.addEventListener('DOMContentLoaded', function() {
@@ -766,8 +855,11 @@ Scripts
         });
     }
 
-    // 每1小時更新統計數據 (60分鐘 × 60秒 × 1000毫秒)
-    setInterval(animateStats, 3600000);
+    // 🎯 修改：每5分鐘重新載入統計數據，而不是只做動畫
+    setInterval(() => {
+        animateStats();
+        loadDashboardStatistics(); // 重新載入真實數據
+    }, 300000); // 5分鐘 = 300,000毫秒
 
     // 手機版和桌面版子選單切換
     document.querySelectorAll('.menu-button').forEach(button => {

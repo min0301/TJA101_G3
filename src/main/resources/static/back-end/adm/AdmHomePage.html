@@ -443,6 +443,7 @@ body {
 </style>
 </head>
 <body>
+
 	<div class="topbar">
 		<a href="#" class="topbar-logo" onclick="loadMainDashboard(event)">
 			<img src="../../../images/logo.png" alt="Pixel Tribe Logo">
@@ -461,25 +462,23 @@ body {
 						<a href="#" class="submenu-item"
 							onclick="renderContent('store', 'dashboard', event)"> <i
 							class="bi bi-pie-chart-fill item-icon"></i>儀表板
-						</a> <a href="#" class="submenu-item"
+						</a> 
+						<a href="#" class="submenu-item"
 							onclick="renderContent('store', 'management', event)"> <i
 							class="bi bi-box-seam item-icon"></i>產品管理
-						</a> <a href="#" class="submenu-item"
+						</a> 
+						<a href="#" class="submenu-item"
 							onclick="renderContent('store', 'malltag', event)"> <i
 							class="bi bi-tags-fill item-icon"></i>產品分類
-						</a> <a href="#" class="submenu-item"
+						</a> 
+						<a href="#" class="submenu-item"
 							onclick="renderContent('store', 'orders', event)"> <i
 							class="bi bi-receipt-cutoff item-icon"></i>訂單管理
-						</a> <a href="#" class="submenu-item"
-							onclick="renderContent('store', 'shipping', event)"> <i
-							class="bi bi-truck item-icon"></i>產品發貨管理
-						</a> <a href="#" class="submenu-item"
-							onclick="renderContent('store', 'reviews', event)"> <i
+						</a>  
+						<a href="#" class="submenu-item"
+							onclick="renderContent('store', 'comment', event)"> <i
 							class="bi bi-chat-square-text-fill item-icon"></i>訂單評論管理
-						</a> <a href="#" class="submenu-item"
-							onclick="renderContent('store', 'coupons', event)"> <i
-							class="bi bi-ticket-perforated-fill item-icon"></i>優惠券管理
-						</a>
+						</a> 
 					</div>
 				</li>
 				<li class="menu-item" id="menu-news">
@@ -559,6 +558,7 @@ body {
 		<main class="content-card" id="content-area"></main>
 	</div>
 
+
 	<script>
     // 【常數】將內容區域的 DOM 物件提出來，避免重複選取
     const contentArea = document.getElementById('content-area');
@@ -571,6 +571,7 @@ body {
         'store-management': '../shopsys/product/listAllProduct.html',
         'store-malltag': '../shopsys/malltag/listAllMallTag.html',
         'store-orders': '../shopsys/order/allOrder.html',
+        'store-comment': '../shopsys/order/allComment.html',
         'forum-forums': '../forumsys/forum/allForum.html',
         'forum-add': '../forumsys/forum/addForum.html',
         'forum': '../forumsys/forum/forum.html',
