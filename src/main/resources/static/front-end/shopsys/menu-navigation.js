@@ -5,9 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // 修正：使用完整的絕對路徑，與 shopindex.html 保持一致
   	const pageMap = {
 	order: `/front-end/shopsys/order/order-list.html`,
-		coupon: `/front-end/shopsys/coupon.html`,
+		
 	    product: `/front-end/shopsys/product.html`,
-	    favorite: '/front-end/shopsys/favorite.html',
+	    
 	    cart: `/front-end/shopsys/cart.html`,
 	    shop: `/front-end/shopsys/shopindex.html`  // 新增：返回商城首頁
   	};
@@ -64,13 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	          
 	          if (currentPath.includes('/order/')) {
 	              currentKey = 'order';
-	          } else if (currentPath.includes('/coupon')) {
-	              currentKey = 'coupon';
-	          } else if (currentPath.includes('/product')) {
+	          }  else if (currentPath.includes('/product')) {
 	              currentKey = 'product';
-	          } else if (currentPath.includes('/favorite')) {
-	              currentKey = 'favorite';
-	          } else if (currentPath.includes('/cart')) {
+	          }  else if (currentPath.includes('/cart')) {
 	              currentKey = 'cart';
 	          } else if (currentPath.includes('/shopindex')) {
 	              currentKey = 'shop';
