@@ -183,7 +183,16 @@
             document.getElementById('newsTitle').value = data.newsNoNewsTit;
             document.getElementById('memberId').value = data.memNoId;
             document.getElementById('memberNick').value = data.memNoMemNickName;
-            document.getElementById('ncomCre').value = data.ncomCre;
+            // 顯示本地時間
+            const utc = data.ncomCre;
+            const localTime = new Date(utc).toLocaleString('zh-TW', {
+                hour12: false,
+                timeZone: 'Asia/Taipei'
+            });
+            const ncomCreEl = document.getElementById('ncomCre');
+            ncomCreEl.value = localTime;
+            ncomCreEl.dataset.utc = utc; // 存原始 UTC
+            // document.getElementById('ncomCre').value = data.ncomCre;
             document.getElementById('ncomLikeLc').value = data.ncomLikeLc;
             document.getElementById('ncomLikeDlc').value = data.ncomLikeDlc;
             document.getElementById('commentContent').value = data.ncomCon || '';
