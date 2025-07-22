@@ -507,7 +507,7 @@ body {
 				</li>
 				<li class="menu-item" id="menu-forum">
 					<button class="menu-button" onclick="toggleMenu('forum')">
-						<span><i class="bi bi-chat-square-dots-fill icon"></i>論壇系統</span>
+						<span><i class="bi bi-chat-square-dots-fill icon"></i>討論區系統</span>
 						<i class="bi bi-chevron-down arrow"></i>
 					</button>
 					<div class="submenu">
@@ -783,7 +783,7 @@ body {
                     if (pendingCommentReportEl) pendingCommentReportEl.innerText = pendingCommentReportCount;
 
                 } catch (err) {
-                    console.error('論壇儀表板數據載入失敗:', err);
+                    console.error('討論區儀表板數據載入失敗:', err);
                     if (forumCountEl) forumCountEl.innerText = '錯誤';
                     if (postCountEl) postCountEl.innerText = '錯誤';
                     if (messageCountEl) messageCountEl.innerText = '錯誤';
@@ -916,7 +916,7 @@ body {
                     <div class="stat-card">
                         <i class="bi bi-chat-square-dots-fill stat-icon"></i>
                         <div class="stat-number" id="mainForumPostCount">載入中</div>
-                        <div class="stat-label">論壇文章數</div>
+                        <div class="stat-label">討論區文章數</div>
                     </div>
                     <div class="stat-card"><i class="bi bi-shop-window stat-icon"></i><div class="stat-number">156</div><div class="stat-label">上架商品數</div></div>
                 </div>
@@ -925,7 +925,7 @@ body {
                     <p>此管理後台整合了多個核心系統，您可以：<br>
                         • <strong>商城系統</strong>：管理商品、訂單、優惠券等電商功能。<br>
                         • <strong>新聞系統</strong>：發布最新公告、管理使用者評論與檢舉。<br>
-                        • <strong>論壇系統</strong>：維護討論區秩序、管理文章與官方公告。<br>
+                        • <strong>討論區系統</strong>：維護討論區秩序、管理文章與官方公告。<br>
                         • <strong>會員系統</strong>：查詢會員資料並執行管理操作。
                     </p>
                 </div>
@@ -955,13 +955,13 @@ body {
     `;
 }
 
-    // 【新增】論壇儀表板的 HTML 產生函式
+    // 【新增】討論區儀表板的 HTML 產生函式
     function getForumDashboardHTML() {
         return `
             <div class="dashboard-content">
                 <div class="welcome-section">
-                    <h1 class="welcome-title">論壇管理後台</h1>
-                    <p class="welcome-subtitle">這裡是論壇系統的數據總覽儀表板。</p>
+                    <h1 class="welcome-title">討論區管理後台</h1>
+                    <p class="welcome-subtitle">這裡是討論區系統的數據總覽儀表板。</p>
                 </div>
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -1077,7 +1077,7 @@ body {
     function getPlaceholderHTML(pageKey, subKey) {
         // ... 此函式內容不變 ...
         const pageTitles = {
-            store: '商城系統', news: '新聞系統', forum: '論壇系統', member: '會員系統'
+            store: '商城系統', news: '新聞系統', forum: '討論區系統', member: '會員系統'
         };
         const subTitles = {
             'toggle': '產品上下架',
@@ -1136,7 +1136,7 @@ body {
 
             // [可變] 根據你 HTML 中的 id 獲取 DOM 元素
             const newsCountEl = document.getElementById('newsCount');
-            const forumPostCountEl = document.getElementById('mainForumPostCount'); // 【新增】抓取論壇文章數的元素
+            const forumPostCountEl = document.getElementById('mainForumPostCount'); // 【新增】抓取討論區文章數的元素
 			const membersCountEl = document.getElementById('membersCount');
             try {
                 // ① 新聞總數 (原有邏輯不變)
@@ -1145,10 +1145,10 @@ body {
                 const newsCount = await res1.text();
                 if (newsCountEl) newsCountEl.innerText = newsCount;
 
-                // ② 論壇文章總數 (【新增】的 fetch 邏輯)
+                // ② 討論區文章總數 (【新增】的 fetch 邏輯)
                 // [可變] /api/admin/forumpost/count 是你的後端 API 端點，可根據實際情況修改
                 const res2 = await fetch('/api/admin/forumpost/count', { headers });
-                if (!res2.ok) throw new Error(`(論壇文章數 ${res2.status})`);
+                if (!res2.ok) throw new Error(`(討論區文章數 ${res2.status})`);
                 const postCount = await res2.text();
                 if (forumPostCountEl) forumPostCountEl.innerText = postCount;
                 

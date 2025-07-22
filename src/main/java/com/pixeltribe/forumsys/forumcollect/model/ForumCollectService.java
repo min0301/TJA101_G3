@@ -33,7 +33,7 @@ public class ForumCollectService {
         Member member = memRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("找不到會員, 編號: " + memberId));
         Forum forum = forumRepository.findById(forNo)
-                .orElseThrow(() -> new ResourceNotFoundException("找不到論壇文章, 編號: " + forNo));
+                .orElseThrow(() -> new ResourceNotFoundException("找不到討論區文章, 編號: " + forNo));
 
         Optional<ForumCollect> existingCollectOpt = forumCollectRepository.findByForNoAndMemNo(forum, member);
         ForumCollect forumCollect;
