@@ -109,8 +109,8 @@ VALUES
 ('管理員', '管理員', 'admin', 'AdminPass123', 'admin@teamtest.local', 'mem1.png', '臺北市中正區行政路1號', '0912345678',
  '1980-01-01', '2024-01-10 08:15:00', '2025-05-20 10:30:00', '1', NULL, NULL, TRUE, TRUE, FALSE, TRUE, 1),
 
-('王小明', '幻影疾風', 'user_one', 'PaSsWoRd123', 'a1b2c3d@TJA101.com.tw', 'mem2.png', '屏東縣崁頂鄉永安路87號',
- '0922815837',
+('姓名測試', '暱稱測試', 'testAccount', '123456', 'testmail@yahoo.com.tw', 'mem2.png', '屏東縣崁頂鄉永安路87號',
+ '0988123456',
  '1990-05-15', '2024-02-05 09:20:00', '2024-12-15 11:45:00', '1', NULL, NULL, TRUE, TRUE, FALSE, TRUE, 0),
 ('陳麗華', '冰雪薔薇', 'test_account', 'SecurePwd!', 'e4f5g6h@TJA101.com.tw', 'mem3.png', '高雄市路竹區倫理街53號',
  '0924206351',
