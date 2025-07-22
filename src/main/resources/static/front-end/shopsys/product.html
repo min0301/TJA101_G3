@@ -245,7 +245,7 @@
 
         // --- 第 1 步：取得主要商品資料 (不變) ---
         const apiBaseUrl = `${location.origin}/api`;
-        const apiUrl = `${apiBaseUrl}/product/${productId}/search`;
+        const apiUrl = `/api/product/${productId}/search`;
         const response = await fetch(apiUrl, { /* ... headers ... */ });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const responseData = await response.json();
@@ -257,7 +257,7 @@
         const headers = { 'Authorization': 'Bearer ' + (localStorage.getItem('jwt') || ''), 'Content-Type': 'application/json' };
         
         // 庫存請求的 Promise
-        const stockPromise = fetch(`${apiBaseUrl}/cart/stock/${productId}`, { headers })
+        const stockPromise = fetch(`/api/cart/stock/${productId}`, { headers })
             .then(res => res.ok ? res.json() : null)
             .catch(err => {
                 console.warn('庫存 API 請求出錯:', err);
@@ -403,7 +403,7 @@
 	    
 	    const productId = product.id || product.proNo;
 	    const apiBaseUrl = `${location.origin}/api`;
-	    const imageUrl = `${apiBaseUrl}/product/cover/${productId}`;
+	    const imageUrl = `/api/product/cover/${productId}`;
 	    
 	    // 更新頁面標題
 	    document.title = `${product.proName} - 像素部落`;
@@ -790,7 +790,7 @@
 	        console.log('🖼️ 開始載入商品圖片輪播，產品ID:', productId);
 	        
 	        const apiBaseUrl = `${location.origin}/api`;
-	        const imageListUrl = `${apiBaseUrl}/productimg/search/${productId}`;
+	        const imageListUrl = `/api/productimg/search/${productId}`;
 	        
 	        // 取得圖片列表
 	        const response = await fetch(imageListUrl);
