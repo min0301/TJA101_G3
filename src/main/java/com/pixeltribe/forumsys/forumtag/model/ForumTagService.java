@@ -1,6 +1,8 @@
 package com.pixeltribe.forumsys.forumtag.model;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +14,9 @@ import java.util.HashMap; // 新增導入
 @Service
 public class ForumTagService {
 
+    @Value("${file.base-url}")
+    private String baseUrl;
+
     private final ForumTagRepository forumTagRepository;
 
     // 【模擬資料】這個 Map 模擬了每個 ForumTag ID 對應的「預設圖片 URL」。
@@ -19,20 +24,21 @@ public class ForumTagService {
     // src/main/resources/static/images/forumposttag_img/01.jpg
     private static final Map<Integer, String> DEFAULT_TAG_POST_IMAGES = new HashMap<>();
 
-    static {
+    @PostConstruct
+    public void init() {
         // 這些 URL 應與你在 forum_post.POSTIMAGE_URL 中使用的路徑一致
         // 請根據你的實際 ForumTag ID 和圖片路徑來配置這些值
-        DEFAULT_TAG_POST_IMAGES.put(1, "/images/forumposttag_img/01.jpg"); // 趣味
-        DEFAULT_TAG_POST_IMAGES.put(2, "/images/forumposttag_img/02.jpg"); // 問題
-        DEFAULT_TAG_POST_IMAGES.put(3, "/images/forumposttag_img/03.jpg"); // 情報
-        DEFAULT_TAG_POST_IMAGES.put(4, "/images/forumposttag_img/04.jpg"); // 心得
-        DEFAULT_TAG_POST_IMAGES.put(5, "/images/forumposttag_img/05.jpg"); // 討論
-        DEFAULT_TAG_POST_IMAGES.put(6, "/images/forumposttag_img/06.jpg"); // 攻略
-        DEFAULT_TAG_POST_IMAGES.put(7, "/images/forumposttag_img/07.jpg"); // 密技
-        DEFAULT_TAG_POST_IMAGES.put(8, "/images/forumposttag_img/08.jpg"); // 閒聊
-        DEFAULT_TAG_POST_IMAGES.put(9, "/images/forumposttag_img/09.jpg"); // 其他 (假設有這張圖)
-        DEFAULT_TAG_POST_IMAGES.put(10, "/images/forumposttag_img/10.jpg"); // 招募
-        DEFAULT_TAG_POST_IMAGES.put(11, "/images/forumposttag_img/11.jpg"); // 官方訊息
+        DEFAULT_TAG_POST_IMAGES.put(1, baseUrl + "/images/forumposttag_img/01.jpg"); // 趣味
+        DEFAULT_TAG_POST_IMAGES.put(2, baseUrl + "/images/forumposttag_img/02.jpg"); // 問題
+        DEFAULT_TAG_POST_IMAGES.put(3, baseUrl + "/images/forumposttag_img/03.jpg"); // 情報
+        DEFAULT_TAG_POST_IMAGES.put(4, baseUrl + "/images/forumposttag_img/04.jpg"); // 心得
+        DEFAULT_TAG_POST_IMAGES.put(5, baseUrl + "/images/forumposttag_img/05.jpg"); // 討論
+        DEFAULT_TAG_POST_IMAGES.put(6, baseUrl + "/images/forumposttag_img/06.jpg"); // 攻略
+        DEFAULT_TAG_POST_IMAGES.put(7, baseUrl + "/images/forumposttag_img/07.jpg"); // 密技
+        DEFAULT_TAG_POST_IMAGES.put(8, baseUrl + "/images/forumposttag_img/08.jpg"); // 閒聊
+        DEFAULT_TAG_POST_IMAGES.put(9, baseUrl + "/images/forumposttag_img/09.jpg"); // 其他 (假設有這張圖)
+        DEFAULT_TAG_POST_IMAGES.put(10,baseUrl + "/images/forumposttag_img/10.jpg"); // 招募
+        DEFAULT_TAG_POST_IMAGES.put(11,baseUrl + "/images/forumposttag_img/11.jpg"); // 官方訊息
         // 確保你的圖片檔案存在於 src/main/resources/static/images/forumposttag_img/ 下
     }
 
