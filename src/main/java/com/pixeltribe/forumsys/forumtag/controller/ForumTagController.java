@@ -31,7 +31,7 @@ public class ForumTagController {
     /**
      * @description 處理獲取特定文章類別「預設文章封面圖片 URL」的 GET 請求。
      * 這個 API 返回的是 URL 字串，而不是圖片二進位資料。
-     * 對應前端的 `GET http://localhost:8080/api/forumtag/default-image/{ftagNoId}`
+     * 對應前端的 `GET /api/forumtag/default-image/{ftagNoId}`
      *
      * @param ftagNoId 文章類別 ID
      * @return 預設圖片的 URL 字串，如果找不到則返回 404 Not Found。
