@@ -462,23 +462,19 @@ body {
 						<a href="#" class="submenu-item"
 							onclick="renderContent('store', 'dashboard', event)"> <i
 							class="bi bi-pie-chart-fill item-icon"></i>儀表板
-						</a> 
-						<a href="#" class="submenu-item"
+						</a> <a href="#" class="submenu-item"
 							onclick="renderContent('store', 'management', event)"> <i
 							class="bi bi-box-seam item-icon"></i>產品管理
-						</a> 
-						<a href="#" class="submenu-item"
+						</a> <a href="#" class="submenu-item"
 							onclick="renderContent('store', 'malltag', event)"> <i
 							class="bi bi-tags-fill item-icon"></i>產品分類
-						</a> 
-						<a href="#" class="submenu-item"
+						</a> <a href="#" class="submenu-item"
 							onclick="renderContent('store', 'orders', event)"> <i
 							class="bi bi-receipt-cutoff item-icon"></i>訂單管理
-						</a>  
-						<a href="#" class="submenu-item"
+						</a> <a href="#" class="submenu-item"
 							onclick="renderContent('store', 'comment', event)"> <i
 							class="bi bi-chat-square-text-fill item-icon"></i>訂單評論管理
-						</a> 
+						</a>
 					</div>
 				</li>
 				<li class="menu-item" id="menu-news">
@@ -527,10 +523,10 @@ body {
 							onclick="renderContent('forum', 'comments', event)"> <i
 							class="bi bi-chat-left-text-fill item-icon"></i>留言管理
 						</a>
-<!--						<a href="#" class="submenu-item"-->
-<!--							onclick="renderContent('forum', 'official', event)"> <i-->
-<!--							class="bi bi-megaphone-fill item-icon"></i>發布官方文章-->
-<!--						</a> -->
+						<!--						<a href="#" class="submenu-item"-->
+						<!--							onclick="renderContent('forum', 'official', event)"> <i-->
+						<!--							class="bi bi-megaphone-fill item-icon"></i>發布官方文章-->
+						<!--						</a> -->
 						<a href="#" class="submenu-item"
 							onclick="renderContent('forum', 'reports', event)"> <i
 							class="bi bi-shield-check item-icon"></i>文章留言檢舉審核
@@ -821,14 +817,14 @@ body {
         	         }
 
         	         // 本周新註冊
-//         	         try {
-//         	             const res3 = await fetch('/api/members/admin/newlySign', { headers });
-//         	             if (!res3.ok) throw new Error('本周新註冊 API 錯誤');
-//         	             memberMonthlyNewCountEl.innerText = await res3.text();
-//         	         } catch (err) {
-//         	             memberMonthlyNewCountEl.innerText = '錯誤';
-//         	             console.error(err);
-//         	         }
+        	         try {
+        	             const res3 = await fetch('/api/members/admin/newlySign', { headers });
+        	             if (!res3.ok) throw new Error('本周新註冊 API 錯誤');
+        	             memberWeeklyNewCountEl.innerText = await res3.text();
+        	         } catch (err) {
+        	             memberWeeklyNewCountEl.innerText = '錯誤';
+        	             console.error(err);
+        	         }
         	     }, 0);
         } else{
             // 其他所有未設定的頁面，顯示佔位內容
@@ -1060,6 +1056,11 @@ body {
                         <div class="stat-number" id="memberSuspendedCount">載入中</div>
                         <div class="stat-label">停權會員數</div>
                     </div>
+                    <div class="stat-card">
+                    <i class="bi bi-person-plus stat-icon"></i>
+                    <div class="stat-number" id="memberWeeklyNewCount">載入中</div>
+                    <div class="stat-label">本周註冊會員數</div>
+                </div>
                 </div>
                 <div class="guide-text">
                     <h3>📋 操作說明</h3>
