@@ -148,6 +148,28 @@ public class NewsService {
         news.setAdminNo(admin);
         newsRepository.save(news);
 
+        // 1. 取得分類主表實體 ================================
+        List<NewsCategory> categories =
+                newsCategoryRepository.findAllById(dto.getTags());
+
+        if (categories.size() != dto.getTags().size()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "errorCode", "NCAT_404",
+                    "errorMessage", "部分分類不存在"
+            ));
+        }
+
+        // 2. 建立中介表 list ================================
+        List<NewsContentClassification> rels = categories.stream()
+                .map(cat -> {
+                    NewsContentClassification ncc = new NewsContentClassification();
+                    ncc.setNewsNo(news);
+                    ncc.setNcatNo(cat);
+                    return ncc;
+                })
+                .toList();
+        newsContentClassificationRepository.saveAll(rels);
+
         // 取得 Redis 暫存圖片清單
         String redisKey = "temp_news_images:admin:" + adminId;
         List<Object> rawList = redisTemplate.opsForList().range(redisKey, 0, -1);
