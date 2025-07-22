@@ -21,13 +21,13 @@
             align-items: center;
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color, #ddd);
         }
 
         .comment-management-container .page-title-header h2 {
             font-family: 'Karla', sans-serif;
             font-size: 24px;
-            color: var(--text-color);
+            color: var(--text-color, #333);
             font-weight: 700;
             margin: 0;
         }
@@ -40,10 +40,10 @@
         }
 
         .comment-management-container .stat-card {
-            background: var(--component-bg);
+            background: var(--component-bg, #fff);
             padding: 20px;
             border-radius: 12px;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-color, #ddd);
             text-align: center;
         }
 
@@ -54,20 +54,20 @@
         }
 
         .comment-management-container .stat-label {
-            color: var(--text-muted);
+            color: var(--text-muted, #6c757d);
             font-size: 14px;
         }
 
-        .comment-management-container .stat-total { color: var(--brand-green); }
+        .comment-management-container .stat-total { color: var(--brand-green, #28a745); }
         .comment-management-container .stat-normal { color: #28a745; }
         .comment-management-container .stat-blocked { color: #dc3545; }
 
         .comment-management-container .control-bar {
-            background: var(--component-bg);
+            background: var(--component-bg, #fff);
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-color, #ddd);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -83,16 +83,16 @@
         }
 
         .comment-management-container .filter-select {
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-color, #ddd);
             border-radius: 6px;
             padding: 8px 12px;
-            background: var(--component-bg);
-            color: var(--text-color);
+            background: var(--component-bg, #fff);
+            color: var(--text-color, #333);
             transition: border-color 0.2s;
         }
         
         .comment-management-container .filter-select:focus {
-            border-color: var(--brand-green);
+            border-color: var(--brand-green, #28a745);
             outline: none;
         }
 
@@ -106,8 +106,8 @@
             display: inline-block;
             text-decoration: none;
             background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
+            border: 1px solid var(--border-color, #ddd);
+            color: var(--text-color, #333);
             padding: 8px 15px;
             border-radius: 6px;
             cursor: pointer;
@@ -117,9 +117,9 @@
         }
 
         .comment-management-container .action-btn:hover {
-            background: var(--brand-green-light);
-            color: var(--brand-green);
-            border-color: var(--brand-green);
+            background: var(--brand-green-light, #d4edda);
+            color: var(--brand-green, #28a745);
+            border-color: var(--brand-green, #28a745);
         }
 
         .comment-management-container .action-btn.btn-danger {
@@ -145,10 +145,10 @@
         }
 
         .comment-management-container .table-container {
-            background: var(--component-bg);
+            background: var(--component-bg, #fff);
             border-radius: 12px;
             overflow-x: auto;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-color, #ddd);
         }
 
         .comment-management-container .table {
@@ -158,11 +158,11 @@
         }
 
         .comment-management-container .table thead {
-            background: var(--brand-green-light);
+            background: var(--brand-green-light, #d4edda);
         }
 
         .comment-management-container .table th {
-            color: var(--brand-green);
+            color: var(--brand-green, #28a745);
             font-weight: 700;
             text-align: center;
             vertical-align: middle;
@@ -175,12 +175,12 @@
             text-align: center;
             vertical-align: middle;
             padding: 12px 10px;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-color);
+            border-top: 1px solid var(--border-color, #ddd);
+            color: var(--text-color, #333);
         }
 
         .comment-management-container .table tbody tr:hover {
-            background-color: var(--brand-green-light);
+            background-color: var(--brand-green-light, #d4edda);
         }
 
         /* 評論內容特殊樣式 */
@@ -203,12 +203,12 @@
             position: absolute;
             bottom: 0;
             right: 0;
-            background: var(--component-bg);
+            background: var(--component-bg, #fff);
             padding-left: 20px;
         }
 
         .comment-management-container .expand-btn {
-            color: var(--brand-green);
+            color: var(--brand-green, #28a745);
             cursor: pointer;
             font-size: 12px;
             margin-top: 4px;
@@ -275,9 +275,9 @@
         }
 
         .comment-management-container .pagination-controls .page-item .page-link {
-            color: var(--brand-green);
-            background-color: var(--component-bg);
-            border: 1px solid var(--border-color);
+            color: var(--brand-green, #28a745);
+            background-color: var(--component-bg, #fff);
+            border: 1px solid var(--border-color, #ddd);
             margin: 0 3px;
             padding: 8px 14px;
             border-radius: 6px;
@@ -289,24 +289,24 @@
         .comment-management-container .pagination-controls .page-item.active .page-link {
             z-index: 1;
             color: #fff;
-            background-color: var(--brand-green);
-            border-color: var(--brand-green);
+            background-color: var(--brand-green, #28a745);
+            border-color: var(--brand-green, #28a745);
         }
 
         .comment-management-container .pagination-controls .page-item.disabled .page-link {
             color: #6c757d;
             pointer-events: none;
             background-color: #e9ecef;
-            border-color: var(--border-color);
+            border-color: var(--border-color, #ddd);
         }
 
         .comment-management-container .pagination-controls .page-item .page-link:hover:not(.active) {
-            background-color: var(--brand-green-light);
-            border-color: var(--brand-green);
+            background-color: var(--brand-green-light, #d4edda);
+            border-color: var(--brand-green, #28a745);
         }
 
         .comment-management-container .pagination-info {
-            color: var(--text-muted);
+            color: var(--text-muted, #6c757d);
             font-size: 14px;
         }
 
@@ -321,18 +321,28 @@
             display: none;
         }
 
+        /* 警告訊息 */
+        .comment-management-container .warning-message {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
         /* 載入狀態 */
         .comment-management-container .loading {
             text-align: center;
             padding: 40px;
-            color: var(--text-muted);
+            color: var(--text-muted, #6c757d);
         }
 
         /* 空狀態 */
         .comment-management-container .empty-state {
             text-align: center;
             padding: 60px 20px;
-            color: var(--text-muted);
+            color: var(--text-muted, #6c757d);
         }
 
         .comment-management-container .empty-state i {
@@ -490,6 +500,29 @@
         let currentFilter = '';
         let selectedComments = new Set();
 
+        // 動態決定 API 基礎路徑
+        const API_BASE = getApiBaseUrl();
+
+        function getApiBaseUrl() {
+            // 檢查是否有設定的 API 基礎路徑
+            if (window.API_BASE_URL) {
+                return window.API_BASE_URL;
+            }
+            
+            // 根據當前域名自動判斷
+            const hostname = window.location.hostname;
+            const protocol = window.location.protocol;
+            const port = window.location.port;
+            
+            // 開發環境
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return `${protocol}//${hostname}:8080`;
+            }
+            
+            // 上線環境 - 使用相同的協議和域名
+            return `${protocol}//${hostname}${port ? ':' + port : ''}`;
+        }
+
         // --- DOM 元素 ---
         const tableBody = document.getElementById('commentTableBody');
         const errorMessageDiv = document.getElementById('error-message');
@@ -507,10 +540,21 @@
         const normalCommentsSpan = document.getElementById('normalComments');
         const blockedCommentsSpan = document.getElementById('blockedComments');
 
+        // --- 初始化 ---
+        function initializePage() {
+            console.log('🔍 評論管理環境檢測:');
+            console.log('- 當前網址:', window.location.href);
+            console.log('- API 基礎路徑:', API_BASE);
+            console.log('- JWT Token 存在:', !!localStorage.getItem('jwt'));
+            
+            loadComments();
+            loadStatistics();
+        }
+
         // --- 核心功能 ---
         
         /**
-         * 載入評論資料
+         * 載入評論資料 - 增強錯誤處理
          */
         async function loadComments() {
             const token = localStorage.getItem('jwt');
@@ -524,14 +568,16 @@
                 
                 let url;
                 if (currentFilter) {
-                    // 按狀態篩選 - 修正 API 路徑
-                    url = `/api/admin/orderitem/comments/status/${currentFilter}?page=${currentPage}&size=${itemsPerPage}`;
+                    // 按狀態篩選
+                    url = `${API_BASE}/api/admin/orderitem/comments/status/${currentFilter}?page=${currentPage}&size=${itemsPerPage}`;
                 } else {
-                    // 查詢所有評論 - 修正 API 路徑
-                    url = `/api/admin/orderitem/comments?page=${currentPage}&size=${itemsPerPage}`;
+                    // 查詢所有評論
+                    url = `${API_BASE}/api/admin/orderitem/comments?page=${currentPage}&size=${itemsPerPage}`;
                 }
 
-                const response = await fetch(url, {
+                console.log(`📡 載入評論資料: ${url}`);
+
+                const response = await fetchWithRetry(url, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -540,10 +586,18 @@
                 });
 
                 if (!response.ok) {
+                    if (response.status === 500) {
+                        throw new Error('伺服器內部錯誤，請聯繫系統管理員');
+                    } else if (response.status === 403) {
+                        throw new Error('沒有權限查看評論資料');
+                    } else if (response.status === 404) {
+                        throw new Error('找不到評論資料');
+                    }
                     throw new Error(`HTTP 錯誤！狀態: ${response.status}`);
                 }
 
                 const result = await response.json();
+                console.log('✅ 評論資料載入成功');
                 
                 if (result.content) {
                     // Spring Page 格式
@@ -559,21 +613,21 @@
                 }
 
             } catch (error) {
-                console.error('載入評論失敗:', error);
+                console.error('❌ 載入評論失敗:', error);
                 showError(error);
             }
         }
 
         /**
-         * 載入統計資料
+         * 載入統計資料 - 加入容錯處理
          */
         async function loadStatistics() {
             const token = localStorage.getItem('jwt');
             if (!token) return;
 
             try {
-                // 修正 API 路徑
-                const response = await fetch('/api/admin/orderitem/statistics', {
+                console.log('📊 載入統計資料...');
+                const response = await fetchWithRetry(`${API_BASE}/api/admin/orderitem/statistics`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -586,9 +640,51 @@
                     totalCommentsSpan.textContent = stats.totalComments || 0;
                     normalCommentsSpan.textContent = (stats.totalComments - stats.blockedComments) || 0;
                     blockedCommentsSpan.textContent = stats.blockedComments || 0;
+                    console.log('✅ 統計資料載入成功');
+                } else {
+                    console.warn('⚠️ 統計資料載入失敗，使用預設值');
+                    setDefaultStats();
                 }
             } catch (error) {
-                console.error('載入統計失敗:', error);
+                console.error('⚠️ 載入統計失敗:', error);
+                console.log('📌 使用預設統計值');
+                setDefaultStats();
+                // 不讓統計失敗影響主要功能
+            }
+        }
+
+        function setDefaultStats() {
+            totalCommentsSpan.textContent = '?';
+            normalCommentsSpan.textContent = '?';
+            blockedCommentsSpan.textContent = '?';
+        }
+
+        /**
+         * 帶重試的 fetch 函數
+         */
+        async function fetchWithRetry(url, options, retries = 2) {
+            console.log(`🌐 API 請求: ${url}`);
+            
+            for (let i = 0; i <= retries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        ...options,
+                        timeout: 10000 // 10秒超時
+                    });
+                    
+                    console.log(`📡 API 回應 [${response.status}]: ${url}`);
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text().catch(() => 'Unable to read response');
+                        console.error(`❌ API 錯誤 [${response.status}]:`, errorText);
+                    }
+                    
+                    return response;
+                } catch (error) {
+                    console.error(`🔥 網路錯誤 (嘗試 ${i + 1}/${retries + 1}):`, error);
+                    if (i === retries) throw error;
+                    await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // 漸進延遲
+                }
             }
         }
 
@@ -621,17 +717,17 @@
                         </a>
                     </td>
                     <td style="text-align: left; max-width: 150px;">
-                        <div style="font-weight: 500;">${comment.proName || '商品名稱'}</div>
+                        <div style="font-weight: 500;">${escapeHtml(comment.proName || '商品名稱')}</div>
                         <small style="color: var(--text-muted);">NT$ ${comment.productPrice ? comment.productPrice.toLocaleString() : '0'}</small>
                     </td>
                     <td style="text-align: left;">
-                        <div style="font-weight: 500;">${comment.memName || '未知'}</div>
-                        <small style="color: var(--text-muted);">${comment.memEmail || ''}</small>
+                        <div style="font-weight: 500;">${escapeHtml(comment.memName || '未知')}</div>
+                        <small style="color: var(--text-muted);">${escapeHtml(comment.memEmail || '')}</small>
                     </td>
                     <td>${generateStarRating(comment.proStar)}</td>
                     <td class="comment-text ${comment.productComment && comment.productComment.length > 100 ? 'truncated' : ''}" 
                         onclick="CommentManager.toggleCommentExpand(this)">
-                        ${comment.productComment || '無評論內容'}
+                        ${escapeHtml(comment.productComment || '無評論內容')}
                         ${comment.productComment && comment.productComment.length > 100 ? '<div class="expand-btn">點擊展開</div>' : ''}
                     </td>
                     <td>${formatDateTime(comment.productCommentCrdate)}</td>
@@ -823,8 +919,7 @@
             }
 
             try {
-                // 修正 API 路徑
-                const response = await fetch(`/api/admin/orderitem/${orderItemNo}/status`, {
+                const response = await fetchWithRetry(`${API_BASE}/api/admin/orderitem/${orderItemNo}/status`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -874,8 +969,7 @@
             }
 
             try {
-                // 修正 API 路徑
-                const response = await fetch('/api/admin/orderitem/status/batch', {
+                const response = await fetchWithRetry(`${API_BASE}/api/admin/orderitem/status/batch`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -931,6 +1025,13 @@
 
         // --- 輔助函式 ---
         
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         function showLoading() {
             tableBody.innerHTML = `
                 <tr>
@@ -950,7 +1051,7 @@
             tableBody.innerHTML = `
                 <tr>
                     <td colspan="9" style="text-align:center; padding: 40px; color: #e74c3c;">
-                        載入失敗，請重試
+                        載入失敗，請檢查網路連線或重新整理頁面
                     </td>
                 </tr>
             `;
@@ -996,8 +1097,7 @@
         };
 
         // --- 初始化 ---
-        loadComments();
-        loadStatistics();
+        initializePage();
 
     })();
 </script>
