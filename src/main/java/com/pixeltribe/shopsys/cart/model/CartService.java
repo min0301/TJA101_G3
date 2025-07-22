@@ -776,19 +776,60 @@ public class CartService {
 		public StockInfoResponse getStockInfo(Integer productId) {
 			Product product = productRepository.findById(productId).orElse(null);
 			if (product == null) {
-				return null;
+				return StockInfoResponse.error("商品不存在");
 			}
 			
 			Integer stock = getProductStock(product);
-			String stockSource = "預購".equals(product.getProStatus()) ? "Redis暫存數量" : "序號表計算";
+		    String stockSource;
+		    String productType; // 新增：商品類型資訊
 			
-			return new StockInfoResponse(
-				productId, 
-				product.getProName(), 
-				product.getProStatus(), 
-				stock, 
-				stockSource
+		    // 添加詳細日誌和類型判斷
+		    System.out.println("=== getStockInfo Debug ===");
+		    System.out.println("商品ID: " + productId);
+		    System.out.println("商品狀態: " + product.getProStatus());
+		    System.out.println("計算出的庫存: " + stock);
+			
+		    // 重新判斷商品類型（與 getProductStock 邏輯一致）
+		    if ("預購中".equals(product.getProStatus())) {
+		        stockSource = "Redis暫存數量";
+		        productType = "預購商品";
+		        System.out.println("類型: 明確預購商品");
+		    } 
+		    else if ("已發售".equals(product.getProStatus())) {
+		        // 檢查是否有預購庫存
+		        Integer preOrderCheck = getPreOrderStockIfExists(productId);
+		        if (preOrderCheck != null) {
+		            stockSource = "Redis暫存數量";
+		            productType = "預購商品(已發售狀態)";
+		            System.out.println("類型: 已發售的預購商品");
+		        } else {
+		            stockSource = "序號表計算";
+		            productType = "現貨商品";
+		            System.out.println("類型: 已發售的現貨商品");
+		        }
+		    }
+		    else {
+		        stockSource = "序號表計算";
+		        productType = "現貨商品";
+		        System.out.println("類型: 其他狀態的現貨商品");
+		    }
+		    
+		    System.out.println("庫存來源: " + stockSource);
+		    System.out.println("商品類型: " + productType);
+		    System.out.println("=== Debug 結束 ===");
+		    
+		    
+		    // 使用您的 StockInfoResponse 結構
+		    StockInfoResponse response = new StockInfoResponse(
+		            productId, 
+		            product.getProName(), 
+		            product.getProStatus(), 
+		            stock, 
+		            stockSource,
+		            productType
 			);
+		    
+		    return response;
 		}
 		
 		// ============ 設定預購商品庫存 (後台) =========== //
@@ -809,6 +850,34 @@ public class CartService {
 		        throw new RuntimeException("設定預購庫存失敗", e);
 		    }
 		}
+		
+		// ============ 管理員專用的商品類型檢查方法 =========== //
+		public String checkProductType(Integer productId) {
+		    Product product = productRepository.findById(productId).orElse(null);
+		    if (product == null) {
+		        return "商品不存在";
+		    }
+		    
+		    String status = product.getProStatus();
+		    
+		    if ("預購中".equals(status)) {
+		        return "明確預購商品";
+		    } 
+		    else if ("已發售".equals(status)) {
+		        Integer preOrderStock = getPreOrderStockIfExists(productId);
+		        if (preOrderStock != null) {
+		            return "已發售的預購商品 (Redis庫存: " + preOrderStock + ")";
+		        } else {
+		            Integer onShelfStock = getOnShelfStock(productId);
+		            return "已發售的現貨商品 (序號庫存: " + onShelfStock + ")";
+		        }
+		    }
+		    else {
+		        return "其他狀態: " + status;
+		    }
+		}
+		
+		
 		
 		
 		// ============ 檢查預購庫存資料一致性 =========== //
@@ -884,17 +953,82 @@ public class CartService {
 	    }
 	    
 	    String status = product.getProStatus();
+	    Integer productId = product.getId();
+	    
+	    System.out.println("=== 庫存判斷 Debug ===");
+	    System.out.println("商品ID: " + productId);
+	    System.out.println("商品狀態: " + status);
 	    
 	    // 根據產品狀態決定庫存來源  (同時支援 "預購" 和 "預購中" 兩種狀態)
-	    if ("預購".equals(status) || "預購中".equals(status)) {
-	        return getPreOrderStock(product.getId());
-	    } else if ("上架".equals(status) || "已發售".equals(status)) {
-	        return getOnShelfStock(product.getId());
-	    } else {
+	    if ("預購中".equals(status)) {
+	        // 明確的預購商品，直接查 Redis
+	        System.out.println("判斷: 明確預購商品，查詢 Redis");
+	        return getPreOrderStock(productId);
+	    } 
+	    else if ("已發售".equals(status)) {
+	        // 已發售狀態：需要進一步判斷是現貨還是預購
+	        // 先檢查 Redis 中是否有預購庫存設定
+	        Integer preOrderStock = getPreOrderStockIfExists(productId);
+	        
+	        if (preOrderStock != null) {
+	            // Redis 中有預購庫存 = 預購商品
+	            System.out.println("判斷: 已發售商品檢測到預購庫存 = 預購商品");
+	            System.out.println("預購庫存: " + preOrderStock);
+	            return preOrderStock;
+	        } else {
+	            // Redis 中沒有預購庫存 = 現貨商品
+	            System.out.println("判斷: 已發售商品無預購庫存 = 現貨商品");
+	            Integer onShelfStock = getOnShelfStock(productId);
+	            System.out.println("現貨庫存: " + onShelfStock);
+	            return onShelfStock;
+	        }
+	    } 
+	    else if ("上架".equals(status)) {
+	        // 兼容舊的上架狀態
+	        System.out.println("判斷: 上架狀態，視為現貨");
+	        return getOnShelfStock(productId);
+	    }
+	    else {
+	        System.out.println("判斷: 其他狀態，庫存為 0");
 	        return 0; // 其他狀態
 	    }
+
 	}
 
+	// 檢查 Redis 中是否存在預購庫存（不回傳預設值）；返回 null 表示不是預購商品，返回數字表示預購庫存數量
+	private Integer getPreOrderStockIfExists(Integer productId) {
+	    try {
+	        // 檢查 ProductPreorderService 使用的格式
+	        String simpleKey = productId.toString();
+	        String simpleValue = redisTemplate.opsForValue().get(simpleKey);
+	        
+	        if (simpleValue != null && !simpleValue.isEmpty()) {
+	            System.out.println("在 Redis 簡單格式中找到預購庫存: " + simpleValue);
+	            return Integer.parseInt(simpleValue);
+	        }
+	        
+	        // 檢查原本的格式
+	        String originalKey = PREORDER_STOCK_PREFIX + productId;
+	        String stockStr = redisTemplate.opsForValue().get(originalKey);
+	        
+	        if (stockStr != null && !stockStr.isEmpty()) {
+	            System.out.println("在 Redis 原始格式中找到預購庫存: " + stockStr);
+	            return Integer.parseInt(stockStr);
+	        }
+	        
+	        // 兩種格式都沒有資料，返回 null（表示不是預購商品）
+	        System.out.println("Redis 中無預購庫存資料");
+	        return null;
+	        
+	    } catch (NumberFormatException e) {
+	        System.err.println("Redis 預購庫存資料格式錯誤: " + e.getMessage());
+	        return null;
+	    } catch (Exception e) {
+	        System.err.println("檢查預購庫存失敗: " + e.getMessage());
+	        return null;
+	    }
+	}
+	
 	// 獲取預購商品庫存（從 Redis）
 	private Integer getPreOrderStock(Integer productId) {
 	    try {
@@ -919,6 +1053,7 @@ public class CartService {
 	        
 	        // 兩種格式都沒有資料，回傳預設值
 	        // 修改：改為回傳 0 而不是 Integer.MAX_VALUE，與 ProductPreorderService 一致
+	        System.out.println("預購商品在 Redis 中無庫存資料，回傳 0");
 	        return 0;
 	        
 	    } catch (NumberFormatException e) {

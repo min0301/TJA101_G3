@@ -1,6 +1,11 @@
 package com.pixeltribe.shopsys.cart.controller;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +28,8 @@ import com.pixeltribe.shopsys.cart.model.CartService;
 import com.pixeltribe.shopsys.cart.model.CartStatisticsResponse;
 import com.pixeltribe.shopsys.cart.model.CartValidationResponse;
 import com.pixeltribe.shopsys.cart.model.StockInfoResponse;
+import com.pixeltribe.shopsys.product.model.Product;
+import com.pixeltribe.shopsys.product.model.ProductRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -36,6 +43,9 @@ public class CartController {
 	
 	@Autowired
 	private CartService cartService;
+	
+	@Autowired
+	private ProductRepository productRepository;
 	
 	// ******** 前台API (會員對購物車的操作) ******** //
 	// ==========  將商品加到購物車 ============ //
@@ -240,5 +250,134 @@ public class CartController {
 	        return ResponseEntity.status(500).body("設定失敗: " + e.getMessage());
 	    }
 	}
+	
+	
+	// ========== 🔥 新增：商品類型檢查 API (調試用) ============ //
+	@GetMapping("/admin/cart/product-type/{productId}")
+	public ResponseEntity<Map<String, Object>> checkProductType(@PathVariable Integer productId) {
+	    try {
+	        // 取得商品資訊
+	        Optional<Product> productOpt = productRepository.findById(productId);
+	        if (!productOpt.isPresent()) {
+	            Map<String, Object> notFoundResponse = new HashMap<>();
+	            notFoundResponse.put("error", "商品不存在");
+	            notFoundResponse.put("proNo", productId);
+	            return ResponseEntity.notFound().build();
+	        }
+	        
+	        Product product = productOpt.get();
+	        
+	        // 取得庫存資訊
+	        StockInfoResponse stockInfo = cartService.getStockInfo(productId);
+	        
+	        // 檢查商品類型
+	        String productType = cartService.checkProductType(productId);
+	        
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("proNo", productId);                    // 對應您的字段名
+	        response.put("proName", product.getProName());       // 對應您的字段名
+	        response.put("proStatus", product.getProStatus());   // 對應您的字段名
+	        response.put("proIsmarket", product.getProIsmarket());
+	        response.put("stockInfo", stockInfo);
+	        response.put("productType", productType);
+	        response.put("checkTime", new Date());
+	        response.put("message", "商品類型檢查完成");
+	        
+	        return ResponseEntity.ok(response);
+	        
+	    } catch (Exception e) {
+	        Map<String, Object> errorResponse = new HashMap<>();
+	        errorResponse.put("error", "檢查失敗: " + e.getMessage());
+	        errorResponse.put("proNo", productId);
+	        errorResponse.put("timestamp", new Date());
+	        return ResponseEntity.status(500).body(errorResponse);
+	    }
+	}
+
+	// ========== 🔥 新增：批量檢查商品類型 API ============ //
+	@PostMapping("/admin/cart/batch-check-types")
+	public ResponseEntity<Map<String, Object>> batchCheckProductTypes(
+	        @RequestBody List<Integer> productIds) {
+	    
+	    List<Map<String, Object>> results = new ArrayList<>();
+	    int successCount = 0;
+	    int errorCount = 0;
+	    
+	    for (Integer productId : productIds) {
+	        try {
+	            Optional<Product> productOpt = productRepository.findById(productId);
+	            if (!productOpt.isPresent()) {
+	                Map<String, Object> notFoundResult = new HashMap<>();
+	                notFoundResult.put("proNo", productId);
+	                notFoundResult.put("error", "商品不存在");
+	                results.add(notFoundResult);
+	                errorCount++;
+	                continue;
+	            }
+	            
+	            Product product = productOpt.get();
+	            StockInfoResponse stockInfo = cartService.getStockInfo(productId);
+	            String productType = cartService.checkProductType(productId);
+	            
+	            Map<String, Object> result = new HashMap<>();
+	            result.put("proNo", productId);                    // 對應您的字段名
+	            result.put("proName", product.getProName());       // 對應您的字段名
+	            result.put("proStatus", product.getProStatus());   // 對應您的字段名
+	            result.put("proIsmarket", product.getProIsmarket());
+	            result.put("stockInfo", stockInfo);
+	            result.put("productType", productType);
+	            result.put("success", true);
+	            
+	            results.add(result);
+	            successCount++;
+	            
+	        } catch (Exception e) {
+	            Map<String, Object> errorResult = new HashMap<>();
+	            errorResult.put("proNo", productId);
+	            errorResult.put("error", e.getMessage());
+	            errorResult.put("success", false);
+	            results.add(errorResult);
+	            errorCount++;
+	        }
+	    }
+	    
+	    // 建立總結回應
+	    Map<String, Object> summaryResponse = new HashMap<>();
+	    summaryResponse.put("results", results);
+	    summaryResponse.put("summary", Map.of(
+	        "total", productIds.size(),
+	        "success", successCount,
+	        "error", errorCount,
+	        "checkTime", new Date()
+	    ));
+	    
+	    return ResponseEntity.ok(summaryResponse);
+	}
+
+	// ========== 🔥 新增：快速測試單一商品的庫存判斷 ============ //
+	@GetMapping("/admin/cart/quick-test/{productId}")
+	public ResponseEntity<Map<String, Object>> quickTestProductStock(@PathVariable Integer productId) {
+	    try {
+	        // 直接呼叫 getStockInfo 並返回詳細資訊
+	        StockInfoResponse stockInfo = cartService.getStockInfo(productId);
+	        
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("proNo", productId);
+	        response.put("stockInfo", stockInfo);
+	        response.put("testTime", new Date());
+	        response.put("message", "快速庫存測試完成");
+	        
+	        return ResponseEntity.ok(response);
+	        
+	    } catch (Exception e) {
+	        Map<String, Object> errorResponse = new HashMap<>();
+	        errorResponse.put("error", "測試失敗: " + e.getMessage());
+	        errorResponse.put("proNo", productId);
+	        return ResponseEntity.status(500).body(errorResponse);
+	    }
+	}
+	
+	
+	
 	
 }

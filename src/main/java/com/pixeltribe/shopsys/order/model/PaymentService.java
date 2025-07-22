@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import com.pixeltribe.shopsys.cart.model.CartService;
+import com.pixeltribe.shopsys.cart.model.StockInfoResponse;
 import com.pixeltribe.shopsys.orderItem.model.OrderItemDTO;
 
 import jakarta.annotation.PostConstruct;
@@ -39,6 +41,9 @@ public class PaymentService {
 	
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired
+	private CartService cartService;
 	
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -584,21 +589,18 @@ public class PaymentService {
 	    }
 	   
 	    // ========== 訂單處理流程 ========== //
-	    /* 
-	   	 1. 觸發訂單後續處理 (付款成功後調用)
-	   	 2. 分離現貨和預購商品，進行不同的處理流程
-	   	 */
+	    // *** 觸發訂單後續處理 (付款成功後調用) *** //
 	    private void triggerOrderProcessing(OrderDTO order) {
 	        try {
 	            log.info("觸發訂單後續處理：orderNo={}", order.getOrderNo());
 	            
 	            // 1. 分離現貨和預購商品
 	            Map<String, List<OrderItemDTO>> itemGroups = separateOrderItems(order);
-//	            List<OrderItemDTO> inStockItems = itemGroups.get("inStock");
+	            List<OrderItemDTO> inStockItems = itemGroups.get("inStock");
 	            List<OrderItemDTO> preOrderItems = itemGroups.get("preOrder");
 	            
 	            // 2. 處理現貨商品序號 (立即分配)
-//	            List<String> inStockSerials = processInStockItems(inStockItems);
+	            List<String> inStockSerials = processInStockItems(inStockItems);
 	            
 	            // 3. 記錄預購商品到 Redis (等待序號庫存)
 	            if (!preOrderItems.isEmpty()) {
@@ -607,31 +609,48 @@ public class PaymentService {
 	            }
 	            
 	            // 4. 發送付款成功郵件 (含現貨序號 + 預購說明)
-	            sendCompletionEmailWithSerials(order);
+	            sendCompletionEmailWithSerials(order, inStockSerials, preOrderItems);
 	            
 	            // 5. 更新訂單狀態為已完成
 	            orderService.updateOrderStatus(order.getOrderNo(), "COMPLETED");
-	            log.info("訂單處理完成：orderNo={}", order.getOrderNo());
+	            log.info("訂單處理完成：orderNo={}, 現貨序號數={}, 預購商品數={}", 
+	                    order.getOrderNo(), inStockSerials.size(), preOrderItems.size());
 	            
 	        } catch (Exception e) {
 	            log.error("觸發訂單後續處理失敗：orderNo={}", order.getOrderNo(), e);
 	        }
 	    }
 	    
-	    /* 
-	   	 1. 分離現貨和預購商品
-	   	 2. @param order 訂單
-	   	 3. @return 分離後的商品列表
-	   	 */
+	    // *** 分離現貨和預購商品 *** // 
 	    private Map<String, List<OrderItemDTO>> separateOrderItems(OrderDTO order) {
 	        List<OrderItemDTO> inStockItems = new ArrayList<>();
 	        List<OrderItemDTO> preOrderItems = new ArrayList<>();
 	        
 	        for (OrderItemDTO item : order.getOrderItems()) {
-	            // 根據序號庫存判斷是否為現貨
-	            if (isProductInStock(item.getProNo())) {
-	                inStockItems.add(item);
-	            } else {
+	        	try {
+	                // 🔥 使用 CartService 的庫存判斷邏輯
+	                StockInfoResponse stockInfo = cartService.getStockInfo(item.getProNo());
+	                
+	                if (stockInfo != null) {
+	                    // 使用我們修正過的智能判斷方法
+	                    if (stockInfo.isDefinitelyInStock()) {
+	                        inStockItems.add(item);
+	                        log.debug("分類為現貨：proNo={}, productName={}, stockSource={}", 
+	                                 item.getProNo(), item.getProName(), stockInfo.getStockSource());
+	                    } else {
+	                        preOrderItems.add(item);
+	                        log.debug("分類為預購：proNo={}, productName={}, stockSource={}", 
+	                                 item.getProNo(), item.getProName(), stockInfo.getStockSource());
+	                    }
+	                } else {
+	                    // 如果無法取得庫存資訊，預設為預購（安全起見）
+	                    preOrderItems.add(item);
+	                    log.warn("無法取得庫存資訊，預設為預購：proNo={}", item.getProNo());
+	                }
+	                
+	            } catch (Exception e) {
+	                log.error("分類商品時發生錯誤：proNo={}", item.getProNo(), e);
+	                // 發生錯誤時預設為預購（安全起見）
 	                preOrderItems.add(item);
 	            }
 	        }
@@ -640,7 +659,7 @@ public class PaymentService {
 	        result.put("inStock", inStockItems);
 	        result.put("preOrder", preOrderItems);
 	        
-	        log.debug("商品分類完成：已發售={}，預購中={}", inStockItems.size(), preOrderItems.size());
+	        log.info("商品分類完成：現貨={}項，預購={}項", inStockItems.size(), preOrderItems.size());
 	        return result;
 	    }
 	    
@@ -649,32 +668,35 @@ public class PaymentService {
 	   	 2. @param inStockItems 現貨商品列表
 	   	 3. @return 分配的序號列表
 	   	 */
-//	    private List<String> processInStockItems(List<OrderItemDTO> inStockItems) {
-//	        List<String> serialNumbers = new ArrayList<>();
-//	        
-//	        for (OrderItemDTO item : inStockItems) {
-//	            try {
-//	                // 從資料庫分配序號給這個訂單項目
-//	                String serialNumber = allocateSerialNumber(item.getProNo(), item.getOrderItemNo());
-//	                
-//	                if (serialNumber != null) {
-//	                    serialNumbers.add(serialNumber);
-//	                    log.debug("現貨序號發放：{} -> {}", item.getProName(), serialNumber);
-//	                } else {
-//	                    // 如果沒有可用序號，記錄錯誤
-//	                    serialNumbers.add("暫無序號，請聯繫客服");
-//	                    log.error("序號發放失敗：proNo={}, orderItemNo={}", 
-//	                             item.getProNo(), item.getOrderItemNo());
-//	                }
-//	                
-//	            } catch (Exception e) {
-//	                log.error("處理現貨序號失敗：proNo={}", item.getProNo(), e);
-//	                serialNumbers.add("序號處理中，請聯繫客服");
-//	            }
-//	        }
-//	        
-//	        return serialNumbers;
-//	    }
+	    private List<String> processInStockItems(List<OrderItemDTO> inStockItems) {
+	        List<String> serialNumbers = new ArrayList<>();
+	        
+	        for (OrderItemDTO item : inStockItems) {
+	            try {
+	                // 從資料庫分配序號給這個訂單項目
+	                String serialNumber = allocateSerialNumber(item.getProNo(), item.getOrderItemNo());
+	                
+	                if (serialNumber != null) {
+	                    serialNumbers.add(serialNumber);
+	                    log.info("現貨序號發放成功：proNo={}, productName={}, serial={}", 
+	                            item.getProNo(), item.getProName(), serialNumber);
+	                } else {
+	                    // 如果沒有可用序號，記錄錯誤但不中斷流程
+	                    serialNumbers.add("序號發放中，請聯繫客服");
+	                    log.error("現貨商品序號發放失敗：proNo={}, orderItemNo={}, productName={}", 
+	                             item.getProNo(), item.getOrderItemNo(), item.getProName());
+	                }
+	                
+	            } catch (Exception e) {
+	                log.error("處理現貨序號時發生錯誤：proNo={}, productName={}", 
+	                         item.getProNo(), item.getProName(), e);
+	                serialNumbers.add("序號處理中，請聯繫客服");
+	            }
+	        }
+	        
+	        log.info("現貨序號處理完成：成功分配={}個", serialNumbers.size());
+	        return serialNumbers;
+	    }
 	    
 	    /* 
 	   	 1. 記錄預購商品到 Redis (等待序號庫存)
@@ -1876,39 +1898,28 @@ public class PaymentService {
 	        
 	        
 	        // ****** 收集序號資訊並發送付款成功郵件 ****** //
-	        private void sendCompletionEmailWithSerials(OrderDTO orderDetail) {
+	        private void sendCompletionEmailWithSerials(OrderDTO orderDetail, List<String> inStockSerials, List<OrderItemDTO> preOrderItems) {
 	            try {
-	                log.info("準備發送付款成功郵件：orderNo={}", orderDetail.getOrderNo());
-	                
-	                // 收集已分配的序號
-	                List<String> inStockSerials = new ArrayList<>();
-	                List<OrderItemDTO> preOrderItems = new ArrayList<>();
-	                
-	                for (OrderItemDTO item : orderDetail.getOrderItems()) {
-	                    // 檢查該商品項目是否有序號
-	                    String serialNumber = getSerialNumberForOrderItem(item.getOrderItemNo());
-	                    
-	                    if (serialNumber != null && !serialNumber.trim().isEmpty()) {
-	                        // 有序號的商品（現貨）
-	                        inStockSerials.add(serialNumber);
-	                        log.debug("現貨序號收集：orderItemNo={}, productName={}, serial={}", 
-	                                 item.getOrderItemNo(), item.getProName(), serialNumber);
-	                    } else {
-	                        // 沒有序號的商品（預購）
-	                        preOrderItems.add(item);
-	                        log.debug("預購商品：orderItemNo={}, productName={}", 
-	                                 item.getOrderItemNo(), item.getProName());
-	                    }
-	                }
-	                
-	                log.info("序號收集完成：orderNo={}, 現貨序號數量={}, 預購商品數量={}", 
+	                log.info("準備發送付款成功郵件：orderNo={}, 現貨序號數={}, 預購商品數={}", 
 	                        orderDetail.getOrderNo(), inStockSerials.size(), preOrderItems.size());
 	                
-	                // 發送郵件時傳遞序號資訊
+	                // 🔥 詳細檢查每個商品的名稱
+	                log.info("=== 郵件發送前商品名稱除錯 ===");
+	                for (int i = 0; i < orderDetail.getOrderItems().size(); i++) {
+	                    OrderItemDTO item = orderDetail.getOrderItems().get(i);
+	                    log.info("商品 {}: proNo={}, proName='{}', getProductName()='{}'", 
+	                            i + 1, 
+	                            item.getProNo(), 
+	                            item.getProName(), 
+	                            item.getProductName());
+	                }
+	                log.info("=== 郵件發送前除錯結束 ===");
+	                
+	                // 發送郵件時傳遞正確的序號資訊
 	                boolean emailSent = emailService.sendPaymentSuccessEmail(orderDetail, inStockSerials, preOrderItems);
 	                
 	                if (emailSent) {
-	                    log.info("付款成功郵件發送成功：orderNo={}, 包含序號數量={}", 
+	                    log.info("付款成功郵件發送成功：orderNo={}, 包含現貨序號={}個", 
 	                            orderDetail.getOrderNo(), inStockSerials.size());
 	                } else {
 	                    log.warn("付款成功郵件發送失敗：orderNo={}", orderDetail.getOrderNo());
@@ -1916,9 +1927,11 @@ public class PaymentService {
 	                
 	            } catch (Exception e) {
 	                log.error("發送付款成功郵件時發生錯誤：orderNo={}", orderDetail.getOrderNo(), e);
-	                // 不拋出異常，讓訂單處理繼續進行
 	            }
 	        }
+	        
+	        
+	        
 	        
 	        
 	        // ****** 查詢訂單項目的序號 ****** //

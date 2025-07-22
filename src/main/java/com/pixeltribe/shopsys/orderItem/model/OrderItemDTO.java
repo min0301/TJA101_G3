@@ -90,6 +90,39 @@ public class OrderItemDTO {
     }
     
     
+    // *** 取得產品名稱 *** //
+    public String getProductName() {
+        // 優先使用 proName，因為它是當時下單時的產品名稱
+        if (proName != null && !proName.trim().isEmpty()) {
+            return proName;
+        }
+        
+        // 如果 proName 為空，則使用從 Product 關聯取得的 productName
+        if (productName != null && !productName.trim().isEmpty()) {
+            return productName;
+        }
+        
+        // 都沒有的話返回預設值
+        return "未知商品";
+    }
+    
+    
+    // *** 檢查是否有有效的產品名稱 *** //
+    public boolean hasValidProductName() {
+        return (proName != null && !proName.trim().isEmpty()) || 
+               (productName != null && !productName.trim().isEmpty());
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // **** 簡化版建構子（只包含基本資訊，避免所有懶加載）**** //
     public OrderItemDTO(OrderItem orderItem, boolean simpleVersion) {
         // 必須先呼叫主要建構子或直接設定值
