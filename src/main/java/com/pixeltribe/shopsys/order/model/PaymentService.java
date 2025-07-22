@@ -1900,33 +1900,44 @@ public class PaymentService {
 	        // ****** 收集序號資訊並發送付款成功郵件 ****** //
 	        private void sendCompletionEmailWithSerials(OrderDTO orderDetail, List<String> inStockSerials, List<OrderItemDTO> preOrderItems) {
 	            try {
-	                log.info("準備發送付款成功郵件：orderNo={}, 現貨序號數={}, 預購商品數={}", 
-	                        orderDetail.getOrderNo(), inStockSerials.size(), preOrderItems.size());
+	                log.info("📧 準備發送付款成功郵件：orderNo={}", orderDetail.getOrderNo());
 	                
-	                // 🔥 詳細檢查每個商品的名稱
-	                log.info("=== 郵件發送前商品名稱除錯 ===");
-	                for (int i = 0; i < orderDetail.getOrderItems().size(); i++) {
-	                    OrderItemDTO item = orderDetail.getOrderItems().get(i);
-	                    log.info("商品 {}: proNo={}, proName='{}', getProductName()='{}'", 
-	                            i + 1, 
-	                            item.getProNo(), 
-	                            item.getProName(), 
-	                            item.getProductName());
+	                // 🔥 不依賴傳入的參數，直接查詢每個訂單項目的序號
+	                List<String> actualSerials = new ArrayList<>();
+	                Map<String, String> productSerialMap = new HashMap<>();
+	                
+	                for (OrderItemDTO item : orderDetail.getOrderItems()) {
+	                    if (item.getOrderItemNo() != null) {
+	                        String serial = getSerialNumberForOrderItem(item.getOrderItemNo());
+	                        if (serial != null) {
+	                            actualSerials.add(serial);
+	                            productSerialMap.put(item.getProductName(), serial);
+	                            log.info("✅ 找到序號：商品={}, orderItemNo={}, serial={}", 
+	                                    item.getProductName(), item.getOrderItemNo(), serial);
+	                        } else {
+	                            log.info("⚠️ 無序號：商品={}, orderItemNo={}", 
+	                                    item.getProductName(), item.getOrderItemNo());
+	                        }
+	                    } else {
+	                        log.warn("❌ orderItemNo 是 null：商品={}", item.getProductName());
+	                    }
 	                }
-	                log.info("=== 郵件發送前除錯結束 ===");
 	                
-	                // 發送郵件時傳遞正確的序號資訊
-	                boolean emailSent = emailService.sendPaymentSuccessEmail(orderDetail, inStockSerials, preOrderItems);
+	                log.info("📊 實際找到的序號數量：{}", actualSerials.size());
+	                log.info("📊 商品序號對應：{}", productSerialMap);
+	                
+	                // 🔥 使用實際查到的序號發送郵件
+	                boolean emailSent = emailService.sendPaymentSuccessEmail(orderDetail, actualSerials, preOrderItems);
 	                
 	                if (emailSent) {
-	                    log.info("付款成功郵件發送成功：orderNo={}, 包含現貨序號={}個", 
-	                            orderDetail.getOrderNo(), inStockSerials.size());
+	                    log.info("✅ 付款成功郵件發送成功：orderNo={}, 實際序號數={}個", 
+	                            orderDetail.getOrderNo(), actualSerials.size());
 	                } else {
-	                    log.warn("付款成功郵件發送失敗：orderNo={}", orderDetail.getOrderNo());
+	                    log.warn("❌ 付款成功郵件發送失敗：orderNo={}", orderDetail.getOrderNo());
 	                }
 	                
 	            } catch (Exception e) {
-	                log.error("發送付款成功郵件時發生錯誤：orderNo={}", orderDetail.getOrderNo(), e);
+	                log.error("💥 發送付款成功郵件時發生錯誤：orderNo={}", orderDetail.getOrderNo(), e);
 	            }
 	        }
 	        
