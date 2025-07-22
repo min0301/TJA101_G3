@@ -35,7 +35,7 @@ public class PaymentCallbackController {
     }
     
     // ***** 綠界付款返回頁面 ***** //
-    @GetMapping("/payment/return")
+    @PostMapping("/payment/return")
     @ResponseBody  
     public String handlePaymentReturn(@RequestParam Map<String, String> params) {
         try {
