@@ -244,20 +244,23 @@ public class ForumPostService {
 
     /**
      * 獲取所有文章列表 (返回 DTO 列表)。
+     * 只返回 POST_STATUS 為 '0' (正常) 的文章。
      *
      * @param memberId 當前登入會員的 ID (可為 null，表示未登入)。
      * @return 所有文章的 ForumPostDTO 列表。
      */
     @Transactional(readOnly = true)
     public List<ForumPostDTO> getAllForumPost(Integer memberId) {
-        List<ForumPost> posts = forumPostRepository.findAllWithForumAndMember(); // 使用 JOIN FETCH 方法
+        // 這裡使用自定義的 Repository 方法，該方法會過濾 status
+        // 假設您在 ForumPostRepository 中新增了 findAllByPostStatusOrderByPostUpdateDesc 方法
+        List<ForumPost> posts = forumPostRepository.findByPostStatus('0'); // 僅查詢狀態為 '0' 的文章
         return posts.stream()
                 .map(forumPost -> {
                     ForumPostDTO dto = new ForumPostDTO(forumPost);
                     if (memberId != null) {
                         dto.setCollected(postCollectService.isPostCollected(memberId, forumPost.getId()));
                     } else {
-                        dto.setCollected(false); // 未登入則視為未收藏
+                        dto.setCollected(false);
                     }
                     return dto;
                 })
@@ -275,7 +278,7 @@ public class ForumPostService {
     @Transactional(readOnly = true)
     public List<ForumPostDTO> getPostsByForumId(Integer forumId, Integer memberId) {
         // 假設 findByForNo_Id 已經配置了 JOIN FETCH
-        List<ForumPost> posts = forumPostRepository.findByForNo_Id(forumId);
+        List<ForumPost> posts = forumPostRepository.findByForNo_IdAndPostStatusOrderByPostUpdateDesc(forumId,'0');
         return posts.stream()
                 .map(forumPost -> {
                     ForumPostDTO dto = new ForumPostDTO(forumPost);
@@ -300,7 +303,7 @@ public class ForumPostService {
      */
     @Transactional(readOnly = true)
     public Optional<ForumPostDTO> getPostByIdAndForumId(Integer postId, Integer forumId, Integer memberId) {
-        return forumPostRepository.findByIdAndForNoId(postId, forumId)
+        return forumPostRepository.findByIdAndForNoIdAndPostStatus(postId, forumId,'0') // 假設 '0' 是正常狀態
                 .map(forumPost -> {
                     ForumPostDTO dto = new ForumPostDTO(forumPost);
                     if (memberId != null) {
@@ -337,7 +340,7 @@ public class ForumPostService {
      * @return 特定討論區的文章 ForumPostDTO 列表，依更新時間倒序排列。
      */
     public List<ForumPostDTO> findAllByOrderByPostUpdateDesc(Integer forumId, Integer memberId) {
-        List<ForumPost> forumPosts = forumPostRepository.findByForNo_IdOrderByPostUpdateDesc(forumId); // 假設有這個方法
+        List<ForumPost> forumPosts = forumPostRepository.findByForNo_IdAndPostStatusOrderByPostUpdateDesc(forumId,'0'); // 假設有這個方法
 
         return forumPosts.stream()
                 .map(post -> {
