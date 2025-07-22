@@ -100,7 +100,7 @@ public class ForumPostService {
      * @return 新增後的 ForumPostDTO。
      */
     @Transactional // 交易註解，確保方法內的資料庫操作是原子性的
-    public ForumPostDTO addForumPost(MemberDetails currentUser,ForumPostUpdateDTO forumPostDTO, MultipartFile imageFile, String defaultImageUrlFromFrontend) {
+    public ForumPostDTO addForumPost(Integer memberId,ForumPostUpdateDTO forumPostDTO, MultipartFile imageFile, String defaultImageUrlFromFrontend) {
         ForumPost forumPost = new ForumPost();
         // 將 DTO 中的資料設定到 Entity
         forumPost.setPostTitle(forumPostDTO.getPostTitle());
@@ -114,7 +114,7 @@ public class ForumPostService {
         forumPost.setPostUpdate(Instant.now()); // 設定更新時間
 
         // 從當前登入使用者中獲取會員 ID
-        Integer memberId = currentUser.getMemberId(); // 獲取當前登入會員的 ID
+//        Integer memberId = currentUser.getMemberId(); // 獲取當前登入會員的 ID
 
         // 查找並設定關聯實體 - 會員
         // 直接使用 memRepository.findById() 來獲取完整的 Member 物件

@@ -161,7 +161,7 @@ public class ForumPostController {
                     ));
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
-
+        Integer memberId = currentUser.getMemberId(); // 獲取當前登入會員的 ID
         // 檢查 currentUser 是否為 null。
         // 雖然您目前 SecurityConfig 是 permitAll，但如果後續收緊權限，這裡會需要檢查。
         if (currentUser == null) {
@@ -171,8 +171,8 @@ public class ForumPostController {
         }
 
         try {
-            // 將 currentUser 物件直接傳遞給 Service 層
-            ForumPostDTO savedForumPostDTO = forumPostSvc.addForumPost(currentUser, forumPostUpdateDTO, imageFile, defaultImageUrl); // <-- 修正這裡，傳遞 currentUser
+            // 將 memberId 物件直接傳遞給 Service 層
+            ForumPostDTO savedForumPostDTO = forumPostSvc.addForumPost(memberId, forumPostUpdateDTO, imageFile, defaultImageUrl); // <-- 修正這裡，傳遞 currentUser
 
             Map<String, Object> successResponse = new HashMap<>();
             successResponse.put("message", "文章新增成功");
@@ -193,6 +193,50 @@ public class ForumPostController {
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    @PostMapping(value = "/admin/forumpost/insert", consumes = {"multipart/form-data"})
+    @Operation(summary = "新增文章", description = "管理員新增文章，可包含封面圖片")
+    public ResponseEntity<Map<String, Object>> insertForumPost(
+            @RequestPart("forumPostUpdate") @Valid ForumPostUpdateDTO forumPostUpdateDTO,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+            @RequestPart(value = "defaultImageUrl", required = false) String defaultImageUrl,
+            BindingResult result) { // <-- 確保有這個參數
+
+        if (result.hasErrors()) {
+            Map<String, Object> errors = result.getFieldErrors().stream()
+                    .collect(Collectors.toMap(
+                            fieldError -> fieldError.getField(),
+                            fieldError -> fieldError.getDefaultMessage()
+                    ));
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        }
+        Integer memberId = 1; // 獲取當前登入會員的 ID
+
+        try {
+            // 將 memberId 物件直接傳遞給 Service 層
+            ForumPostDTO savedForumPostDTO = forumPostSvc.addForumPost(memberId, forumPostUpdateDTO, imageFile, defaultImageUrl); // <-- 修正這裡，傳遞 currentUser
+
+            Map<String, Object> successResponse = new HashMap<>();
+            successResponse.put("message", "文章新增成功");
+            successResponse.put("forumPostId", savedForumPostDTO.getId());
+            successResponse.put("forumPost", savedForumPostDTO);
+            return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
+
+        } catch (ResourceNotFoundException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("details", "關聯的資料未找到 (例如討論區、文章類別或會員不存在)。");
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Internal Server Error");
+            errorResponse.put("details", "系統發生未預期的錯誤，請聯繫管理員: " + e.getMessage());
+            e.printStackTrace();
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @GetMapping("/api/posts/{postId}/collect/status")
     @Operation(summary = "檢查文章是否已被當前會員收藏")
