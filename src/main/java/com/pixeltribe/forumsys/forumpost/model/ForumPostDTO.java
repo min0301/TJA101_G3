@@ -54,9 +54,7 @@ public class ForumPostDTO {
         }
         if (forumPost.getFtagNo() != null) {
             this.forumTagId = forumPost.getFtagNo().getId();
-            // 假設 ForumTag 有 getTagName() 方法
-            // this.forumTagName = forumPost.getFtagNo().getTagName();
-            // 請根據 ForumTag 實際的名稱欄位調整
+
         }
         // isCollected 欄位將在 Service 層設定，因為這需要會員登入資訊
     }
