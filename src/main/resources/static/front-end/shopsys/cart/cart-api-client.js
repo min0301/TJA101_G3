@@ -66,6 +66,25 @@
                 if (response.status === 404) {
                     throw new Error('請求的資源不存在');
                 }
+				
+				if (response.status === 500) {
+				            let errorMessage = '你買太多了拉~庫存不夠';
+				            
+				            try {
+				                // 嘗試解析錯誤回應
+				                const errorData = await response.json();
+				                if (errorData.message) {
+				                    errorMessage = errorData.message;
+				                } else if (errorData.error) {
+				                    errorMessage = errorData.error;
+				                }
+				            } catch (parseError) {
+				                // 如果無法解析 JSON，使用預設訊息
+				                console.error('無法解析錯誤訊息:', parseError);
+				            }
+				            
+				            throw new Error(errorMessage);
+				        }
                 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));

@@ -80,43 +80,62 @@ public class CartService {
             }
         }
         
+        
+        // 檢查庫存數量
+        Integer availableStock = getProductStock(product);
+        Integer finalQuantity = proNum;
+        
+        if (existingItem != null) {
+            finalQuantity = existingItem.getProNum() + proNum;
+            validateItemQuantityLimit(finalQuantity);
+        }
+        
+        // 庫存數量檢查
+        if (availableStock == 0) {
+            String status = product.getProStatus();
+            if ("預購".equals(status) || "預購中".equals(status)) {
+                throw new CartException(CartErrorCode.CART_002);
+            } else {
+                throw new CartException(CartErrorCode.CART_002);
+            }
+        }
+        
+        // 檢查數量是否超過庫存（現貨和預購都要檢查）
+        if (finalQuantity > availableStock) {
+            String status = product.getProStatus();
+            if ("預購".equals(status) || "預購中".equals(status)) {
+                throw new RuntimeException(
+                    String.format("預購商品庫存不足，您要求 %d 個，但預購數量僅剩 %d 個", finalQuantity, availableStock));
+            } else {
+                throw new RuntimeException(
+                    String.format("商品庫存不足，您要求 %d 個，但僅剩 %d 個", finalQuantity, availableStock));
+            }
+        }
+        
+        
+
+        
         // 商品已存在，增加數量
         if (existingItem != null) {
-            Integer newTotalQuantity = existingItem.getProNum() + proNum;
+            boolean hasStockIssue = (availableStock == 0) || (finalQuantity > availableStock);
+            String stockWarning = null;
             
-            // 🔥 新增：驗證更新後的數量是否超限
-            validateItemQuantityLimit(newTotalQuantity);
-            
-            // 檢查庫存邏輯...
-            Integer availableStock = getProductStock(product);
-            boolean hasStockIssue = (availableStock == 0);  // 只要有庫存就能賣
-            String stockWarning = null;  // 移除警告訊息
-
-            
-            existingItem.setProNum(newTotalQuantity);
+            existingItem.setProNum(finalQuantity);
             existingItem.calculateTotal();
             existingItem.setHasStockIssue(hasStockIssue);    
             existingItem.setStockWarning(stockWarning);
             
         } else {
-            // 🔥 新增：驗證是否會超過購物車商品種類限制
             validateCartItemsLimit(cart, true);
             
-            // 建立新商品項目
-            String proName = product.getProName();
-            Integer proPrice = product.getProPrice();
-            
-            // 檢查庫存邏輯...
-            Integer availableStock = getProductStock(product);
-            boolean hasStockIssue = (availableStock == 0);  // 只要有庫存就能賣
-            String stockWarning = null;  // 移除警告訊息
- 
+            boolean hasStockIssue = (availableStock == 0) || (finalQuantity > availableStock);
+            String stockWarning = null;
             
             CartDTO.CartItem newItem = new CartDTO.CartItem();
             newItem.setProNo(proNo);
-            newItem.setProName(proName);
-            newItem.setProPrice(proPrice);
-            newItem.setProNum(proNum);
+            newItem.setProName(product.getProName());
+            newItem.setProPrice(product.getProPrice());
+            newItem.setProNum(finalQuantity);
             newItem.setProStatus(product.getProStatus());
             newItem.setHasStockIssue(hasStockIssue);
             newItem.setStockWarning(stockWarning);
@@ -234,17 +253,54 @@ public class CartService {
 		    return cart;
 		}
 		
+		
+		// 在更新前檢查庫存（包含預購商品）
+		Product product = productRepository.findById(proNo).orElse(null);
+	    if (product != null) {
+	        Integer availableStock = getProductStock(product);
+	        String status = product.getProStatus();
+	        
+	        // 🔥 關鍵：檢查庫存是否為0
+	        if (availableStock == 0) {
+	            if ("預購".equals(status) || "預購中".equals(status)) {
+	                throw new RuntimeException("預購商品目前暫無庫存，無法更新數量");
+	            } else {
+	                throw new RuntimeException("商品目前缺貨，無法更新數量");
+	            }
+	        }
+	        
+	        
+	        
+	    //  檢查數量是否超過庫存（現貨和預購都要檢查）
+	        if (proNum > availableStock) {
+	            if ("預購".equals(status) || "預購中".equals(status)) {
+	                throw new RuntimeException(
+	                    String.format("預購商品庫存不足，您要求 %d 個，但預購數量僅剩 %d 個", proNum, availableStock));
+	            } else {
+	                throw new RuntimeException(
+	                    String.format("商品庫存不足，您要求 %d 個，但僅剩 %d 個", proNum, availableStock));
+	            }
+	        }
+	    }
+		
+		
+		
+		
+		
+		
+		
+		
 		// 找到指定商品並更新數量
 		for (CartDTO.CartItem item : cart.getItem()) {
 	        if (item.getProNo().equals(proNo)) {
 	            // 重新檢查庫存狀況
-	            Product product = productRepository.findById(proNo).orElse(null);
+	            
 	            if (product != null) {
 	            	Integer availableStock = getProductStock(product);
-	                boolean hasStockIssue = (availableStock == 0);  // ✅ 【新的簡化邏輯】
+	            	String status = product.getProStatus();
+	            	boolean hasStockIssue = (availableStock == 0) || (proNum > availableStock);
 	                String stockWarning = null;  // 移除警告訊息
-	                
-	             
+
 	                
 	                item.setHasStockIssue(hasStockIssue);
 	                item.setStockWarning(stockWarning);
@@ -495,20 +551,39 @@ public class CartService {
 	            continue;
 	        }
 	        
-	        // 檢查是否下架
 	        if (product.getProIsmarket() == '1') {
 	            response.setValid(false);
 	            response.getIssues().add(String.format("商品 %s 已下架", item.getProName()));
 	            continue;
 	        }
 	        
-	        // 檢查庫存
+	        
+	     // 檢查庫存數量
 	        Integer availableStock = getProductStock(product);
+	        Integer requestedQuantity = item.getProNum();
+	        String status = product.getProStatus();
+	        
 	        if (availableStock == 0) {
 	            response.setValid(false);
 	            response.getIssues().add(String.format("商品 %s 目前缺貨", item.getProName()));
+	            continue;
 	        }
 	        
+	        
+	        // 檢查現貨和預購商品數量是否超過庫存
+	        if (requestedQuantity > availableStock) {
+	            if ("預購".equals(status) || "預購中".equals(status)) {
+	                response.setValid(false);
+	                response.getIssues().add(String.format("預購商品 %s 庫存不足，您需要 %d 個，但預購數量僅剩 %d 個", 
+	                    item.getProName(), requestedQuantity, availableStock));
+	            } else {
+	                response.setValid(false);
+	                response.getIssues().add(String.format("商品 %s 庫存不足，您需要 %d 個，但僅剩 %d 個", 
+	                    item.getProName(), requestedQuantity, availableStock));
+	            }
+	            continue;
+	        }
+	    
 	        
 	    }
 	    

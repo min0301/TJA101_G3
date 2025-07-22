@@ -38,6 +38,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pixeltribe.membersys.member.dto.MemberAdminDto;
 import com.pixeltribe.membersys.member.model.MemService;
 import com.pixeltribe.membersys.member.model.Member;
+import com.pixeltribe.shopsys.cart.model.CartService;
+import com.pixeltribe.shopsys.cart.model.CartValidationResponse;
 import com.pixeltribe.shopsys.order.model.*;
 import com.pixeltribe.shopsys.orderItem.model.CreateOrderItemRequest;
 import com.pixeltribe.shopsys.orderItem.model.OrderItemDTO;
@@ -60,6 +62,9 @@ import lombok.extern.slf4j.Slf4j;
 public class OrderController {
 	
 	@Autowired
+    private CartService cartService;
+	
+	@Autowired
 	private MemService memberService;  // 會員服務
 
 	@Autowired  
@@ -70,7 +75,6 @@ public class OrderController {
 
 	@Autowired
 	private OrderItemService orderItemService;  // 訂單項目服務
-	
 	
 	@Autowired
 	private OrderRepository orderRepository;
@@ -435,14 +439,41 @@ public class OrderController {
 	            return ResponseEntity.badRequest().body(errorResponse);
 	        }
 	        
-	        // 3. 建立訂單（保持不變）
+	        
+	        // 結帳前強制驗證購物車庫存
+	        try {
+	        	CartValidationResponse validation = cartService.validateCartForCheckout(memNo, null);
+	            
+	            if (!validation.isValid()) {
+	            	log.warn("購物車庫存驗證失敗：memNo={}, issues={}", memNo, validation.getIssues());
+	                
+	                Map<String, Object> errorResponse = new HashMap<>();
+	                errorResponse.put("success", false);
+	                errorResponse.put("message", "購物車商品庫存不足，無法結帳");
+	                errorResponse.put("issues", validation.getIssues());
+	                
+	                return ResponseEntity.badRequest().body(errorResponse);
+	            }
+	        } catch (Exception e) {
+	        	log.error("購物車庫存驗證異常：memNo={}, error={}", memNo, e.getMessage());
+	            
+	            Map<String, Object> errorResponse = new HashMap<>();
+	            errorResponse.put("success", false);
+	            errorResponse.put("message", "庫存驗證失敗，請重新整理購物車");
+	            
+	            return ResponseEntity.badRequest().body(errorResponse);
+	        }
+	        
+
+	        
+	        // 3. 建立訂單（只有通過庫存驗證才會執行到這裡）
 	        OrderDTO order = orderService.createOrderFromCart(
 	            memNo, 
 	            request.getContactEmail(), 
 	            request.getContactPhone()
 	        );
 	        
-	        // 4. 回應（保持不變）
+	        // 4. 回應
 	        Map<String, Object> response = new HashMap<>();
 	        response.put("success", true);
 	        response.put("message", "訂單建立成功");
