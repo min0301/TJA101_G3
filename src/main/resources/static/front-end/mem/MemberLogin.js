@@ -27,7 +27,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 				localStorage.setItem('memberInfo', JSON.stringify(data.memberInfo));
 				window.location.href = "/index.html";
 			} else if (data.message && data.message.includes('停權')) {
-				alert('死小孩已被停權');
+				alert('此帳號已被停權，詳情請洽管理員');
 				window.location.href = "/index.html";
 			} else {
 				result.textContent = data.message;

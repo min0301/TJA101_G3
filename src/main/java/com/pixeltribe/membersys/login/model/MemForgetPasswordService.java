@@ -43,6 +43,7 @@ public class MemForgetPasswordService {
     //寄信
     private void sendSimpleMail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("akueiyh@gmail.com");;
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);
