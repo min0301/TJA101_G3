@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public interface MemRepository extends JpaRepository<Member, Integer> {
 	
 	long countByMemStatus(Character memStatus);
 	
-	long countByMemCreateAfter(LocalDateTime time);
+	long countByMemCreateAfter(Instant time);
 	
 	@Query("SELECT m FROM Member m WHERE " + "CAST(m.id AS string) LIKE %:keyword% OR "
 			+ "LOWER(m.memNickName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "

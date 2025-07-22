@@ -72,7 +72,7 @@ public class MemService {
 
     // 取得近7天新註冊會員數
     public long getWeeklyNewMembersCount() {
-        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+    	Instant sevenDaysAgo = Instant.now().minusSeconds(7 * 24 * 60 * 60);
         return memRepository.countByMemCreateAfter(sevenDaysAgo);
     }
         
