@@ -1,5 +1,5 @@
 // api-client.js - 訂單功能專用的 API 客戶端工具
-// 基於 allForum.js 的模式設計
+
 
 (function() {
     'use strict';

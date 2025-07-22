@@ -415,18 +415,69 @@
 
 		
         // *** 再次購買 *** //
-        handleReorder(orderNo) {
-            if (confirm('確定要將此訂單中的商品加入購物車嗎？')) {
-                // 這裡可以實作再次購買的邏輯
-                alert(`功能開發中：重新訂購 #${orderNo}`);
-            }
-        },
+		async handleReorder(orderNo) {
+		    if (!confirm('確定要將此訂單中的商品加入購物車嗎？')) return;
+		    
+		    try {
+		        // 檢查是否登入
+		        if (!CartApiClient.isLoggedIn()) {
+		            alert('請先登入才能使用購物車功能');
+		            return;
+		        }
+		        
+		        // 先取得訂單詳情
+		        const orderDetail = await OrderApiClient.getOrderDetail(orderNo);
+		        const orderItems = orderDetail.orderItems;
+		        
+		        if (!orderItems || orderItems.length === 0) {
+		            alert('此訂單沒有商品資訊');
+		            return;
+		        }
+		        
+		        let successCount = 0;
+		        let errorCount = 0;
+		        const errors = [];
+		        
+		        // 逐一加入每個商品到購物車
+		        for (const item of orderItems) {
+		            try {
+		                await CartApiClient.addToCart(item.proNo, item.orderAmount);
+		                successCount++;
+		                console.log(`成功加入商品：${item.productName} x${item.orderAmount}`);
+		            } catch (error) {
+		                errorCount++;
+		                errors.push(`${item.productName}: ${error.message}`);
+		                console.error(`加入商品失敗：${item.productName}`, error);
+		            }
+		        }
+		        
+		        // 顯示結果
+		        if (successCount > 0 && errorCount === 0) {
+		            // 全部成功
+		            alert(`成功將 ${successCount} 項商品加入購物車！\n\n點擊確定後將跳轉到購物車頁面。`);
+		            window.location.href = '/front-end/shopsys/cart/cart.html';
+		        } else if (successCount > 0 && errorCount > 0) {
+		            // 部分成功
+		            alert(`已成功加入 ${successCount} 項商品到購物車\n\n${errorCount} 項商品加入失敗：\n${errors.join('\n')}\n\n點擊確定後將跳轉到購物車頁面。`);
+		            window.location.href = '/front-end/shopsys/cart/cart.html';
+		        } else {
+		            // 全部失敗
+		            alert(`所有商品都加入失敗：\n${errors.join('\n')}\n\n請檢查商品庫存狀態或聯繫客服。`);
+		        }
+		        
+		    } catch (error) {
+		        console.error('再次購買失敗:', error);
+		        alert('再次購買失敗：' + error.message);
+		    }
+		},
 
 		
-        // *** 查看序號 (序號已發送) *** //
-        handleEmailCheck(orderNo) {
-            alert(`遊戲序號已發送至您的信箱！\n\n請檢查您的信箱（包含垃圾信件匣）\n如未收到，請聯繫客服。\n\n訂單編號：${orderNo}\n\n💡 提示：您也可以在訂單詳情頁面查看更多資訊。`);
-        },
+        // 查看序號 (序號已發送)
+		
+		handleEmailCheck(orderNo) {
+		    alert(`遊戲序號已發送至您的信箱！\n\n請檢查您的信箱（包含垃圾信件匣）\n如未收到，請聯繫客服。\n\n訂單編號：${orderNo}\n\n💡 提示：您也可以在訂單詳情頁面查看更多資訊。`);
+		},
+	
 
 		
         // *** 聯繫客服 *** //
