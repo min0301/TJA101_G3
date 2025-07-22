@@ -178,7 +178,7 @@
         const reportPanel = document.getElementById('report-details-panel');
         const postPanel = document.getElementById('reported-post-panel'); // 更名為 postPanel
         const messageArea = document.getElementById('message-area');
-        const apiBaseUrl = 'http://localhost:8080/api'; // 【不可變】API Base URL
+        const apiBaseUrl = '/api'; // 【不可變】API Base URL
         const pageParams = new URLSearchParams(document.getElementById('content-area')?.getAttribute('data-page-params') || '');
         const reportId = pageParams.get('id');
 
