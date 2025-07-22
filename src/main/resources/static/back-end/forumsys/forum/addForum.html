@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新增文章 - 討論區管理</title>
+    <title>新增討論區 - 討論區管理</title>
     <style>
-        /* 從 addForum.html 複製並調整，確保風格一致 */
-        .forumpost-management-container {
+        /* 【核心修正 1】: 移除 :root 區塊，避免污染全域 CSS 變數 */
+        /* 子頁面應繼承 AdmHomePage.html 的主題色，而非重新定義 */
+
+        .forum-management-container {
             width: 100%;
             max-width: 1400px;
             margin: 0 auto;
@@ -57,12 +59,14 @@
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 16px;
+            /* 使用主頁面定義的背景色 */
             background: var(--primary-bg);
             color: var(--text-color);
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .form-control:focus {
+            /* 使用主頁面定義的主題色 */
             border-color: var(--brand-green);
             outline: none;
             box-shadow: 0 0 0 3px var(--brand-green-light);
@@ -70,7 +74,7 @@
 
         textarea.form-control {
             resize: vertical;
-            min-height: 180px;
+            min-height: 120px;
         }
 
         .form-actions {
@@ -137,96 +141,51 @@
             background-color: #f8d7da;
             border-color: #f5c6cb;
         }
-        .image-option-group {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 10px;
-        }
-        .image-option-group input[type="radio"] {
-            margin-right: 5px;
-        }
-        .default-image-preview {
-            max-width: 150px;
-            max-height: 150px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            object-fit: cover;
-            margin-left: 10px;
-        }
-        #customImageUpload {
-            margin-top: 15px;
-        }
     </style>
 </head>
 <body>
 
-<div class="forumpost-management-container">
+<div class="forum-management-container">
     <div class="page-title-header">
-        <h2><i class="bi bi-plus-circle-fill item-icon"></i>新增文章</h2>
+        <h2><i class="bi bi-plus-circle-fill item-icon"></i>新增討論區</h2>
     </div>
 
     <div class="form-wrapper">
-        <form id="add-forumpost-form">
+        <form id="add-forum-form">
             <div class="form-group">
-                <label for="postTitle">文章標題</label>
-                <input type="text" id="postTitle" name="postTitle" class="form-control" required>
+                <label for="forName">討論區名稱</label>
+                <input type="text" id="forName" name="forName" class="form-control" required>
             </div>
 
             <div class="form-group">
-                <label for="forNoId">所屬討論區</label>
-                <select id="forNoId" name="forNoId" class="form-control" required>
+                <label for="categoryId">分類</label>
+                <select id="categoryId" name="categoryId" class="form-control" required>
                     <option value="" disabled selected>--載入中--</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="forumTagSelect">文章類別</label>
-                <select id="forumTagSelect" class="form-control" name="ftagNoId" required> <option value="" disabled selected>-- 請選擇文章類別 --</option>
-                </select>
-                <div class="invalid-feedback" id="forumTagError">請選擇文章類別。</div>
+                <label for="forDes">描述</label>
+                <textarea id="forDes" name="forDes" class="form-control" required></textarea>
             </div>
 
             <div class="form-group">
-                <label for="postCon">文章內容</label>
-                <textarea id="postCon" name="postCon" class="form-control" required></textarea>
+                <label for="imageFile">上傳圖片 (可選)</label>
+                <input type="file" id="imageFile" name="imageFile" class="form-control"
+                       accept="image/png, image/jpeg, image/gif">
             </div>
 
             <div class="form-group">
-                <label>封面圖片</label>
-                <div class="image-option-group">
-                    <input type="radio" id="useDefaultImage" name="imageOption" value="default" checked>
-                    <label for="useDefaultImage">使用類別預設圖片</label>
-                    <img id="default-image-preview" src="" alt="預設圖片預覽" class="default-image-preview" style="display: none;">
-                </div>
-                <div class="image-option-group">
-                    <input type="radio" id="uploadCustomImage" name="imageOption" value="custom">
-                    <label for="uploadCustomImage">上傳自訂圖片</label>
-                </div>
-                <div id="customImageUpload" style="display: none;">
-                    <input type="file" id="imageFile" name="imageFile" class="form-control" accept="image/png, image/jpeg, image/gif">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="postStatus">狀態</label>
-                <select id="postStatus" name="postStatus" class="form-control">
+                <label for="forStatus">狀態</label>
+                <select id="forStatus" name="forStatus" class="form-control">
                     <option value="0" selected>正常</option>
                     <option value="1">停用</option>
                 </select>
             </div>
 
-            <div class="form-group">
-                <label for="postPin">是否置頂</label>
-                <select id="postPin" name="postPin" class="form-control">
-                    <option value="0" selected>否</option>
-                    <option value="1">是</option>
-                </select>
-            </div>
-
             <div class="form-actions">
                 <a href="#"
-                   onclick="event.preventDefault(); loadExternalPage('../forumsys/forumpost/allForumPost.html')"
+                   onclick="event.preventDefault(); loadExternalPage('../forumsys/forum/allForum.html')"
                    class="action-btn">返回列表</a>
                 <button type="submit" id="submit-button" class="action-btn btn-submit">確認新增</button>
             </div>
@@ -237,148 +196,49 @@
 </div>
 
 <script>
+    // 【核心修正 2】: 使用 IIFE (立即執行函式表達式) 包裹所有程式碼。
+    // 這會創建一個私有作用域，防止變數和函式污染全域，確保每次載入腳本時都在一個乾淨的環境中執行。
     (function () {
         'use strict';
 
         // --- DOM 元素定義 ---
-        const form = document.getElementById('add-forumpost-form');
-        const postTitleInput = document.getElementById('postTitle');
-        const forNoIdSelect = document.getElementById('forNoId');
-        const forumTagSelect = document.getElementById('forumTagSelect');
-        const postConTextarea = document.getElementById('postCon');
-        const postStatusSelect = document.getElementById('postStatus');
-        const postPinSelect = document.getElementById('postPin');
-        const imageFileInput = document.getElementById('imageFile');
+        const categorySelect = document.getElementById('categoryId');
+        const form = document.getElementById('add-forum-form');
         const submitButton = document.getElementById('submit-button');
         const messageArea = document.getElementById('message-area');
-        const useDefaultImageRadio = document.getElementById('useDefaultImage');
-        const uploadCustomImageRadio = document.getElementById('uploadCustomImage');
-        const customImageUploadDiv = document.getElementById('customImageUpload');
-        const defaultImagePreview = document.getElementById('default-image-preview');
+        const imageFileInput = document.getElementById('imageFile');
+        const apiUrl = '/api/admin/forum';
 
-        // --- API 路徑定義 (使用絕對路徑) ---
-        const BASE_URL = ''; // 確保這是您的後端服務地址
-        const addPostApiUrl = `${BASE_URL}/api/forumpost/insert`;
-        const allForumsApiUrl = `${BASE_URL}/api/forums`;
-        const allTagsApiUrl = `${BASE_URL}/api/forumtag`;
-        const defaultImageUrlApiBase = `${BASE_URL}/api/forumtag/default-image`;
-
-        // --- 載入討論區和文章類別下拉選單 ---
-        async function loadSelectOptions() {
-            // 獲取 JWT Token
-            const token = localStorage.getItem('jwt');
-            const headers = {};
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-
+        /**
+         * @description 動態從後端 API 載入所有分類並填充至下拉選單
+         */
+        async function loadCategories() {
             try {
-                const [forumsResponse, tagsResponse] = await Promise.all([
-                    fetch(allForumsApiUrl, { headers: headers }), // <-- 使用絕對路徑和 Headers
-                    fetch(allTagsApiUrl, { headers: headers })   // <-- 使用絕對路徑和 Headers
-                ]);
-
-                if (!forumsResponse.ok) throw new Error('無法載入討論區資料');
-                if (!tagsResponse.ok) throw new Error('無法載入文章類別資料');
-
-                const forums = await forumsResponse.json();
-                const tags = await tagsResponse.json();
-
-                populateSelect(forNoIdSelect, forums, 'id', 'forName', '--請選擇所屬討論區--');
-                populateSelect(forumTagSelect, tags, 'id', 'ftagName', '--請選擇文章類別--');
-
-                if (useDefaultImageRadio.checked) {
-                    updateDefaultImagePreview();
+                // 為避免瀏覽器快取，可以增加一個 cache: 'no-cache' 選項
+                const response = await fetch('/api/categorys', {cache: 'no-cache'});
+                if (!response.ok) {
+                    throw new Error('無法載入分類資料，請檢查後端服務');
                 }
-
-                forumTagSelect.addEventListener('change', updateDefaultImagePreview);
-
+                const categories = await response.json();
+                categorySelect.innerHTML = '<option value="" disabled selected>--請選擇分類--</option>';
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.catName;
+                    categorySelect.appendChild(option);
+                });
             } catch (error) {
-                console.error('載入下拉選單失敗:', error);
-                showMessage(`資料載入失敗: ${error.message}`, 'error');
-                forNoIdSelect.innerHTML = `<option value="" disabled>載入失敗</option>`;
-                forumTagSelect.innerHTML = `<option value="" disabled>載入失敗</option>`;
+                console.error('載入分類失敗:', error);
+                categorySelect.innerHTML = `<option value="" disabled>分類載入失敗: ${error.message}</option>`;
             }
         }
 
-        function populateSelect(selectElement, data, valueKey, textKey, defaultText) {
-            selectElement.innerHTML = `<option value="" disabled selected>${defaultText}</option>`;
-            data.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item[valueKey];
-                option.textContent = item[textKey];
-                selectElement.appendChild(option);
-            });
-        }
+        // 立即執行分類載入
+        loadCategories();
 
-        async function updateDefaultImagePreview() {
-            const selectedTagId = forumTagSelect.value;
-            if (selectedTagId) {
-                // 獲取 JWT Token
-                const token = localStorage.getItem('jwt');
-                const headers = {};
-                if (token) {
-                    headers['Authorization'] = `Bearer ${token}`;
-                }
-
-                try {
-                    const response = await fetch(`${defaultImageUrlApiBase}/${selectedTagId}`, { headers: headers }); // <-- 使用絕對路徑和 Headers
-                    if (!response.ok) {
-                        throw new Error(`無法獲取預設圖片URL，狀態碼: ${response.status}`);
-                    }
-                    const imageUrl = await response.text();
-                    defaultImagePreview.src = imageUrl;
-                    defaultImagePreview.style.display = 'block';
-                } catch (error) {
-                    console.error('載入預設圖片失敗:', error);
-                    defaultImagePreview.style.display = 'none';
-                    defaultImagePreview.src = '';
-                }
-            } else {
-                defaultImagePreview.style.display = 'none';
-                defaultImagePreview.src = '';
-            }
-        }
-
-        // --- 圖片上傳選項切換 ---
-        useDefaultImageRadio.addEventListener('change', () => {
-            if (useDefaultImageRadio.checked) {
-                customImageUploadDiv.style.display = 'none';
-                imageFileInput.value = '';
-                imageFileInput.removeAttribute('required');
-                updateDefaultImagePreview();
-            }
-        });
-
-        uploadCustomImageRadio.addEventListener('change', () => {
-            if (uploadCustomImageRadio.checked) {
-                customImageUploadDiv.style.display = 'block';
-                // imageFileInput.setAttribute('required', 'required'); // 根據業務邏輯決定是否強制上傳
-                defaultImagePreview.style.display = 'none';
-            }
-        });
-
-        if (useDefaultImageRadio.checked) {
-            customImageUploadDiv.style.display = 'none';
-            imageFileInput.removeAttribute('required');
-        }
-
-        imageFileInput.addEventListener('change', (event) => {
-            if (event.target.files && event.target.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    defaultImagePreview.src = e.target.result;
-                    defaultImagePreview.style.display = 'block';
-                };
-                reader.readAsDataURL(event.target.files[0]);
-            } else {
-                defaultImagePreview.style.display = 'none';
-                defaultImagePreview.src = '';
-            }
-        });
-
-
-        // --- 表單提交事件處理 ---
+        /**
+         * @description 監聽表單提交事件
+         */
         form.addEventListener('submit', async function (event) {
             event.preventDefault();
 
@@ -386,85 +246,38 @@
             submitButton.textContent = '新增中...';
             hideMessage();
 
-            // --- 獲取 JWT Token ---
-            const token = localStorage.getItem('jwt'); // 從 localStorage 獲取 JWT Token
-            if (!token) {
-                showMessage('請先登入才能發文！', 'error');
-                submitButton.disabled = false;
-                submitButton.textContent = '確認新增';
-                return; // 未登入直接返回
-            }
-
-            // 在這裡定義 headers 變數，確保其在整個 submit 函式作用域內可用
-            const headers = {
-                'Authorization': `Bearer ${token}` // <-- 確保 Authorization Header 在這裡被定義
-            };
-
             const formData = new FormData();
-
-            // 1. 建立文章資料 DTO
-            const forumPostData = {
-                postTitle: postTitleInput.value,
-                postCon: postConTextarea.value,
-                postStatus: postStatusSelect.value,
-                postPin: postPinSelect.value,
-                forNoId: parseInt(forNoIdSelect.value, 10),
-                ftagNoId: parseInt(forumTagSelect.value, 10),
+            const forumObject = {
+                forName: document.getElementById('forName').value,
+                forDes: document.getElementById('forDes').value,
+                forStatus: document.getElementById('forStatus').value,
+                categoryId: parseInt(document.getElementById('categoryId').value, 10)
             };
 
-            // 2. 將 DTO 轉換為 JSON Blob 並附加到 FormData
-            formData.append('forumPostUpdate', new Blob([JSON.stringify(forumPostData)], {type: 'application/json'}));
+            formData.append('forumcreat', new Blob([JSON.stringify(forumObject)], {type: 'application/json'}));
 
-            // 3. 處理圖片檔案
-            if (uploadCustomImageRadio.checked && imageFileInput.files.length > 0) {
+            if (imageFileInput.files.length > 0) {
                 formData.append('imageFile', imageFileInput.files[0]);
-                formData.append('defaultImageUrl', ''); // 清空 defaultImageUrl
-            } else if (useDefaultImageRadio.checked) {
-                const selectedTagId = forumTagSelect.value;
-                if (selectedTagId) {
-                    try {
-                        // 這裡的 fetch 呼叫現在可以正確訪問到 headers 變數了
-                        const response = await fetch(`${defaultImageUrlApiBase}/${selectedTagId}`, { headers: headers }); // <-- 使用定義好的 headers
-                        const imageUrl = await response.text();
-                        formData.append('defaultImageUrl', imageUrl);
-                    } catch (error) {
-                        console.error('獲取預設圖片URL失敗，將不會傳遞預設圖片URL:', error);
-                    }
-                }
             }
-
 
             try {
-                const response = await fetch(addPostApiUrl, {
-                    method: 'POST',
-                    headers: headers, // <-- 這裡直接使用定義好的 headers 變數
-                    body: formData,
-                });
+                const response = await fetch(apiUrl, {method: 'POST', body: formData});
 
+                // 【修改點】處理非成功的 Response
                 if (!response.ok) {
-                    const errorResponse = await response.json();
-                    let errorMessage = '新增失敗！';
-                    if (errorResponse && typeof errorResponse === 'object') {
-                        const fieldErrors = Object.values(errorResponse).join(', ');
-                        errorMessage = `輸入資料有誤: ${fieldErrors}`;
-                    } else if (errorResponse && typeof errorResponse === 'string') {
-                        errorMessage = errorResponse;
-                    }
-                    throw new Error(errorMessage);
+                    // 【核心修改】從 .text() 改為 .json() 來解析 JSON 物件
+                    const errorData = await response.json();
+
+                    // 【核心修改】從解析後的物件中，只取出 message 屬性
+                    // errorData.message 的 'message' 對應 Spring Boot 預設錯誤 JSON 中的 "message" 欄位
+                    throw new Error(errorData.message || `發生未知錯誤，狀態碼: ${response.status}`);
                 }
-
-                const result = await response.json();
-                console.log('新增成功:', result);
                 showMessage('新增成功！2秒後將返回列表頁。', 'success');
-
                 setTimeout(() => {
-                    if (typeof window.parent.loadExternalPage === 'function') {
-                        window.parent.loadExternalPage('../forumsys/forumpost/allForumPost.html');
-                    } else if (typeof loadExternalPage === 'function') {
-                        loadExternalPage('../forumsys/forumpost/allForumPost.html');
+                    if (typeof loadExternalPage === 'function') {
+                        loadExternalPage('../forumsys/forum/allForum.html');
                     }
                 }, 2000);
-
             } catch (error) {
                 showMessage(`新增失敗: ${error.message}`, 'error');
                 submitButton.disabled = false;
@@ -472,7 +285,6 @@
             }
         });
 
-        // --- 輔助函式 ---
         function showMessage(message, type) {
             messageArea.textContent = message;
             messageArea.className = type;
@@ -482,9 +294,6 @@
         function hideMessage() {
             messageArea.style.display = 'none';
         }
-
-        // --- 頁面初始化 ---
-        loadSelectOptions();
     })();
 </script>
 </body>
