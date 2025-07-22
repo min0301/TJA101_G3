@@ -540,10 +540,30 @@ public class OrderService {
 	                    Product product = productRepository.findById(request.getProNo())
 	                            .orElseThrow(() -> new ProductNotFoundException("產品不存在：" + request.getProNo()));
 
+	                    // 🔥 除錯：檢查產品名稱
+	                    log.debug("=== 建立OrderItem除錯 ===");
+	                    log.debug("Product ID: {}, Product Name: '{}'", product.getId(), product.getProName());
+
 	                    // 使用 OrderItem 的建構子
 	                    OrderItem item = new OrderItem(order, product, request.getQuantity());
 	                    
-	                    return orderItemRepository.save(item);
+	                    // 🔥 關鍵修正：確保產品名稱被正確設定
+	                    if (item.getProName() == null || item.getProName().trim().isEmpty()) {
+	                        log.warn("OrderItem.proName 為空，手動設定：productId={}, productName={}", 
+	                                product.getId(), product.getProName());
+	                        item.setProName(product.getProName());
+	                    }
+	                    
+	                    // 🔥 除錯：檢查 OrderItem 建立後的產品名稱
+	                    log.debug("OrderItem 建立後 - proName: '{}'", item.getProName());
+	                    
+	                    OrderItem savedItem = orderItemRepository.save(item);
+	                    
+	                    // 🔥 除錯：檢查儲存後的產品名稱
+	                    log.debug("OrderItem 儲存後 - proName: '{}'", savedItem.getProName());
+	                    log.debug("=== 建立OrderItem除錯結束 ===");
+	                    
+	                    return savedItem;
 
 	                } catch (Exception e) {
 	                    log.error("建立訂單項目失敗：productId={}", request.getProNo(), e);
@@ -552,6 +572,13 @@ public class OrderService {
 	            })
 	            .collect(Collectors.toList());
 	}
+	    
+	
+	
+	
+	
+	
+	
 	
 	// ***** 檢查是否可以取消訂單 ***** //
 	private boolean canCancelOrder(String orderStatus) {

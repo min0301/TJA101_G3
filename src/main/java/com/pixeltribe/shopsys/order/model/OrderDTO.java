@@ -22,6 +22,9 @@ public class OrderDTO {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Taipei")
 	private Instant orderDatetime;
 	
+	private Integer proNo;
+	private String proName;
+	
 	private String orderStatus;
 	private Integer orderTotal;
 	private Integer discountAmount;    // OrderService計算後設定
@@ -37,6 +40,10 @@ public class OrderDTO {
 		}
 		return orderTotal;
 	}
+	
+	
+	
+	
 	
 	// 檢查是否使用優惠券票夾
 	public boolean hasUsedCouponWallet() {
@@ -132,5 +139,41 @@ public class OrderDTO {
 		return "COMPLETED".equals(orderStatus) || 
 		       "CANCELLED".equals(orderStatus);
 	}
+	
+	
+	
+	// 加入getProductName方法(Email)
+		public String getProductName() {
+		    // 第一優先：使用 proName
+		    if (proName != null && !proName.trim().isEmpty()) {
+		        return proName;
+		    }
+		    
+		    // 第二優先：如果有產品ID，使用產品ID
+		    if (proNo != null) {
+		        return "產品 #" + proNo;
+		    }
+		    
+		    // 最後兜底：返回預設值
+		    return "未知產品";
+		}
+		
+		// 檢查產品名稱是否有效(Email)
+		public boolean hasValidProductName() {
+		    return proName != null && !proName.trim().isEmpty();
+		}
+		
+		// 獲取顯示用的產品名稱（包含ID）
+		public String getDisplayProductName() {
+		    if (hasValidProductName()) {
+		        if (proNo != null) {
+		            return proName + " (#" + proNo + ")";
+		        } else {
+		            return proName;
+		        }
+		    } else {
+		        return getProductName(); // 使用安全的後備方案
+		    }
+		}
 	
 }
