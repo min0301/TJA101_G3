@@ -68,14 +68,14 @@
     <nav class="sidebar" id="sidebar">
         <ul>
             <li class="active" data-page="home">首頁</li>
-            <li data-page="forum">論壇</li>
+            <li data-page="forum">討論區</li>
             <li data-page="news">新聞</li>
             <li data-page="shop">商城</li>
         </ul>
     </nav>
     <main class="main-content" id="main-content-area">
         <h2>歡迎來到 PixelTribe！</h2>
-        <p>請從左側選單選擇「論壇」、「新聞」或「商城」瀏覽內容。</p>
+        <p>請從左側選單選擇「討論區」、「新聞」或「商城」瀏覽內容。</p>
     </main>
 </div>
 <script>
@@ -136,9 +136,9 @@
         const main = document.getElementById('main-content-area');
         if (page === 'home') {
             main.innerHTML = `<h2>歡迎來到 PixelTribe！</h2>
-                <p>請從左側選單選擇「論壇」、「新聞」或「商城」瀏覽內容。</p>`;
+                <p>請從左側選單選擇「討論區」、「新聞」或「商城」瀏覽內容。</p>`;
         } else if (page === 'forum') {
-            main.innerHTML = `<h2>論壇</h2><p>這裡是論壇內容（可串接API動態載入）</p>`;
+            main.innerHTML = `<h2>討論區</h2><p>這裡是討論區內容（可串接API動態載入）</p>`;
         } else if (page === 'news') {
             main.innerHTML = `<h2>新聞</h2><p>這裡是新聞內容。</p>`;
         } else if (page === 'shop') {

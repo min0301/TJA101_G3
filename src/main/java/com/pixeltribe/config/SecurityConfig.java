@@ -92,7 +92,7 @@ class SecurityConfig {
                                         "/api/forums/hot",          // 熱門討論區API
                                         "/api/posts/collect/me",     // 取得會員收藏文章列表API
                                         "ws/**",                // WebSocket 端點
-                                        //========論壇文章相關API (確保是GET方法)========
+                                        //========討論區文章相關API (確保是GET方法)========
                                         "/api/forumposts/all",
                                         "/api/forumpost/{id}",
                                         "/api/forum/{forNo}/posts",
