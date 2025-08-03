@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,14 +42,12 @@ public class ForumService {
     private final ForumCategoryRepository forumCategoryRepository;
     private final ForumCollectRepository forumCollectRepository;
     private final RedisTemplate<String, Object> redisTemplate;
-    //    註解掉kafka，避免錯誤
-//    private final KafkaTemplate<String, Integer> kafkaTemplate;
+    private final KafkaTemplate<String, Integer> kafkaTemplate;
 
     public ForumService(ForumRepository forumRepository,
                         ForumCategoryRepository forumCategoryRepository,
                         RedisTemplate<String, Object> redisTemplate,
-                        //    註解掉kafka，避免錯誤
-//                        KafkaTemplate<String, Integer> kafkaTemplate,
+                        KafkaTemplate<String, Integer> kafkaTemplate,
                         ForumCollectRepository forumCollectRepository
     ) {
 
@@ -56,14 +55,12 @@ public class ForumService {
         this.forumCategoryRepository = forumCategoryRepository;
         this.forumCollectRepository = forumCollectRepository;
         this.redisTemplate = redisTemplate;
-        //    註解掉kafka，避免錯誤
-//        this.kafkaTemplate = kafkaTemplate;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
 
     private static final String HOT_FORUMS_KEY = "forums:hot";
-    //    註解掉kafka，避免錯誤
-//    private static final String FORUM_CATEGORY_UPDATE_TOPIC = "forum-category-update-topic";
+    private static final String FORUM_CATEGORY_UPDATE_TOPIC = "forum-category-update-topic";
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -82,8 +79,7 @@ public class ForumService {
         Forum saveOrUpdateForum = saveOrUpdateForum(forum, forumUpdateDTO, imageFile);
 
         this.refreshHotForumsInRedis();
-        //    註解掉kafka，避免錯誤
-//        kafkaTemplate.send(FORUM_CATEGORY_UPDATE_TOPIC, saveOrUpdateForum.getCatNo().getId());
+        kafkaTemplate.send(FORUM_CATEGORY_UPDATE_TOPIC, saveOrUpdateForum.getCatNo().getId());
 
         return convertToForumDetailDTO(saveOrUpdateForum);
     }
@@ -100,17 +96,15 @@ public class ForumService {
                     throw new ConflictException("討論區名稱：" + existingForum.getForName() + " 已經存在");
                 });
 
-        //    註解掉kafka，避免錯誤
-//        Integer oldCategoryId = forum.getCatNo().getId();
-//        if (!oldCategoryId.equals(forumUpdateDTO.getCategoryId())) {
-//            kafkaTemplate.send(FORUM_CATEGORY_UPDATE_TOPIC, oldCategoryId);
-//        }
+        Integer oldCategoryId = forum.getCatNo().getId();
+        if (!oldCategoryId.equals(forumUpdateDTO.getCategoryId())) {
+            kafkaTemplate.send(FORUM_CATEGORY_UPDATE_TOPIC, oldCategoryId);
+        }
 
         Forum saveOrUpdateForum = saveOrUpdateForum(forum, forumUpdateDTO, imageFile);
         this.refreshHotForumsInRedis();
 
-        //    註解掉kafka，避免錯誤
-//        kafkaTemplate.send(FORUM_CATEGORY_UPDATE_TOPIC, saveOrUpdateForum.getCatNo().getId());
+        kafkaTemplate.send(FORUM_CATEGORY_UPDATE_TOPIC, saveOrUpdateForum.getCatNo().getId());
 
         return convertToForumDetailDTO(saveOrUpdateForum);
     }
@@ -218,7 +212,7 @@ public class ForumService {
             redisTemplate.opsForValue().set(HOT_FORUMS_KEY, List.of(), 2, TimeUnit.HOURS);
             return;
         }
-        Instant since = Instant.now().minus(30, ChronoUnit.DAYS);
+        Instant since = Instant.now().minus(300, ChronoUnit.DAYS);
 
         Map<Integer, Long> forumHotMap = forumRepository.findForumHotSince(since).stream()
                 .collect(Collectors.toMap(

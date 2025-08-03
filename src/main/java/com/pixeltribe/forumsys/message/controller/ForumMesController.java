@@ -24,7 +24,6 @@ public class ForumMesController {
     // 注入 RedisTemplate 和 ObjectMapper
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    // Redis 佇列的 Key
     private static final String MESSAGE_QUEUE_KEY = "forum:message:queue";
 
     public ForumMesController(ForumMesService forumMesSvc, RedisTemplate<String, String> redisTemplate) {

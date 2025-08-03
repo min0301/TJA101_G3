@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pixeltribe.forumsys.message.model.ForumMesDTO;
 import com.pixeltribe.forumsys.message.model.ForumMesService;
 import com.pixeltribe.forumsys.message.model.ForumMesUpdateDTO;
+import io.netty.channel.ChannelOutboundBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -13,6 +16,7 @@ import java.time.Duration;
 @Component
 public class ForumMesProcessor {
 
+    private static final Logger logger = LoggerFactory.getLogger(ChannelOutboundBuffer.MessageProcessor.class);
     private final RedisTemplate<String, String> redisTemplate;
     private final ForumMesService forumMesSvc;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -39,10 +43,9 @@ public class ForumMesProcessor {
             // 將 JSON 反序列化為任務物件
             ForumMesUpdateDTO task = objectMapper.readValue(taskJson, ForumMesUpdateDTO.class);
             ForumMesDTO createdMessage = forumMesSvc.addMessageFromTask(task);
-            System.out.println("成功處理一則留言任務：" + createdMessage);
+            logger.info("成功處理一則留言任務：{}", createdMessage.getId());
         } catch (Exception e) {
-            System.err.println("處理留言任務失敗: " + taskJson);
-            e.printStackTrace();
+            logger.error("處理留言任務失敗，原始資料: {}", taskJson, e);
         }
     }
 
