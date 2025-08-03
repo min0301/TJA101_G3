@@ -1,6 +1,7 @@
 package com.pixeltribe.forumsys.forum.model;
 
 import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -15,7 +16,8 @@ public interface ForumRepository extends JpaRepository<Forum, Integer> {
 
     List<Forum> findAllByForStatusOrderByForUpdateDesc(Character forStatus);
 
-    List<Forum> findByCatNo_Id(Integer catNo); // 方法名稱 findBy{欄位名稱} 是固定的，參數名稱可
+    @EntityGraph(attributePaths = { "catNo" })
+    List<Forum> findByCatNo_Id(Integer catNo);
 
     List<Forum> findAllByForStatus(Character status);
 
